@@ -1,22 +1,28 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.0.0
-MinimumVisualStudioVersion = 10.0.0.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bahkat", "Bahkat/Bahkat.csproj", "{B876899E-C40F-4D5A-84DE-8BF1B0064A28}"
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bahkat", "Bahkat\Bahkat.csproj", "{B876899E-C40F-4D5A-84DE-8BF1B0064A28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		DebugMockRegistry|Any CPU = DebugMockRegistry|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.DebugMockRegistry|Any CPU.ActiveCfg = DebugMockRegistry|Any CPU
+		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.DebugMockRegistry|Any CPU.Build.0 = DebugMockRegistry|Any CPU
 		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B8ACDA7A-AD9D-491B-8CDE-1B0311411DD2}
 	EndGlobalSection
 EndGlobal

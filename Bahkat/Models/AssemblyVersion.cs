@@ -7,7 +7,7 @@ namespace Bahkat.Models
     class AssemblyVersion : IComparable<AssemblyVersion>
     {
         // <major version>.<minor version>.<build number>.<revision>
-        private static readonly Regex _regex = new Regex(@"^(\d+).(\d+).(\d+).(\d+)$");
+        private static readonly Regex _regex = new Regex(@"^(\d+)\.(\d+)\.(\d+)\.(\d+)$");
         private int[] _parts;
 
         public int Major => _parts[0];

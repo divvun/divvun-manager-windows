@@ -4,12 +4,11 @@ using System.Linq;
 using System.Reactive.Feedback;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using Bahkat.MainPageEvent;
+using Bahkat.Models.MainPageEvent;
+using Bahkat.Models.PackageEvent;
 using Bahkat.Models.PackageManager;
-using Bahkat.RepositoryEvent;
-using Bahkat.UI.Main;
 
-namespace Bahkat
+namespace Bahkat.Models
 {
      public struct PackageState
     {
@@ -66,19 +65,30 @@ namespace Bahkat
         }
     }
 
-    public interface IRepositoryEvent : IStoreEvent { }
+    public interface IPackageEvent : IStoreEvent { }
 
-    public static class RepositoryAction
+    public static class PackageAction
     {
-        public static IRepositoryEvent AddSelectedPackage(Package package)
+        public static IPackageEvent AddSelectedPackage(Package package)
         {
             return new AddSelectedPackage
             {
                 Package = package
             };
         }
-        
-        public static IRepositoryEvent RemoveSelectedPackage(Package package)
+
+        public static IPackageEvent TogglePackage(Package package, bool value)
+        {
+            return new TogglePackage
+            {
+                Package = package,
+                Value = value
+            };
+        }
+
+        public static IPackageEvent ResetSelection => new ResetSelection();
+
+        public static IPackageEvent RemoveSelectedPackage(Package package)
         {
             return new RemoveSelectedPackage
             {
@@ -87,17 +97,25 @@ namespace Bahkat
         }
     }
     
-    namespace RepositoryEvent
+    namespace PackageEvent
     {
-        public struct AddSelectedPackage : IRepositoryEvent
+        public struct AddSelectedPackage : IPackageEvent
         {
             public Package Package;
         }
         
-        public struct RemoveSelectedPackage : IRepositoryEvent
+        public struct RemoveSelectedPackage : IPackageEvent
         {
             public Package Package;
         }
+
+        public struct TogglePackage : IPackageEvent
+        {
+            public Package Package;
+            public bool Value;
+        }
+        
+        public struct ResetSelection : IPackageEvent {}
     }
 
     public interface IStoreEvent
@@ -111,7 +129,6 @@ namespace Bahkat
 
         public void Dispatch(IStoreEvent e)
         {
-            Console.WriteLine(e);
             _dispatcher.OnNext(e);
         }
 
@@ -120,23 +137,38 @@ namespace Bahkat
             State = Feedback.System(
                 initialState,
                 (i, e) => reducers.Aggregate(i, (state, next) => next(state, e)),
-                _ => _dispatcher.AsObservable());
+                _ => _dispatcher.AsObservable())
+                .Replay(1)
+                .RefCount();
         }
     }
     
     public class PackageStore : RxStore<PackageState>
     {
         private static PackageState Reduce(PackageState state, IStoreEvent e)
-        {
-            Console.WriteLine(e);
-            
-            switch (e as IRepositoryEvent)
+        {   
+            switch (e as IPackageEvent)
             {
                 case null:
                     return state;
+                case ResetSelection v:
+                    state.SelectedPackages.Clear();
+                    break;
                 case AddSelectedPackage v:
-                    Console.WriteLine(v);
                     state.SelectedPackages.Add(v.Package);
+                    break;
+                case RemoveSelectedPackage v:
+                    state.SelectedPackages.Remove(v.Package);
+                    break;
+                case TogglePackage v:
+                    if (v.Value)
+                    {
+                        state.SelectedPackages.Add(v.Package);
+                    }
+                    else
+                    {
+                        state.SelectedPackages.Remove(v.Package);
+                    }
                     break;
             }
 

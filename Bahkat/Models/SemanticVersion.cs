@@ -5,7 +5,7 @@ namespace Bahkat.Models
 {
     class SemanticVersion : IComparable<SemanticVersion>
     {
-        private static readonly Regex _regex = new Regex(@"^(\d+).(\d+).(\d+)(?:-([0-9A-Za-z-]))?$");
+        private static readonly Regex _regex = new Regex(@"^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-\.]+))?$");
 
         public readonly int Major;
         public readonly int Minor;
@@ -29,16 +29,16 @@ namespace Bahkat.Models
                 return null;
             }
 
-            var major = int.Parse(match.Captures[0].Value);
-            var minor = int.Parse(match.Captures[1].Value);
-            var patch = int.Parse(match.Captures[2].Value);
+            var major = int.Parse(match.Groups[1].Value);
+            var minor = int.Parse(match.Groups[2].Value);
+            var patch = int.Parse(match.Groups[3].Value);
             
-            if (match.Captures.Count == 3)
+            if (match.Groups[4].Value == "")
             {
                 return new SemanticVersion(major, minor, patch);
             }
             
-            var extra = match.Captures[3].Value;
+            var extra = match.Groups[4].Value;
             return new SemanticVersion(major, minor, patch, extra);
         }
         

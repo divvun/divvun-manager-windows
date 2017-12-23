@@ -4,9 +4,4 @@
     {
         void Show();
     }
-    
-    public class SettingsWindow
-    {
-        
-    }
 }

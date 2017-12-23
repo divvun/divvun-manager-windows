@@ -16,15 +16,13 @@ namespace Bahkat.Service
         public bool IsSuccess => ExitCode == 0;
     }
 
-    public interface IInstallWorker
+    public interface IInstallService
     {
-        IObservable<ProcessResult> Process();
+        IObservable<ProcessResult> Process(PackagePath[] packages, Action<Package> onNext);
     }
     
-    public class InstallWorker : IInstallWorker
+    public class InstallService : IInstallService
     {
-        private readonly PackagePath[] _packages;
-
         protected virtual IReactiveProcess CreateProcess(string path, string args)
         {
             return new ReactiveProcess(path, args);
@@ -36,37 +34,32 @@ namespace Bahkat.Service
                 ? CreateProcess("msiexec", args + " " + path)
                 : CreateProcess(path, args);
 
-            return Observable.CombineLatest(
+            return Observable.Zip(
                 process.Output.ToList().Select(x => string.Join("\n", x)),
                 process.Error.ToList().Select(x => string.Join("\n", x)),
                 process.Start(),
-                (output, error, exit) => new ProcessResult
+                (output, error, exit) =>
                 {
-                    Package = package,
-                    ExitCode = exit,
-                    Output = output,
-                    Error = error
-                });
-        }
-        
-        public InstallWorker(PackagePath[] packages)
-        {
-            _packages = packages;
+                    return new ProcessResult
+                        {
+                            Package = package,
+                            ExitCode = exit,
+                            Output = output,
+                            Error = error
+                        };
+                })
+                .Take(1);
         }
 
-        public IObservable<ProcessResult> Process()
+        public IObservable<ProcessResult> Process(PackagePath[] packages, Action<Package> onNext)
         {
-            return _packages.Where(t => t.Package.Installer.HasValue)
+            return packages.Where(t => t.Package.Installer.HasValue)
                 .Select(t =>
                 {
+                    onNext(t.Package);
                     var args = t.Package.Installer.Value.SilentArgs;
                     return Install(t.Package, t.Path, args);
                 }).Concat();
-        }
-
-        public static IObservable<ProcessResult> Process(PackagePath[] packages)
-        {
-            return new InstallWorker(packages).Process();
         }
     }
 }

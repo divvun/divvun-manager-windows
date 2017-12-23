@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Bahkat.Models.PackageManager
 {
@@ -22,6 +23,7 @@ namespace Bahkat.Models.PackageManager
         public Uri Url;
         public string SilentArgs;
         public string ProductCode;
+        public bool RequiresReboot;
         public long Size;
         public long InstalledSize;
         public PackageIndexInstallerSignature? Signature;
@@ -39,6 +41,15 @@ namespace Bahkat.Models.PackageManager
         public Dictionary<string, string> Dependencies;
         public Dictionary<string, string> VirtualDependencies;
         public PackageInstaller? Installer;
+
+        public string NativeName
+        {
+            get
+            {
+                var tag = CultureInfo.CurrentCulture.IetfLanguageTag;
+                return Name.ContainsKey(tag) ? Name[tag] : Name["en"];
+            }
+        }
     }
 
     public struct VirtualIndexTarget

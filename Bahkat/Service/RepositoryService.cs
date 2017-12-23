@@ -9,16 +9,24 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bahkat.Models.PackageManager;
+using Bahkat.Properties;
 using Bahkat.Service.RepositoryServiceEvent;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Bahkat.Service
 {
+    public class RepositoryResult
+    {
+        public Uri Uri;
+        public Exception Error;
+        public Repository Repository;
+    }
+
     public class RepositoryServiceState
     {
-        internal Uri RepoUri;
-        internal Repository Repository;
+        internal Uri RepoUri = new Uri(Constants.Repository);
+        internal RepositoryResult RepoResult;
     }
 
     public interface IRepositoryServiceEvent
@@ -27,6 +35,10 @@ namespace Bahkat.Service
 
     namespace RepositoryServiceEvent
     {
+        public class ForceRefresh : IRepositoryServiceEvent
+        {
+        }
+
         public class DownloadIndex : IRepositoryServiceEvent
         {
             public Uri Uri;
@@ -34,12 +46,14 @@ namespace Bahkat.Service
         
         public class SetRepository : IRepositoryServiceEvent
         {
-            public Repository Repository;
+            public RepositoryResult RepoResult;
         }
     }
 
     public static class RepositoryServiceAction
     {
+        public static ForceRefresh ForceRefresh => new ForceRefresh();
+        
         public static DownloadIndex DownloadIndex(Uri uri)
         {
             return new DownloadIndex()
@@ -48,11 +62,11 @@ namespace Bahkat.Service
             };
         }
         
-        public static SetRepository SetRepository(Repository repo)
+        public static SetRepository SetRepository(RepositoryResult repo)
         {
             return new SetRepository()
             {
-                Repository = repo
+                RepoResult = repo
             };
         }
     }
@@ -125,36 +139,45 @@ namespace Bahkat.Service
     public class RepositoryService
     {
         public IObservable<RepositoryServiceState> System { get; }
-        private Subject<Uri> _uriSubject = new Subject<Uri>();
+        private Subject<IRepositoryServiceEvent> _eventSubject = new Subject<IRepositoryServiceEvent>();
         private Func<Uri, IRepositoryApi> _createApi;
 
-        protected IObservable<Repository> DownloadRepoIndexes(Uri repoUri)
+        protected IObservable<RepositoryResult> DownloadRepoIndexes(Uri repoUri)
         {
             var api = _createApi(repoUri);
-            
-            Console.WriteLine("OKKKKK");
-            
+
             return Observable.CombineLatest(
                 api.RepoIndex(),
                 api.PackagesIndex(),
                 api.VirtualsIndex(),
-                (main, packages, virtuals) => new Repository(main, packages, virtuals));
+                (main, packages, virtuals) => 
+                {
+                    Console.WriteLine("Repository downloaded successfully.");
+                    return new RepositoryResult()
+                    {
+                        Uri = repoUri,
+                        Repository = new Repository(main, packages, virtuals)
+                    };
+                });
         }
         
         protected RepositoryServiceState Reduce(RepositoryServiceState state, IRepositoryServiceEvent e)
         {
             switch (e)
             {
+                case ForceRefresh v:
+                    state.RepoResult = null;
+                    return state;
                 case DownloadIndex v:
                     if (state.RepoUri != v.Uri)
                     {
                         state.RepoUri = v.Uri;
-                        state.Repository = null;
+                        state.RepoResult = null;
                     }
                     return state;
                 case SetRepository v:
-                    Console.WriteLine("FUCKITY WHY");
-                    state.Repository = v.Repository;
+                    Console.WriteLine("Set repository.");
+                    state.RepoResult = v.RepoResult;
                     return state;
             }
 
@@ -164,7 +187,7 @@ namespace Bahkat.Service
         public RepositoryService(Func<Uri, IRepositoryApi> createApi, IScheduler scheduler)
         {
             _createApi = createApi;
-            
+
             System = Feedback.System(new RepositoryServiceState(),
                 Reduce,
                 scheduler,
@@ -177,27 +200,61 @@ namespace Bahkat.Service
                         },
                         new IObservable<IRepositoryServiceEvent>[]
                         {
-                            _uriSubject.Select(RepositoryServiceAction.DownloadIndex),
+                            _eventSubject.AsObservable(),
                             
                             // Things that feed the feedback loop
-                            state.Select(s => s.RepoUri)
-                                .DistinctUntilChanged()
-                                .Select(DownloadRepoIndexes)
-                                .Select(x =>
+//                            state.Select(s => s.RepoUri)
+//                                .DistinctUntilChanged()
+//                                .Select(DownloadRepoIndexes)
+//                                .Switch()
+//                                .Catch<RepositoryResult, Exception>(error => Observable.Return(new RepositoryResult
+//                                {
+//                                    Error = error
+//                                }))
+//                                .Select(RepositoryServiceAction.SetRepository),
+                            
+                            Observable.CombineLatest<Uri, RepositoryResult, Uri>(
+                                state.Select(s => s.RepoUri).DistinctUntilChanged(),
+                                state.Select(s => s.RepoResult).DistinctUntilChanged(),
+                                (uri, result) =>
                                 {
-                                    Console.WriteLine(("WWWWW"));
-                                    return x;
+                                    // If no result, always try to get a new repo
+                                    if (result == null)
+                                    {
+                                        return uri;
+                                    }
+                                    
+                                    // If the uri is not equal to the result, try also.
+                                    if (result.Uri != uri)
+                                    {
+                                        return uri;
+                                    }
+
+                                    return null;
                                 })
+                                .Select(DownloadRepoIndexes)
                                 .Switch()
-                                .Select(RepositoryServiceAction.SetRepository)
+                                .Catch<RepositoryResult, Exception>(error => Observable.Return(new RepositoryResult
+                                {
+                                    Error = error
+                                }))
+                                .Select(RepositoryServiceAction.SetRepository),
                         }
                     );
-                }));
+                }))
+                .Replay(1)
+                .RefCount();
         }
 
         public void SetRepositoryUri(Uri uri)
         {
-            _uriSubject.OnNext(uri);
+            _eventSubject.OnNext(RepositoryServiceAction.DownloadIndex(uri));
+        }
+
+        public void Refresh()
+        {
+            Console.WriteLine("Repository service refresh has been triggered.");
+            _eventSubject.OnNext(RepositoryServiceAction.ForceRefresh);
         }
     }
 }

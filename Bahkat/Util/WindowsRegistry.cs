@@ -30,14 +30,15 @@ namespace Bahkat.Util
     {
         private readonly RegistryKey _rk;
         
-        public WindowsRegKey(RegistryKey rk)
+        public WindowsRegKey(RegistryKey regKey)
         {
-            _rk = rk;
+            _rk = regKey ?? throw new ArgumentNullException(nameof(regKey));
         }
         
         public T Get<T>(string valueName, T defaultValue) where T : class
         {
-            return _rk.GetValue(valueName) as T ?? defaultValue;
+            Console.WriteLine("{0}, {1}, {2}", valueName, defaultValue, _rk == null);
+            return _rk.GetValue(valueName, defaultValue) as T;
         }
 
         public T Get<T>(string valueName, Func<object, T> handler)
@@ -57,7 +58,8 @@ namespace Bahkat.Util
 
         public IWindowsRegKey OpenSubKey(string subkey, bool isWriteable = false)
         {
-            return new WindowsRegKey(_rk.OpenSubKey(subkey, isWriteable));
+            var srk = _rk.OpenSubKey(subkey, isWriteable);
+            return srk == null ? null : new WindowsRegKey(srk);
         }
     }
     
@@ -67,7 +69,8 @@ namespace Bahkat.Util
 
         public IWindowsRegKey OpenBaseKey(RegistryHive key, RegistryView view)
         {
-            throw new NotImplementedException();
+            var bk = RegistryKey.OpenBaseKey(key, view);
+            return bk == null ? null : new WindowsRegKey(bk);
         }
 
         public T Get<T>(string keyName, string valueName, T defaultValue) where T : class
@@ -188,6 +191,8 @@ namespace Bahkat.Util
             {
                 Store[keyName] = new Dictionary<string, object>();
             }
+
+            Console.WriteLine("REG: {0}:{1} -> {2}", keyName, valueName, value);
 
             Store[keyName][valueName] = value;
         }

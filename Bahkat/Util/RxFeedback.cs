@@ -48,7 +48,7 @@ namespace System.Reactive.Feedback
                         Scheduler = scheduler
                     };
                     var result = feedback(state);
-                    return result.ObserveOn(Scheduler.CurrentThread);
+                    return result.ObserveOn(DispatcherScheduler.Current);
                 }));
 
                 return events.Scan(initialState, reduce)
@@ -133,6 +133,7 @@ namespace System.Reactive.Feedback
 
         public void Dispose()
         {
+            Console.WriteLine("DISPOSED");
             foreach (var subscription in subscriptions)
             {
                 subscription.Dispose();

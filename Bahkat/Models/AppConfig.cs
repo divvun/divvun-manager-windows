@@ -5,6 +5,7 @@ using Bahkat.UI.Main;
 using Bahkat.Util;
 using Castle.Core.Internal;
 using Microsoft.Win32;
+using NUnit.Framework;
 
 namespace Bahkat.Models
 {
@@ -16,20 +17,53 @@ namespace Bahkat.Models
         Fortnightly,
         Monthly
     }
+
+    public static class PeriodIntervalExtensions
+    {
+        public static TimeSpan AsTimeSpan(this PeriodInterval periodInterval)
+        {
+            switch (periodInterval)
+            {
+                case PeriodInterval.Daily:
+                    return TimeSpan.FromDays(1);
+                case PeriodInterval.Weekly:
+                    return TimeSpan.FromDays(7);
+                case PeriodInterval.Fortnightly:
+                    return TimeSpan.FromDays(14);
+                case PeriodInterval.Monthly:
+                    return TimeSpan.FromDays(28);
+                case PeriodInterval.Never:
+                    return TimeSpan.Zero;
+                default:
+                    return TimeSpan.Zero;
+            }
+        }
+    }
     
     public class AppConfigState
     {
         public Uri RepositoryUrl { get; internal set; }
         public PeriodInterval UpdateCheckInterval { get; internal set; }
+        public DateTimeOffset NextUpdateCheck { get; internal set; }
 
         private readonly IWindowsRegKey _rk;
+
+        internal static class Keys
+        {
+            public const string SubkeyId = @"SOFTWARE\" + Constants.RegistryId;
+            
+            public const string RepositoryUrl = "RepositoryUrl";
+            public const string UpdateCheckInterval = "UpdateCheckInterval";
+            public const string NextUpdateCheck = "NextUpdateCheck";
+        }
         
         public AppConfigState(IWindowsRegistry registry)
         {
-            _rk = registry.LocalMachine.CreateSubKey(@"SOFTWARE\" + Constants.RegistryId);
+            _rk = registry.LocalMachine.CreateSubKey(Keys.SubkeyId);
 
-            RepositoryUrl = new Uri(_rk.Get("RepositoryUrl", Constants.Repository));
-            UpdateCheckInterval = _rk.Get("UpdateCheckInterval", v =>
+            RepositoryUrl = new Uri(_rk.Get(Keys.RepositoryUrl, Constants.Repository));
+
+            UpdateCheckInterval = _rk.Get(Keys.UpdateCheckInterval, v =>
             {
                 if (v is string x)
                 {
@@ -37,6 +71,16 @@ namespace Bahkat.Models
                 }
 
                 return Constants.UpdateCheckInterval;
+            });
+
+            NextUpdateCheck = _rk.Get(Keys.NextUpdateCheck, v =>
+            {
+                if (v is string x)
+                {
+                    return DateTimeOffset.Parse(x);
+                }
+
+                return DateTimeOffset.Now;
             });
         }
 
@@ -59,19 +103,31 @@ namespace Bahkat.Models
                 Uri = uri;
             }
         }
+        
+        public class IncrementNextUpdateCheck : IAppConfigEvent {}
+    }
+
+    public static class AppConfigAction
+    {
+        public static readonly IncrementNextUpdateCheck IncrementNextUpdateCheck = new IncrementNextUpdateCheck();
     }
     
     public class AppConfigStore : RxStore<AppConfigState>
     {   
         private static AppConfigState Reduce(AppConfigState state, IStoreEvent e)
         {
-            Console.WriteLine(e);
-            
             switch (e as IAppConfigEvent)
             {
                 case SetRepositoryUrl v:
                     state.RepositoryUrl = v.Uri;
-                    state.UpdateRegKey("RepositoryUrl", v.Uri.AbsoluteUri, RegistryValueKind.String);
+                    state.UpdateRegKey(AppConfigState.Keys.RepositoryUrl, v.Uri.AbsoluteUri, RegistryValueKind.String);
+                    return state;
+                case IncrementNextUpdateCheck v:
+                    var nextUpdateCheck = state.NextUpdateCheck.Add(state.UpdateCheckInterval.AsTimeSpan());
+                    state.UpdateRegKey(AppConfigState.Keys.NextUpdateCheck,
+                        nextUpdateCheck.ToString(),
+                        RegistryValueKind.String);
+                    state.NextUpdateCheck = nextUpdateCheck;
                     return state;
             }
 

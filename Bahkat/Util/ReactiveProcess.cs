@@ -46,45 +46,42 @@ namespace Bahkat.Util
             _process.StartInfo.RedirectStandardError = true;
             _process.StartInfo.RedirectStandardOutput = true;
             _process.StartInfo.UseShellExecute = false;
-            
+
             Output = Observable.Create<string>(observer =>
             {
-                return NewThreadScheduler.Default.ScheduleLongRunning(thing =>
+                while (!_process.HasExited)
                 {
-                    while (!_process.HasExited)
-                    {
-                        observer.OnNext(_process.StandardOutput.ReadLine());
-                    }
-                
-                    observer.OnCompleted();
-                });
-            });
+                    observer.OnNext(_process.StandardOutput.ReadLine());
+                }
+            
+                observer.OnCompleted();
+
+                return (IDisposable) observer;
+            }).SubscribeOn(NewThreadScheduler.Default);
             
             Error = Observable.Create<string>(observer =>
             {
-                return NewThreadScheduler.Default.ScheduleLongRunning(thing =>
+                while (!_process.HasExited)
                 {
-                    while (!_process.HasExited)
-                    {
-                        observer.OnNext(_process.StandardError.ReadLine());
-                    }
+                    observer.OnNext(_process.StandardError.ReadLine());
+                }
+            
+                observer.OnCompleted();
                 
-                    observer.OnCompleted();
-                });
-            });
+                return (IDisposable) observer;
+            }).SubscribeOn(NewThreadScheduler.Default);
         }
 
         public IObservable<int> Start()
         {
             var exit = Observable.Create<int>(observer =>
             {   
-                return NewThreadScheduler.Default.ScheduleLongRunning(thing =>
-                {
-                    _process.WaitForExit();
-                    observer.OnNext(_process.ExitCode);
-                    observer.OnCompleted();
-                });
-            });
+                _process.WaitForExit();
+                observer.OnNext(_process.ExitCode);
+                observer.OnCompleted();
+                
+                return (IDisposable) observer;
+            }).SubscribeOn(NewThreadScheduler.Default);
             
             _process.Start();
 
