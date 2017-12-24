@@ -1,10 +1,12 @@
 ﻿
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 
 namespace Bahkat.UI
 {
-    public class ObservableItemList<T> : ObservableCollection<T> where T : INotifyPropertyChanged
+    public class ObservableItemList<T> : ObservableCollection<T> where T : IEquatable<T>, INotifyPropertyChanged
     {
         private void DelegatePropertyChange(object sender, PropertyChangedEventArgs args)
         {

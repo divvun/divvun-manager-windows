@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
-using Bahkat.Models.PackageManager;
+using Bahkat.Models;
 using Bahkat.Util;
 
 namespace Bahkat.Service
@@ -53,11 +53,11 @@ namespace Bahkat.Service
 
         public IObservable<ProcessResult> Process(PackagePath[] packages, Action<Package> onNext)
         {
-            return packages.Where(t => t.Package.Installer.HasValue)
+            return packages.Where(t => t.Package.Installer != null)
                 .Select(t =>
                 {
                     onNext(t.Package);
-                    var args = t.Package.Installer.Value.SilentArgs;
+                    var args = t.Package.Installer.SilentArgs;
                     return Install(t.Package, t.Path, args);
                 }).Concat();
         }

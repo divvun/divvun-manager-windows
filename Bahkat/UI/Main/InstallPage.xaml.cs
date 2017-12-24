@@ -16,7 +16,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Bahkat.Extensions;
 using Bahkat.Models;
-using Bahkat.Models.PackageManager;
 using Bahkat.Service;
 using Bahkat.Util;
 

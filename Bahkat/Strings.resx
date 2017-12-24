@@ -204,4 +204,13 @@
   <data name="UpdateAvailable" xml:space="preserve">
     <value>Update Available</value>
   </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>Check For Updates...</value>
+  </data>
+  <data name="NoUpdatesTitle" xml:space="preserve">
+    <value>No Updates</value>
+  </data>
+  <data name="NoUpdatesBody" xml:space="preserve">
+    <value>No new updates were found.</value>
+  </data>
 </root>

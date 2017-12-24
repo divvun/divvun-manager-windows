@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using Bahkat.Models.PackageManager;
+using Bahkat.Models;
 using Bahkat.Service;
 
 namespace Bahkat.UI.Main

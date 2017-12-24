@@ -13,8 +13,8 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using Bahkat.Extensions;
 using Bahkat.Models;
-using Bahkat.Models.PackageManager;
 using Bahkat.Service;
+using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Main
 {
@@ -29,83 +29,6 @@ namespace Bahkat.UI.Main
         void UpdatePrimaryButton(bool isEnabled, string label);
         void SetPackageFilter<T>() where T : class, IValueConverter, new();
         void HandleError(Exception error);
-    }
-
-    public class PackageMenuItem : INotifyPropertyChanged, IDisposable
-    {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public Package Model { get; private set; }
-        private PackageService _pkgServ;
-        private PackageStore _store;
-
-        private CompositeDisposable _bag = new CompositeDisposable();
-        
-        private PackageInstallStatus _status => _pkgServ.GetInstallStatus(Model);
-        private bool _isSelected = false;
-
-        public PackageMenuItem(Package model, PackageService pkgServ, PackageStore store)
-        {
-            Model = model;
-            _pkgServ = pkgServ;
-            _store = store;
-
-            _bag.Add(_store.State.Select(x => x.SelectedPackages.Contains(model))
-                .DistinctUntilChanged()
-                .Subscribe(x =>
-                {
-                    _isSelected = x;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
-                }));
-        }
-
-        public string Title => Model.NativeName;
-        public string Version => Model.Version;
-
-        public string Status
-        {
-            get
-            {
-                switch (_status)
-                {
-                    case PackageInstallStatus.ErrorNoInstaller:
-                        return Strings.ErrorNoInstaller;
-                    case PackageInstallStatus.ErrorParsingVersion:
-                        return Strings.ErrorInvalidVersion;
-                    case PackageInstallStatus.NeedsUpdate:
-                        return Strings.UpdateAvailable;
-                    case PackageInstallStatus.NotInstalled:
-                        return Strings.NotInstalled;
-                    case PackageInstallStatus.UpToDate:
-                        return Strings.Installed;
-                    default:
-                        return Strings.ErrorUnknownPackage;
-                }
-            }
-        }
-
-        public string FileSize
-        {
-            get
-            {
-                if (Model.Installer.HasValue)
-                {
-                    return "(" + Shared.BytesToString(Model.Installer.Value.InstalledSize) + ")";
-                }
-                return Strings.NotApplicable;
-            }
-        }
-
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set => _store.Dispatch(PackageAction.TogglePackage(Model, value));
-        }
-
-        public void Dispose()
-        {
-            _bag.Dispose();
-        }
     }
 
     public class MainPagePresenter
@@ -208,14 +131,6 @@ namespace Bahkat.UI.Main
                 });
         }
 
-        private IDisposable BindRepoError(IMainPageView view, RepositoryService repoServ)
-        {
-            return repoServ.System.Where(x => x.RepoResult?.Error != null)
-                .Select(x => x.RepoResult.Error)
-                .DistinctUntilChanged()
-                .Subscribe(_view.HandleError);
-        }
-        
         public MainPagePresenter(IMainPageView view, RepositoryService repoServ, PackageService pkgServ, PackageStore store)
         {
             _repoServ = repoServ;
@@ -235,7 +150,6 @@ namespace Bahkat.UI.Main
                 BindRemoveSelectedPackage(_view, _store),
                 BindPrimaryButton(_view),
                 BindFilter(_view, _repoServ)
-                // BindRepoError(_view, _repoServ)
             );
         }
     }

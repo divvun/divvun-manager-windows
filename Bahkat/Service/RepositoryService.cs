@@ -5,10 +5,12 @@ using System.Reactive.Concurrency;
 using System.Reactive.Feedback;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Bahkat.Models.PackageManager;
+using Bahkat.Extensions;
+using Bahkat.Models;
 using Bahkat.Properties;
 using Bahkat.Service.RepositoryServiceEvent;
 using Newtonsoft.Json;
@@ -83,6 +85,16 @@ namespace Bahkat.Service
     public class RepositoryApi : IRepositoryApi
     {
         public readonly Uri BaseUri;
+
+        private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver()
+        };
+
+        public static T FromJson<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json, JsonSerializerSettings);
+        }
         
         protected async Task<T> DownloadAsyncTask<T>(Uri uri, DownloadProgressChangedEventHandler onProgress)
         {
@@ -94,12 +106,7 @@ namespace Bahkat.Service
                 }
           
                 var jsonString = await client.DownloadStringTaskAsync(uri);
-                var serializerSettings = new JsonSerializerSettings
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver()
-                };
-                
-                return JsonConvert.DeserializeObject<T>(jsonString, serializerSettings);
+                return FromJson<T>(jsonString);
             }
         }
 
@@ -177,6 +184,7 @@ namespace Bahkat.Service
                     return state;
                 case SetRepository v:
                     Console.WriteLine("Set repository.");
+                    Console.WriteLine(v.RepoResult.Repository?.ToString());
                     state.RepoResult = v.RepoResult;
                     return state;
             }
@@ -202,17 +210,6 @@ namespace Bahkat.Service
                         {
                             _eventSubject.AsObservable(),
                             
-                            // Things that feed the feedback loop
-//                            state.Select(s => s.RepoUri)
-//                                .DistinctUntilChanged()
-//                                .Select(DownloadRepoIndexes)
-//                                .Switch()
-//                                .Catch<RepositoryResult, Exception>(error => Observable.Return(new RepositoryResult
-//                                {
-//                                    Error = error
-//                                }))
-//                                .Select(RepositoryServiceAction.SetRepository),
-                            
                             Observable.CombineLatest<Uri, RepositoryResult, Uri>(
                                 state.Select(s => s.RepoUri).DistinctUntilChanged(),
                                 state.Select(s => s.RepoResult).DistinctUntilChanged(),
@@ -232,6 +229,7 @@ namespace Bahkat.Service
 
                                     return null;
                                 })
+                                .NotNull()
                                 .Select(DownloadRepoIndexes)
                                 .Switch()
                                 .Catch<RepositoryResult, Exception>(error => Observable.Return(new RepositoryResult

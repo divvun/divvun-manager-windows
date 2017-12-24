@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
-using Bahkat.Models.PackageManager;
 using Bahkat.Util;
 using Microsoft.Win32;
 using System.Linq;
@@ -19,7 +18,7 @@ namespace Bahkat.Service
     {
         NotInstalled,
         UpToDate,
-        NeedsUpdate,
+        RequiresUpdate,
         ErrorNoInstaller,
         ErrorParsingVersion
     }
@@ -69,7 +68,7 @@ namespace Bahkat.Service
 
             if (ver.CompareTo(parsedDispVer) > 0)
             {
-                return PackageInstallStatus.NeedsUpdate;
+                return PackageInstallStatus.RequiresUpdate;
             }
             else
             {
@@ -118,7 +117,7 @@ namespace Bahkat.Service
         // TODO integration testing lol
         private IObservable<PackagePath> Download(PackageProgress pd, CancellationToken cancelToken)
         {
-            var inst = pd.Package.Installer.Value;
+            var inst = pd.Package.Installer;
             
             // Get file ending from URL
             var ext = Path.GetExtension(inst.Url.AbsoluteUri);
@@ -130,6 +129,11 @@ namespace Bahkat.Service
             return DownloadFileTaskAsync(inst.Url, path, pd.Progress, cancelToken)
                 .Select(x => new PackagePath { Package = pd.Package, Path = x });
         }
+
+        public bool RequiresUpdate(Package package)
+        {
+            return GetInstallStatus(package) == PackageInstallStatus.RequiresUpdate;
+        }
         
         /// <summary>
         /// Checks the registry for the installed package. Uses the "DisplayVersion" value and parses that using
@@ -140,12 +144,12 @@ namespace Bahkat.Service
         /// <returns>The package install status</returns>
         public PackageInstallStatus GetInstallStatus(Package package)
         {
-            if (!package.Installer.HasValue)
+            if (package.Installer == null)
             {
                 return PackageInstallStatus.ErrorNoInstaller;
             }
 
-            var installer = package.Installer.Value;
+            var installer = package.Installer;
             var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
             var path = UninstallKeyPath + @"\" + installer.ProductCode;
             var instKey = hklm.OpenSubKey(path);

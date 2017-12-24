@@ -97,6 +97,15 @@ namespace Bahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Check For Updates....
+        /// </summary>
+        internal static string CheckForUpdates {
+            get {
+                return ResourceManager.GetString("CheckForUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Downloaded.
         /// </summary>
         internal static string Downloaded {
@@ -219,6 +228,24 @@ namespace Bahkat {
         internal static string NotInstalled {
             get {
                 return ResourceManager.GetString("NotInstalled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No new updates were found..
+        /// </summary>
+        internal static string NoUpdatesBody {
+            get {
+                return ResourceManager.GetString("NoUpdatesBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Updates.
+        /// </summary>
+        internal static string NoUpdatesTitle {
+            get {
+                return ResourceManager.GetString("NoUpdatesTitle", resourceCulture);
             }
         }
         

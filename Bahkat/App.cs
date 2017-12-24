@@ -17,6 +17,7 @@ using Bahkat.Models;
 using Bahkat.Properties;
 using Bahkat.Service;
 using Bahkat.UI.Main;
+using Bahkat.UI.Settings;
 using Bahkat.UI.Updater;
 using Bahkat.Util;
 using Hardcodet.Wpf.TaskbarNotification;
@@ -27,15 +28,19 @@ using Trustsoft.SingleInstanceApp;
 namespace Bahkat
 {
     public static class Shared {
-        public static String BytesToString(Int64 bytes)
+        public static string BytesToString(long bytes)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
             if (bytes == 0)
             {
                 return "0 " + suf[0];
             }
-            Int32 place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
-            Double num = Math.Round(bytes / Math.Pow(1024, place), 2);
+            var place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+            if (place >= suf.Length)
+            {
+                return "--";
+            }
+            var num = Math.Round(bytes / Math.Pow(1024, place), 2);
             return num.ToString(CultureInfo.CurrentCulture) + " " + suf[place];
         }
     }
@@ -46,10 +51,9 @@ namespace Bahkat
         RepositoryService RepositoryService { get; }
         PackageService PackageService { get; }
         UpdaterService UpdaterService { get; }
+        IWindowService WindowService { get; }
         PackageStore PackageStore { get; }
         IRavenClient RavenClient { get; }
-
-        void ShowUpdaterWindow();
     }
 
     public abstract class AbstractBahkatApp : Application, IBahkatApp, ISingleInstanceApp
@@ -58,6 +62,7 @@ namespace Bahkat
         public abstract RepositoryService RepositoryService { get; protected set; }
         public abstract PackageService PackageService { get; }
         public abstract UpdaterService UpdaterService { get; protected set; }
+        public abstract IWindowService WindowService { get; }
         public abstract PackageStore PackageStore { get; }
         public abstract IRavenClient RavenClient { get; protected set; }
 
@@ -70,7 +75,6 @@ namespace Bahkat
         }
 
         public abstract bool OnActivate(IList<string> args);
-        public abstract void ShowUpdaterWindow();
     }
 
     static class DI
@@ -105,65 +109,15 @@ namespace Bahkat
         public override PackageService PackageService { get; } = DI.CreatePackageService();
         public override PackageStore PackageStore { get; } = new PackageStore();
         public override UpdaterService UpdaterService { get; protected set; }
+        public override IWindowService WindowService { get; } = Service.WindowService.Create(
+            CloseHandlingWindowConfig.Create<MainWindow>(),
+            CloseHandlingWindowConfig.Create<UpdateWindow>(),
+            CloseHandlingWindowConfig.Create<SettingsWindow>()
+        );
         public override RepositoryService RepositoryService { get; protected set; }
         public override IRavenClient RavenClient { get; protected set; }
-
-        private IMainWindowView _mainWindow;
-        private IUpdateWindowView _updaterWindow;
-
-        private TaskbarIcon _icon;
-
-        private void MainClosingHandler(object sender, CancelEventArgs args)
-        {
-            args.Cancel = true;
-            var w = (Window) _mainWindow;
-            w.Hide();
-            w.Closing -= MainClosingHandler;
-            _mainWindow = null;
-        }
         
-        private void UpdaterClosingHandler(object sender, CancelEventArgs args)
-        {
-            args.Cancel = true;
-            var w = (Window) _updaterWindow;
-            w.Hide();
-            w.Closing -= UpdaterClosingHandler;
-            _updaterWindow = null;
-        }
-
-        private IMainWindowView CreateMainWindow()
-        {
-            var window = new MainWindow();
-            window.Closing += MainClosingHandler;
-            return window;
-        }
-
-        private IUpdateWindowView CreateUpdaterWindow()
-        {
-            var window = new UpdateWindow();
-            window.Closing += UpdaterClosingHandler;
-            return window;
-        }
-
-        public override void ShowUpdaterWindow()
-        {
-            if (_updaterWindow == null)
-            {
-                _updaterWindow = CreateUpdaterWindow();
-            }
-
-            _updaterWindow.Show();
-        }
-
-        private void ShowMainWindow()
-        {
-            if (_mainWindow == null)
-            {
-                _mainWindow = CreateMainWindow();
-            }
-
-            _mainWindow.Show();
-        }
+        private TaskbarIcon _icon;
 
         private void CreateNotifyIcon()
         {
@@ -171,20 +125,30 @@ namespace Bahkat
             var uri = new Uri("pack://application:,,,/UI/TaskbarIcon.ico");
             _icon.IconSource = new BitmapImage(uri);
             _icon.ContextMenu = new ContextMenu();
-            var openPkgMgrItem = new MenuItem()
-            {
-                Header = Strings.OpenPackageManager
-            };
-            openPkgMgrItem.Click += (sender, args) => ShowMainWindow();
+            
+            var openPkgMgrItem = new MenuItem { Header = Strings.OpenPackageManager };
+            openPkgMgrItem.Click += (sender, args) => WindowService.Show<MainWindow>();
             _icon.ContextMenu.Items.Add(openPkgMgrItem);
+
+            var updateItem = new MenuItem { Header = Strings.CheckForUpdates };
+            updateItem.Click += (sender, args) => UpdaterService
+                .CheckForUpdatesImmediately()
+                .Where(x => x == false)
+                .SubscribeOn(DispatcherScheduler.Current)
+                .Subscribe(_ => MessageBox.Show(MainWindow,
+                    Strings.NoUpdatesBody,
+                    Strings.NoUpdatesTitle,
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information));
+            _icon.ContextMenu.Items.Add(updateItem);
+            
             _icon.ContextMenu.Items.Add(new Separator());
-            var exitItem = new MenuItem()
-            {
-                Header = Strings.Exit
-            };
-            exitItem.Click += (sender, args) => Application.Current.Shutdown();
+            
+            var exitItem = new MenuItem { Header = Strings.Exit };
+            exitItem.Click += (sender, args) => Current.Shutdown();
             _icon.ContextMenu.Items.Add(exitItem);
-            _icon.TrayMouseDoubleClick += (sender, args) => ShowMainWindow();
+            
+            _icon.TrayMouseDoubleClick += (sender, args) => WindowService.Show<MainWindow>();
         }
 
         private void InitRepositoryService()
@@ -194,7 +158,7 @@ namespace Bahkat
                 .Where(x => x.RepoResult?.Error != null)
                 .Select(x => x.RepoResult.Error)
                 .DistinctUntilChanged()
-                .Subscribe(error => MessageBox.Show(
+                .Subscribe(error => MessageBox.Show(MainWindow,
                     error.Message,
                     Strings.RepositoryError,
                     MessageBoxButton.OK,
@@ -221,11 +185,17 @@ namespace Bahkat
             // If -s, run silently. Used for start-up service.
             if (!args.Contains("-s"))
             {
-                ShowMainWindow();
+                WindowService.Show<MainWindow>();
             }
             
             // This return value has no purpose.
             return true;
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            UpdaterService.Dispose();
+            base.OnExit(e);
         }
 
         [STAThread]
@@ -238,11 +208,10 @@ namespace Bahkat
             {
                 return;
             }
-            
+
             var raven = DI.CreateRavenClient();
             
-            AppDomain currentDomain = AppDomain.CurrentDomain;
-            currentDomain.UnhandledException += (sender, args) =>
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 raven.Capture(new SentryEvent((Exception) args.ExceptionObject));
             };

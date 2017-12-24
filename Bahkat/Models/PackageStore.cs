@@ -6,20 +6,12 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Bahkat.Models.MainPageEvent;
 using Bahkat.Models.PackageEvent;
-using Bahkat.Models.PackageManager;
+using Newtonsoft.Json;
 
 namespace Bahkat.Models
 {
-     public struct PackageState
+    public struct PackageState : IEquatable<PackageState>
     {
-        public HashSet<Package> SelectedPackages { get; private set; }
-
-        public static PackageState Default()
-        {
-            var state = new PackageState {SelectedPackages = new HashSet<Package>()};
-            return state;
-        }
-        
         public bool Equals(PackageState other)
         {
             return Equals(SelectedPackages, other.SelectedPackages);
@@ -36,6 +28,13 @@ namespace Bahkat.Models
             return (SelectedPackages != null ? SelectedPackages.GetHashCode() : 0);
         }
 
+        public HashSet<Package> SelectedPackages { get; private set; }
+
+        public static PackageState Default()
+        {
+            var state = new PackageState {SelectedPackages = new HashSet<Package>()};
+            return state;
+        }
     }
     
     public interface IMainPageEvent : IStoreEvent { }
@@ -147,6 +146,8 @@ namespace Bahkat.Models
     {
         private static PackageState Reduce(PackageState state, IStoreEvent e)
         {   
+            Console.WriteLine(e);
+            
             switch (e as IPackageEvent)
             {
                 case null:
@@ -171,6 +172,8 @@ namespace Bahkat.Models
                     }
                     break;
             }
+            
+            Console.WriteLine(JsonConvert.SerializeObject(state.SelectedPackages.Select(x => x.Id).ToArray()));
 
             return state;
         }

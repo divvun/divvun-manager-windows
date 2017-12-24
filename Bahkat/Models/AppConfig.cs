@@ -105,11 +105,13 @@ namespace Bahkat.Models
         }
         
         public class IncrementNextUpdateCheck : IAppConfigEvent {}
+        public class CheckForUpdatesImmediately : IAppConfigEvent {}
     }
 
     public static class AppConfigAction
     {
         public static readonly IncrementNextUpdateCheck IncrementNextUpdateCheck = new IncrementNextUpdateCheck();
+        public static readonly CheckForUpdatesImmediately CheckForUpdatesImmediately = new CheckForUpdatesImmediately();
     }
     
     public class AppConfigStore : RxStore<AppConfigState>
@@ -121,6 +123,11 @@ namespace Bahkat.Models
                 case SetRepositoryUrl v:
                     state.RepositoryUrl = v.Uri;
                     state.UpdateRegKey(AppConfigState.Keys.RepositoryUrl, v.Uri.AbsoluteUri, RegistryValueKind.String);
+                    return state;
+                case CheckForUpdatesImmediately v:
+                    var now = DateTimeOffset.Now;
+                    state.UpdateRegKey(AppConfigState.Keys.NextUpdateCheck, now, RegistryValueKind.String);
+                    state.NextUpdateCheck = now;
                     return state;
                 case IncrementNextUpdateCheck v:
                     var nextUpdateCheck = state.NextUpdateCheck.Add(state.UpdateCheckInterval.AsTimeSpan());

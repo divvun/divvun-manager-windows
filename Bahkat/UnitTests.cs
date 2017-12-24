@@ -8,7 +8,6 @@ using System.Reactive.Subjects;
 using System.Threading;
 using Bahkat.Models;
 using Bahkat.Models.AppConfigEvent;
-using Bahkat.Models.PackageManager;
 using Bahkat.Properties;
 using Bahkat.Service;
 using Bahkat.UI.Main;
@@ -17,6 +16,7 @@ using Bahkat.Util;
 using Microsoft.Reactive.Testing;
 using Microsoft.Win32;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 //namespace System.Windows.Controls
@@ -431,22 +431,19 @@ namespace Bahkat
         
         private Repository MockRepository(Uri uri)
         {
-            var repoIndex = new RepoIndex()
-            {
-                Base = uri,
-                Channels = new List<string> {"stable"},
-                Description = new Dictionary<string, string>
-                {
-                    {"en", "Test Repository Description"},
-                    {"sv", "Exampel Repo Text"}
-                },
-                Name = new Dictionary<string, string>
+            var repoIndex = new RepoIndex(uri,
+                new Dictionary<string, string>
                 {
                     {"en", "Test Repository"},
                     {"sv", "Exampel Repo"}
                 },
-                PrimaryFilter = "category"
-            };
+                new Dictionary<string, string>
+                {
+                    {"en", "Test Repository Description"},
+                    {"sv", "Exampel Repo Text"}
+                },
+                "category",
+                new List<string> { "stable" });
             
             return new Repository(repoIndex,
                 new Dictionary<string, Package>(),
@@ -537,31 +534,32 @@ namespace Bahkat
         {
             var reg = new MockRegistry();
             var pkgServ = new PackageService(reg);
-            
-            var v1 = new Package() {
-                Version = "3.2.0.0", 
-                Installer = new PackageInstaller
+
+            var v1 = RepositoryApi.FromJson<Package>(JsonConvert.SerializeObject(new
+            {
+                version = "3.2.0.0",
+                installer = new
                 {
-                    InstalledSize = 1,
-                    ProductCode = "test",
-                    SilentArgs = "",
-                    Size = 1,
-                    Url = new Uri("https://lol.com")
+                    installedSize = 1,
+                    productCode = "test",
+                    silentArgs = "",
+                    size = 1,
+                    url = "https://lol.com"
                 }
-            };
+            }));
             
             Assert.AreEqual(PackageInstallStatus.NotInstalled, pkgServ.GetInstallStatus(v1));
             
             var subkey = reg.LocalMachine.CreateSubKey(PackageService.UninstallKeyPath + @"\test");
             
             subkey.Set("DisplayVersion", "2.0.0.0", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.NeedsUpdate, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
             
             subkey.Set("DisplayVersion", "2.99.1000.42", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.NeedsUpdate, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
             
             subkey.Set("DisplayVersion", "3.0.0.0", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.NeedsUpdate, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
             
             subkey.Set("DisplayVersion", "3.3.0.0", RegistryValueKind.String);
             Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.GetInstallStatus(v1));
@@ -592,10 +590,10 @@ namespace Bahkat
             
             public IObservable<ProcessResult> Process(PackagePath[] packages, Action<Package> onNext)
             {
-                return packages.Where(t => t.Package.Installer.HasValue)
+                return packages.Where(t => t.Package.Installer != null)
                     .Select(t =>
                     {
-                        var installer = t.Package.Installer.Value;
+                        var installer = t.Package.Installer;
                         
                         _registry.LocalMachine.CreateSubKey(
                                 PackageService.UninstallKeyPath + @"\" + installer.ProductCode)

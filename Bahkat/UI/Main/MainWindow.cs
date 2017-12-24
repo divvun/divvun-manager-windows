@@ -6,10 +6,14 @@ namespace Bahkat.UI.Main
     {
         void Show();
     }
-    
-    public interface IMainWindowView : IWindowView
+
+    public interface IWindowPageView : IWindowView
     {
         void ShowPage(IPageView pageView);
+    }
+    
+    public interface IMainWindowView : IWindowPageView
+    {
         void ShowMainPage();
     }
     

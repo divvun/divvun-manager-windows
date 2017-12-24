@@ -127,6 +127,7 @@
     <Compile Include="Service\PackageService.cs" />
     <Compile Include="Service\RepositoryService.cs" />
     <Compile Include="Service\UpdaterService.cs" />
+    <Compile Include="Service\WindowService.cs" />
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -155,6 +156,7 @@
     <Compile Include="UI\Settings\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Shared\PackageMenuItem.cs" />
     <Compile Include="UI\Updater\UpdateWindow.cs" />
     <Compile Include="UI\Updater\UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>

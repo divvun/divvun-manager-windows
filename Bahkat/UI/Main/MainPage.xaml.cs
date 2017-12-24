@@ -10,8 +10,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using Bahkat.Extensions;
-using Bahkat.Models.PackageManager;
+using Bahkat.Models;
 using Bahkat.UI.Settings;
+using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Main
 {
@@ -70,7 +71,6 @@ namespace Bahkat.UI.Main
     public partial class MainPage : Page, IMainPageView, IDisposable
     {
         private readonly MainPagePresenter _presenter;
-        private SettingsWindow _settingsWindow;
 
         private readonly Subject<Package> _packageDeselectSubject = new Subject<Package>();
         private readonly Subject<Package> _packageSelectSubject = new Subject<Package>();
@@ -96,12 +96,8 @@ namespace Bahkat.UI.Main
         
         private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e)
         {
-            if (_settingsWindow == null)
-            {
-                _settingsWindow = new SettingsWindow();
-            }
-
-            _settingsWindow.Show();
+            var app = (IBahkatApp)Application.Current;
+            app.WindowService.Show<SettingsWindow>();
         }
 
         private void OnClickExitMenuItem(object sender, RoutedEventArgs e)

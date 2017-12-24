@@ -5,8 +5,51 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Bahkat.UI.Updater"
         mc:Ignorable="d"
-        Title="UpdateWindow" Height="300" Width="300">
+        Title="{Binding Title}"
+        MinHeight="350" MinWidth="525"
+        Height="350" Width="525">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="38"/>
+        </Grid.RowDefinitions>
+        <ListView Name="LvPackages" HorizontalContentAlignment="Stretch">
+            <ListView.Resources>
+                <Style TargetType="GridViewColumnHeader">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Style>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridView.Columns>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox Tag="{Binding Title}" IsChecked="{Binding IsSelected}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding Title}" Width="Auto"/>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Version}" TextAlignment="Right" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn DisplayMemberBinding="{Binding FileSize}" />
+                        <GridViewColumn DisplayMemberBinding="{Binding Status}" />
+                    </GridView.Columns>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <WebBrowser Visibility="Collapsed" Name="WbView" Grid.Row="1" />
+        <DockPanel Height="auto" Width="auto" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" LastChildFill="False">
+            <Button DockPanel.Dock="Left" x:Name="BtnSkip" Content="Skip These Updates" Margin="8,0,0,0" Height="23" Padding="4,0,4,0"/>
+
+            <Button DockPanel.Dock="Right" x:Name="BtnLater" Content="Remind Me Later" Height="23" Margin="10,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right"/>
+            <Button DockPanel.Dock="Right" x:Name="BtnPrimary" IsEnabled="False" Content="Install Selected Updates" Height="23" Margin="10,0,0,0" Padding="4,0,4,0" HorizontalAlignment="Right" />
+        </DockPanel>
     </Grid>
 </Window>

@@ -46,7 +46,7 @@ namespace Bahkat.UI.Main
                 _view.ShowErrors(errors);
             }
 
-            if (_results.Any(r => r.Package.Installer.Value.RequiresReboot))
+            if (_results.Any(r => r.Package.Installer.RequiresReboot))
             {
                 _view.SetRequiresReboot();
             }

@@ -8,7 +8,6 @@ using System.Threading;
 using Bahkat.Service;
 using System.Collections.ObjectModel;
 using Bahkat.Models;
-using Bahkat.Models.PackageManager;
 
 namespace Bahkat.UI.Main
 {
@@ -21,8 +20,20 @@ namespace Bahkat.UI.Main
         void HandleError(Exception error);
     }
 
-    public class DownloadListItem : INotifyPropertyChanged
+    public class DownloadListItem : INotifyPropertyChanged, IEquatable<DownloadListItem>
     {
+        public bool Equals(DownloadListItem other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Model.Package.Equals(other.Model.Package);
+        }
+
+        public override int GetHashCode()
+        {
+            return Model.GetHashCode();
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         public readonly PackageProgress Model;
         private long _downloaded;
@@ -34,7 +45,7 @@ namespace Bahkat.UI.Main
 
         public string Title => Model.Package.NativeName;
         public string Version => Model.Package.Version;
-        public long FileSize => Model.Package.Installer.Value.Size;
+        public long FileSize => Model.Package.Installer.Size;
         public long Downloaded
         {
             get => _downloaded;
@@ -60,7 +71,7 @@ namespace Bahkat.UI.Main
                 
                 if (Downloaded < FileSize)
                 {
-                    return Shared.BytesToString(Downloaded);
+                    return Bahkat.Shared.BytesToString(Downloaded);
                 }
 
                 return Strings.Downloaded;
