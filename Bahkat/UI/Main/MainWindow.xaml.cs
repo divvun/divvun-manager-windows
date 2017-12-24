@@ -26,13 +26,6 @@ namespace Bahkat.UI.Main
             var presenter = new MainWindowPresenter(this, DispatcherScheduler.Current);
             presenter.Start();
         }
-        
-        public MainWindow(IPageView startingPage)
-        {
-            InitializeComponent();
-            var presenter = new MainWindowPresenter(this, DispatcherScheduler.Current);
-            ShowPage(startingPage);
-        }
 
         public void ShowMainPage()
         {

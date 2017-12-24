@@ -34,7 +34,7 @@ namespace Bahkat.UI.Updater
         {
             var app = (BahkatApp) Application.Current;
             app.WindowService.Close<UpdateWindow>();
-            app.WindowService.Show<MainWindow>(new DownloadPage());
+            app.WindowService.Show<MainWindow, DownloadPage>();
         }
 
         public void UpdatePrimaryButton(bool isEnabled, string label)
