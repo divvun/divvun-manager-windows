@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data;
-using System.Globalization;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
-using System.Reactive.Feedback;
 using System.Reactive.Linq;
-using System.Windows.Controls;
 using System.Windows.Data;
-using Bahkat.Extensions;
 using Bahkat.Models;
 using Bahkat.Service;
 using Bahkat.UI.Shared;
@@ -27,7 +19,7 @@ namespace Bahkat.UI.Main
         void SetPackagesModel(ObservableCollection<PackageMenuItem> model);
         void ShowDownloadPage();
         void UpdatePrimaryButton(bool isEnabled, string label);
-        void SetPackageFilter<T>() where T : class, IValueConverter, new();
+        void SetPackageFilter<T>() where T : IValueConverter, new();
         void HandleError(Exception error);
     }
 
@@ -93,7 +85,7 @@ namespace Bahkat.UI.Main
             }
             
             // The package items should probably have a listener for registry changes and amend themselves when their parent changes
-            foreach (var item in _currentRepo.PackagesIndex.Values.Select(x => new PackageMenuItem(x, _pkgServ, _store)))
+            foreach (var item in _currentRepo.PackagesIndex.Values.Select(x => new PackageMenuItem(_listItems, x, _pkgServ, _store)))
             {
                 _listItems.Add(item);
             }

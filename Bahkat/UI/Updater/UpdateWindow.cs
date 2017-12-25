@@ -49,7 +49,7 @@ namespace Bahkat.UI.Updater
            
             var items = repo.PackagesIndex.Values
                 .Where(_pkgServ.RequiresUpdate)
-                .Select(x => new PackageMenuItem(x, _pkgServ, _store));
+                .Select(x => new PackageMenuItem(_listItems, x, _pkgServ, _store));
                 
             foreach (var item in items)
             {

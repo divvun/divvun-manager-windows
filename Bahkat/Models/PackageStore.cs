@@ -85,6 +85,15 @@ namespace Bahkat.Models
             };
         }
 
+        public static IPackageEvent ToggleGroup(IEnumerable<Package> packages, bool value)
+        {
+            return new ToggleGroup
+            {
+                Packages = packages,
+                Value = value
+            };
+        }
+
         public static IPackageEvent ResetSelection => new ResetSelection();
 
         public static IPackageEvent RemoveSelectedPackage(Package package)
@@ -113,7 +122,13 @@ namespace Bahkat.Models
             public Package Package;
             public bool Value;
         }
-        
+
+        public struct ToggleGroup : IPackageEvent
+        {
+            public IEnumerable<Package> Packages;
+            public bool Value;
+        }
+
         public struct ResetSelection : IPackageEvent {}
     }
 
@@ -160,6 +175,19 @@ namespace Bahkat.Models
                     break;
                 case RemoveSelectedPackage v:
                     state.SelectedPackages.Remove(v.Package);
+                    break;
+                case ToggleGroup v:
+                    if (v.Value)
+                    {
+                        state.SelectedPackages.UnionWith(v.Packages);
+                    }
+                    else
+                    {
+                        foreach (var item in v.Packages)
+                        {
+                            state.SelectedPackages.Remove(item);
+                        }
+                    }
                     break;
                 case TogglePackage v:
                     if (v.Value)

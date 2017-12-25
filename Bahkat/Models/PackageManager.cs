@@ -137,7 +137,7 @@ namespace Bahkat.Models
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            // This is bad but will do.
+            // This is bad but will do. Everything can be different if ID is the same
             return string.Equals(Id, other.Id);
         }
 

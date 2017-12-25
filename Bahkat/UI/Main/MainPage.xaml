@@ -60,7 +60,7 @@
                         <GroupStyle.HeaderTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding IsGroupSelected}" />
+                                    <CheckBox IsChecked="{Binding Items.CurrentItem.IsGroupSelected, Mode=TwoWay}" />
                                     <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
                                 </StackPanel>
                             </DataTemplate>

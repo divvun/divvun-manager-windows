@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -22,11 +21,7 @@ namespace Bahkat.UI.Main
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (DependencyProperty.UnsetValue == value)
-            {
-                return value;
-            }
-            return ProcessModel((Package)value);
+            return DependencyProperty.UnsetValue == value ? value : ProcessModel((Package)value);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -138,7 +133,7 @@ namespace Bahkat.UI.Main
             LvPackages.ItemsSource = model;
         }
         
-        public void SetPackageFilter<T>() where T : class, IValueConverter, new()
+        public void SetPackageFilter<T>() where T : IValueConverter, new()
         {
             var view = (CollectionView)CollectionViewSource.GetDefaultView(LvPackages.ItemsSource);
             view.GroupDescriptions.Clear();
