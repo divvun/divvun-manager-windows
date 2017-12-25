@@ -216,4 +216,19 @@
   <data name="VersionSkipped" xml:space="preserve">
     <value>Version Skipped</value>
   </data>
+  <data name="AppName" xml:space="preserve">
+    <value>Báhkat</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="NUpdatesAvailable" xml:space="preserve">
+    <value>{0} Updates Available</value>
+  </data>
+  <data name="RemindMeLater" xml:space="preserve">
+    <value>Remind Me Later</value>
+  </data>
+  <data name="SkipTheseUpdates" xml:space="preserve">
+    <value>Skip These Updates</value>
+  </data>
 </root>

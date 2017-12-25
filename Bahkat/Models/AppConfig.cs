@@ -1,11 +1,8 @@
 ﻿using System;
 using Bahkat.Models.AppConfigEvent;
 using Bahkat.Properties;
-using Bahkat.UI.Main;
 using Bahkat.Util;
-using Castle.Core.Internal;
 using Microsoft.Win32;
-using NUnit.Framework;
 
 namespace Bahkat.Models
 {
@@ -75,9 +72,9 @@ namespace Bahkat.Models
 
             NextUpdateCheck = _rk.Get(Keys.NextUpdateCheck, v =>
             {
-                if (v is string x)
+                if (v is long x)
                 {
-                    return DateTimeOffset.Parse(x);
+                    return DateTimeOffset.FromUnixTimeSeconds(x);
                 }
 
                 return DateTimeOffset.Now;
@@ -116,6 +113,11 @@ namespace Bahkat.Models
     
     public class AppConfigStore : RxStore<AppConfigState>
     {   
+        private static void SaveNextUpdateCheck(AppConfigState state, DateTimeOffset time)
+        {
+            state.UpdateRegKey(AppConfigState.Keys.NextUpdateCheck, time.ToUnixTimeSeconds(), RegistryValueKind.QWord);
+        }
+
         private static AppConfigState Reduce(AppConfigState state, IStoreEvent e)
         {
             switch (e as IAppConfigEvent)
@@ -126,14 +128,12 @@ namespace Bahkat.Models
                     return state;
                 case CheckForUpdatesImmediately v:
                     var now = DateTimeOffset.Now;
-                    state.UpdateRegKey(AppConfigState.Keys.NextUpdateCheck, now, RegistryValueKind.String);
+                    SaveNextUpdateCheck(state, now);
                     state.NextUpdateCheck = now;
                     return state;
                 case IncrementNextUpdateCheck v:
                     var nextUpdateCheck = state.NextUpdateCheck.Add(state.UpdateCheckInterval.AsTimeSpan());
-                    state.UpdateRegKey(AppConfigState.Keys.NextUpdateCheck,
-                        nextUpdateCheck.ToString(),
-                        RegistryValueKind.String);
+                    SaveNextUpdateCheck(state, nextUpdateCheck);
                     state.NextUpdateCheck = nextUpdateCheck;
                     return state;
             }

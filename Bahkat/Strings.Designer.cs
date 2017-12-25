@@ -22,7 +22,7 @@ namespace Bahkat {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Strings {
+    public class Strings {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Bahkat {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bahkat.Strings", typeof(Strings).Assembly);
@@ -51,7 +51,7 @@ namespace Bahkat {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,9 +61,18 @@ namespace Bahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Báhkat.
+        /// </summary>
+        public static string AppName {
+            get {
+                return ResourceManager.GetString("AppName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Automatically Send Crash Reports.
         /// </summary>
-        internal static string AutoCrashReporting {
+        public static string AutoCrashReporting {
             get {
                 return ResourceManager.GetString("AutoCrashReporting", resourceCulture);
             }
@@ -72,7 +81,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
-        internal static string Cancel {
+        public static string Cancel {
             get {
                 return ResourceManager.GetString("Cancel", resourceCulture);
             }
@@ -81,7 +90,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Are you sure you want to cancel all downloads?.
         /// </summary>
-        internal static string CancelDownloadsBody {
+        public static string CancelDownloadsBody {
             get {
                 return ResourceManager.GetString("CancelDownloadsBody", resourceCulture);
             }
@@ -90,7 +99,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Cancel Downloads.
         /// </summary>
-        internal static string CancelDownloadsTitle {
+        public static string CancelDownloadsTitle {
             get {
                 return ResourceManager.GetString("CancelDownloadsTitle", resourceCulture);
             }
@@ -99,7 +108,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Check For Updates....
         /// </summary>
-        internal static string CheckForUpdates {
+        public static string CheckForUpdates {
             get {
                 return ResourceManager.GetString("CheckForUpdates", resourceCulture);
             }
@@ -108,7 +117,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Downloaded.
         /// </summary>
-        internal static string Downloaded {
+        public static string Downloaded {
             get {
                 return ResourceManager.GetString("Downloaded", resourceCulture);
             }
@@ -117,7 +126,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Error 😞.
         /// </summary>
-        internal static string DownloadError {
+        public static string DownloadError {
             get {
                 return ResourceManager.GetString("DownloadError", resourceCulture);
             }
@@ -126,7 +135,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Downloading....
         /// </summary>
-        internal static string Downloading {
+        public static string Downloading {
             get {
                 return ResourceManager.GetString("Downloading", resourceCulture);
             }
@@ -135,7 +144,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Error.
         /// </summary>
-        internal static string Error {
+        public static string Error {
             get {
                 return ResourceManager.GetString("Error", resourceCulture);
             }
@@ -144,7 +153,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Error: Invalid Version.
         /// </summary>
-        internal static string ErrorInvalidVersion {
+        public static string ErrorInvalidVersion {
             get {
                 return ResourceManager.GetString("ErrorInvalidVersion", resourceCulture);
             }
@@ -153,7 +162,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Error: No Installer.
         /// </summary>
-        internal static string ErrorNoInstaller {
+        public static string ErrorNoInstaller {
             get {
                 return ResourceManager.GetString("ErrorNoInstaller", resourceCulture);
             }
@@ -162,7 +171,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Error: Unknown Package.
         /// </summary>
-        internal static string ErrorUnknownPackage {
+        public static string ErrorUnknownPackage {
             get {
                 return ResourceManager.GetString("ErrorUnknownPackage", resourceCulture);
             }
@@ -171,7 +180,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Exit.
         /// </summary>
-        internal static string Exit {
+        public static string Exit {
             get {
                 return ResourceManager.GetString("Exit", resourceCulture);
             }
@@ -180,7 +189,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Installed.
         /// </summary>
-        internal static string Installed {
+        public static string Installed {
             get {
                 return ResourceManager.GetString("Installed", resourceCulture);
             }
@@ -189,7 +198,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Install {0} Packages.
         /// </summary>
-        internal static string InstallNPackages {
+        public static string InstallNPackages {
             get {
                 return ResourceManager.GetString("InstallNPackages", resourceCulture);
             }
@@ -198,16 +207,25 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Interface Language.
         /// </summary>
-        internal static string InterfaceLanguage {
+        public static string InterfaceLanguage {
             get {
                 return ResourceManager.GetString("InterfaceLanguage", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Loading....
+        /// </summary>
+        public static string Loading {
+            get {
+                return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No Packages Selected.
         /// </summary>
-        internal static string NoPackagesSelected {
+        public static string NoPackagesSelected {
             get {
                 return ResourceManager.GetString("NoPackagesSelected", resourceCulture);
             }
@@ -216,7 +234,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to --.
         /// </summary>
-        internal static string NotApplicable {
+        public static string NotApplicable {
             get {
                 return ResourceManager.GetString("NotApplicable", resourceCulture);
             }
@@ -225,7 +243,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Not Installed.
         /// </summary>
-        internal static string NotInstalled {
+        public static string NotInstalled {
             get {
                 return ResourceManager.GetString("NotInstalled", resourceCulture);
             }
@@ -234,7 +252,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to No new updates were found..
         /// </summary>
-        internal static string NoUpdatesBody {
+        public static string NoUpdatesBody {
             get {
                 return ResourceManager.GetString("NoUpdatesBody", resourceCulture);
             }
@@ -243,16 +261,25 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to No Updates.
         /// </summary>
-        internal static string NoUpdatesTitle {
+        public static string NoUpdatesTitle {
             get {
                 return ResourceManager.GetString("NoUpdatesTitle", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} Updates Available.
+        /// </summary>
+        public static string NUpdatesAvailable {
+            get {
+                return ResourceManager.GetString("NUpdatesAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OK.
         /// </summary>
-        internal static string Ok {
+        public static string Ok {
             get {
                 return ResourceManager.GetString("Ok", resourceCulture);
             }
@@ -261,16 +288,25 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Open Package Manager.
         /// </summary>
-        internal static string OpenPackageManager {
+        public static string OpenPackageManager {
             get {
                 return ResourceManager.GetString("OpenPackageManager", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Remind Me Later.
+        /// </summary>
+        public static string RemindMeLater {
+            get {
+                return ResourceManager.GetString("RemindMeLater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Repository.
         /// </summary>
-        internal static string Repository {
+        public static string Repository {
             get {
                 return ResourceManager.GetString("Repository", resourceCulture);
             }
@@ -279,7 +315,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Repository Error.
         /// </summary>
-        internal static string RepositoryError {
+        public static string RepositoryError {
             get {
                 return ResourceManager.GetString("RepositoryError", resourceCulture);
             }
@@ -288,7 +324,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Save.
         /// </summary>
-        internal static string Save {
+        public static string Save {
             get {
                 return ResourceManager.GetString("Save", resourceCulture);
             }
@@ -297,16 +333,25 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Settings.
         /// </summary>
-        internal static string Settings {
+        public static string Settings {
             get {
                 return ResourceManager.GetString("Settings", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Skip These Updates.
+        /// </summary>
+        public static string SkipTheseUpdates {
+            get {
+                return ResourceManager.GetString("SkipTheseUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Update Available.
         /// </summary>
-        internal static string UpdateAvailable {
+        public static string UpdateAvailable {
             get {
                 return ResourceManager.GetString("UpdateAvailable", resourceCulture);
             }
@@ -315,7 +360,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Update Channel.
         /// </summary>
-        internal static string UpdateChannel {
+        public static string UpdateChannel {
             get {
                 return ResourceManager.GetString("UpdateChannel", resourceCulture);
             }
@@ -324,7 +369,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Update Frequency.
         /// </summary>
-        internal static string UpdateFrequency {
+        public static string UpdateFrequency {
             get {
                 return ResourceManager.GetString("UpdateFrequency", resourceCulture);
             }
@@ -333,7 +378,7 @@ namespace Bahkat {
         /// <summary>
         ///   Looks up a localized string similar to Version Skipped.
         /// </summary>
-        internal static string VersionSkipped {
+        public static string VersionSkipped {
             get {
                 return ResourceManager.GetString("VersionSkipped", resourceCulture);
             }

@@ -36,7 +36,8 @@ namespace Bahkat.UI.Updater
            
             var items = repo.PackagesIndex.Values
                 .Where(_pkgServ.RequiresUpdate)
-                .Select(x => new PackageMenuItem(x, _pkgServ, _store));
+                .Select(x => new PackageMenuItem(x, _pkgServ, _store))
+                .ToArray();
                 
             foreach (var item in items)
             {
@@ -44,6 +45,7 @@ namespace Bahkat.UI.Updater
                 _listItems.Add(item);
             }
             
+            _view.UpdateTitle($"{Strings.AppName} - {repo.Meta.NativeName} - {string.Format(Strings.NUpdatesAvailable, items.Count())}");
             Console.WriteLine("Added packages.");
         }
         
@@ -62,6 +64,11 @@ namespace Bahkat.UI.Updater
                         view.UpdatePrimaryButton(false, Strings.NoPackagesSelected);
                     }
                 });
+        }
+
+        private IDisposable BindLaterButtonPress()
+        {
+            return _view.OnRemindMeLaterClicked().Subscribe(x => _view.Close());
         }
 
         private IDisposable BindRefreshPackageList()
@@ -96,15 +103,16 @@ namespace Bahkat.UI.Updater
                     foreach (var pkg in pkgs)
                     {
                         _pkgServ.SkipVersion(pkg);
-
                     }
                     
                     _store.Dispatch(PackageAction.ToggleGroup(pkgs.ToArray(), false));
+                    _view.RefreshList();
                 });
         }
 
         public IDisposable Start()
         {
+            _view.UpdateTitle($"{Strings.AppName} - {Strings.Loading}");
             _view.SetPackagesModel(_listItems);
 
             return new CompositeDisposable(
@@ -112,7 +120,8 @@ namespace Bahkat.UI.Updater
                 BindRefreshPackageList(),
                 BindSkipButtonPress(),
                 BindPrimaryButtonPress(),
-                BindPackageToggled());
+                BindPackageToggled(),
+                BindLaterButtonPress());
         }  
     }
 }

@@ -4,7 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Bahkat.UI.Updater" 
-        xmlns:shared="clr-namespace:Bahkat.UI.Shared"
+        xmlns:shared="clr-namespace:Bahkat.UI.Shared" 
+        xmlns:bahkat="clr-namespace:Bahkat"
         mc:Ignorable="d"
         Title="{Binding Title}"
         MinHeight="350" MinWidth="525"
@@ -45,10 +46,9 @@
         </TreeView>
         <WebBrowser Visibility="Collapsed" Name="WbView" Grid.Row="1" />
         <DockPanel Height="auto" Width="auto" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" LastChildFill="False">
-            <Button DockPanel.Dock="Left" x:Name="BtnSkip" Content="Skip These Updates" Margin="8,0,0,0" Height="23" Padding="4,0,4,0"/>
-
-            <Button DockPanel.Dock="Right" x:Name="BtnLater" Content="Remind Me Later" Height="23" Margin="10,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right"/>
-            <Button DockPanel.Dock="Right" x:Name="BtnPrimary" IsEnabled="False" Content="Install Selected Updates" Height="23" Margin="10,0,0,0" Padding="4,0,4,0" HorizontalAlignment="Right" />
+            <Button DockPanel.Dock="Left" Name="BtnSkip" Content="{x:Static bahkat:Strings.SkipTheseUpdates}" Margin="8,0,0,0" Height="23" Padding="4,0,4,0"/>
+            <Button DockPanel.Dock="Right" Name="BtnLater" Content="{x:Static bahkat:Strings.RemindMeLater}" Height="23" Margin="10,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right"/>
+            <Button DockPanel.Dock="Right" Name="BtnPrimary" IsEnabled="False" Content="" Height="23" Margin="10,0,0,0" Padding="4,0,4,0" HorizontalAlignment="Right" />
         </DockPanel>
     </Grid>
 </Window>

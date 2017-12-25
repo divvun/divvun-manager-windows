@@ -18,10 +18,13 @@ namespace Bahkat.UI.Updater
         IObservable<EventArgs> OnSkipClicked();
         IObservable<PackageMenuItem> OnPackageToggled();
         void StartDownloading();
+        void RefreshList();
         void UpdatePrimaryButton(bool isEnabled, string label);
         void SetPackagesModel(ObservableCollection<PackageMenuItem> items);
+        void UpdateTitle(string title);
         void HandleError(Exception error);
         void CloseMainWindow();
+        void Close();
     }
     
     /// <summary>
@@ -66,6 +69,11 @@ namespace Bahkat.UI.Updater
             app.WindowService.Show<MainWindow, DownloadPage>();
         }
 
+        public void UpdateTitle(string title)
+        {
+            Title = title;
+        }
+
         public void UpdatePrimaryButton(bool isEnabled, string label)
         {
             BtnPrimary.Content = label;
@@ -77,9 +85,14 @@ namespace Bahkat.UI.Updater
             TvPackages.ItemsSource = items;
         }
 
+        public void RefreshList()
+        {
+            TvPackages.ItemsSource = TvPackages.ItemsSource;
+        }
+
         public void HandleError(Exception error)
         {
-            throw new NotImplementedException();
+            MessageBox.Show(this, error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         public void CloseMainWindow()

@@ -28,10 +28,14 @@ namespace Bahkat.Models
             PrimaryFilter = primaryFilter;
             Channels = channels;
         }
-
-        public override string ToString()
+        
+        public string NativeName
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            get
+            {
+                var tag = CultureInfo.CurrentCulture.IetfLanguageTag;
+                return Name.ContainsKey(tag) ? Name[tag] : Name["en"];
+            }
         }
 
         public bool Equals(RepoIndex other)

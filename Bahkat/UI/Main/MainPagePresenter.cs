@@ -99,6 +99,7 @@ namespace Bahkat.UI.Main
             {
                 _tree.Add(new PackageCategoryTreeItem(_store, "The repo failed to download.", null));
                 Console.WriteLine("Repository empty.");
+                _view.UpdateTitle(Strings.AppName);
                 return;
             }
 
@@ -118,6 +119,7 @@ namespace Bahkat.UI.Main
                 _tree.Add(item);
             }
             
+            _view.UpdateTitle($"{Strings.AppName} - {_currentRepo.Meta.NativeName}");
             Console.WriteLine("Added packages.");
         }
 
@@ -161,6 +163,7 @@ namespace Bahkat.UI.Main
 
         public IDisposable Start()
         {
+            _view.UpdateTitle($"{Strings.AppName} - {Strings.Loading}");
             _view.SetPackagesModel(_tree);
 
             return new CompositeDisposable(
