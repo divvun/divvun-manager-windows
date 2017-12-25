@@ -15,51 +15,6 @@ using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Main
 {
-    internal abstract class ModelFilter : IValueConverter
-    {
-        protected abstract object ProcessModel(Package model);
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return DependencyProperty.UnsetValue == value ? value : ProcessModel((Package)value);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    internal class GroupSelectionModel
-    {
-        dynamic _thing;
-
-        GroupSelectionModel(object thing)
-        {
-            _thing = thing;
-        }
-
-        string Name => _thing.Name;
-    }
-
-    class CategoryFilter : ModelFilter
-    {
-        protected override object ProcessModel(Package model)
-        {
-            return model.Category;
-        }
-    }
-
-    class LanguageFilter : ModelFilter
-    {
-        protected override object ProcessModel(Package model)
-        {
-            return model.Languages
-                .Select(tag => new CultureInfo(tag).DisplayName)
-                .ToList();
-        }
-    }
-
     /// <summary>
     /// Interaction logic for MainPage.xaml
     /// </summary>
@@ -67,9 +22,11 @@ namespace Bahkat.UI.Main
     {
         private readonly MainPagePresenter _presenter;
         private IObservable<PackageMenuItem> _packageToggled;
+        private IObservable<PackageCategoryTreeItem> _groupToggled;
         private CompositeDisposable _bag = new CompositeDisposable();
 
         public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
+        public IObservable<PackageCategoryTreeItem> OnGroupToggled() => _groupToggled;
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
             .Select(e => e.EventArgs);
         
@@ -77,9 +34,15 @@ namespace Bahkat.UI.Main
         {
             InitializeComponent();
 
-            _packageToggled = LvPackages.ReactiveKeyDown()
+            _packageToggled = TvPackages.ReactiveKeyDown()
                 .Where(x => x.EventArgs.Key == Key.Space)
-                .Select(_ => (PackageMenuItem) LvPackages.SelectedItem);
+                .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
+                .NotNull();
+            
+            _groupToggled = TvPackages.ReactiveKeyDown()
+                .Where(x => x.EventArgs.Key == Key.Space)
+                .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
+                .NotNull();
 
             var app = (IBahkatApp)Application.Current;
             _presenter = new MainPagePresenter(this, 
@@ -88,6 +51,8 @@ namespace Bahkat.UI.Main
                 app.PackageStore);
             
             _bag.Add(_presenter.Start());
+
+            TvPackages.Focus();
         }
         
         private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e)
@@ -113,6 +78,11 @@ namespace Bahkat.UI.Main
             BtnMenu.ContextMenu.IsOpen = true;
         }
 
+        public void SetPackagesModel(ObservableCollection<PackageCategoryTreeItem> tree)
+        {
+            TvPackages.ItemsSource = tree;
+        }
+
         public void ShowDownloadPage()
         {
             this.ReplacePageWith(new DownloadPage());
@@ -127,19 +97,6 @@ namespace Bahkat.UI.Main
         public void UpdateTitle(string title)
         {
             Title = title;
-        }
-
-        public void SetPackagesModel(ObservableCollection<PackageMenuItem> model)
-        {
-            LvPackages.ItemsSource = model;
-        }
-        
-        public void SetPackageFilter<T>() where T : IValueConverter, new()
-        {
-            var view = (CollectionView)CollectionViewSource.GetDefaultView(LvPackages.ItemsSource);
-            view.GroupDescriptions.Clear();
-            var groupDescription = new PropertyGroupDescription("Model", new T());
-            view.GroupDescriptions.Add(groupDescription);
         }
 
         public void HandleError(Exception error)

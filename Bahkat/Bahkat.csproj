@@ -88,6 +88,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Reactive.Core, Version=3.0.1000.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263">
       <HintPath>..\packages\System.Reactive.Core.3.1.1\lib\net45\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -156,6 +157,7 @@
     <Compile Include="UI\Settings\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Shared\PackageCategoryTreeItem.cs" />
     <Compile Include="UI\Shared\PackageMenuItem.cs" />
     <Compile Include="UI\Updater\UpdateWindow.cs" />
     <Compile Include="UI\Updater\UpdateWindow.xaml.cs">

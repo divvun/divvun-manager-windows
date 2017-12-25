@@ -11,7 +11,7 @@ using Bahkat.Service;
 
 namespace Bahkat.UI.Shared
 {
-    public class PackageMenuItem : INotifyPropertyChanged, IDisposable, IEquatable<PackageMenuItem>
+    public class PackageMenuItem : INotifyPropertyChanged, IDisposable, IEquatable<PackageMenuItem>, IComparable<PackageMenuItem>
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -24,21 +24,9 @@ namespace Bahkat.UI.Shared
         // TODO: add a subscriber to the registry to stop this from firing so often
         private PackageInstallStatus _status => _pkgServ.GetInstallStatus(Model);
         private bool _isSelected = false;
-        private ObservableCollection<PackageMenuItem> _itemSource;
 
-        private PackageMenuItem[] _selectedGroupItems
+        public PackageMenuItem(Package model, PackageService pkgServ, PackageStore store)
         {
-            get
-            {
-                var cvs = (CollectionView) CollectionViewSource.GetDefaultView(_itemSource);
-                var vg = cvs.Groups.Select(x => (CollectionViewGroup) x).First(x => x.Items.Contains(this));
-                return vg.Items.Select(x => (PackageMenuItem)x).ToArray();
-            }
-        }
-
-        public PackageMenuItem(ObservableCollection<PackageMenuItem> itemSource, Package model, PackageService pkgServ, PackageStore store)
-        {
-            _itemSource = itemSource;
             Model = model;
             _pkgServ = pkgServ;
             _store = store;
@@ -74,12 +62,6 @@ namespace Bahkat.UI.Shared
             set => _store.Dispatch(PackageAction.TogglePackage(Model, value));
         }
 
-        public bool IsGroupSelected
-        {
-            get =>  _selectedGroupItems.All(x => x.IsSelected);
-            set => _store.Dispatch(PackageAction.ToggleGroup(_selectedGroupItems.Select(x => x.Model).ToArray(), value));
-        }
-
         public void Dispose()
         {
             _bag.Dispose();
@@ -95,6 +77,11 @@ namespace Bahkat.UI.Shared
         public override int GetHashCode()
         {
             return (Model != null ? Model.GetHashCode() : 0);
+        }
+        
+        public int CompareTo(PackageMenuItem other)
+        {
+            return String.Compare(Model.NativeName, other.Model.NativeName, StringComparison.CurrentCulture);
         }
     }
 }

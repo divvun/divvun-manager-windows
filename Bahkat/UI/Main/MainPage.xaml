@@ -3,7 +3,8 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Bahkat.UI.Main"
+      xmlns:local="clr-namespace:Bahkat.UI.Main" 
+      xmlns:shared="clr-namespace:Bahkat.UI.Shared"
       mc:Ignorable="d" 
       d:DesignHeight="480" d:DesignWidth="640"
       Title="Main Page">
@@ -26,48 +27,25 @@
                 <TextBox Name="TxtSearch" Height="23" Margin="8,0,8,0" TextWrapping="Wrap" Text="Search" VerticalContentAlignment="Center" Width="160"/>
                 <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" />
             </DockPanel>
-            <ListView Name="LvPackages" HorizontalContentAlignment="Stretch">
-                <ListView.Resources>
-                    <Style TargetType="GridViewColumnHeader">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                    </Style>
-                </ListView.Resources>
-                <ListView.View>
-                    <GridView>
-                        <GridView.Columns>
-                            <GridViewColumn>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Tag="{Binding Title}" IsChecked="{Binding IsSelected}" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn DisplayMemberBinding="{Binding Title}" Width="Auto"/>
-                            <GridViewColumn>
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Version}" TextAlignment="Right" />
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn DisplayMemberBinding="{Binding FileSize}" />
-                            <GridViewColumn DisplayMemberBinding="{Binding Status}" />
-                        </GridView.Columns>
-                    </GridView>
-                </ListView.View>
-                <ListView.GroupStyle>
-                    <GroupStyle>
-                        <GroupStyle.HeaderTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <CheckBox IsChecked="{Binding Items.CurrentItem.IsGroupSelected, Mode=TwoWay}" />
-                                    <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </GroupStyle.HeaderTemplate>
-                    </GroupStyle>
-                </ListView.GroupStyle>
-            </ListView>
+            <TreeView Name="TvPackages" HorizontalContentAlignment="Stretch">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type shared:PackageCategoryTreeItem}" ItemsSource="{Binding Items}">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsGroupSelected}" />
+                            <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                    <DataTemplate DataType="{x:Type shared:PackageMenuItem}">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
+                            <TextBlock Text="{Binding Title}" Width="Auto"/>
+                            <TextBlock Text="{Binding Version}" TextAlignment="Right" />
+                            <TextBlock Text="{Binding FileSize}" />
+                            <TextBlock Text="{Binding Status}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </TreeView.Resources>
+            </TreeView>
         </DockPanel>
     </Grid>
 </Page>

@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -8,6 +9,18 @@ namespace Bahkat.UI
 {
     public class ObservableItemList<T> : ObservableCollection<T> where T : IEquatable<T>, INotifyPropertyChanged
     {
+        public ObservableItemList()
+        {
+        }
+
+        public ObservableItemList(List<T> list) : base(list)
+        {
+        }
+
+        public ObservableItemList(IEnumerable<T> collection) : base(collection)
+        {
+        }
+
         private void DelegatePropertyChange(object sender, PropertyChangedEventArgs args)
         {
             var item = (T) sender;
