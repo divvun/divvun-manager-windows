@@ -81,8 +81,8 @@ namespace Bahkat.UI.Main
     
     public class DownloadPagePresenter
     {
-        private ObservableItemList<DownloadListItem> _listItems =
-            new ObservableItemList<DownloadListItem>();
+        private ObservableCollection<DownloadListItem> _listItems =
+            new ObservableCollection<DownloadListItem>();
         
         private readonly IDownloadPageView _view;
         private readonly PackageStore _pkgStore;

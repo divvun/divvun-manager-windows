@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Management;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -41,6 +42,14 @@ namespace Bahkat.Extensions
                 h => element.KeyDown += h,
                 h => element.KeyDown -= h);
         }
+        
+        public static IObservable<EventPattern<MouseButtonEventArgs>>
+        ReactiveDoubleClick(this ItemsControl control)
+        {
+            return Observable.FromEventPattern<MouseButtonEventHandler, MouseButtonEventArgs>(
+                h => control.MouseDoubleClick += h,
+                h => control.MouseDoubleClick -= h);
+        }
 
         public static IObservable<EventPattern<DownloadProgressChangedEventArgs>>
         ReactiveDownloadProgressChange(this WebClient client)
@@ -56,6 +65,14 @@ namespace Bahkat.Extensions
             return Observable.FromEventPattern<DownloadDataCompletedEventHandler, DownloadDataCompletedEventArgs>(
                 h => client.DownloadDataCompleted += h,
                 h => client.DownloadDataCompleted -= h);
+        }
+
+        public static IObservable<EventPattern<EventArrivedEventArgs>>
+            ReactiveEventArrived(this ManagementEventWatcher watcher)
+        {
+            return Observable.FromEventPattern<EventArrivedEventHandler, EventArrivedEventArgs>(
+                x => watcher.EventArrived += x,
+                x => watcher.EventArrived -= x);
         }
 
         public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) where TValue : new()
@@ -101,6 +118,24 @@ namespace Bahkat.Extensions
         {
             var guidAttr = (GuidAttribute) assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0];
             return guidAttr.Value;
+        }
+
+        public static void SafeStart(this ManagementEventWatcher watcher)
+        {
+            try
+            {
+                watcher.Start();
+            }
+            catch (COMException ex)
+            {
+                switch ((uint)ex.HResult)
+                {
+                    case 0x80042001: // WBEMESS_E_REGISTRATION_TOO_BROAD
+                        throw new ManagementException("Provider registration overlaps with the system event domain.", ex);
+                }
+
+                throw;
+            }
         }
     }
 }

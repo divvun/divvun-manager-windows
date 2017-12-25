@@ -27,22 +27,41 @@
                 <TextBox Name="TxtSearch" Height="23" Margin="8,0,8,0" TextWrapping="Wrap" Text="Search" VerticalContentAlignment="Center" Width="160"/>
                 <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" />
             </DockPanel>
-            <TreeView Name="TvPackages" HorizontalContentAlignment="Stretch">
+            <TreeView Name="TvPackages" HorizontalContentAlignment="Stretch" Width="auto">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Setter Property="IsExpanded" Value="True"/>
+                        <Setter Property="MinWidth" Value="460" />
+                        <Setter Property="Padding" Value="1,1,1,1" />
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </TreeView.ItemContainerStyle>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type shared:PackageCategoryTreeItem}" ItemsSource="{Binding Items}">
-                        <StackPanel Orientation="Horizontal">
-                            <CheckBox KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsGroupSelected}" />
-                            <TextBlock FontWeight="Bold" FontSize="14" Text="{Binding Name}"/>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="21"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox VerticalAlignment="Center" KeyboardNavigation.TabNavigation="None" Focusable="False" Grid.Column="0" IsChecked="{Binding IsGroupSelected}" />
+                            <TextBlock Grid.Column="1" FontWeight="Bold" Text="{Binding Name}" />
+                        </Grid>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type shared:PackageMenuItem}">
-                        <StackPanel Orientation="Horizontal">
-                            <CheckBox KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
-                            <TextBlock Text="{Binding Title}" Width="Auto"/>
-                            <TextBlock Text="{Binding Version}" TextAlignment="Right" />
-                            <TextBlock Text="{Binding FileSize}" />
-                            <TextBlock Text="{Binding Status}" />
-                        </StackPanel>
+                        <Grid MinWidth="460">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="21"/>
+                                <ColumnDefinition Width="5*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="4*"/>
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
+                            <TextBlock Grid.Column="1" Text="{Binding Title}" Width="Auto"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Version}" TextAlignment="Right" Margin="0,0,4,0"/>
+                            <TextBlock Grid.Column="3" Text="{Binding FileSize}" />
+                            <TextBlock Grid.Column="4" Text="{Binding Status}" />
+                        </Grid>
                     </DataTemplate>
                 </TreeView.Resources>
             </TreeView>

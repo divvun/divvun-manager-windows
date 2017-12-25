@@ -72,7 +72,7 @@ namespace Bahkat.UI.Main
             return map.OrderBy(x => x.Key).Select(x =>
             {
                 x.Value.Sort();
-                var items = new ObservableItemList<PackageMenuItem>(x.Value);
+                var items = new ObservableCollection<PackageMenuItem>(x.Value);
                 return new PackageCategoryTreeItem(_store, x.Key, items);
             });
         }
@@ -97,7 +97,7 @@ namespace Bahkat.UI.Main
             return map.OrderBy(x => x.Key).Select(x =>
             {
                 x.Value.Sort();
-                var items = new ObservableItemList<PackageMenuItem>(x.Value);
+                var items = new ObservableCollection<PackageMenuItem>(x.Value);
                 return new PackageCategoryTreeItem(_store, new CultureInfo(x.Key).DisplayName, items);
             });
             

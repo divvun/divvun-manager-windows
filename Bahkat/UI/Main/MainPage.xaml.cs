@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
@@ -34,12 +35,17 @@ namespace Bahkat.UI.Main
         {
             InitializeComponent();
 
-            _packageToggled = TvPackages.ReactiveKeyDown()
-                .Where(x => x.EventArgs.Key == Key.Space)
+            _packageToggled = Observable.Merge(
+                TvPackages.ReactiveKeyDown()
+                    .Where(x => x.EventArgs.Key == Key.Space)
+                    .Select(_ => Unit.Default),
+                TvPackages.ReactiveDoubleClick()
+                    .Select(_ => Unit.Default))
                 .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
                 .NotNull();
             
-            _groupToggled = TvPackages.ReactiveKeyDown()
+            _groupToggled = 
+                TvPackages.ReactiveKeyDown()
                 .Where(x => x.EventArgs.Key == Key.Space)
                 .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
                 .NotNull();

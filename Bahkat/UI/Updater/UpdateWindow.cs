@@ -16,6 +16,7 @@ namespace Bahkat.UI.Updater
         IObservable<EventArgs> OnInstallClicked();
         IObservable<EventArgs> OnRemindMeLaterClicked();
         IObservable<EventArgs> OnSkipClicked();
+        IObservable<PackageMenuItem> OnPackageToggled();
         void StartDownloading();
         void UpdatePrimaryButton(bool isEnabled, string label);
         void SetPackagesModel(ObservableCollection<PackageMenuItem> items);
@@ -29,8 +30,8 @@ namespace Bahkat.UI.Updater
         private readonly RepositoryService _repoServ;
         private readonly PackageService _pkgServ;
         private readonly PackageStore _store;
-        private ObservableItemList<PackageMenuItem> _listItems =
-            new ObservableItemList<PackageMenuItem>();
+        private ObservableCollection<PackageMenuItem> _listItems =
+            new ObservableCollection<PackageMenuItem>();
         
         public UpdateWindowPresenter(IUpdateWindowView view, RepositoryService repoServ, PackageService pkgServ, PackageStore store)
         {
@@ -91,8 +92,13 @@ namespace Bahkat.UI.Updater
             return _view.OnInstallClicked().Subscribe(_ => _view.StartDownloading());
         }
 
-        // TODAY: add registry watcher
-        // TODAY: test tree view for making the UI suck less
+        private IDisposable BindPackageToggled()
+        {
+            return _view.OnPackageToggled()
+                .Select(item => PackageAction.TogglePackage(item.Model, !item.IsSelected))
+                .Subscribe(_store.Dispatch);
+        }
+        
         private IDisposable BindSkipButtonPress()
         {
             return _view.OnSkipClicked()
@@ -119,7 +125,8 @@ namespace Bahkat.UI.Updater
                 BindPrimaryButton(_view, _store),
                 BindRefreshPackageList(),
                 BindSkipButtonPress(),
-                BindPrimaryButtonPress());
+                BindPrimaryButtonPress(),
+                BindPackageToggled());
         }  
     }
 }
