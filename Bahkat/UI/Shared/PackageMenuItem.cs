@@ -21,17 +21,18 @@ namespace Bahkat.UI.Shared
 
         private CompositeDisposable _bag = new CompositeDisposable();
         
+        // TODO: add a subscriber to the registry to stop this from firing so often
         private PackageInstallStatus _status => _pkgServ.GetInstallStatus(Model);
         private bool _isSelected = false;
         private ObservableCollection<PackageMenuItem> _itemSource;
 
-        private IEnumerable<PackageMenuItem> _selectedGroupItems
+        private PackageMenuItem[] _selectedGroupItems
         {
             get
             {
                 var cvs = (CollectionView) CollectionViewSource.GetDefaultView(_itemSource);
                 var vg = cvs.Groups.Select(x => (CollectionViewGroup) x).First(x => x.Items.Contains(this));
-                return vg.Items.Select(x => (PackageMenuItem)x);
+                return vg.Items.Select(x => (PackageMenuItem)x).ToArray();
             }
         }
 
@@ -53,28 +54,7 @@ namespace Bahkat.UI.Shared
 
         public string Title => Model.NativeName;
         public string Version => Model.Version;
-
-        public string Status
-        {
-            get
-            {
-                switch (_status)
-                {
-                    case PackageInstallStatus.ErrorNoInstaller:
-                        return Strings.ErrorNoInstaller;
-                    case PackageInstallStatus.ErrorParsingVersion:
-                        return Strings.ErrorInvalidVersion;
-                    case PackageInstallStatus.RequiresUpdate:
-                        return Strings.UpdateAvailable;
-                    case PackageInstallStatus.NotInstalled:
-                        return Strings.NotInstalled;
-                    case PackageInstallStatus.UpToDate:
-                        return Strings.Installed;
-                    default:
-                        return Strings.ErrorUnknownPackage;
-                }
-            }
-        }
+        public string Status => _status.Description();
 
         public string FileSize
         {
@@ -97,7 +77,7 @@ namespace Bahkat.UI.Shared
         public bool IsGroupSelected
         {
             get =>  _selectedGroupItems.All(x => x.IsSelected);
-            set => _store.Dispatch(PackageAction.ToggleGroup(_selectedGroupItems.Select(x => x.Model), value));
+            set => _store.Dispatch(PackageAction.ToggleGroup(_selectedGroupItems.Select(x => x.Model).ToArray(), value));
         }
 
         public void Dispose()

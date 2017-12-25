@@ -213,4 +213,7 @@
   <data name="NoUpdatesBody" xml:space="preserve">
     <value>No new updates were found.</value>
   </data>
+  <data name="VersionSkipped" xml:space="preserve">
+    <value>Version Skipped</value>
+  </data>
 </root>

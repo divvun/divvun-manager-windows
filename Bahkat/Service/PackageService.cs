@@ -6,7 +6,6 @@ using Microsoft.Win32;
 using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using Bahkat.Models;
@@ -19,8 +18,33 @@ namespace Bahkat.Service
         NotInstalled,
         UpToDate,
         RequiresUpdate,
+        VersionSkipped,
         ErrorNoInstaller,
         ErrorParsingVersion
+    }
+
+    public static class PackageInstallStatusExtensions
+    {
+        public static string Description(this PackageInstallStatus status)
+        {
+            switch (status)
+            {
+                case PackageInstallStatus.ErrorNoInstaller:
+                    return Strings.ErrorNoInstaller;
+                case PackageInstallStatus.ErrorParsingVersion:
+                    return Strings.ErrorInvalidVersion;
+                case PackageInstallStatus.RequiresUpdate:
+                    return Strings.UpdateAvailable;
+                case PackageInstallStatus.NotInstalled:
+                    return Strings.NotInstalled;
+                case PackageInstallStatus.UpToDate:
+                    return Strings.Installed;
+                case PackageInstallStatus.VersionSkipped:
+                    return Strings.VersionSkipped;
+            }
+
+            return null;
+        }
     }
 
     public struct PackageProgress
@@ -38,12 +62,18 @@ namespace Bahkat.Service
     public interface IPackageService
     {
         PackageInstallStatus GetInstallStatus(Package package);
+        void SkipVersion(Package package);
         IObservable<PackagePath> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken);
     }
     
     public class PackageService : IPackageService
     {
-        public static readonly string UninstallKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+        public static class Keys
+        {
+            public const string UninstallPath = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+            public const string DisplayVersion = "DisplayVersion";
+            public const string SkipVersion = "SkipVersion";
+        }
         
         private readonly IWindowsRegistry _registry;
         
@@ -91,6 +121,7 @@ namespace Bahkat.Service
 
                 return Observable.Create<string>(observer =>
                 {
+                    // TODO: turn this into reactive extension... extension
                     var watcher = Observable.FromEventPattern<AsyncCompletedEventHandler, AsyncCompletedEventArgs>(
                         x => client.DownloadFileCompleted += x,
                         x => client.DownloadFileCompleted -= x)
@@ -114,7 +145,6 @@ namespace Bahkat.Service
             }
         }
 
-        // TODO integration testing lol
         private IObservable<PackagePath> Download(PackageProgress pd, CancellationToken cancelToken)
         {
             var inst = pd.Package.Installer;
@@ -151,16 +181,15 @@ namespace Bahkat.Service
 
             var installer = package.Installer;
             var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
-            var path = UninstallKeyPath + @"\" + installer.ProductCode;
+            var path = $@"{Keys.UninstallPath}\{installer.ProductCode}";
             var instKey = hklm.OpenSubKey(path);
-            Console.WriteLine("{0} {1}", path, instKey);
 
             if (instKey == null)
             {
                 return PackageInstallStatus.NotInstalled;
             }
             
-            var displayVersion = instKey.Get("DisplayVersion", "");
+            var displayVersion = instKey.Get(Keys.DisplayVersion, "");
             if (displayVersion == "")
             {
                 return PackageInstallStatus.ErrorParsingVersion;
@@ -171,6 +200,11 @@ namespace Bahkat.Service
             {
                 return comp;
             }
+
+            if (GetSkipVersion(package) == package.Version)
+            {
+                return PackageInstallStatus.VersionSkipped;
+            }
                 
             comp = CompareVersion(SemanticVersion.Create, package.Version, displayVersion);
             if (comp != PackageInstallStatus.ErrorParsingVersion)
@@ -179,6 +213,24 @@ namespace Bahkat.Service
             }
 
             return PackageInstallStatus.ErrorParsingVersion;
+        }
+
+        public void SkipVersion(Package package)
+        {
+            var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
+            var path = $@"{AppConfigState.Keys.SubkeyId}\{package.Installer.ProductCode}";
+            var instKey = hklm.CreateSubKey(path);
+            
+            instKey.Set(Keys.SkipVersion, package.Version, RegistryValueKind.String);
+        }
+
+        private string GetSkipVersion(Package package)
+        {
+            var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
+            var path = $@"{AppConfigState.Keys.SubkeyId}\{package.Installer.ProductCode}";
+            var instKey = hklm.OpenSubKey(path);
+
+            return instKey?.Get<string>(Keys.SkipVersion);
         }
 
         /// <summary>

@@ -91,6 +91,24 @@ namespace Bahkat.UI.Updater
             return _view.OnInstallClicked().Subscribe(_ => _view.StartDownloading());
         }
 
+        private IDisposable BindSkipButtonPress()
+        {
+            return _view.OnSkipClicked()
+                .Select(_ => _store.State.Select(x => x.SelectedPackages))
+                .Switch()
+                .Take(1)
+                .Subscribe(pkgs =>
+                {
+                    foreach (var pkg in pkgs)
+                    {
+                        _pkgServ.SkipVersion(pkg);
+
+                    }
+                    
+                    _store.Dispatch(PackageAction.ToggleGroup(pkgs.ToArray(), false));
+                });
+        }
+
         public IDisposable Start()
         {
             _view.SetPackagesModel(_listItems);
@@ -98,6 +116,7 @@ namespace Bahkat.UI.Updater
             return new CompositeDisposable(
                 BindPrimaryButton(_view, _store),
                 BindRefreshPackageList(),
+                BindSkipButtonPress(),
                 BindPrimaryButtonPress());
         }
     }

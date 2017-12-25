@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 
@@ -10,7 +11,7 @@ namespace Bahkat.Util
         IWindowsRegKey LocalMachine { get; }
 
         IWindowsRegKey OpenBaseKey(RegistryHive key, RegistryView view);
-        
+        T Get<T>(string keyName, string valueName) where T : class;
         T Get<T>(string keyName, string valueName, T defaultValue) where T : class;
         T Get<T>(string keyName, string valueName, Func<object, T> handler);
         void Set<T>(string keyName, string valueName, T value, RegistryValueKind kind) where T : class;
@@ -18,6 +19,7 @@ namespace Bahkat.Util
     
     public interface IWindowsRegKey
     {
+        T Get<T>(string valueName) where T : class;
         T Get<T>(string valueName, T defaultValue) where T : class;
         T Get<T>(string valueName, Func<object, T> handler);
         void Set<T>(string valueName, T value, RegistryValueKind kind) where T : class;
@@ -34,10 +36,15 @@ namespace Bahkat.Util
         {
             _rk = regKey ?? throw new ArgumentNullException(nameof(regKey));
         }
-        
+
+        public T Get<T>(string valueName) where T : class
+        {
+            return _rk.GetValue(valueName) as T;
+        }
+
         public T Get<T>(string valueName, T defaultValue) where T : class
         {
-            Console.WriteLine("{0}, {1}, {2}", valueName, defaultValue, _rk == null);
+            //Console.WriteLine("{0}, {1}, {2}", valueName, defaultValue, _rk == null);
             return _rk.GetValue(valueName, defaultValue) as T;
         }
 
@@ -70,7 +77,12 @@ namespace Bahkat.Util
         public IWindowsRegKey OpenBaseKey(RegistryHive key, RegistryView view)
         {
             var bk = RegistryKey.OpenBaseKey(key, view);
-            return bk == null ? null : new WindowsRegKey(bk);
+            return bk != null ? new WindowsRegKey(bk) : null;
+        }
+
+        public T Get<T>(string keyName, string valueName) where T : class
+        {
+            return Registry.GetValue(keyName, valueName, null) as T;
         }
 
         public T Get<T>(string keyName, string valueName, T defaultValue) where T : class
@@ -101,7 +113,12 @@ namespace Bahkat.Util
             _registry = registry;
             _name = name;
         }
-        
+
+        public T Get<T>(string valueName) where T : class
+        {
+            return _registry.Get<T>(_name, valueName);
+        }
+
         public T Get<T>(string valueName, T defaultValue) where T : class
         {
             return _registry.Get(_name, valueName, defaultValue);
@@ -165,19 +182,24 @@ namespace Bahkat.Util
             return new MockRegKey(this, ConvertHiveToString(key));
         }
 
-        public T Get<T>(string keyName, string valueName, T defaultValue) where T : class
+        public T Get<T>(string keyName, string valueName) where T : class
         {
             if (!Store.ContainsKey(keyName))
             {
-                return defaultValue;
+                return null;
             }
             
             if (Store[keyName].ContainsKey(valueName))
             {
-                return Store[keyName][valueName] as T ?? defaultValue;
+                return Store[keyName][valueName] as T;
             }
 
-            return defaultValue;
+            return null;
+        }
+
+        public T Get<T>(string keyName, string valueName, T defaultValue) where T : class
+        {
+            return Get<T>(keyName, valueName) ?? defaultValue;
         }
 
         public T Get<T>(string keyName, string valueName, Func<object, T> handler)

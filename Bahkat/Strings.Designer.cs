@@ -329,5 +329,14 @@ namespace Bahkat {
                 return ResourceManager.GetString("UpdateFrequency", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version Skipped.
+        /// </summary>
+        internal static string VersionSkipped {
+            get {
+                return ResourceManager.GetString("VersionSkipped", resourceCulture);
+            }
+        }
     }
 }

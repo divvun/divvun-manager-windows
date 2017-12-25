@@ -4,10 +4,10 @@ using System.Globalization;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using Bahkat.Extensions;
 using Bahkat.Models;
 using Bahkat.UI.Settings;
@@ -66,21 +66,22 @@ namespace Bahkat.UI.Main
     public partial class MainPage : Page, IMainPageView, IDisposable
     {
         private readonly MainPagePresenter _presenter;
-
-        private readonly Subject<Package> _packageDeselectSubject = new Subject<Package>();
-        private readonly Subject<Package> _packageSelectSubject = new Subject<Package>();
+        private IObservable<PackageMenuItem> _packageToggled;
         private CompositeDisposable _bag = new CompositeDisposable();
 
-        public IObservable<Package> OnPackageDeselected() => _packageDeselectSubject;
-        public IObservable<Package> OnPackageSelected() => _packageSelectSubject;
+        public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
             .Select(e => e.EventArgs);
         
         public MainPage()
         {
             InitializeComponent();
-            var app = (IBahkatApp)Application.Current;
 
+            _packageToggled = LvPackages.ReactiveKeyDown()
+                .Where(x => x.EventArgs.Key == Key.Space)
+                .Select(_ => (PackageMenuItem) LvPackages.SelectedItem);
+
+            var app = (IBahkatApp)Application.Current;
             _presenter = new MainPagePresenter(this, 
                 app.RepositoryService,
                 app.PackageService,
@@ -148,8 +149,6 @@ namespace Bahkat.UI.Main
 
         public void Dispose()
         {
-            _packageDeselectSubject?.Dispose();
-            _packageSelectSubject?.Dispose();
             _bag.Dispose();
         }
     }

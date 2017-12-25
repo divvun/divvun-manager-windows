@@ -550,24 +550,24 @@ namespace Bahkat
             
             Assert.AreEqual(PackageInstallStatus.NotInstalled, pkgServ.GetInstallStatus(v1));
             
-            var subkey = reg.LocalMachine.CreateSubKey(PackageService.UninstallKeyPath + @"\test");
+            var subkey = reg.LocalMachine.CreateSubKey(PackageService.Keys.UninstallPath + @"\test");
             
-            subkey.Set("DisplayVersion", "2.0.0.0", RegistryValueKind.String);
+            subkey.Set(PackageService.Keys.DisplayVersion, "2.0.0.0", RegistryValueKind.String);
             Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
             
-            subkey.Set("DisplayVersion", "2.99.1000.42", RegistryValueKind.String);
+            subkey.Set(PackageService.Keys.DisplayVersion, "2.99.1000.42", RegistryValueKind.String);
             Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
             
-            subkey.Set("DisplayVersion", "3.0.0.0", RegistryValueKind.String);
+            subkey.Set(PackageService.Keys.DisplayVersion, "3.0.0.0", RegistryValueKind.String);
             Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
             
-            subkey.Set("DisplayVersion", "3.3.0.0", RegistryValueKind.String);
+            subkey.Set(PackageService.Keys.DisplayVersion, "3.3.0.0", RegistryValueKind.String);
             Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.GetInstallStatus(v1));
             
-            subkey.Set("DisplayVersion", "4.0.0.0", RegistryValueKind.String);
+            subkey.Set(PackageService.Keys.DisplayVersion, "4.0.0.0", RegistryValueKind.String);
             Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.GetInstallStatus(v1));
             
-            subkey.Set("DisplayVersion", "ahahahaha ahahahaha oh nø", RegistryValueKind.String);
+            subkey.Set(PackageService.Keys.DisplayVersion, "ahahahaha ahahahaha oh nø", RegistryValueKind.String);
             Assert.AreEqual(PackageInstallStatus.ErrorParsingVersion, pkgServ.GetInstallStatus(v1));
         }
         
@@ -596,8 +596,8 @@ namespace Bahkat
                         var installer = t.Package.Installer;
                         
                         _registry.LocalMachine.CreateSubKey(
-                                PackageService.UninstallKeyPath + @"\" + installer.ProductCode)
-                            .Set("DisplayVersion",
+                                PackageService.Keys.UninstallPath + @"\" + installer.ProductCode)
+                            .Set(PackageService.Keys.DisplayVersion,
                                 t.Package.Version,
                                 RegistryValueKind.String);
                         

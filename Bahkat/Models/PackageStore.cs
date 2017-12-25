@@ -85,7 +85,7 @@ namespace Bahkat.Models
             };
         }
 
-        public static IPackageEvent ToggleGroup(IEnumerable<Package> packages, bool value)
+        public static IPackageEvent ToggleGroup(Package[] packages, bool value)
         {
             return new ToggleGroup
             {
@@ -125,7 +125,7 @@ namespace Bahkat.Models
 
         public struct ToggleGroup : IPackageEvent
         {
-            public IEnumerable<Package> Packages;
+            public Package[] Packages;
             public bool Value;
         }
 

@@ -12,8 +12,7 @@ namespace Bahkat.UI.Main
 {
     public interface IMainPageView : IPageView
     {
-        IObservable<Package> OnPackageSelected();
-        IObservable<Package> OnPackageDeselected();
+        IObservable<PackageMenuItem> OnPackageToggled();
         IObservable<EventArgs> OnPrimaryButtonPressed();
         void UpdateTitle(string title);
         void SetPackagesModel(ObservableCollection<PackageMenuItem> model);
@@ -54,17 +53,10 @@ namespace Bahkat.UI.Main
                 });
         }
 
-        private IDisposable BindAddSelectedPackage(IMainPageView view, PackageStore store)
+        private IDisposable BindPackageToggled(IMainPageView view, PackageStore store)
         {
-            return view.OnPackageSelected()
-                .Select(PackageAction.AddSelectedPackage)
-                .Subscribe(store.Dispatch);
-        }
-        
-        private IDisposable BindRemoveSelectedPackage(IMainPageView view, PackageStore store)
-        {
-            return view.OnPackageDeselected()
-                .Select(PackageAction.RemoveSelectedPackage)
+            return view.OnPackageToggled()
+                .Select(item => PackageAction.TogglePackage(item.Model, !item.IsSelected))
                 .Subscribe(store.Dispatch);
         }
 
@@ -106,7 +98,7 @@ namespace Bahkat.UI.Main
                 }, _view.HandleError);
         }
 
-        private IDisposable BindPrimaryButton(IMainPageView view, PackageStore store)
+        private IDisposable BindPrimaryButtonLabel(IMainPageView view, PackageStore store)
         {
             return store.State
                 .Select(state => state.SelectedPackages)
@@ -136,10 +128,9 @@ namespace Bahkat.UI.Main
             _view.SetPackagesModel(_listItems);
 
             return new CompositeDisposable(
-                BindPrimaryButton(_view, _store),
+                BindPrimaryButtonLabel(_view, _store),
                 BindUpdatePackageList(_repoServ, _pkgServ, _store),
-                BindAddSelectedPackage(_view, _store),
-                BindRemoveSelectedPackage(_view, _store),
+                BindPackageToggled(_view, _store),
                 BindPrimaryButton(_view),
                 BindFilter(_view, _repoServ)
             );
