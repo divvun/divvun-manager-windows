@@ -230,11 +230,6 @@ namespace Bahkat.Models
             VirtualsIndex = virtualsIndex;
         }
 
-        public override string ToString()
-        {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
-        }
-
         public bool Equals(Repository other)
         {
             if (ReferenceEquals(null, other)) return false;

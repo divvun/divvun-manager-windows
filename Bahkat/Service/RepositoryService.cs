@@ -184,7 +184,6 @@ namespace Bahkat.Service
                     return state;
                 case SetRepository v:
                     Console.WriteLine("Set repository.");
-                    Console.WriteLine(v.RepoResult.Repository?.ToString());
                     state.RepoResult = v.RepoResult;
                     return state;
             }

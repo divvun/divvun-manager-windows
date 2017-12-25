@@ -161,8 +161,6 @@ namespace Bahkat.Models
     {
         private static PackageState Reduce(PackageState state, IStoreEvent e)
         {   
-            Console.WriteLine(e);
-            
             switch (e as IPackageEvent)
             {
                 case null:
@@ -201,8 +199,6 @@ namespace Bahkat.Models
                     break;
             }
             
-            Console.WriteLine(JsonConvert.SerializeObject(state.SelectedPackages.Select(x => x.Id).ToArray()));
-
             return state;
         }
 
