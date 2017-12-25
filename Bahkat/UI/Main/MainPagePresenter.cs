@@ -11,18 +11,6 @@ using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Main
 {
-    public interface IMainPageView : IPageView
-    {
-        IObservable<PackageMenuItem> OnPackageToggled();
-        IObservable<PackageCategoryTreeItem> OnGroupToggled();
-        IObservable<EventArgs> OnPrimaryButtonPressed();
-        void UpdateTitle(string title);
-        void SetPackagesModel(ObservableCollection<PackageCategoryTreeItem> tree);
-        void ShowDownloadPage();
-        void UpdatePrimaryButton(bool isEnabled, string label);
-        void HandleError(Exception error);
-    }
-
     public class MainPagePresenter
     {
         private ObservableCollection<PackageCategoryTreeItem> _tree =
@@ -181,7 +169,6 @@ namespace Bahkat.UI.Main
                 BindPackageToggled(_view, _store),
                 BindGroupToggled(_view, _store),
                 BindPrimaryButton(_view)
-//                BindFilter(_view, _repoServ)
             );
         }
     }

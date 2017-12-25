@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Security.Permissions;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Bahkat.Extensions;
 using Bahkat.Models;
@@ -27,24 +23,6 @@ using Trustsoft.SingleInstanceApp;
 
 namespace Bahkat
 {
-    public static class Shared {
-        public static string BytesToString(long bytes)
-        {
-            string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
-            if (bytes == 0)
-            {
-                return "0 " + suf[0];
-            }
-            var place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
-            if (place >= suf.Length)
-            {
-                return "--";
-            }
-            var num = Math.Round(bytes / Math.Pow(1024, place), 2);
-            return num.ToString(CultureInfo.CurrentCulture) + " " + suf[place];
-        }
-    }
-    
     public interface IBahkatApp
     {
         AppConfigStore ConfigStore { get; }

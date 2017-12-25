@@ -19,9 +19,19 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Bahkat.Extensions;
 using Bahkat.Service;
+using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Main
 {
+    public interface IDownloadPageView : IPageView
+    {
+        void StartInstallation(PackagePath[] packages);
+        void InitProgressList(ObservableCollection<DownloadListItem> source);
+        IObservable<EventArgs> OnCancelClicked();
+        void DownloadCancelled();
+        void HandleError(Exception error);
+    }
+
     /// <summary>
     /// Interaction logic for DownloadPage.xaml
     /// </summary>

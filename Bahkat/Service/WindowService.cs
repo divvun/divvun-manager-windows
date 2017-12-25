@@ -5,6 +5,7 @@ using System.Windows;
 using Bahkat.Extensions;
 using Bahkat.UI;
 using Bahkat.UI.Main;
+using Bahkat.UI.Shared;
 using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 
 namespace Bahkat.Service

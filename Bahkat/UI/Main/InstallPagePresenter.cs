@@ -1,18 +1,10 @@
 ﻿using System;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using Bahkat.Models;
 using Bahkat.Service;
 
 namespace Bahkat.UI.Main
 {
-    public interface IInstallPageView : IPageView
-    {
-        void SetCurrentPackage(Package package);
-        void ShowCompletion(ProcessResult[] results);
-        void HandleError(Exception error);
-    }
-
     public class InstallPagePresenter
     {
         private readonly IInstallPageView _view;

@@ -1,26 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Bahkat.Extensions;
 using Bahkat.Models;
 using Bahkat.Service;
-using Bahkat.Util;
+using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Main
 {
+    public interface IInstallPageView : IPageView
+    {
+        void SetCurrentPackage(Package package);
+        void ShowCompletion(ProcessResult[] results);
+        void HandleError(Exception error);
+    }
+
     /// <summary>
     /// Interaction logic for InstallPage.xaml
     /// </summary>

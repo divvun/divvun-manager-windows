@@ -11,15 +11,6 @@ using Bahkat.Models;
 
 namespace Bahkat.UI.Main
 {
-    public interface IDownloadPageView : IPageView
-    {
-        void StartInstallation(PackagePath[] packages);
-        void InitProgressList(ObservableCollection<DownloadListItem> source);
-        IObservable<EventArgs> OnCancelClicked();
-        void DownloadCancelled();
-        void HandleError(Exception error);
-    }
-
     public class DownloadListItem : INotifyPropertyChanged, IEquatable<DownloadListItem>
     {
         public bool Equals(DownloadListItem other)
@@ -71,7 +62,7 @@ namespace Bahkat.UI.Main
                 
                 if (Downloaded < FileSize)
                 {
-                    return Bahkat.Shared.BytesToString(Downloaded);
+                    return Util.Util.BytesToString(Downloaded);
                 }
 
                 return Strings.Downloaded;

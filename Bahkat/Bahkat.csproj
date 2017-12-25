@@ -134,41 +134,41 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
-    <Compile Include="UI\Interfaces.cs" />
     <Compile Include="UI\Main\CompletionPage.xaml.cs">
       <DependentUpon>CompletionPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Main\DownloadPage.cs" />
+    <Compile Include="UI\Main\DownloadPagePresenter.cs" />
     <Compile Include="UI\Main\DownloadPage.xaml.cs">
       <DependentUpon>DownloadPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Main\InstallPage.cs" />
+    <Compile Include="UI\Main\InstallPagePresenter.cs" />
     <Compile Include="UI\Main\InstallPage.xaml.cs">
       <DependentUpon>InstallPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Main\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Main\MainWindow.cs" />
+    <Compile Include="UI\Main\MainWindowPresenter.cs" />
     <Compile Include="UI\Main\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Settings\SettingsWindow.cs" />
+    <Compile Include="UI\Settings\SettingsWindowPresenter.cs" />
     <Compile Include="UI\Settings\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Shared\Interfaces.cs" />
     <Compile Include="UI\Shared\PackageCategoryTreeItem.cs" />
     <Compile Include="UI\Shared\PackageMenuItem.cs" />
-    <Compile Include="UI\Updater\UpdateWindow.cs" />
+    <Compile Include="UI\Updater\UpdateWindowPresenter.cs" />
     <Compile Include="UI\Updater\UpdateWindow.xaml.cs">
       <DependentUpon>UpdateWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UI\Main\MainPage.cs" />
+    <Compile Include="UI\Main\MainPagePresenter.cs" />
     <Compile Include="Util\ReactiveProcess.cs" />
     <Compile Include="Util\RxFeedback.cs" />
-    <Compile Include="Util\RxSystem.cs" />
+    <Compile Include="Util\Util.cs" />
     <Compile Include="Util\WindowsRegistry.cs" />
   </ItemGroup>
   <ItemGroup>

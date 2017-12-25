@@ -6,24 +6,10 @@ using System.Reactive.Linq;
 using Bahkat.Extensions;
 using Bahkat.Models;
 using Bahkat.Service;
-using Bahkat.UI.Main;
 using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Updater
 {
-    public interface IUpdateWindowView : IWindowView
-    {
-        IObservable<EventArgs> OnInstallClicked();
-        IObservable<EventArgs> OnRemindMeLaterClicked();
-        IObservable<EventArgs> OnSkipClicked();
-        IObservable<PackageMenuItem> OnPackageToggled();
-        void StartDownloading();
-        void UpdatePrimaryButton(bool isEnabled, string label);
-        void SetPackagesModel(ObservableCollection<PackageMenuItem> items);
-        void HandleError(Exception error);
-        void CloseMainWindow();
-    }
-    
     public class UpdateWindowPresenter
     {
         private readonly IUpdateWindowView _view;

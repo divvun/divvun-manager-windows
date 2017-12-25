@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Reactive.Concurrency;
-using System.Reactive.Feedback;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
@@ -13,6 +12,7 @@ using Bahkat.Extensions;
 using Bahkat.Models;
 using Bahkat.Properties;
 using Bahkat.Service.RepositoryServiceEvent;
+using Bahkat.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

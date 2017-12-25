@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Windows.Data;
 using Bahkat.Models;
 using Bahkat.Service;
 
@@ -23,7 +19,7 @@ namespace Bahkat.UI.Shared
         
         // TODO: add a subscriber to the registry to stop this from firing so often
         private PackageInstallStatus _status => _pkgServ.GetInstallStatus(Model);
-        private bool _isSelected = false;
+        private bool _isSelected;
 
         public PackageMenuItem(Package model, PackageService pkgServ, PackageStore store)
         {
@@ -50,7 +46,7 @@ namespace Bahkat.UI.Shared
             {
                 if (Model.Installer != null)
                 {
-                    return "(" + Bahkat.Shared.BytesToString(Model.Installer.InstalledSize) + ")";
+                    return "(" + Util.Util.BytesToString(Model.Installer.InstalledSize) + ")";
                 }
                 return Strings.NotApplicable;
             }

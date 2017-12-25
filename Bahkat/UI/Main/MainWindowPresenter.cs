@@ -1,22 +1,8 @@
 ﻿using System.Reactive.Concurrency;
+using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Main
 {
-    public interface IWindowView
-    {
-        void Show();
-    }
-
-    public interface IWindowPageView : IWindowView
-    {
-        void ShowPage(IPageView pageView);
-    }
-    
-    public interface IMainWindowView : IWindowPageView
-    {
-        void ShowMainPage();
-    }
-    
     public class MainWindowPresenter
     {
         private readonly IMainWindowView _mainWindow;

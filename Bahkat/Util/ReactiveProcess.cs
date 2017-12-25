@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 
 namespace Bahkat.Util
 {

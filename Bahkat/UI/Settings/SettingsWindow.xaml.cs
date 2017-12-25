@@ -2,6 +2,11 @@
 
 namespace Bahkat.UI.Settings
 {
+    public interface ISettingsWindowView
+    {
+        void Show();
+    }
+    
     /// <summary>
     /// Interaction logic for SettingsWindow.xaml
     /// </summary>

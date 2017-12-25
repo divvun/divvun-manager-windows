@@ -1,21 +1,29 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
 using Bahkat.Extensions;
-using Bahkat.Models;
 using Bahkat.UI.Settings;
 using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Main
 {
+    public interface IMainPageView : IPageView
+    {
+        IObservable<PackageMenuItem> OnPackageToggled();
+        IObservable<PackageCategoryTreeItem> OnGroupToggled();
+        IObservable<EventArgs> OnPrimaryButtonPressed();
+        void UpdateTitle(string title);
+        void SetPackagesModel(ObservableCollection<PackageCategoryTreeItem> tree);
+        void ShowDownloadPage();
+        void UpdatePrimaryButton(bool isEnabled, string label);
+        void HandleError(Exception error);
+    }
+
     /// <summary>
     /// Interaction logic for MainPage.xaml
     /// </summary>

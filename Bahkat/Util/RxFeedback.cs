@@ -1,9 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
-namespace System.Reactive.Feedback
+namespace Bahkat.Util
 {
     public struct ObservableSchedulerContext<T> : IObservable<T>
     {
@@ -83,33 +84,6 @@ namespace System.Reactive.Feedback
         }
     }
 
-    public static class FeedbackLoops
-    {
-        public static Func<ObservableSchedulerContext<TState>, IObservable<TEvent>>
-        React<TState, TEvent, TControl>(
-            Func<TState, TControl> query,
-            Func<TControl, IObservable<TEvent>> effects
-        ) // where TControl : TEvent
-        {
-            return state =>
-            {
-                return state.Select(query)
-                    .DistinctUntilChanged()
-                    .SelectMany(control =>
-                    {
-                        if (control == null)
-                        {
-                            return Observable.Empty<TEvent>();
-                        }
-
-                        return effects(control)
-                            .ObserveOn(state.Scheduler)
-                            .SubscribeOn(state.Scheduler);
-                    });
-            };
-        }
-    }
-
     public class UIBindings<TEvent> : IDisposable
     {
         private IDisposable[] subscriptions;
@@ -133,7 +107,6 @@ namespace System.Reactive.Feedback
 
         public void Dispose()
         {
-            Console.WriteLine("DISPOSED");
             foreach (var subscription in subscriptions)
             {
                 subscription.Dispose();

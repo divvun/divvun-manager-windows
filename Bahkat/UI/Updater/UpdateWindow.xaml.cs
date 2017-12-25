@@ -11,6 +11,19 @@ using Bahkat.UI.Shared;
 
 namespace Bahkat.UI.Updater
 {
+    public interface IUpdateWindowView : IWindowView
+    {
+        IObservable<EventArgs> OnInstallClicked();
+        IObservable<EventArgs> OnRemindMeLaterClicked();
+        IObservable<EventArgs> OnSkipClicked();
+        IObservable<PackageMenuItem> OnPackageToggled();
+        void StartDownloading();
+        void UpdatePrimaryButton(bool isEnabled, string label);
+        void SetPackagesModel(ObservableCollection<PackageMenuItem> items);
+        void HandleError(Exception error);
+        void CloseMainWindow();
+    }
+    
     /// <summary>
     /// Interaction logic for UpdateWindow.xaml
     /// </summary>
