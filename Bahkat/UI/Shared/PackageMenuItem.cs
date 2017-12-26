@@ -46,7 +46,7 @@ namespace Bahkat.UI.Shared
             {
                 if (Model.Installer != null)
                 {
-                    return "(" + Util.Util.BytesToString(Model.Installer.InstalledSize) + ")";
+                    return "(" + Util.Util.BytesToString(Model.Installer.Size) + ")";
                 }
                 return Strings.NotApplicable;
             }
