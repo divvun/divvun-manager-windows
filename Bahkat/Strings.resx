@@ -231,4 +231,15 @@
   <data name="SkipTheseUpdates" xml:space="preserve">
     <value>Skip These Updates</value>
   </data>
+  <data name="InstallingPackage" xml:space="preserve">
+    <value>Installing {0} {1}...</value>
+    <comment>Package native name, then version number</comment>
+  </data>
+  <data name="NItemsRemaining" xml:space="preserve">
+    <value>{0} items remaining.</value>
+  </data>
+  <data name="UninstallingPackage" xml:space="preserve">
+    <value>Uninstalling {0} {1}...</value>
+    <comment>Same as install but for uninstall</comment>
+  </data>
 </root>

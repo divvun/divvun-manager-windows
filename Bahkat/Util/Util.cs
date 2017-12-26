@@ -20,5 +20,29 @@ namespace Bahkat.Util
             var num = Math.Round(bytes / Math.Pow(1024, place), 2);
             return num.ToString(CultureInfo.CurrentCulture) + " " + suf[place];
         }
+
+        public static CultureInfo GetCulture(string tag)
+        {
+            try
+            {
+                return new CultureInfo(tag);
+            }
+            catch (Exception)
+            {
+                return CultureInfo.CurrentCulture;
+            }
+        }
+
+        public static string GetCultureDisplayName(string tag)
+        {
+            try
+            {
+                return new CultureInfo(tag).DisplayName;
+            }
+            catch (Exception e)
+            {
+                return tag;
+            }
+        }
     }
 }

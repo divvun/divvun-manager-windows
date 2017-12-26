@@ -196,6 +196,15 @@ namespace Bahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Installing {0} {1}....
+        /// </summary>
+        public static string InstallingPackage {
+            get {
+                return ResourceManager.GetString("InstallingPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Install {0} Packages.
         /// </summary>
         public static string InstallNPackages {
@@ -219,6 +228,15 @@ namespace Bahkat {
         public static string Loading {
             get {
                 return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} items remaining..
+        /// </summary>
+        public static string NItemsRemaining {
+            get {
+                return ResourceManager.GetString("NItemsRemaining", resourceCulture);
             }
         }
         
@@ -345,6 +363,15 @@ namespace Bahkat {
         public static string SkipTheseUpdates {
             get {
                 return ResourceManager.GetString("SkipTheseUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uninstalling {0} {1}....
+        /// </summary>
+        public static string UninstallingPackage {
+            get {
+                return ResourceManager.GetString("UninstallingPackage", resourceCulture);
             }
         }
         

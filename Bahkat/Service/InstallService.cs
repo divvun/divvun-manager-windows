@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Windows.Threading;
 using Bahkat.Models;
 using Bahkat.Util;
 
@@ -16,9 +19,16 @@ namespace Bahkat.Service
         public bool IsSuccess => ExitCode == 0;
     }
 
+    public struct OnStartPackageInfo
+    {
+        public Package Package;
+        public long Count;
+        public long Remaining;
+    }
+
     public interface IInstallService
     {
-        IObservable<ProcessResult> Process(PackagePath[] packages, Action<Package> onNext);
+        IObservable<ProcessResult> Process(PackagePath[] packages, Subject<OnStartPackageInfo> onStartPackage);
     }
     
     public class InstallService : IInstallService
@@ -51,12 +61,21 @@ namespace Bahkat.Service
                 .Take(1);
         }
 
-        public IObservable<ProcessResult> Process(PackagePath[] packages, Action<Package> onNext)
+        public IObservable<ProcessResult> Process(PackagePath[] packages, Subject<OnStartPackageInfo> onStartPackage)
         {
+            var total = packages.Length;
+            var i = 0;
+            
             return packages.Where(t => t.Package.Installer != null)
                 .Select(t =>
                 {
-                    onNext(t.Package);
+                    var remaining = total - i;
+                    onStartPackage.OnNext(new OnStartPackageInfo {
+                        Package = t.Package,
+                        Remaining = remaining,
+                        Count = i
+                    });
+                    i++;
                     var args = t.Package.Installer.SilentArgs;
                     return Install(t.Package, t.Path, args);
                 }).Concat();

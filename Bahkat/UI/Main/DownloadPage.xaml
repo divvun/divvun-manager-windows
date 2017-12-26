@@ -8,7 +8,7 @@
       d:DesignHeight="300" d:DesignWidth="300"
       Title="Downloading...">
 
-    <Grid>
+    <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="34"/>
@@ -33,7 +33,7 @@
                         <GridViewColumn>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <ProgressBar Margin="0,0,8,0" Height="24" Width="200" Minimum="0" Maximum="{Binding FileSize}" Value="{Binding Downloaded}" />
+                                    <ProgressBar Margin="0,0,8,0" Height="24" Width="200" Minimum="0" Maximum="{Binding FileSize}" Value="{Binding Downloaded, Mode=TwoWay}" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>

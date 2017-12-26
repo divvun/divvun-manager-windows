@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Bahkat.Models;
 using Bahkat.Models.AppConfigEvent;
 using Bahkat.Properties;
@@ -584,7 +585,7 @@ namespace Bahkat
                 _registry = registry;
             }
             
-            public IObservable<ProcessResult> Process(PackagePath[] packages, Action<Package> onNext)
+            public IObservable<ProcessResult> Process(PackagePath[] packages, Subject<OnStartPackageInfo> onStart)
             {
                 return packages.Where(t => t.Package.Installer != null)
                     .Select(t =>

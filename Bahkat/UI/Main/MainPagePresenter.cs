@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Bahkat.Extensions;
 using Bahkat.Models;
 using Bahkat.Service;
 using Bahkat.UI.Shared;
@@ -86,7 +87,7 @@ namespace Bahkat.UI.Main
             {
                 x.Value.Sort();
                 var items = new ObservableCollection<PackageMenuItem>(x.Value);
-                return new PackageCategoryTreeItem(_store, new CultureInfo(x.Key).DisplayName, items);
+                return new PackageCategoryTreeItem(_store, Util.Util.GetCultureDisplayName(x.Key), items);
             });
             
         }
@@ -97,7 +98,6 @@ namespace Bahkat.UI.Main
             
             if (_currentRepo == null)
             {
-                _tree.Add(new PackageCategoryTreeItem(_store, "The repo failed to download.", null));
                 Console.WriteLine("Repository empty.");
                 _view.UpdateTitle(Strings.AppName);
                 return;
@@ -126,8 +126,8 @@ namespace Bahkat.UI.Main
         private IDisposable BindUpdatePackageList(RepositoryService repoServ, PackageService pkgServ, PackageStore store)
         {
             return repoServ.System
-                .Where(x => x.RepoResult?.Repository != null)
-                .Select(x => x.RepoResult.Repository)
+                .Select(x => x.RepoResult?.Repository)
+                .NotNull()
                 .DistinctUntilChanged()
                 .Subscribe(repo =>
                 {
@@ -138,6 +138,7 @@ namespace Bahkat.UI.Main
 
         private IDisposable BindPrimaryButtonLabel(IMainPageView view, PackageStore store)
         {
+            // Can't use distinct until changed here because HashSet is never reset
             return store.State
                 .Select(state => state.SelectedPackages)
                 .Subscribe(packages =>

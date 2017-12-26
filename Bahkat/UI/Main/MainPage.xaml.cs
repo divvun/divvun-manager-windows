@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Bahkat.Extensions;
 using Bahkat.UI.Settings;
 using Bahkat.UI.Shared;
@@ -48,6 +49,10 @@ namespace Bahkat.UI.Main
                     .Where(x => x.EventArgs.Key == Key.Space)
                     .Select(_ => Unit.Default),
                 TvPackages.ReactiveDoubleClick()
+                    .Where(x => {
+                        var hitTest = TvPackages.InputHitTest(x.EventArgs.GetPosition((IInputElement) x.Sender));
+                        return !(hitTest is System.Windows.Shapes.Rectangle);
+                    })
                     .Select(_ => Unit.Default))
                 .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
                 .NotNull();

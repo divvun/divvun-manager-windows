@@ -51,10 +51,10 @@
                         <Grid MinWidth="460">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="21"/>
-                                <ColumnDefinition Width="5*"/>
+                                <ColumnDefinition Width="3*"/>
                                 <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="4*"/>
+                                <ColumnDefinition Width="3*"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox Grid.Column="0" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
                             <TextBlock Grid.Column="1" Text="{Binding Title}" Width="Auto"/>

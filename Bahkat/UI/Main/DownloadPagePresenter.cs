@@ -11,64 +11,6 @@ using Bahkat.Models;
 
 namespace Bahkat.UI.Main
 {
-    public class DownloadListItem : INotifyPropertyChanged, IEquatable<DownloadListItem>
-    {
-        public bool Equals(DownloadListItem other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Model.Package.Equals(other.Model.Package);
-        }
-
-        public override int GetHashCode()
-        {
-            return Model.GetHashCode();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        public readonly PackageProgress Model;
-        private long _downloaded;
-        
-        public DownloadListItem(PackageProgress package)
-        {
-            Model = package;
-        }
-
-        public string Title => Model.Package.NativeName;
-        public string Version => Model.Package.Version;
-        public long FileSize => Model.Package.Installer.Size;
-        public long Downloaded
-        {
-            get => _downloaded;
-            set
-            {
-                _downloaded = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Downloaded"));
-            }
-        }
-        public string Status
-        {
-            get
-            {
-                if (Downloaded < 0)
-                {
-                    return Strings.DownloadError;
-                }
-                
-                if (Downloaded == 0)
-                {
-                    return Strings.Downloading;
-                }
-                
-                if (Downloaded < FileSize)
-                {
-                    return Util.Util.BytesToString(Downloaded);
-                }
-
-                return Strings.Downloaded;
-            }
-        }
-    }
     
     public class DownloadPagePresenter
     {

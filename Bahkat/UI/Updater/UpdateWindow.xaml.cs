@@ -44,6 +44,10 @@ namespace Bahkat.UI.Updater
                         .Where(x => x.EventArgs.Key == Key.Space)
                         .Select(_ => Unit.Default),
                     TvPackages.ReactiveDoubleClick()
+                        .Where(x => {
+                            var hitTest = TvPackages.InputHitTest(x.EventArgs.GetPosition((IInputElement) x.Sender));
+                            return !(hitTest is System.Windows.Shapes.Rectangle);
+                        })
                         .Select(_ => Unit.Default))
                 .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
                 .NotNull();

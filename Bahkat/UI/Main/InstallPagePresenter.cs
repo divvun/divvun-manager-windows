@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Bahkat.Service;
 
 namespace Bahkat.UI.Main
@@ -22,12 +24,21 @@ namespace Bahkat.UI.Main
         
         public IDisposable Start()
         {
-            return _instServ.Process(_packages, _view.SetCurrentPackage)
-                .ObserveOn(_scheduler)
-                .ToArray()
-                .SubscribeOn(_scheduler)
-                .ObserveOn(_scheduler)
-                .Subscribe(_view.ShowCompletion, _view.HandleError);
+            var _onStartPackageSubject = new Subject<OnStartPackageInfo>();
+            _view.SetTotalPackages(_packages.LongLength);
+
+            return new CompositeDisposable(
+                _instServ.Process(_packages, _onStartPackageSubject)
+                    .ToArray()
+                    .SubscribeOn(_scheduler)
+                    .ObserveOn(_scheduler)
+                    .Subscribe(_view.ShowCompletion, _view.HandleError),
+                _onStartPackageSubject
+                    .ObserveOn(_scheduler)
+                    .SubscribeOn(_scheduler)
+                    .Subscribe(_view.SetCurrentPackage),
+                _onStartPackageSubject
+            );
         }
     }
 }

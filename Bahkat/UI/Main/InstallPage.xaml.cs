@@ -12,7 +12,8 @@ namespace Bahkat.UI.Main
 {
     public interface IInstallPageView : IPageView
     {
-        void SetCurrentPackage(Package package);
+        void SetCurrentPackage(OnStartPackageInfo info);
+        void SetTotalPackages(long total);
         void ShowCompletion(ProcessResult[] results);
         void HandleError(Exception error);
     }
@@ -38,9 +39,18 @@ namespace Bahkat.UI.Main
             _bag.Add(_presenter.Start());
         }
 
-        public void SetCurrentPackage(Package package)
+        public void SetTotalPackages(long total)
         {
-            TxtPackageName.Text = package.NativeName;
+            PrgBar.IsIndeterminate = false;
+            PrgBar.Maximum = total;
+        }
+
+        public void SetCurrentPackage(OnStartPackageInfo info)
+        {
+            LblPrimary.Text = string.Format(Strings.InstallingPackage,
+                info.Package.NativeName, info.Package.Version);
+            LblSecondary.Text = string.Format(Strings.NItemsRemaining, info.Remaining);
+            PrgBar.Value = info.Count;
         }
 
         public void ShowCompletion(ProcessResult[] results)
@@ -52,6 +62,11 @@ namespace Bahkat.UI.Main
         }
 
         public void HandleError(Exception error)
+        {
+            MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void BtnCancel_OnClick(object sender, RoutedEventArgs e)
         {
             throw new NotImplementedException();
         }

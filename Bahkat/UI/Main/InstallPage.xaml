@@ -8,7 +8,20 @@
       d:DesignHeight="300" d:DesignWidth="300"
       Title="Installing...">
 
-    <Grid>
-        <TextBlock Name="TxtPackageName">Install page.</TextBlock>
+    <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="34"/>
+        </Grid.RowDefinitions>
+        <StackPanel VerticalAlignment="Center">
+            <TextBlock Name="LblPrimary" TextAlignment="Center" TextWrapping="Wrap"></TextBlock>
+            <ProgressBar Name="PrgBar" Height="23" Margin="32,8,32,8" IsIndeterminate="True" />
+            <TextBlock Name="LblSecondary" FontSize="10" TextAlignment="Center" TextWrapping="Wrap"></TextBlock>
+        </StackPanel>
+        <Border Grid.Row="1" DockPanel.Dock="Bottom" BorderBrush="#FF828790">
+            <DockPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                <Button Name="BtnCancel" Content="Cancel" Height="23" Width="60" HorizontalAlignment="Right" Margin="0,0,8,0" Click="BtnCancel_OnClick" />
+            </DockPanel>
+        </Border>
     </Grid>
 </Page>

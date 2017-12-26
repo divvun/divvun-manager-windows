@@ -77,6 +77,7 @@ namespace Bahkat.UI.Main
         public void HandleError(Exception error)
         {
             MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
+            DownloadCancelled();
         }
 
         private void BtnCancel_OnClick(object sender, RoutedEventArgs e)
