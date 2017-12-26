@@ -75,9 +75,11 @@ namespace Bahkat.Models
     public class PackageInstaller : IEquatable<PackageInstaller>
     {
         public Uri Url;
-        public string SilentArgs;
+        public string Args;
+        public string UninstallArgs;
         public string ProductCode;
         public bool RequiresReboot;
+        public bool RequiresUninstallReboot;
         public long Size;
         public long InstalledSize;
         public PackageIndexInstallerSignature Signature;
@@ -86,9 +88,10 @@ namespace Bahkat.Models
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(Url, other.Url) && string.Equals(SilentArgs, other.SilentArgs) &&
+            return Equals(Url, other.Url) && string.Equals(Args, other.Args) && string.Equals(UninstallArgs, other.UninstallArgs) &&
                    string.Equals(ProductCode, other.ProductCode) && RequiresReboot == other.RequiresReboot &&
-                   Size == other.Size && InstalledSize == other.InstalledSize && Equals(Signature, other.Signature);
+                   RequiresUninstallReboot == other.RequiresUninstallReboot && Size == other.Size &&
+                   InstalledSize == other.InstalledSize && Equals(Signature, other.Signature);
         }
 
         public override bool Equals(object obj)
@@ -104,9 +107,11 @@ namespace Bahkat.Models
             unchecked
             {
                 var hashCode = (Url != null ? Url.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (SilentArgs != null ? SilentArgs.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Args != null ? Args.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (UninstallArgs != null ? UninstallArgs.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ProductCode != null ? ProductCode.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ RequiresReboot.GetHashCode();
+                hashCode = (hashCode * 397) ^ RequiresUninstallReboot.GetHashCode();
                 hashCode = (hashCode * 397) ^ Size.GetHashCode();
                 hashCode = (hashCode * 397) ^ InstalledSize.GetHashCode();
                 hashCode = (hashCode * 397) ^ (Signature != null ? Signature.GetHashCode() : 0);

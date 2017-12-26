@@ -63,7 +63,9 @@ namespace Bahkat.Service
 
         private IObservable<ProcessResult> UninstallPackage(Package package, string path, string args)
         {
-            Console.WriteLine($"UNINST: {package.Id} path: {path}; args: {args}");
+            var process = path.StartsWith("msiexec", StringComparison.OrdinalIgnoreCase)
+                ? CreateProcess("msiexec", $"/x {package.Installer.ProductCode} /qn /norestart")
+                : CreateProcess(path, args);
             return ProcessPackage(package, CreateProcess(path, args));
         }
 
@@ -85,7 +87,7 @@ namespace Bahkat.Service
                         Package = t.Package,
                         Action = PackageAction.Install
                     });
-                    return InstallPackage(t.Package, t.Path, t.Package.Installer.SilentArgs);
+                    return InstallPackage(t.Package, t.Path, t.Package.Installer.Args);
                 }).Concat();
         }
 
