@@ -169,6 +169,7 @@
     <Compile Include="UI\Main\MainPagePresenter.cs" />
     <Compile Include="Util\ReactiveProcess.cs" />
     <Compile Include="Util\RxFeedback.cs" />
+    <Compile Include="Util\RxStore.cs" />
     <Compile Include="Util\Util.cs" />
     <Compile Include="Util\WindowsRegistry.cs" />
   </ItemGroup>

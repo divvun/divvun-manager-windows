@@ -87,7 +87,7 @@ namespace Bahkat.Models
         }
     }
     
-    public interface IAppConfigEvent : IStoreEvent {}
+    public interface IAppConfigEvent {}
 
     namespace AppConfigEvent
     {
@@ -111,16 +111,16 @@ namespace Bahkat.Models
         public static readonly CheckForUpdatesImmediately CheckForUpdatesImmediately = new CheckForUpdatesImmediately();
     }
     
-    public class AppConfigStore : RxStore<AppConfigState>
+    public class AppConfigStore : RxStore<AppConfigState, IAppConfigEvent>
     {   
         private static void SaveNextUpdateCheck(AppConfigState state, DateTimeOffset time)
         {
             state.UpdateRegKey(AppConfigState.Keys.NextUpdateCheck, time.ToUnixTimeSeconds(), RegistryValueKind.QWord);
         }
 
-        private static AppConfigState Reduce(AppConfigState state, IStoreEvent e)
+        private static AppConfigState Reduce(AppConfigState state, IAppConfigEvent e)
         {
-            switch (e as IAppConfigEvent)
+            switch (e)
             {
                 case SetRepositoryUrl v:
                     state.RepositoryUrl = v.Uri;

@@ -19,8 +19,8 @@ namespace Bahkat.UI.Shared
        
         public bool IsGroupSelected
         {
-            get => _isGroupSelected; //Items.All(x => x.IsSelected);
-            set => _store.Dispatch(PackageAction.ToggleGroup(Items.Select(x => x.Model).ToArray(), value));
+            get => _isGroupSelected;
+            set => _store.Dispatch(PackageStoreAction.ToggleGroupWithDefaultAction(Items.Select(x => x.Model).ToArray(), value));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -34,7 +34,7 @@ namespace Bahkat.UI.Shared
 
             _bag.Add(_store.State
                 .Select(x => x.SelectedPackages)
-                .Select(pkgs => Items.All(x => pkgs.Contains(x.Model)))
+                .Select(pkgs => Items.All(x => pkgs.ContainsKey(x.Model)))
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {

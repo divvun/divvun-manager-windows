@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Data.Odbc;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Bahkat.Extensions;
 using Bahkat.Models;
 using Bahkat.Service;
 
@@ -12,33 +14,48 @@ namespace Bahkat.UI.Shared
         public event PropertyChangedEventHandler PropertyChanged;
 
         public Package Model { get; private set; }
-        private PackageService _pkgServ;
+        private IPackageService _pkgServ;
         private PackageStore _store;
 
         private CompositeDisposable _bag = new CompositeDisposable();
         
         // TODO: add a subscriber to the registry to stop this from firing so often
-        private PackageInstallStatus _status => _pkgServ.GetInstallStatus(Model);
-        private bool _isSelected;
+        private PackageInstallStatus _status => _pkgServ.InstallStatus(Model);
+        private PackageActionInfo _actionInfo;
 
-        public PackageMenuItem(Package model, PackageService pkgServ, PackageStore store)
+        public PackageMenuItem(Package model, IPackageService pkgServ, PackageStore store)
         {
             Model = model;
             _pkgServ = pkgServ;
             _store = store;
 
-            _bag.Add(_store.State.Select(x => x.SelectedPackages.Contains(model))
+            _bag.Add(_store.State
+                .Select(x => x.SelectedPackages.Get(Model, null))
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {
-                    _isSelected = x;
+                    _actionInfo = x;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
                 }));
         }
 
         public string Title => Model.NativeName;
         public string Version => Model.Version;
-        public string Status => _status.Description();
+        public string Status
+        {
+            get
+            {
+                switch (_actionInfo?.Action)
+                {
+                    case PackageAction.Install:
+                        return Strings.Install;
+                    case PackageAction.Uninstall:
+                        return Strings.Uninstall;
+                    default:
+                        return _status.Description();
+                }
+            }
+        }
 
         public string FileSize
         {
@@ -54,8 +71,8 @@ namespace Bahkat.UI.Shared
 
         public bool IsSelected
         {
-            get => _isSelected;
-            set => _store.Dispatch(PackageAction.TogglePackage(Model, value));
+            get => _actionInfo != null;
+            set => _store.Dispatch(PackageStoreAction.TogglePackageWithDefaultAction(Model, value));
         }
 
         public void Dispose()

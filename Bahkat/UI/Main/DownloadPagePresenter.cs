@@ -11,7 +11,6 @@ using Bahkat.Models;
 
 namespace Bahkat.UI.Main
 {
-    
     public class DownloadPagePresenter
     {
         private ObservableCollection<DownloadListItem> _listItems =
@@ -21,15 +20,6 @@ namespace Bahkat.UI.Main
         private readonly PackageStore _pkgStore;
         private readonly IPackageService _pkgServ;
         private readonly CancellationTokenSource _cancelSource;
-        
-        public DownloadPagePresenter(IDownloadPageView view, PackageStore pkgStore, IPackageService pkgServ)
-        {
-            _view = view;
-            _pkgStore = pkgStore;
-            _pkgServ = pkgServ;
-            
-            _cancelSource = new CancellationTokenSource();
-        }
 
         private void UpdateProgress(object sender, DownloadProgressChangedEventArgs args)
         {
@@ -49,6 +39,15 @@ namespace Bahkat.UI.Main
             prog.Progress = (sender, e) => UpdateProgress(prog, e);
             return prog;
         }
+        
+        public DownloadPagePresenter(IDownloadPageView view, PackageStore pkgStore, IPackageService pkgServ)
+        {
+            _view = view;
+            _pkgStore = pkgStore;
+            _pkgServ = pkgServ;
+            
+            _cancelSource = new CancellationTokenSource();
+        }
 
         public IDisposable Start()
         {
@@ -61,13 +60,20 @@ namespace Bahkat.UI.Main
                     _view.DownloadCancelled();
                 });
 
-            var downloader = _pkgStore.State
+            var justSelected = _pkgStore.State
                 .Select(x => x.SelectedPackages)
                 .Take(1)
-                .Select(x =>
+                .Replay(1)
+                .RefCount();
+
+            var downloader = justSelected.Select(selected =>
                 {
-                    var packages = x.Select(CreatePackageProgress).ToArray();
-                    
+                    var packages = selected.Values
+                        .Where(x => x.Action == PackageAction.Install)
+                        .Select(x => x.Package)
+                        .Select(CreatePackageProgress)
+                        .ToArray();
+
                     foreach (var item in packages)
                     {
                         _listItems.Add(new DownloadListItem(item));
@@ -75,12 +81,36 @@ namespace Bahkat.UI.Main
 
                     return packages;
                 })
+                .DefaultIfEmpty(Array.Empty<PackageProgress>())
                 .Select(packages => _pkgServ.Download(packages, 3, _cancelSource.Token))
                 .Switch()
                 .ToArray()
+                .DefaultIfEmpty(Array.Empty<PackageInstallInfo>());
+
+            var uninstaller = justSelected.Select(selected => selected.Values
+                    .Where(x => x.Action == PackageAction.Uninstall))
+                .Select(packages => packages
+                    .Select(x => _pkgServ.UninstallInfo(x.Package))
+                    .Where(x => x != null)
+                    .ToArray())
+                .DefaultIfEmpty(Array.Empty<PackageUninstallInfo>());
+
+            var everything = Observable.Zip(
+                downloader,
+                uninstaller,
+                (downloaded, uninstalls) => new PackageProcessInfo
+                {
+                    ToInstall = downloaded,
+                    ToUninstall = uninstalls
+                })
+                .Do(x =>
+                {
+                    Console.WriteLine($"Installs: {x.ToInstall.Length}, Uninsts: {x.ToUninstall.Length}");
+                })
+                .SingleAsync()
                 .Subscribe(_view.StartInstallation, _view.HandleError);
 
-            return new CompositeDisposable(downloader, cancel);
+            return new CompositeDisposable(everything, cancel);
         }
     }
 }

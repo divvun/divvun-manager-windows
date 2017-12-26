@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows;
 using Bahkat.Extensions;
 using Bahkat.Models;
-using Bahkat.Models.AppConfigEvent;
 using Bahkat.UI.Updater;
 using Quartz;
 using Quartz.Impl;
@@ -17,17 +18,16 @@ namespace Bahkat.Service
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
         private class UpdateCheckJob : IJob
         {
-            internal static RepositoryService RepoServ;
-
             public void Execute(IJobExecutionContext context)
             {
-                RepoServ?.Refresh();
+                var repoServ = (RepositoryService)context.Trigger.JobDataMap["repoServ"];
+                repoServ.Refresh();
             }
         }
 
         private readonly AppConfigStore _configStore;
         private readonly RepositoryService _repoServ;
-        private readonly PackageService _pkgServ;
+        private readonly IPackageService _pkgServ;
         private readonly Quartz.IScheduler _jobScheduler = StdSchedulerFactory.GetDefaultScheduler();
         private readonly TriggerKey _updateCheckKey = new TriggerKey("NextUpdateCheck");
 
@@ -38,9 +38,15 @@ namespace Bahkat.Service
                 {
                     _jobScheduler.UnscheduleJob(_updateCheckKey);
                     
+                    var jobMap = (IDictionary) new Dictionary<string, object>
+                    {
+                        { "repoServ", _repoServ }
+                    };
+                    
                     var trigger = TriggerBuilder.Create()
                         .WithIdentity(_updateCheckKey)
                         .StartAt(date)
+                        .UsingJobData(new JobDataMap(jobMap))
                         .Build();
 
                     var detail = JobBuilder.Create<UpdateCheckJob>().Build();
@@ -96,11 +102,8 @@ namespace Bahkat.Service
                 .Select(repo => repo?.PackagesIndex.Values.Any(_pkgServ.RequiresUpdate) ?? false);
         }
         
-        public UpdaterService(AppConfigStore configStore, RepositoryService repoServ, PackageService pkgServ)
+        public UpdaterService(AppConfigStore configStore, RepositoryService repoServ, IPackageService pkgServ)
         {
-            // Static hacks suck but are a necessary part of enterprise OO life.
-            UpdateCheckJob.RepoServ = repoServ;
-
             _configStore = configStore;
             _repoServ = repoServ;
             _pkgServ = pkgServ;

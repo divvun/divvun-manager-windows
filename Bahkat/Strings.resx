@@ -121,9 +121,6 @@
     <value>Cancel</value>
     <comment>Cancel button text</comment>
   </data>
-  <data name="InstallNPackages" xml:space="preserve">
-    <value>Install {0} Packages</value>
-  </data>
   <data name="InterfaceLanguage" xml:space="preserve">
     <value>Interface Language</value>
   </data>
@@ -153,7 +150,7 @@
     <comment>Uses Sentry.io</comment>
   </data>
   <data name="NoPackagesSelected" xml:space="preserve">
-    <value>No Packages Selected</value>
+    <value>No Items Selected</value>
   </data>
   <data name="CancelDownloadsBody" xml:space="preserve">
     <value>Are you sure you want to cancel all downloads?</value>
@@ -180,7 +177,7 @@
     <value>Error: No Installer</value>
   </data>
   <data name="ErrorUnknownPackage" xml:space="preserve">
-    <value>Error: Unknown Package</value>
+    <value>Error: Unknown Item</value>
   </data>
   <data name="Exit" xml:space="preserve">
     <value>Exit</value>
@@ -241,5 +238,25 @@
   <data name="UninstallingPackage" xml:space="preserve">
     <value>Uninstalling {0} {1}...</value>
     <comment>Same as install but for uninstall</comment>
+  </data>
+  <data name="CrashReportBody" xml:space="preserve">
+    <value>Do you wish to send a crash report to the developers? No personal or private information is sent. (Recommended)</value>
+    <comment>Shows up if the user opted out of automatic crash reports.</comment>
+  </data>
+  <data name="CrashReportTitle" xml:space="preserve">
+    <value>Send Crash Report</value>
+    <comment>Shows up if the user opted out of automatic crash reports.</comment>
+  </data>
+  <data name="Starting" xml:space="preserve">
+    <value>Starting...</value>
+  </data>
+  <data name="ProcessNPackages" xml:space="preserve">
+    <value>Process {0} Items</value>
+  </data>
+  <data name="Install" xml:space="preserve">
+    <value>Install</value>
+  </data>
+  <data name="Uninstall" xml:space="preserve">
+    <value>Uninstall</value>
   </data>
 </root>

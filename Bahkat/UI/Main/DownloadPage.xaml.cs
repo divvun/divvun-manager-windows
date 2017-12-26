@@ -25,7 +25,7 @@ namespace Bahkat.UI.Main
 {
     public interface IDownloadPageView : IPageView
     {
-        void StartInstallation(PackagePath[] packages);
+        void StartInstallation(PackageProcessInfo info);
         void InitProgressList(ObservableCollection<DownloadListItem> source);
         IObservable<EventArgs> OnCancelClicked();
         void DownloadCancelled();
@@ -44,8 +44,6 @@ namespace Bahkat.UI.Main
         public DownloadPage()
         {
             InitializeComponent();
-
-            BtnCancel.IsCancel = true;
             
             var app = (IBahkatApp)Application.Current;
 
@@ -58,9 +56,9 @@ namespace Bahkat.UI.Main
             LvPrimary.ItemsSource = source;
         }
 
-        public void StartInstallation(PackagePath[] packages)
+        public void StartInstallation(PackageProcessInfo info)
         {
-            this.ReplacePageWith(new InstallPage(packages));
+            this.ReplacePageWith(new InstallPage(info));
         }
         
         public void DownloadCancelled()

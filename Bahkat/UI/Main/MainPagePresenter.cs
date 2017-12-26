@@ -19,22 +19,34 @@ namespace Bahkat.UI.Main
         
         private IMainPageView _view;
         private RepositoryService _repoServ;
-        private PackageService _pkgServ;
+        private IPackageService _pkgServ;
         private PackageStore _store;
 
         private Repository _currentRepo;
 
         private IDisposable BindPackageToggled(IMainPageView view, PackageStore store)
         {
+            
             return view.OnPackageToggled()
-                .Select(item => PackageAction.TogglePackage(item.Model, !item.IsSelected))
+                .Select(item => PackageStoreAction.TogglePackage(
+                    item.Model,
+                    _pkgServ.DefaultPackageAction(item.Model),
+                    !item.IsSelected))
                 .Subscribe(store.Dispatch);
         }
         
         private IDisposable BindGroupToggled(IMainPageView view, PackageStore store)
         {
             return view.OnGroupToggled()
-                .Select(item => PackageAction.ToggleGroup(item.Items.Select(x => x.Model).ToArray(), !item.IsGroupSelected))
+                .Select(item =>
+                {
+                    return PackageStoreAction.ToggleGroup(
+                        item.Items.Select(x => new PackageActionInfo {
+                            Package = x.Model,
+                            Action = _pkgServ.DefaultPackageAction(x.Model)
+                        }).ToArray(),
+                        !item.IsGroupSelected);
+                })
                 .Subscribe(store.Dispatch);
         }
 
@@ -123,7 +135,7 @@ namespace Bahkat.UI.Main
             Console.WriteLine("Added packages.");
         }
 
-        private IDisposable BindUpdatePackageList(RepositoryService repoServ, PackageService pkgServ, PackageStore store)
+        private IDisposable BindUpdatePackageList(RepositoryService repoServ, IPackageService pkgServ, PackageStore store)
         {
             return repoServ.System
                 .Select(x => x.RepoResult?.Repository)
@@ -136,25 +148,26 @@ namespace Bahkat.UI.Main
                 }, _view.HandleError);
         }
 
+        private void GeneratePrimaryButtonLabel(Dictionary<Package, PackageActionInfo> infos)
+        {
+            if (infos.Count == 0)
+            {
+                _view.UpdatePrimaryButton(false, Strings.NoPackagesSelected);
+                return;
+            }
+
+            _view.UpdatePrimaryButton(true, string.Format(Strings.ProcessNPackages, infos.Count));
+        }
+
         private IDisposable BindPrimaryButtonLabel(IMainPageView view, PackageStore store)
         {
             // Can't use distinct until changed here because HashSet is never reset
             return store.State
                 .Select(state => state.SelectedPackages)
-                .Subscribe(packages =>
-                {
-                    if (packages.Count > 0)
-                    {
-                        view.UpdatePrimaryButton(true, string.Format(Strings.InstallNPackages, packages.Count));
-                    }
-                    else
-                    {
-                        view.UpdatePrimaryButton(false, Strings.NoPackagesSelected);
-                    }
-                });
+                .Subscribe(GeneratePrimaryButtonLabel);
         }
 
-        public MainPagePresenter(IMainPageView view, RepositoryService repoServ, PackageService pkgServ, PackageStore store)
+        public MainPagePresenter(IMainPageView view, RepositoryService repoServ, IPackageService pkgServ, PackageStore store)
         {
             _repoServ = repoServ;
             _pkgServ = pkgServ;

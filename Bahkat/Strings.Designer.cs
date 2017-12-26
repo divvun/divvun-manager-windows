@@ -115,6 +115,24 @@ namespace Bahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Do you wish to send a crash report to the developers? No personal or private information is sent. (Recommended).
+        /// </summary>
+        public static string CrashReportBody {
+            get {
+                return ResourceManager.GetString("CrashReportBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Send Crash Report.
+        /// </summary>
+        public static string CrashReportTitle {
+            get {
+                return ResourceManager.GetString("CrashReportTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Downloaded.
         /// </summary>
         public static string Downloaded {
@@ -169,7 +187,7 @@ namespace Bahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error: Unknown Package.
+        ///   Looks up a localized string similar to Error: Unknown Item.
         /// </summary>
         public static string ErrorUnknownPackage {
             get {
@@ -183,6 +201,15 @@ namespace Bahkat {
         public static string Exit {
             get {
                 return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install.
+        /// </summary>
+        public static string Install {
+            get {
+                return ResourceManager.GetString("Install", resourceCulture);
             }
         }
         
@@ -201,15 +228,6 @@ namespace Bahkat {
         public static string InstallingPackage {
             get {
                 return ResourceManager.GetString("InstallingPackage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Install {0} Packages.
-        /// </summary>
-        public static string InstallNPackages {
-            get {
-                return ResourceManager.GetString("InstallNPackages", resourceCulture);
             }
         }
         
@@ -241,7 +259,7 @@ namespace Bahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No Packages Selected.
+        ///   Looks up a localized string similar to No Items Selected.
         /// </summary>
         public static string NoPackagesSelected {
             get {
@@ -313,6 +331,15 @@ namespace Bahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Process {0} Items.
+        /// </summary>
+        public static string ProcessNPackages {
+            get {
+                return ResourceManager.GetString("ProcessNPackages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Remind Me Later.
         /// </summary>
         public static string RemindMeLater {
@@ -363,6 +390,24 @@ namespace Bahkat {
         public static string SkipTheseUpdates {
             get {
                 return ResourceManager.GetString("SkipTheseUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starting....
+        /// </summary>
+        public static string Starting {
+            get {
+                return ResourceManager.GetString("Starting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uninstall.
+        /// </summary>
+        public static string Uninstall {
+            get {
+                return ResourceManager.GetString("Uninstall", resourceCulture);
             }
         }
         

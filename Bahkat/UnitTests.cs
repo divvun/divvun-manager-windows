@@ -16,28 +16,6 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-//namespace System.Windows.Controls
-//{
-//    public class UserControl
-//    {
-//    }
-
-//    public interface IPage
-//    {
-        
-//    }
-
-//    public interface IPageOverrides
-//    {
-        
-//    }
-
-//    public class Page : UserControl, IPage, IPageOverrides
-//    {
-        
-//    }
-//}
-
 namespace Bahkat
 {
     public static class ObservableExtensions
@@ -47,47 +25,6 @@ namespace Bahkat
             var testObserver = scheduler.CreateObserver<T>();
             observable.Subscribe(testObserver);
             return testObserver;
-        }
-    }
-
-    [TestFixture]
-    public class RxStoreTests
-    {
-        class SetValue : IStoreEvent
-        {
-            internal string Value;
-
-            internal SetValue(string v)
-            {
-                Value = v;
-            }
-        }
-        
-        [Test]
-        public void ItWorksAtAll()
-        {
-            var store = new RxStore<string>("hello", (state, e) =>
-            {
-                if (e is SetValue value)
-                {
-                    return value.Value;
-                }
-                
-                return state;
-            });
-
-            var scheduler = new TestScheduler();
-            var ob = store.State.Test(scheduler);
-
-            scheduler.Start();
-
-            Assert.AreEqual(ob.Messages.Last().Value.Value, "hello");
-            
-            store.Dispatch(new SetValue("test"));
-            
-            scheduler.AdvanceBy(1000);
-            
-            Assert.AreEqual(ob.Messages.Last().Value.Value, "test");
         }
     }
 
@@ -265,7 +202,7 @@ namespace Bahkat
         {
             var mock = new Mock<IMainWindowView>();
 
-            var store = new PackageStore();
+            var store = new PackageStore(new PackageService(new MockRegistry()));
             var scheduler = new TestScheduler();
             var presenter = new MainWindowPresenter(mock.Object, scheduler);
             presenter.Start();
@@ -410,7 +347,7 @@ namespace Bahkat
         {
             var mock = new Mock<IMainWindowView>();
 
-            var store = new PackageStore();
+            var store = new PackageStore(new PackageService(new MockRegistry()));
             var scheduler = new TestScheduler();
             var presenter = new MainWindowPresenter(mock.Object, scheduler);
 
@@ -545,27 +482,27 @@ namespace Bahkat
                 }
             }));
             
-            Assert.AreEqual(PackageInstallStatus.NotInstalled, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.NotInstalled, pkgServ.InstallStatus(v1));
             
             var subkey = reg.LocalMachine.CreateSubKey(PackageService.Keys.UninstallPath + @"\test");
             
             subkey.Set(PackageService.Keys.DisplayVersion, "2.0.0.0", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.InstallStatus(v1));
             
             subkey.Set(PackageService.Keys.DisplayVersion, "2.99.1000.42", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.InstallStatus(v1));
             
             subkey.Set(PackageService.Keys.DisplayVersion, "3.0.0.0", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.InstallStatus(v1));
             
             subkey.Set(PackageService.Keys.DisplayVersion, "3.3.0.0", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.InstallStatus(v1));
             
             subkey.Set(PackageService.Keys.DisplayVersion, "4.0.0.0", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.InstallStatus(v1));
             
             subkey.Set(PackageService.Keys.DisplayVersion, "ahahahaha ahahahaha oh nø", RegistryValueKind.String);
-            Assert.AreEqual(PackageInstallStatus.ErrorParsingVersion, pkgServ.GetInstallStatus(v1));
+            Assert.AreEqual(PackageInstallStatus.ErrorParsingVersion, pkgServ.InstallStatus(v1));
         }
         
         // If you select packages to be installed and uninstalled, only run the installation (for now)
@@ -585,27 +522,32 @@ namespace Bahkat
                 _registry = registry;
             }
             
-            public IObservable<ProcessResult> Process(PackagePath[] packages, Subject<OnStartPackageInfo> onStart)
+//            public IObservable<ProcessResult> Install(PackageInstallInfo[] packages, Subject<OnStartPackageInfo> onStart)
+//            {
+//                return packages.Where(t => t.Package.Installer != null)
+//                    .Select(t =>
+//                    {
+//                        var installer = t.Package.Installer;
+//                        
+//                        _registry.LocalMachine.CreateSubKey(
+//                                PackageService.Keys.UninstallPath + @"\" + installer.ProductCode)
+//                            .Set(PackageService.Keys.DisplayVersion,
+//                                t.Package.Version,
+//                                RegistryValueKind.String);
+//                        
+//                        return Observable.Return(new ProcessResult()
+//                        {
+//                            Error = "",
+//                            ExitCode = 0,
+//                            Output = "",
+//                            Package = t.Package
+//                        });
+//                    }).Concat();
+//            }
+
+            public IObservable<ProcessResult> Process(PackageProcessInfo process, Subject<OnStartPackageInfo> onStartPackage)
             {
-                return packages.Where(t => t.Package.Installer != null)
-                    .Select(t =>
-                    {
-                        var installer = t.Package.Installer;
-                        
-                        _registry.LocalMachine.CreateSubKey(
-                                PackageService.Keys.UninstallPath + @"\" + installer.ProductCode)
-                            .Set(PackageService.Keys.DisplayVersion,
-                                t.Package.Version,
-                                RegistryValueKind.String);
-                        
-                        return Observable.Return(new ProcessResult()
-                        {
-                            Error = "",
-                            ExitCode = 0,
-                            Output = "",
-                            Package = t.Package
-                        });
-                    }).Concat();
+                throw new NotImplementedException();
             }
         }
 

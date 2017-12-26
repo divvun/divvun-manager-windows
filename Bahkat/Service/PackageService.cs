@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using Bahkat.Util;
 using Microsoft.Win32;
@@ -10,6 +11,8 @@ using System.Text;
 using System.Threading;
 using Bahkat.Models;
 using System.Reactive.Disposables;
+using System.Windows.Media.Animation;
+using Bahkat.Extensions;
 
 namespace Bahkat.Service
 {
@@ -53,17 +56,33 @@ namespace Bahkat.Service
         public DownloadProgressChangedEventHandler Progress;
     }
 
-    public struct PackagePath
+    public struct PackageInstallInfo
     {
         public Package Package;
         public string Path;
     }
+    
+    public class PackageUninstallInfo
+    {
+        public Package Package;
+        public string Path;
+        public string Args;
+    }
 
     public interface IPackageService
     {
-        PackageInstallStatus GetInstallStatus(Package package);
+        PackageInstallStatus InstallStatus(Package package);
+        PackageAction DefaultPackageAction(Package package);
+        IObservable<PackageInstallInfo> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken);
+        PackageUninstallInfo UninstallInfo(Package package);
         void SkipVersion(Package package);
-        IObservable<PackagePath> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken);
+        bool RequiresUpdate(Package package);
+        bool IsUpToDate(Package package);
+        bool IsError(Package package);
+        bool IsUninstallable(Package package);
+        bool IsInstallable(Package package);
+        bool IsValidAction(PackageActionInfo packageActionInfo);
+        bool IsValidAction(Package package, PackageAction action);
     }
     
     public class PackageService : IPackageService
@@ -73,6 +92,8 @@ namespace Bahkat.Service
             public const string UninstallPath = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
             public const string DisplayVersion = "DisplayVersion";
             public const string SkipVersion = "SkipVersion";
+            public const string QuietUninstallString = "QuietUninstallString";
+            public const string UninstallString = "UninstallString";
         }
         
         private readonly IWindowsRegistry _registry;
@@ -80,6 +101,13 @@ namespace Bahkat.Service
         public PackageService(IWindowsRegistry registry)
         {
             _registry = registry;
+        }
+        
+        public PackageAction DefaultPackageAction(Package package)
+        {
+            return IsUpToDate(package)
+                ? PackageAction.Uninstall
+                : PackageAction.Install;
         }
 
         private PackageInstallStatus CompareVersion<T>(Func<string, T> creator, string packageVersion, string registryVersion) where T: IComparable<T>
@@ -145,7 +173,7 @@ namespace Bahkat.Service
             }
         }
 
-        private IObservable<PackagePath> Download(PackageProgress pd, CancellationToken cancelToken)
+        private IObservable<PackageInstallInfo> Download(PackageProgress pd, CancellationToken cancelToken)
         {
             var inst = pd.Package.Installer;
             
@@ -157,12 +185,77 @@ namespace Bahkat.Service
             var path = Path.Combine(Path.GetTempPath(), fileName);
 
             return DownloadFileTaskAsync(inst.Url, path, pd.Progress, cancelToken)
-                .Select(x => new PackagePath { Package = pd.Package, Path = x });
+                .Select(x => new PackageInstallInfo
+                {
+                    Package = pd.Package,
+                    Path = x
+                });
+        }
+
+        public bool IsValidAction(PackageActionInfo packageActionInfo)
+        {
+            return IsValidAction(packageActionInfo.Package, packageActionInfo.Action);
+        }
+
+        public bool IsValidAction(Package package, PackageAction action)
+        {
+            switch (action)
+            {
+                case PackageAction.Install:
+                    return IsInstallable(package);
+                case PackageAction.Uninstall:
+                    return IsUninstallable(package);
+            }
+            
+            throw new ArgumentException("PackageAction switch exhausted unexpectedly.");
         }
 
         public bool RequiresUpdate(Package package)
         {
-            return GetInstallStatus(package) == PackageInstallStatus.RequiresUpdate;
+            return InstallStatus(package) == PackageInstallStatus.RequiresUpdate;
+        }
+
+        public bool IsUpToDate(Package package)
+        {
+            return InstallStatus(package) == PackageInstallStatus.UpToDate;
+        }
+
+        public bool IsError(Package package)
+        {
+            switch (InstallStatus(package))
+            {
+                case PackageInstallStatus.ErrorNoInstaller:
+                case PackageInstallStatus.ErrorParsingVersion:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public bool IsUninstallable(Package package)
+        {
+            switch (InstallStatus(package))
+            {
+                case PackageInstallStatus.UpToDate:
+                case PackageInstallStatus.RequiresUpdate:
+                case PackageInstallStatus.VersionSkipped:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        
+        public bool IsInstallable(Package package)
+        {
+            switch (InstallStatus(package))
+            {
+                case PackageInstallStatus.NotInstalled:
+                case PackageInstallStatus.RequiresUpdate:
+                case PackageInstallStatus.VersionSkipped:
+                    return true;
+                default:
+                    return false;
+            }
         }
         
         /// <summary>
@@ -172,7 +265,7 @@ namespace Bahkat.Service
         /// </summary>
         /// <param name="package"></param>
         /// <returns>The package install status</returns>
-        public PackageInstallStatus GetInstallStatus(Package package)
+        public PackageInstallStatus InstallStatus(Package package)
         {
             if (package.Installer == null)
             {
@@ -215,6 +308,30 @@ namespace Bahkat.Service
             return PackageInstallStatus.ErrorParsingVersion;
         }
 
+        public PackageUninstallInfo UninstallInfo(Package package)
+        {
+            var installer = package.Installer;
+            var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
+            var path = $@"{Keys.UninstallPath}\{installer.ProductCode}";
+            var instKey = hklm.OpenSubKey(path);
+
+            var uninstString = instKey.Get<string>(Keys.QuietUninstallString) ??
+                               instKey.Get<string>(Keys.UninstallString);
+            if (uninstString != null)
+            {
+                var chunks = uninstString.ParseFileNameAndArgs();
+                
+                return new PackageUninstallInfo
+                {
+                    Package = package,
+                    Path = chunks.Item1,
+                    Args = string.Join(" ", chunks.Item2)
+                };
+            }
+
+            return null;
+        }
+
         public void SkipVersion(Package package)
         {
             var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
@@ -241,7 +358,7 @@ namespace Bahkat.Service
         /// <param name="maxConcurrent"></param>
         /// <param name="cancelToken"></param>
         /// <returns></returns>
-        public IObservable<PackagePath> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken)
+        public IObservable<PackageInstallInfo> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken)
         {
             return packages
                 .Select(pkg => Download(pkg, cancelToken))

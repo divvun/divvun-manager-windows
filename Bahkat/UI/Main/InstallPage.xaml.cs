@@ -26,13 +26,13 @@ namespace Bahkat.UI.Main
         private InstallPagePresenter _presenter;
         private CompositeDisposable _bag = new CompositeDisposable();
         
-        public InstallPage(PackagePath[] packages)
+        public InstallPage(PackageProcessInfo pkgProcessInfo)
         {
             InitializeComponent();
 
             _presenter = new InstallPagePresenter(
                 this,
-                packages,
+                pkgProcessInfo,
                 new InstallService(),
                 DispatcherScheduler.Current);
             
@@ -47,6 +47,7 @@ namespace Bahkat.UI.Main
 
         public void SetCurrentPackage(OnStartPackageInfo info)
         {
+            
             LblPrimary.Text = string.Format(Strings.InstallingPackage,
                 info.Package.NativeName, info.Package.Version);
             LblSecondary.Text = string.Format(Strings.NItemsRemaining, info.Remaining);
@@ -56,7 +57,7 @@ namespace Bahkat.UI.Main
         public void ShowCompletion(ProcessResult[] results)
         {
             var app = (BahkatApp) Application.Current;
-            app.PackageStore.Dispatch(PackageAction.ResetSelection);
+            app.PackageStore.Dispatch(PackageStoreAction.ResetSelection);
 
             this.ReplacePageWith(new CompletionPage(results));
         }

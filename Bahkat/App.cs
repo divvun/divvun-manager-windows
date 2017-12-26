@@ -27,7 +27,7 @@ namespace Bahkat
     {
         AppConfigStore ConfigStore { get; }
         RepositoryService RepositoryService { get; }
-        PackageService PackageService { get; }
+        IPackageService PackageService { get; }
         UpdaterService UpdaterService { get; }
         IWindowService WindowService { get; }
         PackageStore PackageStore { get; }
@@ -38,10 +38,10 @@ namespace Bahkat
     {
         public abstract AppConfigStore ConfigStore { get; }
         public abstract RepositoryService RepositoryService { get; protected set; }
-        public abstract PackageService PackageService { get; }
+        public abstract IPackageService PackageService { get; }
         public abstract UpdaterService UpdaterService { get; protected set; }
         public abstract IWindowService WindowService { get; }
-        public abstract PackageStore PackageStore { get; }
+        public abstract PackageStore PackageStore { get; protected set; }
         public abstract IRavenClient RavenClient { get; protected set; }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -66,7 +66,7 @@ namespace Bahkat
 #endif
         }
 
-        internal static PackageService CreatePackageService()
+        internal static IPackageService CreatePackageService()
         {
 #if DEBUG
             return new PackageService(new MockRegistry());
@@ -84,8 +84,8 @@ namespace Bahkat
     public class BahkatApp : AbstractBahkatApp
     {
         public override AppConfigStore ConfigStore { get; } = DI.CreateAppConfigStore();
-        public override PackageService PackageService { get; } = DI.CreatePackageService();
-        public override PackageStore PackageStore { get; } = new PackageStore();
+        public override IPackageService PackageService { get; } = DI.CreatePackageService();
+        public override PackageStore PackageStore { get; protected set; }
         public override UpdaterService UpdaterService { get; protected set; }
         public override IWindowService WindowService { get; } = Service.WindowService.Create(
             CloseHandlingWindowConfig.Create<MainWindow>(),
@@ -129,6 +129,11 @@ namespace Bahkat
             _icon.TrayMouseDoubleClick += (sender, args) => WindowService.Show<MainWindow>();
         }
 
+        private void InitPackageStore()
+        {
+            PackageStore = new PackageStore(PackageService);
+        }
+
         private void InitRepositoryService()
         {
             RepositoryService = new RepositoryService(RepositoryApi.Create, DispatcherScheduler.Current);
@@ -150,8 +155,11 @@ namespace Bahkat
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // The order of these initialisers is important.
+            InitPackageStore();
             InitRepositoryService();
             InitUpdaterService();
+            
             CreateNotifyIcon();
             
             base.OnStartup(e);

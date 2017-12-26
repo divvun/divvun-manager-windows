@@ -11,33 +11,33 @@ namespace Bahkat.UI.Main
     {
         private readonly IInstallPageView _view;
         private readonly IInstallService _instServ;
-        private readonly PackagePath[] _packages;
+        private readonly PackageProcessInfo _pkgInfo;
         private readonly IScheduler _scheduler;
         
-        public InstallPagePresenter(IInstallPageView view, PackagePath[] packages, IInstallService instServ, IScheduler scheduler)
+        public InstallPagePresenter(IInstallPageView view, PackageProcessInfo pkgInfo, IInstallService instServ, IScheduler scheduler)
         {
             _view = view;
-            _packages = packages;
+            _pkgInfo = pkgInfo;
             _instServ = instServ;
             _scheduler = scheduler;
         }
         
         public IDisposable Start()
         {
-            var _onStartPackageSubject = new Subject<OnStartPackageInfo>();
-            _view.SetTotalPackages(_packages.LongLength);
+            var onStartPackageSubject = new Subject<OnStartPackageInfo>();
+            _view.SetTotalPackages(_pkgInfo.ToInstall.LongLength + _pkgInfo.ToUninstall.LongLength);
 
             return new CompositeDisposable(
-                _instServ.Process(_packages, _onStartPackageSubject)
+                _instServ.Process(_pkgInfo, onStartPackageSubject)
                     .ToArray()
                     .SubscribeOn(_scheduler)
                     .ObserveOn(_scheduler)
                     .Subscribe(_view.ShowCompletion, _view.HandleError),
-                _onStartPackageSubject
+                onStartPackageSubject
                     .ObserveOn(_scheduler)
                     .SubscribeOn(_scheduler)
-                    .Subscribe(_view.SetCurrentPackage),
-                _onStartPackageSubject
+                    .Subscribe(_view.SetCurrentPackage, _view.HandleError),
+                onStartPackageSubject
             );
         }
     }

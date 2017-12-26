@@ -1,15 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using Bahkat.Models.MainPageEvent;
 using Bahkat.Models.PackageEvent;
+using Bahkat.Service;
 using Bahkat.Util;
-using Newtonsoft.Json;
 
 namespace Bahkat.Models
 {
+    public enum PackageAction
+    {
+        Install,
+        Uninstall
+    }
+    
+    public class PackageActionInfo : IEquatable<PackageActionInfo>
+    {
+        public Package Package;
+        public PackageAction Action;
+
+        public bool Equals(PackageActionInfo other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(Package, other.Package) && Action == other.Action;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PackageActionInfo) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Package != null ? Package.GetHashCode() : 0) * 397) ^ (int) Action;
+            }
+        }
+    }
+
     public struct PackageState : IEquatable<PackageState>
     {
         public bool Equals(PackageState other)
@@ -28,68 +60,64 @@ namespace Bahkat.Models
             return (SelectedPackages != null ? SelectedPackages.GetHashCode() : 0);
         }
 
-        public HashSet<Package> SelectedPackages { get; private set; }
+        public Dictionary<Package, PackageActionInfo> SelectedPackages { get; private set; }
 
         public static PackageState Default()
         {
-            var state = new PackageState {SelectedPackages = new HashSet<Package>()};
+            var state = new PackageState
+            {
+                SelectedPackages = new Dictionary<Package, PackageActionInfo>()
+            };
             return state;
         }
     }
-    
-    public interface IMainPageEvent : IStoreEvent { }
-    
-    public static class MainPageAction
+
+    public interface IPackageEvent { }
+
+    public static class PackageStoreAction
     {
-        public static IMainPageEvent SetRepository(Repository repo)
-        {
-            return new SetRepository()
-            {
-                Repository = repo
-            };
-        }
-        public static IMainPageEvent ProcessSelectedPackages()
-        {
-            return new ProcessSelectedPackages();
-        }
-    }
-
-    namespace MainPageEvent
-    {
-        public class ProcessSelectedPackages : IMainPageEvent { }
-
-        public class SetRepository : IMainPageEvent
-        {
-            public Repository Repository;
-        }
-    }
-
-    public interface IPackageEvent : IStoreEvent { }
-
-    public static class PackageAction
-    {
-        public static IPackageEvent AddSelectedPackage(Package package)
+        public static IPackageEvent AddSelectedPackage(Package package, PackageAction action)
         {
             return new AddSelectedPackage
             {
-                Package = package
+                Package = package,
+                Action = action
             };
         }
 
-        public static IPackageEvent TogglePackage(Package package, bool value)
+        public static IPackageEvent TogglePackage(Package package, PackageAction action, bool value)
         {
             return new TogglePackage
+            {
+                Package = package,
+                Action = action,
+                Value = value
+            };
+        }
+        
+        public static IPackageEvent TogglePackageWithDefaultAction(Package package, bool value)
+        {
+            return new TogglePackageWithDefaultAction
             {
                 Package = package,
                 Value = value
             };
         }
+        
+        public static IPackageEvent ToggleGroupWithDefaultAction(Package[] packages, bool value)
+        {
+            return new ToggleGroupWithDefaultAction
+            {
+                Packages = packages,
+                Value = value
+            };
+        }
 
-        public static IPackageEvent ToggleGroup(Package[] packages, bool value)
+        public static IPackageEvent ToggleGroup(PackageActionInfo[] packageActions, bool value)
         {
             return new ToggleGroup
             {
-                Packages = packages,
+                PackageActions = packageActions,
                 Value = value
             };
         }
@@ -107,61 +135,60 @@ namespace Bahkat.Models
     
     namespace PackageEvent
     {
-        public struct AddSelectedPackage : IPackageEvent
+        internal struct AddSelectedPackage : IPackageEvent
         {
             public Package Package;
+            public PackageAction Action;
         }
         
-        public struct RemoveSelectedPackage : IPackageEvent
+        internal struct RemoveSelectedPackage : IPackageEvent
         {
             public Package Package;
         }
 
-        public struct TogglePackage : IPackageEvent
+        internal struct TogglePackage : IPackageEvent
+        {
+            public Package Package;
+            public PackageAction Action;
+            public bool Value;
+        }
+        
+        internal struct TogglePackageWithDefaultAction : IPackageEvent
         {
             public Package Package;
             public bool Value;
         }
-
-        public struct ToggleGroup : IPackageEvent
+        
+        internal struct ToggleGroupWithDefaultAction : IPackageEvent
         {
             public Package[] Packages;
             public bool Value;
         }
 
-        public struct ResetSelection : IPackageEvent {}
-    }
-
-    public interface IStoreEvent
-    {
-    }
-
-    public class RxStore<TState>
-    {
-        public IObservable<TState> State { get; private set; }
-        private readonly Subject<IStoreEvent> _dispatcher = new Subject<IStoreEvent>();
-
-        public void Dispatch(IStoreEvent e)
+        internal struct ToggleGroup : IPackageEvent
         {
-            _dispatcher.OnNext(e);
+            public PackageActionInfo[] PackageActions;
+            public bool Value;
         }
 
-        public RxStore(TState initialState, params Func<TState, IStoreEvent, TState>[] reducers)
-        {
-            State = Feedback.System(
-                initialState,
-                (i, e) => reducers.Aggregate(i, (state, next) => next(state, e)),
-                _ => _dispatcher.AsObservable())
-                .Replay(1)
-                .RefCount();
-        }
+        internal struct ResetSelection : IPackageEvent {}
     }
     
-    public class PackageStore : RxStore<PackageState>
+    public class PackageStore: IStore<PackageState, IPackageEvent>
     {
-        private static PackageState Reduce(PackageState state, IStoreEvent e)
+        private RxStore<PackageState, IPackageEvent> _store;
+        private IPackageService _pkgServ;
+        
+        public IObservable<PackageState> State => _store.State;
+
+        public void Dispatch(IPackageEvent e)
+        {
+            _store.Dispatch(e);
+        }
+
+        private PackageState Reduce(PackageState state, IPackageEvent e)
         {   
-            switch (e as IPackageEvent)
+            switch (e)
             {
                 case null:
                     return state;
@@ -169,28 +196,61 @@ namespace Bahkat.Models
                     state.SelectedPackages.Clear();
                     break;
                 case AddSelectedPackage v:
-                    state.SelectedPackages.Add(v.Package);
+                    if (!_pkgServ.IsValidAction(v.Package, v.Action))
+                    {
+                        break;
+                    }
+                    
+                    state.SelectedPackages[v.Package] = new PackageActionInfo
+                    {
+                        Package = v.Package,
+                        Action = v.Action
+                    };
                     break;
                 case RemoveSelectedPackage v:
                     state.SelectedPackages.Remove(v.Package);
                     break;
+                case ToggleGroupWithDefaultAction v:
+                    // Convert into an ordinary ToggleGroup
+                    return Reduce(state, PackageStoreAction.ToggleGroup(v.Packages.Select(pkg => new PackageActionInfo
+                    {
+                        Package = pkg,
+                        Action = _pkgServ.DefaultPackageAction(pkg)
+                    }).ToArray(), v.Value));
                 case ToggleGroup v:
                     if (v.Value)
                     {
-                        state.SelectedPackages.UnionWith(v.Packages);
+                        foreach (var item in v.PackageActions.Where(_pkgServ.IsValidAction))
+                        {
+                            state.SelectedPackages[item.Package] = item;
+                        }
                     }
                     else
                     {
-                        foreach (var item in v.Packages)
+                        foreach (var item in v.PackageActions)
                         {
-                            state.SelectedPackages.Remove(item);
+                            state.SelectedPackages.Remove(item.Package);
                         }
                     }
                     break;
+                case TogglePackageWithDefaultAction v:
+                    // Convert into an ordinary TogglePackage
+                    return Reduce(state, PackageStoreAction.TogglePackage(v.Package,
+                        _pkgServ.DefaultPackageAction(v.Package),
+                        v.Value));
                 case TogglePackage v:
                     if (v.Value)
                     {
-                        state.SelectedPackages.Add(v.Package);
+                        if (!_pkgServ.IsValidAction(v.Package, v.Action))
+                        {
+                            break;
+                        }
+                        
+                        state.SelectedPackages[v.Package] = new PackageActionInfo
+                        {
+                            Package = v.Package,
+                            Action = v.Action
+                        };
                     }
                     else
                     {
@@ -199,9 +259,17 @@ namespace Bahkat.Models
                     break;
             }
             
+            Console.WriteLine(string.Join(", ", state.SelectedPackages
+                .Select(x => x.Value)
+                .Select(x => $"{x.Package.Id}:{x.Action}")));
+            
             return state;
         }
 
-        public PackageStore() : base(PackageState.Default(), Reduce) {}
+        public PackageStore(IPackageService pkgServ)
+        {
+            _pkgServ = pkgServ;
+            _store = new RxStore<PackageState, IPackageEvent>(PackageState.Default(), Reduce);
+        }
     }
 }

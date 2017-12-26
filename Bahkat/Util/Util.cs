@@ -39,7 +39,7 @@ namespace Bahkat.Util
             {
                 return new CultureInfo(tag).DisplayName;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return tag;
             }

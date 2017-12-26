@@ -14,12 +14,12 @@ namespace Bahkat.UI.Updater
     {
         private readonly IUpdateWindowView _view;
         private readonly RepositoryService _repoServ;
-        private readonly PackageService _pkgServ;
+        private readonly IPackageService _pkgServ;
         private readonly PackageStore _store;
         private ObservableCollection<PackageMenuItem> _listItems =
             new ObservableCollection<PackageMenuItem>();
         
-        public UpdateWindowPresenter(IUpdateWindowView view, RepositoryService repoServ, PackageService pkgServ, PackageStore store)
+        public UpdateWindowPresenter(IUpdateWindowView view, RepositoryService repoServ, IPackageService pkgServ, PackageStore store)
         {
             _view = view;
             _repoServ = repoServ;
@@ -32,7 +32,7 @@ namespace Bahkat.UI.Updater
             _view.CloseMainWindow();
             
             _listItems.Clear();
-            _store.Dispatch(PackageAction.ResetSelection);
+            _store.Dispatch(PackageStoreAction.ResetSelection);
            
             var items = repo.PackagesIndex.Values
                 .Where(_pkgServ.RequiresUpdate)
@@ -41,11 +41,11 @@ namespace Bahkat.UI.Updater
                 
             foreach (var item in items)
             {
-                _store.Dispatch(PackageAction.AddSelectedPackage(item.Model));
+                _store.Dispatch(PackageStoreAction.AddSelectedPackage(item.Model, PackageAction.Install));
                 _listItems.Add(item);
             }
             
-            _view.UpdateTitle($"{Strings.AppName} - {repo.Meta.NativeName} - {string.Format(Strings.NUpdatesAvailable, items.Count())}");
+            _view.UpdateTitle($"{Strings.AppName} - {repo.Meta.NativeName} - {string.Format(Strings.NUpdatesAvailable, items.Length)}");
             Console.WriteLine("Added packages.");
         }
         
@@ -57,7 +57,7 @@ namespace Bahkat.UI.Updater
                 {
                     if (packages.Count > 0)
                     {
-                        view.UpdatePrimaryButton(true, string.Format(Strings.InstallNPackages, packages.Count));
+                        view.UpdatePrimaryButton(true, string.Format(Strings.ProcessNPackages, packages.Count));
                     }
                     else
                     {
@@ -88,7 +88,7 @@ namespace Bahkat.UI.Updater
         private IDisposable BindPackageToggled()
         {
             return _view.OnPackageToggled()
-                .Select(item => PackageAction.TogglePackage(item.Model, !item.IsSelected))
+                .Select(item => PackageStoreAction.TogglePackage(item.Model, PackageAction.Install, !item.IsSelected))
                 .Subscribe(_store.Dispatch);
         }
         
@@ -100,12 +100,17 @@ namespace Bahkat.UI.Updater
                 .Take(1)
                 .Subscribe(pkgs =>
                 {
-                    foreach (var pkg in pkgs)
+                    var packages = pkgs.Keys.Select(x => new PackageActionInfo
+                    {
+                        Package = x
+                    }).ToArray();
+                    
+                    foreach (var pkg in packages.Select(x => x.Package))
                     {
                         _pkgServ.SkipVersion(pkg);
                     }
-                    
-                    _store.Dispatch(PackageAction.ToggleGroup(pkgs.ToArray(), false));
+
+                    _store.Dispatch(PackageStoreAction.ToggleGroup(packages, false));
                     _view.RefreshList();
                 });
         }
