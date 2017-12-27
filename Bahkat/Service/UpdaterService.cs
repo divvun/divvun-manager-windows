@@ -60,7 +60,7 @@ namespace Bahkat.Service
             // Update the next check time
             _configStore.Dispatch(AppConfigAction.IncrementNextUpdateCheck);
 
-            return repo.PackagesIndex.Values.Any(_pkgServ.RequiresUpdate);
+            return repo.Packages.Values.Any(_pkgServ.RequiresUpdate);
         }
 
         private void InitUpdateWindowSubscriber()
@@ -99,7 +99,7 @@ namespace Bahkat.Service
             return _repoServ.System
                 .Select(s => s.RepoResult?.Repository)
                 .Take(1)
-                .Select(repo => repo?.PackagesIndex.Values.Any(_pkgServ.RequiresUpdate) ?? false);
+                .Select(repo => repo?.Packages.Values.Any(_pkgServ.RequiresUpdate) ?? false);
         }
         
         public UpdaterService(AppConfigStore configStore, RepositoryService repoServ, IPackageService pkgServ)

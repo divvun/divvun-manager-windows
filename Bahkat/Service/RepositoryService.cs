@@ -74,9 +74,9 @@ namespace Bahkat.Service
     public interface IRepositoryApi
     {
         IObservable<RepoIndex> RepoIndex(DownloadProgressChangedEventHandler onProgress = null);
-        IObservable<Dictionary<string, Package>> PackagesIndex(
+        IObservable<PackagesIndex> PackagesIndex(
             DownloadProgressChangedEventHandler onProgress = null);
-        IObservable<Dictionary<string, List<string>>> VirtualsIndex(
+        IObservable<VirtualsIndex> VirtualsIndex(
             DownloadProgressChangedEventHandler onProgress = null);
     }
 
@@ -122,22 +122,28 @@ namespace Bahkat.Service
         {
             BaseUri = baseUri;
         }
-
+        
         public IObservable<RepoIndex> RepoIndex(DownloadProgressChangedEventHandler onProgress = null)
         {
             return DownloadAsync<RepoIndex>("index.json", onProgress);
         }
 
-        public IObservable<Dictionary<string, Package>> PackagesIndex(
+        public IObservable<PackagesIndex> PackagesIndex(
             DownloadProgressChangedEventHandler onProgress = null)
         {
-            return DownloadAsync<Dictionary<string, Package>>("packages/index.json", onProgress);
+            return DownloadAsync<PackagesIndex>("packages/index.json", onProgress);
         }
         
-        public IObservable<Dictionary<string, List<string>>> VirtualsIndex(
+        public IObservable<VirtualsIndex> VirtualsIndex(
             DownloadProgressChangedEventHandler onProgress = null)
         {
-            return DownloadAsync<Dictionary<string, List<string>>>("virtuals/index.json", onProgress);
+            return DownloadAsync<VirtualsIndex>("virtuals/index.json", onProgress);
+        }
+        
+        public IObservable<VirtualPackage> Virtual(string id,
+            DownloadProgressChangedEventHandler onProgress = null)
+        {
+            return DownloadAsync<VirtualPackage>($"virtuals/{id}/index.json", onProgress);
         }
     }
 

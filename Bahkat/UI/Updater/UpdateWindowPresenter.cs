@@ -34,7 +34,7 @@ namespace Bahkat.UI.Updater
             _listItems.Clear();
             _store.Dispatch(PackageStoreAction.ResetSelection);
            
-            var items = repo.PackagesIndex.Values
+            var items = repo.Packages.Values
                 .Where(_pkgServ.RequiresUpdate)
                 .Select(x => new PackageMenuItem(x, _pkgServ, _store))
                 .ToArray();

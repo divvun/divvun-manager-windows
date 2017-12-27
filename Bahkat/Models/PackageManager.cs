@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Newtonsoft.Json;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable NonReadonlyMemberInGetHashCode
@@ -11,8 +10,41 @@ using Newtonsoft.Json;
 
 namespace Bahkat.Models
 {
+    public class RepoAgent : IEquatable<RepoAgent>
+    {
+        public string Name;
+        public string Version;
+        public string Url;
+
+        public bool Equals(RepoAgent other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(Name, other.Name) && string.Equals(Version, other.Version) && string.Equals(Url, other.Url);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((RepoAgent) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = (Name != null ? Name.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Version != null ? Version.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Url != null ? Url.GetHashCode() : 0);
+                return hashCode;
+            }
+        }
+    }
     public class RepoIndex : IEquatable<RepoIndex>
     {
+        public RepoAgent Agent;
         public Uri Base;
         public Dictionary<string, string> Name;
         public Dictionary<string, string> Description;
@@ -28,7 +60,7 @@ namespace Bahkat.Models
             PrimaryFilter = primaryFilter;
             Channels = channels;
         }
-        
+
         public string NativeName
         {
             get
@@ -75,6 +107,7 @@ namespace Bahkat.Models
     public class PackageInstaller : IEquatable<PackageInstaller>
     {
         public Uri Url;
+        public string Type;
         public string Args;
         public string UninstallArgs;
         public string ProductCode;
@@ -88,10 +121,10 @@ namespace Bahkat.Models
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(Url, other.Url) && string.Equals(Args, other.Args) && string.Equals(UninstallArgs, other.UninstallArgs) &&
-                   string.Equals(ProductCode, other.ProductCode) && RequiresReboot == other.RequiresReboot &&
-                   RequiresUninstallReboot == other.RequiresUninstallReboot && Size == other.Size &&
-                   InstalledSize == other.InstalledSize && Equals(Signature, other.Signature);
+            return Equals(Url, other.Url) && string.Equals(Type, other.Type) && string.Equals(Args, other.Args) &&
+                   string.Equals(UninstallArgs, other.UninstallArgs) && string.Equals(ProductCode, other.ProductCode) &&
+                   RequiresReboot == other.RequiresReboot && RequiresUninstallReboot == other.RequiresUninstallReboot &&
+                   Size == other.Size && InstalledSize == other.InstalledSize && Equals(Signature, other.Signature);
         }
 
         public override bool Equals(object obj)
@@ -107,6 +140,7 @@ namespace Bahkat.Models
             unchecked
             {
                 var hashCode = (Url != null ? Url.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Type != null ? Type.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (Args != null ? Args.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (UninstallArgs != null ? UninstallArgs.GetHashCode() : 0);
                 hashCode = (hashCode * 397) ^ (ProductCode != null ? ProductCode.GetHashCode() : 0);
@@ -117,6 +151,32 @@ namespace Bahkat.Models
                 hashCode = (hashCode * 397) ^ (Signature != null ? Signature.GetHashCode() : 0);
                 return hashCode;
             }
+        }
+    }
+
+    public class VirtualPackage : IEquatable<VirtualPackage>
+    {
+        // TODO: finish
+        public string Id;
+        
+        public bool Equals(VirtualPackage other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return string.Equals(Id, other.Id);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((VirtualPackage) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Id != null ? Id.GetHashCode() : 0);
         }
     }
 
@@ -221,14 +281,67 @@ namespace Bahkat.Models
         }
     }
 
+    public class PackagesIndex : IEquatable<PackagesIndex>
+    {
+        public Dictionary<string, Package> Packages;
+
+        public bool Equals(PackagesIndex other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(Packages, other.Packages);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PackagesIndex) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Packages != null ? Packages.GetHashCode() : 0);
+        }
+    }
+
+    public class VirtualsIndex : IEquatable<VirtualsIndex>
+    {
+        public Dictionary<string, List<string>> Virtuals;
+
+        public bool Equals(VirtualsIndex other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Equals(Virtuals, other.Virtuals);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((VirtualsIndex) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (Virtuals != null ? Virtuals.GetHashCode() : 0);
+        }
+    }
+
     public class Repository : IEquatable<Repository>
     {
         public RepoIndex Meta;
-        public Dictionary<string, Package> PackagesIndex;
-        public Dictionary<string, List<string>> VirtualsIndex;
+        public PackagesIndex PackagesIndex;
+        public VirtualsIndex VirtualsIndex;
 
-        public Repository(RepoIndex meta, Dictionary<string, Package> packagesIndex,
-            Dictionary<string, List<string>> virtualsIndex)
+        public virtual Dictionary<string, Package> Packages => PackagesIndex.Packages;
+        public virtual Dictionary<string, List<string>> Virtuals => VirtualsIndex.Virtuals;
+
+        public Repository(RepoIndex meta, PackagesIndex packagesIndex,
+            VirtualsIndex virtualsIndex)
         {
             Meta = meta;
             PackagesIndex = packagesIndex;

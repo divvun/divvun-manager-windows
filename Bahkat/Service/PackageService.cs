@@ -294,7 +294,7 @@ namespace Bahkat.Service
                 return comp;
             }
 
-            if (GetSkipVersion(package) == package.Version)
+            if (SkippedVersion(package) == package.Version)
             {
                 return PackageInstallStatus.VersionSkipped;
             }
@@ -320,12 +320,13 @@ namespace Bahkat.Service
             if (uninstString != null)
             {
                 var chunks = uninstString.ParseFileNameAndArgs();
+                var args = package.Installer.UninstallArgs ?? string.Join(" ", chunks.Item2);
                 
                 return new PackageUninstallInfo
                 {
                     Package = package,
                     Path = chunks.Item1,
-                    Args = string.Join(" ", chunks.Item2)
+                    Args = args
                 };
             }
 
@@ -341,7 +342,7 @@ namespace Bahkat.Service
             instKey.Set(Keys.SkipVersion, package.Version, RegistryValueKind.String);
         }
 
-        private string GetSkipVersion(Package package)
+        private string SkippedVersion(Package package)
         {
             var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
             var path = $@"{AppConfigState.Keys.SubkeyId}\{package.Installer.ProductCode}";

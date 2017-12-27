@@ -60,7 +60,7 @@ namespace Bahkat.UI.Main
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
             
-            foreach (var package in repo.PackagesIndex.Values)
+            foreach (var package in repo.Packages.Values)
             {
                 if (!map.ContainsKey(package.Category))
                 {
@@ -82,7 +82,7 @@ namespace Bahkat.UI.Main
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
             
-            foreach (var package in repo.PackagesIndex.Values)
+            foreach (var package in repo.Packages.Values)
             {
                 foreach (var bcp47 in package.Languages)
                 {

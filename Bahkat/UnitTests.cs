@@ -378,10 +378,17 @@ namespace Bahkat
                 },
                 "category",
                 new List<string> { "stable" });
-            
-            return new Repository(repoIndex,
-                new Dictionary<string, Package>(),
-                new Dictionary<string, List<string>>());
+
+            var packagesIndex = new PackagesIndex
+            {
+                Packages = new Dictionary<string, Package>()
+            };
+            var virtualsIndex = new VirtualsIndex
+            {
+                Virtuals = new Dictionary<string, List<string>>()
+            };
+
+            return new Repository(repoIndex, packagesIndex, virtualsIndex);
         }
         
         private Func<Uri, IRepositoryApi> MockRepositoryApi =>
