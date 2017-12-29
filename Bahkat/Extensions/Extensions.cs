@@ -176,6 +176,32 @@ namespace Bahkat.Extensions
                 Native.EnableMenuItem(menuHandle, Native.SC_CLOSE, 0);
                 Native.DestroyMenu(menuHandle);
             }
+        }  
+        
+        public static T[] EmptyArray<T>()
+        {
+            return InternalEmptyArray<T>.Value;
+        }
+        
+        internal static class InternalEmptyArray<T>
+        {
+            public static readonly T[] Value = new T[0];
+        }
+    }
+    
+    public static class DateTimeExtensions
+    {
+        public static long ToUnixTimeSeconds(this DateTimeOffset d)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return (long) (d.ToUniversalTime() - epoch).TotalSeconds;
+        }
+
+        public static DateTimeOffset FromUnixTimeSeconds(long seconds)
+        {
+            var timeSpan = TimeSpan.FromSeconds(seconds);
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return epoch.Add(timeSpan).ToLocalTime();
         }
     }
 

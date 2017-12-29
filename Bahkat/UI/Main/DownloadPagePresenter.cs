@@ -9,6 +9,7 @@ using Bahkat.Service;
 using System.Collections.ObjectModel;
 using System.Windows;
 using Bahkat.Models;
+using Bahkat.Extensions;
 
 namespace Bahkat.UI.Main
 {
@@ -94,11 +95,11 @@ namespace Bahkat.UI.Main
 
                     return packages;
                 })
-                .DefaultIfEmpty(Array.Empty<PackageProgress>())
+                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageProgress>())
                 .Select(packages => _pkgServ.Download(packages, 3, _cancelSource.Token))
                 .Switch()
                 .ToArray()
-                .DefaultIfEmpty(Array.Empty<PackageInstallInfo>());
+                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageInstallInfo>());
 
             var uninstaller = justSelected.Select(selected => selected.Values
                     .Where(x => x.Action == PackageAction.Uninstall))
@@ -106,7 +107,7 @@ namespace Bahkat.UI.Main
                     .Select(x => _pkgServ.UninstallInfo(x.Package))
                     .Where(x => x != null)
                     .ToArray())
-                .DefaultIfEmpty(Array.Empty<PackageUninstallInfo>());
+                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageUninstallInfo>());
 
             var everything = Observable.Zip(
                 downloader,

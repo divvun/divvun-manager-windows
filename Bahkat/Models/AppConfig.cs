@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows.Documents;
+using Bahkat.Extensions;
 using Bahkat.Models.AppConfigEvent;
 using Bahkat.Properties;
 using Bahkat.Util;
@@ -109,7 +110,7 @@ namespace Bahkat.Models
             {
                 if (v is long x)
                 {
-                    return DateTimeOffset.FromUnixTimeSeconds(x);
+                    return DateTimeExtensions.FromUnixTimeSeconds(x);
                 }
 
                 return DateTimeOffset.Now;
