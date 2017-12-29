@@ -43,6 +43,12 @@ namespace Bahkat.UI.Main
         public MainPage()
         {
             InitializeComponent();
+            
+            var app = (IBahkatApp)Application.Current;
+            this.Initialized += (sender, e) =>
+            {
+                app.WindowService.Get<MainWindow>().Instance.DisableCloseButton();
+            };
 
             _packageToggled = Observable.Merge(
                 TvPackages.ReactiveKeyDown()
@@ -62,8 +68,7 @@ namespace Bahkat.UI.Main
                 .Where(x => x.EventArgs.Key == Key.Space)
                 .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
                 .NotNull();
-
-            var app = (IBahkatApp)Application.Current;
+            
             _presenter = new MainPagePresenter(this, 
                 app.RepositoryService,
                 app.PackageService,
@@ -104,7 +109,7 @@ namespace Bahkat.UI.Main
 
         public void ShowDownloadPage()
         {
-            this.ReplacePageWith(new DownloadPage());
+            this.ReplacePageWith(new DownloadPage(DownloadPagePresenter.Default));
         }
 
         public void UpdatePrimaryButton(bool isEnabled, string label)

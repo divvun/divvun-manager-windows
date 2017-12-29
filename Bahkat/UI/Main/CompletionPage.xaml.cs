@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Bahkat.Extensions;
@@ -11,62 +13,62 @@ namespace Bahkat.UI.Main
 {
     public interface ICompletionPageView : IPageView
     {
+        IObservable<EventArgs> OnRestartButtonClicked();
+        IObservable<EventArgs> OnFinishButtonClicked();
+        
         void ShowErrors(ProcessResult[] errors);
-        void SetRequiresReboot();
+        void RequiresReboot(bool requiresReboot);
         void ShowMain();
         void RebootSystem();
-    }
-
-    public class CompletionPagePresenter
-    {
-        private readonly ICompletionPageView _view;
-        private readonly ProcessResult[] _results;
-        
-        public CompletionPagePresenter(ICompletionPageView view, ProcessResult[] results)
-        {
-            _view = view;
-            _results = results;
-        }
-
-        public void Start()
-        {
-            var errors = _results.Where(r => !r.IsSuccess).ToArray();
-            
-            if (errors.Length > 0)
-            {
-                _view.ShowErrors(errors);
-            }
-
-            if (_results.Any(r => r.Package.Installer.RequiresReboot))
-            {
-                _view.SetRequiresReboot();
-            }
-        }
     }
 
     /// <summary>
     /// Interaction logic for CompletionPage.xaml
     /// </summary>
-    public partial class CompletionPage : Page, ICompletionPageView
+    public partial class CompletionPage : Page, ICompletionPageView, IDisposable
     {
+        private CompositeDisposable _bag = new CompositeDisposable();
+        
         public CompletionPage(ProcessResult[] results)
         {
             InitializeComponent();
             
             var presenter = new CompletionPagePresenter(this, results);
-            presenter.Start();
-
-            BtnPrimary.ReactiveClick().Subscribe(_ => ShowMain());
+            _bag.Add(presenter.Start());
         }
+
+        public IObservable<EventArgs> OnRestartButtonClicked() =>
+            BtnRestart.ReactiveClick().Select(x => x.EventArgs);
+
+        public IObservable<EventArgs> OnFinishButtonClicked() => 
+            BtnFinish.ReactiveClick().Select(x => x.EventArgs);
 
         public void ShowErrors(ProcessResult[] errors)
         {
-            MessageBox.Show("There were errors.");
+            // TODO: add error handling when things go wrong.
+            // MessageBox.Show("Some errors occurred while procs");
         }
 
-        public void SetRequiresReboot()
+        public void RequiresReboot(bool requiresReboot)
         {
-            //throw new NotImplementedException();
+            if (requiresReboot)
+            {
+                LblPrimary.Text = Strings.RestartRequiredTitle;
+                LblSecondary.Text = Strings.RestartRequiredBody;
+                
+                DockPanel.SetDock(BtnFinish, Dock.Left);
+                BtnFinish.Content = Strings.RestartLater;
+                BtnRestart.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                LblPrimary.Text = Strings.ProcessCompletedTitle;
+                LblSecondary.Text = Strings.ProcessCompletedBody;
+                
+                BtnRestart.Visibility = Visibility.Collapsed;
+                DockPanel.SetDock(BtnFinish, Dock.Right);
+                BtnFinish.Content = Strings.Finish;
+            }
         }
 
         public void ShowMain()
@@ -76,10 +78,13 @@ namespace Bahkat.UI.Main
 
         public void RebootSystem()
         {
-            // TODO this is crap, getting permission to use better code for this.
-            Process.Start("shutdown.exe /r /t 0");
-            
+            ShutdownExtensions.Reboot();
             Application.Current.Shutdown();
+        }
+
+        public void Dispose()
+        {
+            _bag?.Dispose();
         }
     }
 }

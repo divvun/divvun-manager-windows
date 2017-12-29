@@ -15,11 +15,11 @@ namespace Bahkat.UI.Updater
         private readonly IUpdateWindowView _view;
         private readonly RepositoryService _repoServ;
         private readonly IPackageService _pkgServ;
-        private readonly PackageStore _store;
+        private readonly IPackageStore _store;
         private ObservableCollection<PackageMenuItem> _listItems =
             new ObservableCollection<PackageMenuItem>();
         
-        public UpdateWindowPresenter(IUpdateWindowView view, RepositoryService repoServ, IPackageService pkgServ, PackageStore store)
+        public UpdateWindowPresenter(IUpdateWindowView view, RepositoryService repoServ, IPackageService pkgServ, IPackageStore store)
         {
             _view = view;
             _repoServ = repoServ;
@@ -49,7 +49,7 @@ namespace Bahkat.UI.Updater
             Console.WriteLine("Added packages.");
         }
         
-        private IDisposable BindPrimaryButton(IUpdateWindowView view, PackageStore store)
+        private IDisposable BindPrimaryButton(IUpdateWindowView view, IPackageStore store)
         {
             return store.State
                 .Select(state => state.SelectedPackages)
@@ -100,10 +100,7 @@ namespace Bahkat.UI.Updater
                 .Take(1)
                 .Subscribe(pkgs =>
                 {
-                    var packages = pkgs.Keys.Select(x => new PackageActionInfo
-                    {
-                        Package = x
-                    }).ToArray();
+                    var packages = pkgs.Keys.Select(x => new PackageActionInfo(x, PackageAction.Uninstall)).ToArray();
                     
                     foreach (var pkg in packages.Select(x => x.Package))
                     {

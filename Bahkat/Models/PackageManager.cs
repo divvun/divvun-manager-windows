@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -42,13 +43,29 @@ namespace Bahkat.Models
             }
         }
     }
-    public class RepoIndex : IEquatable<RepoIndex>
+    
+    public interface IValidatable<out T>
+    {
+        T Validate();
+    }
+    
+    public class RepoIndex : IEquatable<RepoIndex>, IValidatable<RepoIndex>
     {
         public RepoAgent Agent;
+
+        [JsonProperty(Required = Required.Always)]
         public Uri Base;
+
+        [JsonProperty(Required = Required.Always)]
         public Dictionary<string, string> Name;
+
+        [JsonProperty(Required = Required.Always)]
         public Dictionary<string, string> Description;
+
+        [JsonProperty(Required = Required.Always)]
         public string PrimaryFilter;
+
+        [JsonProperty(Required = Required.Always)]
         public List<string> Channels;
 
         public RepoIndex(Uri @base, Dictionary<string, string> name, Dictionary<string, string> description,
@@ -76,6 +93,16 @@ namespace Bahkat.Models
             if (ReferenceEquals(this, other)) return true;
             return Equals(Base, other.Base) && Equals(Name, other.Name) && Equals(Description, other.Description) &&
                    string.Equals(PrimaryFilter, other.PrimaryFilter) && Equals(Channels, other.Channels);
+        }
+
+        public RepoIndex Validate()
+        {
+            if (Base == null || Name == null || Description == null || PrimaryFilter == null || Channels == null)
+            {
+                throw new NullReferenceException();
+            }
+
+            return this;
         }
 
         public override bool Equals(object obj)
@@ -182,18 +209,37 @@ namespace Bahkat.Models
 
     public class Package : IEquatable<Package>
     {
+        [JsonProperty(Required = Required.Always)]
         public string Id;
+
+        [JsonProperty(Required = Required.Always)]
         public Dictionary<string, string> Name;
+
+        [JsonProperty(Required = Required.Always)]
         public Dictionary<string, string> Description;
+
+        [JsonProperty(Required = Required.Always)]
         public string Version;
+
+        [JsonProperty(Required = Required.Always)]
         public string Category;
+
+        [JsonProperty(Required = Required.Always)]
         public List<string> Languages;
-        public Dictionary<string, string> Os;
+
+        [JsonProperty(Required = Required.Always)]
+        public Dictionary<string, string> Platform;
+
+        [JsonProperty(Required = Required.Always)]
         public Dictionary<string, string> Dependencies;
+
+        [JsonProperty(Required = Required.Always)]
         public Dictionary<string, string> VirtualDependencies;
+
+        [JsonProperty(Required = Required.Always)]
         public PackageInstaller Installer;
 
-        public string NativeName
+        public virtual string NativeName
         {
             get
             {
@@ -223,15 +269,6 @@ namespace Bahkat.Models
             unchecked
             {
                 var hashCode = (Id != null ? Id.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (Description != null ? Description.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (Version != null ? Version.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (Category != null ? Category.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (Languages != null ? Languages.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (Os != null ? Os.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (Dependencies != null ? Dependencies.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (VirtualDependencies != null ? VirtualDependencies.GetHashCode() : 0);
-//                hashCode = (hashCode * 397) ^ (Installer != null ? Installer.GetHashCode() : 0);
                 return hashCode;
             }
         }
@@ -281,8 +318,9 @@ namespace Bahkat.Models
         }
     }
 
-    public class PackagesIndex : IEquatable<PackagesIndex>
+    public class PackagesIndex : IEquatable<PackagesIndex>, IValidatable<PackagesIndex>
     {
+        [JsonProperty(Required = Required.Always)]
         public Dictionary<string, Package> Packages;
 
         public bool Equals(PackagesIndex other)
@@ -290,6 +328,16 @@ namespace Bahkat.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return Equals(Packages, other.Packages);
+        }
+
+        public PackagesIndex Validate()
+        {
+            if (Packages == null)
+            {
+                throw new NullReferenceException();
+            }
+
+            return this;
         }
 
         public override bool Equals(object obj)
@@ -306,8 +354,9 @@ namespace Bahkat.Models
         }
     }
 
-    public class VirtualsIndex : IEquatable<VirtualsIndex>
+    public class VirtualsIndex : IEquatable<VirtualsIndex>, IValidatable<VirtualsIndex>
     {
+        [JsonProperty(Required = Required.Always)]
         public Dictionary<string, List<string>> Virtuals;
 
         public bool Equals(VirtualsIndex other)
@@ -315,6 +364,16 @@ namespace Bahkat.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return Equals(Virtuals, other.Virtuals);
+        }
+
+        public VirtualsIndex Validate()
+        {
+            if (Virtuals == null)
+            {
+                throw new ArgumentNullException();
+            }
+
+            return this;
         }
 
         public override bool Equals(object obj)
@@ -331,7 +390,7 @@ namespace Bahkat.Models
         }
     }
 
-    public class Repository : IEquatable<Repository>
+    public class Repository : IEquatable<Repository>, IValidatable<Repository>
     {
         public RepoIndex Meta;
         public PackagesIndex PackagesIndex;
@@ -354,6 +413,20 @@ namespace Bahkat.Models
             if (ReferenceEquals(this, other)) return true;
             return Equals(Meta, other.Meta) && Equals(PackagesIndex, other.PackagesIndex) &&
                    Equals(VirtualsIndex, other.VirtualsIndex);
+        }
+
+        public Repository Validate()
+        {
+            if (Meta == null || PackagesIndex == null || VirtualsIndex == null)
+            {
+                throw new NullReferenceException();
+            }
+
+            Meta.Validate();
+            PackagesIndex.Validate();
+            VirtualsIndex.Validate();
+
+            return this;
         }
 
         public override bool Equals(object obj)

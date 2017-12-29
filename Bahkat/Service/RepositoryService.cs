@@ -125,25 +125,29 @@ namespace Bahkat.Service
         
         public IObservable<RepoIndex> RepoIndex(DownloadProgressChangedEventHandler onProgress = null)
         {
-            return DownloadAsync<RepoIndex>("index.json", onProgress);
+            return DownloadAsync<RepoIndex>("index.json", onProgress)
+                .DoIfNull(() => Observable.Throw<RepoIndex>(new NullReferenceException()));
         }
 
         public IObservable<PackagesIndex> PackagesIndex(
             DownloadProgressChangedEventHandler onProgress = null)
         {
-            return DownloadAsync<PackagesIndex>("packages/index.json", onProgress);
+            return DownloadAsync<PackagesIndex>("packages/index.json", onProgress)
+                .DoIfNull(() => Observable.Throw<PackagesIndex>(new NullReferenceException()));
         }
         
         public IObservable<VirtualsIndex> VirtualsIndex(
             DownloadProgressChangedEventHandler onProgress = null)
         {
-            return DownloadAsync<VirtualsIndex>("virtuals/index.json", onProgress);
+            return DownloadAsync<VirtualsIndex>("virtuals/index.json", onProgress)
+                .DoIfNull(() => Observable.Throw<VirtualsIndex>(new NullReferenceException()));
         }
         
         public IObservable<VirtualPackage> Virtual(string id,
             DownloadProgressChangedEventHandler onProgress = null)
         {
-            return DownloadAsync<VirtualPackage>($"virtuals/{id}/index.json", onProgress);
+            return DownloadAsync<VirtualPackage>($"virtuals/{id}/index.json", onProgress)
+                .DoIfNull(() => Observable.Throw<VirtualPackage>(new NullReferenceException()));
         }
     }
 
@@ -167,7 +171,7 @@ namespace Bahkat.Service
                     return new RepositoryResult()
                     {
                         Uri = repoUri,
-                        Repository = new Repository(main, packages, virtuals)
+                        Repository = new Repository(main, packages, virtuals).Validate()
                     };
                 });
         }

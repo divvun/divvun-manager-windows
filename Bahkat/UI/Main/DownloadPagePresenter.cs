@@ -7,17 +7,30 @@ using System.Reactive.Linq;
 using System.Threading;
 using Bahkat.Service;
 using System.Collections.ObjectModel;
+using System.Windows;
 using Bahkat.Models;
 
 namespace Bahkat.UI.Main
 {
     public class DownloadPagePresenter
     {
+        static public DownloadPagePresenter SelfUpdate(IDownloadPageView view)
+        {
+            var app = (IBahkatApp) Application.Current;
+            return new DownloadPagePresenter(view, app.SelfUpdateService, app.PackageService);
+        }
+
+        static public DownloadPagePresenter Default(IDownloadPageView view)
+        {
+            var app = (IBahkatApp) Application.Current;
+            return new DownloadPagePresenter(view, app.PackageStore, app.PackageService);
+        }
+        
         private ObservableCollection<DownloadListItem> _listItems =
             new ObservableCollection<DownloadListItem>();
         
         private readonly IDownloadPageView _view;
-        private readonly PackageStore _pkgStore;
+        private readonly IPackageStore _pkgStore;
         private readonly IPackageService _pkgServ;
         private readonly CancellationTokenSource _cancelSource;
 
@@ -40,7 +53,7 @@ namespace Bahkat.UI.Main
             return prog;
         }
         
-        public DownloadPagePresenter(IDownloadPageView view, PackageStore pkgStore, IPackageService pkgServ)
+        public DownloadPagePresenter(IDownloadPageView view, IPackageStore pkgStore, IPackageService pkgServ)
         {
             _view = view;
             _pkgStore = pkgStore;
@@ -102,10 +115,6 @@ namespace Bahkat.UI.Main
                 {
                     ToInstall = downloaded,
                     ToUninstall = uninstalls
-                })
-                .Do(x =>
-                {
-                    Console.WriteLine($"Installs: {x.ToInstall.Length}, Uninsts: {x.ToUninstall.Length}");
                 })
                 .SingleAsync()
                 .Subscribe(_view.StartInstallation, _view.HandleError);

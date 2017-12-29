@@ -15,7 +15,7 @@ namespace Bahkat.UI.Shared
 
         public Package Model { get; private set; }
         private IPackageService _pkgServ;
-        private PackageStore _store;
+        private IPackageStore _store;
 
         private CompositeDisposable _bag = new CompositeDisposable();
         
@@ -23,7 +23,7 @@ namespace Bahkat.UI.Shared
         private PackageInstallStatus _status => _pkgServ.InstallStatus(Model);
         private PackageActionInfo _actionInfo;
 
-        public PackageMenuItem(Package model, IPackageService pkgServ, PackageStore store)
+        public PackageMenuItem(Package model, IPackageService pkgServ, IPackageStore store)
         {
             Model = model;
             _pkgServ = pkgServ;

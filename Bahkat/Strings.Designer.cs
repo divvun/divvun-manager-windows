@@ -79,6 +79,24 @@ namespace Bahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Báhkat v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
+        /// </summary>
+        public static string BahkatUpdateBody {
+            get {
+                return ResourceManager.GetString("BahkatUpdateBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Báhkat Update Available.
+        /// </summary>
+        public static string BahkatUpdateTitle {
+            get {
+                return ResourceManager.GetString("BahkatUpdateTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
         public static string Cancel {
@@ -129,6 +147,15 @@ namespace Bahkat {
         public static string CrashReportTitle {
             get {
                 return ResourceManager.GetString("CrashReportTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Daily.
+        /// </summary>
+        public static string Daily {
+            get {
+                return ResourceManager.GetString("Daily", resourceCulture);
             }
         }
         
@@ -196,11 +223,38 @@ namespace Bahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Every 4 Weeks.
+        /// </summary>
+        public static string EveryFourWeeks {
+            get {
+                return ResourceManager.GetString("EveryFourWeeks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Every 2 Weeks.
+        /// </summary>
+        public static string EveryTwoWeeks {
+            get {
+                return ResourceManager.GetString("EveryTwoWeeks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Exit.
         /// </summary>
         public static string Exit {
             get {
                 return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Finish.
+        /// </summary>
+        public static string Finish {
+            get {
+                return ResourceManager.GetString("Finish", resourceCulture);
             }
         }
         
@@ -246,6 +300,24 @@ namespace Bahkat {
         public static string Loading {
             get {
                 return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Never.
+        /// </summary>
+        public static string Never {
+            get {
+                return ResourceManager.GetString("Never", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Next update check at: {0}.
+        /// </summary>
+        public static string NextUpdateDue {
+            get {
+                return ResourceManager.GetString("NextUpdateDue", resourceCulture);
             }
         }
         
@@ -331,6 +403,24 @@ namespace Bahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You may now close this window, or return to the main screen..
+        /// </summary>
+        public static string ProcessCompletedBody {
+            get {
+                return ResourceManager.GetString("ProcessCompletedBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done!.
+        /// </summary>
+        public static string ProcessCompletedTitle {
+            get {
+                return ResourceManager.GetString("ProcessCompletedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Process {0} Items.
         /// </summary>
         public static string ProcessNPackages {
@@ -363,6 +453,53 @@ namespace Bahkat {
         public static string RepositoryError {
             get {
                 return ResourceManager.GetString("RepositoryError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There was an error while opening the repository:
+        ///
+        ///{0}.
+        /// </summary>
+        public static string RepositoryErrorBody {
+            get {
+                return ResourceManager.GetString("RepositoryErrorBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restart Later.
+        /// </summary>
+        public static string RestartLater {
+            get {
+                return ResourceManager.GetString("RestartLater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Restart Now.
+        /// </summary>
+        public static string RestartNow {
+            get {
+                return ResourceManager.GetString("RestartNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to It is highly recommended that you restart your computer in order for some changes to take effect..
+        /// </summary>
+        public static string RestartRequiredBody {
+            get {
+                return ResourceManager.GetString("RestartRequiredBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Time to reboot!.
+        /// </summary>
+        public static string RestartRequiredTitle {
+            get {
+                return ResourceManager.GetString("RestartRequiredTitle", resourceCulture);
             }
         }
         
@@ -453,6 +590,24 @@ namespace Bahkat {
         public static string VersionSkipped {
             get {
                 return ResourceManager.GetString("VersionSkipped", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Waiting for process to finish....
+        /// </summary>
+        public static string WaitingForCompletion {
+            get {
+                return ResourceManager.GetString("WaitingForCompletion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Weekly.
+        /// </summary>
+        public static string Weekly {
+            get {
+                return ResourceManager.GetString("Weekly", resourceCulture);
             }
         }
     }

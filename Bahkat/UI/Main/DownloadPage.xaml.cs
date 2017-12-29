@@ -37,18 +37,13 @@ namespace Bahkat.UI.Main
     /// </summary>
     public partial class DownloadPage : Page, IDownloadPageView, IDisposable
     {
-        private DownloadPagePresenter _presenter;
         private Subject<EventArgs> _cancelSubject = new Subject<EventArgs>();
         private CompositeDisposable _bag = new CompositeDisposable();
         
-        public DownloadPage()
+        public DownloadPage(Func<IDownloadPageView, DownloadPagePresenter> presenter)
         {
             InitializeComponent();
-            
-            var app = (IBahkatApp)Application.Current;
-
-            _presenter = new DownloadPagePresenter(this, app.PackageStore, app.PackageService);
-            _bag.Add(_presenter.Start());
+            _bag.Add(presenter(this).Start());
         }
 
         public void InitProgressList(ObservableCollection<DownloadListItem> source)
@@ -63,6 +58,7 @@ namespace Bahkat.UI.Main
         
         public void DownloadCancelled()
         {
+            BtnCancel.IsEnabled = false;
             LvPrimary.ItemsSource = null;
             this.ReplacePageWith(new MainPage());
         }

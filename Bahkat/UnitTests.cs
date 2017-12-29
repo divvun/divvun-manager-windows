@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using Bahkat.Models;
 using Bahkat.Models.AppConfigEvent;
 using Bahkat.Properties;
@@ -552,7 +553,7 @@ namespace Bahkat
 //                    }).Concat();
 //            }
 
-            public IObservable<ProcessResult> Process(PackageProcessInfo process, Subject<OnStartPackageInfo> onStartPackage)
+            public IObservable<ProcessResult> Process(PackageProcessInfo process, Subject<OnStartPackageInfo> onStartPackage, CancellationToken token)
             {
                 throw new NotImplementedException();
             }

@@ -3,6 +3,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using Bahkat.Service;
 
 namespace Bahkat.UI.Main
@@ -13,6 +14,7 @@ namespace Bahkat.UI.Main
         private readonly IInstallService _instServ;
         private readonly PackageProcessInfo _pkgInfo;
         private readonly IScheduler _scheduler;
+        private readonly CancellationTokenSource _cancelSource;
         
         public InstallPagePresenter(IInstallPageView view, PackageProcessInfo pkgInfo, IInstallService instServ, IScheduler scheduler)
         {
@@ -20,23 +22,37 @@ namespace Bahkat.UI.Main
             _pkgInfo = pkgInfo;
             _instServ = instServ;
             _scheduler = scheduler;
+            
+            _cancelSource = new CancellationTokenSource();
         }
-        
+
         public IDisposable Start()
         {
             var onStartPackageSubject = new Subject<OnStartPackageInfo>();
             _view.SetTotalPackages(_pkgInfo.ToInstall.LongLength + _pkgInfo.ToUninstall.LongLength);
 
             return new CompositeDisposable(
-                _instServ.Process(_pkgInfo, onStartPackageSubject)
-                    .ToArray()
-                    .SubscribeOn(_scheduler)
-                    .ObserveOn(_scheduler)
-                    .Subscribe(_view.ShowCompletion, _view.HandleError),
+                // Handles forwarding progress status to the UI
                 onStartPackageSubject
                     .ObserveOn(_scheduler)
                     .SubscribeOn(_scheduler)
                     .Subscribe(_view.SetCurrentPackage, _view.HandleError),
+                // Processes the packages (install and uninstall)
+                _instServ.Process(_pkgInfo, onStartPackageSubject, _cancelSource.Token)
+                    .ToArray()
+                    .SubscribeOn(_scheduler)
+                    .ObserveOn(_scheduler)
+                    .Subscribe(results =>
+                    {
+                        _view.ShowCompletion(_cancelSource.IsCancellationRequested, results);
+                    }, _view.HandleError),
+                // Cancel button binding
+                _view.OnCancelClicked().Subscribe(_ =>
+                {
+                    _cancelSource.Cancel();
+                    _view.ProcessCancelled();
+                }),
+                // Dispose the subject itself
                 onStartPackageSubject
             );
         }

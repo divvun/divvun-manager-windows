@@ -45,10 +45,12 @@
             </TreeView.Resources>
         </TreeView>
         <WebBrowser Visibility="Collapsed" Name="WbView" Grid.Row="1" />
-        <DockPanel Height="auto" Width="auto" Grid.Row="2" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" LastChildFill="False">
-            <Button DockPanel.Dock="Left" Name="BtnSkip" Content="{x:Static bahkat:Strings.SkipTheseUpdates}" Margin="8,0,0,0" Height="23" Padding="4,0,4,0"/>
-            <Button DockPanel.Dock="Right" Name="BtnLater" Content="{x:Static bahkat:Strings.RemindMeLater}" Height="23" Margin="10,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right"/>
-            <Button DockPanel.Dock="Right" Name="BtnPrimary" IsEnabled="False" Content="" Height="23" Margin="10,0,0,0" Padding="4,0,4,0" HorizontalAlignment="Right" />
-        </DockPanel>
+        <Border Grid.Row="2" DockPanel.Dock="Bottom" BorderBrush="#FF828790">
+            <DockPanel Height="auto" Width="auto" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" LastChildFill="False">
+                <Button DockPanel.Dock="Left" Name="BtnSkip" Content="{x:Static bahkat:Strings.SkipTheseUpdates}" Margin="8,0,0,0" Height="23" Padding="4,0,4,0"/>
+                <Button DockPanel.Dock="Right" Name="BtnLater" Content="{x:Static bahkat:Strings.RemindMeLater}" Height="23" Margin="8,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right"/>
+                <Button DockPanel.Dock="Right" Name="BtnPrimary" IsEnabled="False" Content="" Height="23" Margin="8,0,0,0" Padding="4,0,4,0" HorizontalAlignment="Right" />
+            </DockPanel>
+        </Border>
     </Grid>
 </Window>

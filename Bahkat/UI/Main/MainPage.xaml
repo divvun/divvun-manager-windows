@@ -7,7 +7,7 @@
       xmlns:shared="clr-namespace:Bahkat.UI.Shared"
       mc:Ignorable="d" 
       d:DesignHeight="480" d:DesignWidth="640"
-      Title="Main Page">
+      Title="{Binding Title}">
 
      <Grid>
         <DockPanel>
@@ -24,7 +24,7 @@
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>
-                <TextBox Name="TxtSearch" Height="23" Margin="8,0,8,0" TextWrapping="Wrap" Text="Search" VerticalContentAlignment="Center" Width="160"/>
+                <!--TextBox Name="TxtSearch" Height="23" Margin="8,0,8,0" TextWrapping="Wrap" Text="Search" VerticalContentAlignment="Center" Width="160"/-->
                 <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" />
             </DockPanel>
             <TreeView Name="TvPackages" HorizontalContentAlignment="Stretch" Width="auto">
@@ -48,13 +48,14 @@
                         </Grid>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type shared:PackageMenuItem}">
-                        <Grid MinWidth="460">
+                        <Grid MinWidth="461">
                             <Grid.ColumnDefinitions>
+                                <!-- Hardcoded because Windows isn't fair and relative sizing led to inconsistent widths -->
                                 <ColumnDefinition Width="21"/>
-                                <ColumnDefinition Width="3*"/>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="2*"/>
-                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="138"/>
+                                <ColumnDefinition Width="92"/>
+                                <ColumnDefinition Width="92"/>
+                                <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox Grid.Column="0" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
                             <TextBlock Grid.Column="1" Text="{Binding Title}" Width="Auto"/>

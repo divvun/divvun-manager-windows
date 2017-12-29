@@ -30,8 +30,9 @@ namespace Bahkat
         IPackageService PackageService { get; }
         UpdaterService UpdaterService { get; }
         IWindowService WindowService { get; }
-        PackageStore PackageStore { get; }
+        IPackageStore PackageStore { get; }
         IRavenClient RavenClient { get; }
+        SelfUpdaterService SelfUpdateService { get; }
     }
 
     public abstract class AbstractBahkatApp : Application, IBahkatApp, ISingleInstanceApp
@@ -41,8 +42,9 @@ namespace Bahkat
         public abstract IPackageService PackageService { get; }
         public abstract UpdaterService UpdaterService { get; protected set; }
         public abstract IWindowService WindowService { get; }
-        public abstract PackageStore PackageStore { get; protected set; }
+        public abstract IPackageStore PackageStore { get; protected set; }
         public abstract IRavenClient RavenClient { get; protected set; }
+        public abstract SelfUpdaterService SelfUpdateService { get; protected set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -85,7 +87,7 @@ namespace Bahkat
     {
         public override AppConfigStore ConfigStore { get; } = DI.CreateAppConfigStore();
         public override IPackageService PackageService { get; } = DI.CreatePackageService();
-        public override PackageStore PackageStore { get; protected set; }
+        public override IPackageStore PackageStore { get; protected set; }
         public override UpdaterService UpdaterService { get; protected set; }
         public override IWindowService WindowService { get; } = Service.WindowService.Create(
             CloseHandlingWindowConfig.Create<MainWindow>(),
@@ -94,19 +96,21 @@ namespace Bahkat
         );
         public override RepositoryService RepositoryService { get; protected set; }
         public override IRavenClient RavenClient { get; protected set; }
+        public override SelfUpdaterService SelfUpdateService { get; protected set; }
         
         private TaskbarIcon _icon;
 
         private void CreateNotifyIcon()
         {
-            _icon = new TaskbarIcon();
-            var uri = new Uri("pack://application:,,,/UI/TaskbarIcon.ico");
-            _icon.IconSource = new BitmapImage(uri);
-            _icon.ContextMenu = new ContextMenu();
+            _icon = new TaskbarIcon
+            {
+                IconSource = new BitmapImage(Constants.TaskbarIcon)
+            };
+            var menu = new ContextMenu();
             
             var openPkgMgrItem = new MenuItem { Header = Strings.OpenPackageManager };
             openPkgMgrItem.Click += (sender, args) => WindowService.Show<MainWindow>();
-            _icon.ContextMenu.Items.Add(openPkgMgrItem);
+            menu.Items.Add(openPkgMgrItem);
 
             var updateItem = new MenuItem { Header = Strings.CheckForUpdates };
             updateItem.Click += (sender, args) => UpdaterService
@@ -118,14 +122,15 @@ namespace Bahkat
                     Strings.NoUpdatesTitle,
                     MessageBoxButton.OK,
                     MessageBoxImage.Information));
-            _icon.ContextMenu.Items.Add(updateItem);
-            
-            _icon.ContextMenu.Items.Add(new Separator());
+            menu.Items.Add(updateItem);
+
+            menu.Items.Add(new Separator());
             
             var exitItem = new MenuItem { Header = Strings.Exit };
             exitItem.Click += (sender, args) => Current.Shutdown();
-            _icon.ContextMenu.Items.Add(exitItem);
-            
+            menu.Items.Add(exitItem);
+
+            _icon.ContextMenu = menu;
             _icon.TrayMouseDoubleClick += (sender, args) => WindowService.Show<MainWindow>();
         }
 
@@ -142,7 +147,7 @@ namespace Bahkat
                 .Select(x => x.RepoResult.Error)
                 .DistinctUntilChanged()
                 .Subscribe(error => MessageBox.Show(MainWindow,
-                    error.Message,
+                    string.Format(Strings.RepositoryErrorBody, error.Message),
                     Strings.RepositoryError,
                     MessageBoxButton.OK,
                     MessageBoxImage.Error));
@@ -153,16 +158,24 @@ namespace Bahkat
             UpdaterService = new UpdaterService(ConfigStore, RepositoryService, PackageService);
         }
 
+        private void InitSelfUpdateService()
+        {
+            SelfUpdateService = new SelfUpdaterService(ConfigStore, PackageService, DispatcherScheduler.Current);
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             // The order of these initialisers is important.
             InitPackageStore();
             InitRepositoryService();
+            InitSelfUpdateService();
             InitUpdaterService();
             
             CreateNotifyIcon();
             
             base.OnStartup(e);
+            Console.WriteLine(Iso639.GetTag("kpv").Autonym);
+
             OnActivate(Environment.GetCommandLineArgs());
         }
 
@@ -180,7 +193,9 @@ namespace Bahkat
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // Stop Quartz from holding the app open for all time
             UpdaterService.Dispose();
+
             base.OnExit(e);
         }
 

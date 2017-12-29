@@ -10,7 +10,7 @@ namespace Bahkat.UI.Shared
 {
     public class PackageCategoryTreeItem : IComparable<PackageCategoryTreeItem>, IEquatable<PackageCategoryTreeItem>, INotifyPropertyChanged
     {
-        private readonly PackageStore _store;
+        private readonly IPackageStore _store;
         private CompositeDisposable _bag = new CompositeDisposable();
         private bool _isGroupSelected;
         
@@ -25,7 +25,7 @@ namespace Bahkat.UI.Shared
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public PackageCategoryTreeItem(PackageStore store, string name,
+        public PackageCategoryTreeItem(IPackageStore store, string name,
             ObservableCollection<PackageMenuItem> items)
         {
             _store = store;

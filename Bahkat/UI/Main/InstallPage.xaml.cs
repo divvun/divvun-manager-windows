@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Bahkat.Extensions;
@@ -12,10 +13,12 @@ namespace Bahkat.UI.Main
 {
     public interface IInstallPageView : IPageView
     {
+        IObservable<EventArgs> OnCancelClicked();
         void SetCurrentPackage(OnStartPackageInfo info);
         void SetTotalPackages(long total);
-        void ShowCompletion(ProcessResult[] results);
+        void ShowCompletion(bool isCancelled, ProcessResult[] results);
         void HandleError(Exception error);
+        void ProcessCancelled();
     }
 
     /// <summary>
@@ -29,7 +32,7 @@ namespace Bahkat.UI.Main
         public InstallPage(PackageProcessInfo pkgProcessInfo)
         {
             InitializeComponent();
-
+            
             _presenter = new InstallPagePresenter(
                 this,
                 pkgProcessInfo,
@@ -45,31 +48,42 @@ namespace Bahkat.UI.Main
             PrgBar.Maximum = total;
         }
 
+        public IObservable<EventArgs> OnCancelClicked() =>
+            BtnCancel.ReactiveClick().Select(x => x.EventArgs);
+
         public void SetCurrentPackage(OnStartPackageInfo info)
         {
-            
-            LblPrimary.Text = string.Format(Strings.InstallingPackage,
-                info.Package.NativeName, info.Package.Version);
+            var fmtString = info.Action == PackageAction.Install
+                ? Strings.InstallingPackage
+                : Strings.UninstallingPackage;
+            LblPrimary.Text = string.Format(fmtString, info.Package.NativeName, info.Package.Version);
             LblSecondary.Text = string.Format(Strings.NItemsRemaining, info.Remaining);
             PrgBar.Value = info.Count;
         }
 
-        public void ShowCompletion(ProcessResult[] results)
+        public void ShowCompletion(bool isCancelled, ProcessResult[] results)
         {
+            if (isCancelled)
+            {
+                this.ReplacePageWith(new MainPage());
+                return;
+            }
+            
             var app = (BahkatApp) Application.Current;
             app.PackageStore.Dispatch(PackageStoreAction.ResetSelection);
 
             this.ReplacePageWith(new CompletionPage(results));
         }
 
+        public void ProcessCancelled()
+        {
+            BtnCancel.IsEnabled = false;
+            LblSecondary.Text = Strings.WaitingForCompletion;
+        }
+
         public void HandleError(Exception error)
         {
             MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-
-        private void BtnCancel_OnClick(object sender, RoutedEventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         public void Dispose()

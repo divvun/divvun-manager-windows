@@ -18,6 +18,12 @@ namespace Bahkat.Models
         public Package Package;
         public PackageAction Action;
 
+        public PackageActionInfo(Package package, PackageAction action)
+        {
+            Package = package;
+            Action = action;
+        }
+
         public bool Equals(PackageActionInfo other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -64,11 +70,21 @@ namespace Bahkat.Models
 
         public static PackageState Default()
         {
-            var state = new PackageState
+            return new PackageState
             {
                 SelectedPackages = new Dictionary<Package, PackageActionInfo>()
             };
-            return state;
+        }
+
+        public static PackageState SelfUpdate(Package package)
+        {
+            return new PackageState
+            {
+                SelectedPackages = new Dictionary<Package, PackageActionInfo>
+                {
+                    { package, new PackageActionInfo(package, PackageAction.Install) }
+                }
+            };
         }
     }
 
@@ -174,7 +190,9 @@ namespace Bahkat.Models
         internal struct ResetSelection : IPackageEvent {}
     }
     
-    public class PackageStore: IStore<PackageState, IPackageEvent>
+    public interface IPackageStore : IStore<PackageState, IPackageEvent> {}
+    
+    public class PackageStore: IPackageStore
     {
         private RxStore<PackageState, IPackageEvent> _store;
         private IPackageService _pkgServ;
@@ -200,23 +218,17 @@ namespace Bahkat.Models
                     {
                         break;
                     }
-                    
-                    state.SelectedPackages[v.Package] = new PackageActionInfo
-                    {
-                        Package = v.Package,
-                        Action = v.Action
-                    };
+
+                    state.SelectedPackages[v.Package] = new PackageActionInfo(v.Package, v.Action);
                     break;
                 case RemoveSelectedPackage v:
                     state.SelectedPackages.Remove(v.Package);
                     break;
                 case ToggleGroupWithDefaultAction v:
                     // Convert into an ordinary ToggleGroup
-                    return Reduce(state, PackageStoreAction.ToggleGroup(v.Packages.Select(pkg => new PackageActionInfo
-                    {
-                        Package = pkg,
-                        Action = _pkgServ.DefaultPackageAction(pkg)
-                    }).ToArray(), v.Value));
+                    return Reduce(state, PackageStoreAction.ToggleGroup(v.Packages
+                        .Select(pkg => new PackageActionInfo(pkg, _pkgServ.DefaultPackageAction(pkg)))
+                        .ToArray(), v.Value));
                 case ToggleGroup v:
                     if (v.Value)
                     {
@@ -245,12 +257,8 @@ namespace Bahkat.Models
                         {
                             break;
                         }
-                        
-                        state.SelectedPackages[v.Package] = new PackageActionInfo
-                        {
-                            Package = v.Package,
-                            Action = v.Action
-                        };
+
+                        state.SelectedPackages[v.Package] = new PackageActionInfo(v.Package, v.Action);
                     }
                     else
                     {

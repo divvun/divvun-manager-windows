@@ -1,5 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Text;
+using Bahkat.Extensions;
 
 namespace Bahkat.Util
 {
@@ -35,14 +39,45 @@ namespace Bahkat.Util
 
         public static string GetCultureDisplayName(string tag)
         {
+            string langCode;
+            CultureInfo culture = null;
             try
             {
-                return new CultureInfo(tag).DisplayName;
+                culture = new CultureInfo(tag);
+                langCode = culture.ThreeLetterISOLanguageName;
             }
             catch (Exception)
             {
-                return tag;
+                // Best attempt
+                langCode = tag.Split('_', '-')[0];
             }
+
+            var data = Iso639.GetTag(langCode);
+            if (data.Autonym != null && data.Autonym != "")
+            {
+                return data.Autonym;
+            }
+
+            // This undocumented API is weird; if a language isn't an OS language, _any_ script flag must be specified. Trust me.
+            var autonymBuilder = new StringBuilder();
+            Native.GetLanguageNames(langCode + "-Latn", autonymBuilder, new StringBuilder(), new StringBuilder(), new StringBuilder());
+
+            if (autonymBuilder.ToString() != "")
+            {
+                return autonymBuilder.ToString();
+            }
+
+            if (culture != null && culture.DisplayName != null && culture.DisplayName != "" && culture.DisplayName != culture.EnglishName)
+            {
+                return culture.DisplayName;
+            }
+
+            if (data.Name != null && data.Name != "")
+            {
+                return data.Name;
+            }
+
+            return tag;
         }
     }
 }

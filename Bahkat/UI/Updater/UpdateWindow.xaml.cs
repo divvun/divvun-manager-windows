@@ -70,7 +70,7 @@ namespace Bahkat.UI.Updater
         {
             var app = (BahkatApp) Application.Current;
             app.WindowService.Close<UpdateWindow>();
-            app.WindowService.Show<MainWindow, DownloadPage>();
+            app.WindowService.Show<MainWindow>(new DownloadPage(DownloadPagePresenter.Default));
         }
 
         public void UpdateTitle(string title)

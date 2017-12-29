@@ -20,11 +20,11 @@ namespace Bahkat.UI.Main
         private IMainPageView _view;
         private RepositoryService _repoServ;
         private IPackageService _pkgServ;
-        private PackageStore _store;
+        private IPackageStore _store;
 
         private Repository _currentRepo;
 
-        private IDisposable BindPackageToggled(IMainPageView view, PackageStore store)
+        private IDisposable BindPackageToggled(IMainPageView view, IPackageStore store)
         {
             
             return view.OnPackageToggled()
@@ -35,16 +35,13 @@ namespace Bahkat.UI.Main
                 .Subscribe(store.Dispatch);
         }
         
-        private IDisposable BindGroupToggled(IMainPageView view, PackageStore store)
+        private IDisposable BindGroupToggled(IMainPageView view, IPackageStore store)
         {
             return view.OnGroupToggled()
                 .Select(item =>
                 {
                     return PackageStoreAction.ToggleGroup(
-                        item.Items.Select(x => new PackageActionInfo {
-                            Package = x.Model,
-                            Action = _pkgServ.DefaultPackageAction(x.Model)
-                        }).ToArray(),
+                        item.Items.Select(x => new PackageActionInfo(x.Model, _pkgServ.DefaultPackageAction(x.Model))).ToArray(),
                         !item.IsGroupSelected);
                 })
                 .Subscribe(store.Dispatch);
@@ -135,7 +132,7 @@ namespace Bahkat.UI.Main
             Console.WriteLine("Added packages.");
         }
 
-        private IDisposable BindUpdatePackageList(RepositoryService repoServ, IPackageService pkgServ, PackageStore store)
+        private IDisposable BindUpdatePackageList(RepositoryService repoServ, IPackageService pkgServ, IPackageStore store)
         {
             return repoServ.System
                 .Select(x => x.RepoResult?.Repository)
@@ -159,7 +156,7 @@ namespace Bahkat.UI.Main
             _view.UpdatePrimaryButton(true, string.Format(Strings.ProcessNPackages, infos.Count));
         }
 
-        private IDisposable BindPrimaryButtonLabel(IMainPageView view, PackageStore store)
+        private IDisposable BindPrimaryButtonLabel(IMainPageView view, IPackageStore store)
         {
             // Can't use distinct until changed here because HashSet is never reset
             return store.State
@@ -167,7 +164,7 @@ namespace Bahkat.UI.Main
                 .Subscribe(GeneratePrimaryButtonLabel);
         }
 
-        public MainPagePresenter(IMainPageView view, RepositoryService repoServ, IPackageService pkgServ, PackageStore store)
+        public MainPagePresenter(IMainPageView view, RepositoryService repoServ, IPackageService pkgServ, IPackageStore store)
         {
             _repoServ = repoServ;
             _pkgServ = pkgServ;

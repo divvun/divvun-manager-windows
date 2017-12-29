@@ -80,11 +80,13 @@ namespace Bahkat.Service
     public interface IWindowService
     {
         void Show<T>() where T : Window;
+        void Show<T>(IPageView pageView) where T : Window;
         void Show<TWindow, TPage>()
             where TWindow : Window, IWindowPageView
             where TPage : IPageView, new();
         void Hide<T>() where T : Window;
         void Close<T>() where T : Window;
+        IWindowConfig Get<T>() where T : Window;
     }
     
     public class WindowService : IWindowService
@@ -109,7 +111,7 @@ namespace Bahkat.Service
             }
         }
         
-        private IWindowConfig Get<T>() where T: Window
+        public IWindowConfig Get<T>() where T: Window
         {
             var config = _registry.Get(typeof(T), null);
             if (config == null)
@@ -123,14 +125,19 @@ namespace Bahkat.Service
         {
             Get<T>().Instance.Show();
         }
+        
+        public void Show<T>(IPageView pageView) where T: Window
+        {
+            var x = (IWindowPageView) Get<T>().Instance;
+            x.Show();
+            x.ShowPage(pageView);
+        }
 
         public void Show<TWindow, TPage>()
             where TWindow : Window, IWindowPageView
             where TPage : IPageView, new()
         {
-            var x = (IWindowPageView) Get<TWindow>().Instance;
-            x.Show();
-            x.ShowPage(new TPage());
+            Show<TWindow>(new TPage());
         }
 
         public void Hide<T>() where T: Window

@@ -259,4 +259,57 @@
   <data name="Uninstall" xml:space="preserve">
     <value>Uninstall</value>
   </data>
+  <data name="Finish" xml:space="preserve">
+    <value>Finish</value>
+  </data>
+  <data name="ProcessCompletedBody" xml:space="preserve">
+    <value>You may now close this window, or return to the main screen.</value>
+  </data>
+  <data name="ProcessCompletedTitle" xml:space="preserve">
+    <value>Done!</value>
+  </data>
+  <data name="RestartLater" xml:space="preserve">
+    <value>Restart Later</value>
+  </data>
+  <data name="RestartNow" xml:space="preserve">
+    <value>Restart Now</value>
+  </data>
+  <data name="RestartRequiredBody" xml:space="preserve">
+    <value>It is highly recommended that you restart your computer in order for some changes to take effect.</value>
+  </data>
+  <data name="RestartRequiredTitle" xml:space="preserve">
+    <value>Time to reboot!</value>
+  </data>
+  <data name="WaitingForCompletion" xml:space="preserve">
+    <value>Waiting for process to finish...</value>
+  </data>
+  <data name="Daily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="EveryFourWeeks" xml:space="preserve">
+    <value>Every 4 Weeks</value>
+  </data>
+  <data name="EveryTwoWeeks" xml:space="preserve">
+    <value>Every 2 Weeks</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="NextUpdateDue" xml:space="preserve">
+    <value>Next update check at: {0}</value>
+  </data>
+  <data name="Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="RepositoryErrorBody" xml:space="preserve">
+    <value>There was an error while opening the repository:
+
+{0}</value>
+  </data>
+  <data name="BahkatUpdateBody" xml:space="preserve">
+    <value>Báhkat v{0} is now available. It is highly recommended that you update as soon as possible. Update now?</value>
+  </data>
+  <data name="BahkatUpdateTitle" xml:space="preserve">
+    <value>Báhkat Update Available</value>
+  </data>
 </root>
