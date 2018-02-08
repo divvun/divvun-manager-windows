@@ -1,0 +1,56 @@
+﻿<Window x:Class="Pahkat.UI.Updater.UpdateWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Pahkat.UI.Updater" 
+        xmlns:shared="clr-namespace:Pahkat.UI.Shared" 
+        xmlns:bahkat="clr-namespace:Pahkat"
+        mc:Ignorable="d"
+        Title="{Binding Title}"
+        MinHeight="350" MinWidth="525"
+        Height="350" Width="525">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="38"/>
+        </Grid.RowDefinitions>
+        <TreeView Name="TvPackages" HorizontalContentAlignment="Stretch" Width="auto" Padding="0,4,0,0">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="{x:Type TreeViewItem}">
+                    <Setter Property="IsExpanded" Value="True"/>
+                    <Setter Property="MinWidth" Value="460" />
+                    <Setter Property="Padding" Value="1,1,1,1" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </TreeView.ItemContainerStyle>
+            <TreeView.Resources>
+                <DataTemplate DataType="{x:Type shared:PackageMenuItem}">
+                    <Grid MinWidth="460">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="21"/>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
+                        <TextBlock Grid.Column="1" Text="{Binding Title}" Width="Auto"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Version}" TextAlignment="Right" Margin="0,0,4,0"/>
+                        <TextBlock Grid.Column="3" Text="{Binding FileSize}" />
+                        <TextBlock Grid.Column="4" Text="{Binding Status}" />
+                    </Grid>
+                </DataTemplate>
+            </TreeView.Resources>
+        </TreeView>
+        <WebBrowser Visibility="Collapsed" Name="WbView" Grid.Row="1" />
+        <Border Grid.Row="2" DockPanel.Dock="Bottom" BorderBrush="#FF828790">
+            <DockPanel Height="auto" Width="auto" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" LastChildFill="False">
+                <Button DockPanel.Dock="Left" Name="BtnSkip" Content="{x:Static bahkat:Strings.SkipTheseUpdates}" Margin="8,0,0,0" Height="23" Padding="4,0,4,0"/>
+                <Button DockPanel.Dock="Right" Name="BtnLater" Content="{x:Static bahkat:Strings.RemindMeLater}" Height="23" Margin="8,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right"/>
+                <Button DockPanel.Dock="Right" Name="BtnPrimary" IsEnabled="False" Content="" Height="23" Margin="8,0,0,0" Padding="4,0,4,0" HorizontalAlignment="Right" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
