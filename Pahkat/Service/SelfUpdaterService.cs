@@ -43,7 +43,7 @@ namespace Pahkat.Service
         {
             // Not to be confused with the repo serv used everywhere else in the codebase.
             _selfRepoServ = new RepositoryService(url => new RepositoryApi(url), scheduler);
-            _selfRepoServ.SetRepositoryUri(Constants.BahkatUpdateUri);
+            _selfRepoServ.SetRepositoryUri(Constants.PahkatUpdateUri);
             
             _configStore = configStore;
             _pkgServ = pkgServ;
@@ -103,7 +103,8 @@ namespace Pahkat.Service
                     })
                 .NotNull()
                 .DistinctUntilChanged()
-                .Select(repo => repo.Packages["bahkat"])
+                .Select(repo => repo.Packages.Get("pahkat", null))
+                .NotNull()
                 // TODO: this should really have its own trigger, and it should be at least daily and not configurable.
                 // It should also always happen before a real update screen is meant to show up.
                 .Where(_pkgServ.RequiresUpdate)
