@@ -17,7 +17,7 @@ using IScheduler = System.Reactive.Concurrency.IScheduler;
 
 namespace Bahkat.Service
 {
-    public class SelfUpdaterService : IPackageStore
+    public class SelfUpdaterService : IPackageStore, IDisposable
     {
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
         private class UpdateCheckJob : IJob
@@ -124,6 +124,12 @@ namespace Bahkat.Service
         public void Dispatch(IPackageEvent e)
         {
             throw new NotImplementedException();
+        }
+
+        public void Dispose()
+        {
+            _packageSubject?.Dispose();
+            _jobScheduler.Shutdown();
         }
     }
 }

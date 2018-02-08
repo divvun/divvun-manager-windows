@@ -207,6 +207,8 @@ namespace Bahkat.Extensions
 
     public static class Native
     {
+        [DllImport("kernel32.dll", SetLastError=true)]
+        public static extern int RegisterApplicationRestart([MarshalAs(UnmanagedType.LPWStr)] string commandLineArgs, int Flags);
         [DllImport("winlangdb.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern int GetLanguageNames(string Language, StringBuilder Autonym, StringBuilder EnglishName, StringBuilder LocalName, StringBuilder ScriptName);
         [DllImport("user32.dll")]

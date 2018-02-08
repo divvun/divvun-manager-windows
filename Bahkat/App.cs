@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Windows;
 using System.Windows.Controls;
@@ -85,6 +87,8 @@ namespace Bahkat
 
     public class BahkatApp : AbstractBahkatApp
     {
+        public const string ArgsSilent = "-s";
+
         public override AppConfigStore ConfigStore { get; } = DI.CreateAppConfigStore();
         public override IPackageService PackageService { get; } = DI.CreatePackageService();
         public override IPackageStore PackageStore { get; protected set; }
@@ -182,7 +186,7 @@ namespace Bahkat
         public override bool OnActivate(IList<string> args)
         {
             // If -s, run silently. Used for start-up service.
-            if (!args.Contains("-s"))
+            if (!args.Contains(ArgsSilent))
             {
                 WindowService.Show<MainWindow>();
             }
@@ -195,12 +199,13 @@ namespace Bahkat
         {
             // Stop Quartz from holding the app open for all time
             UpdaterService.Dispose();
+            SelfUpdateService.Dispose();
 
             base.OnExit(e);
         }
 
         [STAThread]
-        [SecurityPermission(SecurityAction.Demand, Flags=SecurityPermissionFlag.ControlAppDomain)]
+        [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
         public static void Main()
         {
             var key = Assembly.GetExecutingAssembly().GetGuid();
@@ -210,16 +215,17 @@ namespace Bahkat
                 return;
             }
 
+            Native.RegisterApplicationRestart(ArgsSilent, 0);
             var raven = DI.CreateRavenClient();
-            
+
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
             {
                 raven.Capture(new SentryEvent((Exception) args.ExceptionObject));
             };
 
-            var application = new BahkatApp { RavenClient = raven };
+            var application = new BahkatApp {RavenClient = raven};
             application.Run();
-                
+
             SingleInstance<BahkatApp>.Cleanup();
         }
     }
