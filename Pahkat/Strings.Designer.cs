@@ -61,7 +61,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Báhkat.
+        ///   Looks up a localized string similar to Páhkat.
         /// </summary>
         public static string AppName {
             get {
@@ -79,7 +79,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Báhkat v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
+        ///   Looks up a localized string similar to Páhkat v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
         /// </summary>
         public static string BahkatUpdateBody {
             get {
@@ -88,7 +88,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Báhkat Update Available.
+        ///   Looks up a localized string similar to Páhkat Update Available.
         /// </summary>
         public static string BahkatUpdateTitle {
             get {
