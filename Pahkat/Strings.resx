@@ -312,4 +312,7 @@
   <data name="BahkatUpdateTitle" xml:space="preserve">
     <value>Páhkat Update Available</value>
   </data>
+  <data name="Url" xml:space="preserve">
+    <value>URL</value>
+  </data>
 </root>

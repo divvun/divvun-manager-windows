@@ -80,7 +80,9 @@ namespace Pahkat.Service
     public interface IWindowService
     {
         void Show<T>() where T : Window;
+        void Show<T>(WindowSaveState state) where T : Window;
         void Show<T>(IPageView pageView) where T : Window;
+        void Show<T>(IPageView pageView, WindowSaveState? state) where T : Window;
         void Show<TWindow, TPage>()
             where TWindow : Window, IWindowPageView
             where TPage : IPageView, new();
@@ -125,7 +127,30 @@ namespace Pahkat.Service
         {
             Get<T>().Instance.Show();
         }
-        
+
+        public void Show<T>(WindowSaveState state) where T : Window
+        {
+            var window = Get<T>().Instance;
+            
+            window.Left = state.Left;
+            window.Top = state.Top;
+            window.Height = state.Height;
+            window.Width = state.Width;
+            window.WindowState = state.WindowState;
+
+            window.Show();
+        }
+
+        public void Show<T>(IPageView pageView, WindowSaveState? state) where T : Window
+        {
+            if (state != null)
+            {
+                Show<T>(state.Value);
+            }
+
+            Show<T>(pageView);
+        }
+
         public void Show<T>(IPageView pageView) where T: Window
         {
             var x = (IWindowPageView) Get<T>().Instance;

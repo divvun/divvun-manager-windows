@@ -31,7 +31,7 @@ namespace Pahkat.UI.Main
         {
             _view.RequiresReboot(_results.Any(r =>
             {
-                var inst = r.Package.Installer;
+                var inst = r.Package.WindowsInstaller;
                 return r.Action == PackageAction.Install
                     ? inst.RequiresReboot
                     : inst.RequiresUninstallReboot;

@@ -32,6 +32,7 @@ namespace Pahkat.Util
     public interface IWindowsRegistry
     {
         IWindowsRegKey LocalMachine { get; }
+        IWindowsRegKey CurrentUser { get; }
 
         IWindowsRegKey OpenBaseKey(RegistryHive key, RegistryView view);
         T Get<T>(string keyName, string valueName) where T : class;
@@ -61,6 +62,8 @@ namespace Pahkat.Util
             {
                 case RegistryHive.LocalMachine:
                     return "HKEY_LOCAL_MACHINE";
+                case RegistryHive.CurrentUser:
+                    return "HKEY_CURRENT_USER";
             }
             
             throw new ArgumentException("No key found for " + hive);
@@ -82,6 +85,9 @@ namespace Pahkat.Util
             {
                 case RegistryHive.LocalMachine:
                     _rk = Registry.LocalMachine;
+                    break;
+                case RegistryHive.CurrentUser:
+                    _rk = Registry.CurrentUser;
                     break;
                 default:
                     throw new ArgumentException("Unsupported hive.");
@@ -123,6 +129,7 @@ namespace Pahkat.Util
     public class WindowsRegistry : IWindowsRegistry
     {
         public IWindowsRegKey LocalMachine => new WindowsRegKey(Registry.LocalMachine);
+        public IWindowsRegKey CurrentUser => new WindowsRegKey(Registry.CurrentUser);
         
         public IWindowsRegKey OpenBaseKey(RegistryHive key, RegistryView view)
         {
@@ -269,11 +276,12 @@ namespace Pahkat.Util
         
 
         public IWindowsRegKey LocalMachine { get; }
+        public IWindowsRegKey CurrentUser { get; }
         
         public MockRegistry()
         {
             LocalMachine = new MockRegKey(this, Registry.LocalMachine.Name);
-            
+            CurrentUser = new MockRegKey(this, Registry.CurrentUser.Name);
         }
 
         public IWindowsRegKey OpenBaseKey(RegistryHive key, RegistryView view)

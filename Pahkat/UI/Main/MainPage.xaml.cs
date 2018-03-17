@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -10,6 +11,10 @@ using System.Windows.Threading;
 using Pahkat.Extensions;
 using Pahkat.UI.Settings;
 using Pahkat.UI.Shared;
+using Pahkat.Util;
+using System.Collections.Generic;
+using Pahkat.Service;
+using Pahkat.Models;
 
 namespace Pahkat.UI.Main
 {
@@ -19,7 +24,7 @@ namespace Pahkat.UI.Main
         IObservable<PackageCategoryTreeItem> OnGroupToggled();
         IObservable<EventArgs> OnPrimaryButtonPressed();
         void UpdateTitle(string title);
-        void SetPackagesModel(ObservableCollection<PackageCategoryTreeItem> tree);
+        void SetPackagesModel(ObservableCollection<RepoTreeItem> tree);
         void ShowDownloadPage();
         void UpdatePrimaryButton(bool isEnabled, string label);
         void HandleError(Exception error);
@@ -40,16 +45,41 @@ namespace Pahkat.UI.Main
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
             .Select(e => e.EventArgs);
         
+        private IObservable<Repository[]> RequestRepos(RepoConfig[] configs)
+        {
+            var app = (PahkatApp)Application.Current;
+            
+            return configs.Select(config => app.Rpc.Repository(config.Url, config.Channel))
+                .Merge()
+                .ToArray()
+                .SelectMany(repos =>
+                {
+                    return repos.Select(repo => app.Rpc.Statuses(repo.Meta.Base).Select(s => Tuple.Create(repo, s)))
+                        .Merge()
+                        .Select(t =>
+                        {
+                            var repo = t.Item1;
+                            var statuses = t.Item2;
+
+                            repo.Statuses = statuses.ToDictionary(x => x.Key, y => y.Value.Status);
+                            return repo;
+                        })
+                        .ToArray()
+                        .Take(1);
+                }); 
+        }
+
         public MainPage()
         {
             InitializeComponent();
             
-            var app = (IBahkatApp)Application.Current;
-            this.Initialized += (sender, e) =>
-            {
-                app.WindowService.Get<MainWindow>().Instance.DisableCloseButton();
-            };
+            var app = (PahkatApp)Application.Current;
 
+            _presenter = new MainPagePresenter(this,
+                //app.RepositoryService,
+                app.PackageService,
+                app.PackageStore);
+            
             _packageToggled = Observable.Merge(
                 TvPackages.ReactiveKeyDown()
                     .Where(x => x.EventArgs.Key == Key.Space)
@@ -68,20 +98,29 @@ namespace Pahkat.UI.Main
                 .Where(x => x.EventArgs.Key == Key.Space)
                 .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
                 .NotNull();
-            
-            _presenter = new MainPagePresenter(this, 
-                app.RepositoryService,
-                app.PackageService,
-                app.PackageStore);
-            
-            _bag.Add(_presenter.Start());
+
+            _presenter.Start().DisposedBy(_bag);
 
             TvPackages.Focus();
+
+            app.ConfigStore.State.Select(x => x.Repositories)
+                .DistinctUntilChanged()
+                .Select(x => RequestRepos(x))
+                .Switch()
+                .SubscribeOn(Dispatcher.CurrentDispatcher)
+                .ObserveOn(Dispatcher.CurrentDispatcher)
+                .Subscribe(repos =>
+                {
+                    _presenter.SetRepos(repos);
+                }, error =>
+                {
+                    HandleError(error);
+                }).DisposedBy(_bag);
         }
         
         private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e)
         {
-            var app = (IBahkatApp)Application.Current;
+            var app = (IPahkatApp)Application.Current;
             app.WindowService.Show<SettingsWindow>();
         }
 
@@ -102,7 +141,7 @@ namespace Pahkat.UI.Main
             BtnMenu.ContextMenu.IsOpen = true;
         }
 
-        public void SetPackagesModel(ObservableCollection<PackageCategoryTreeItem> tree)
+        public void SetPackagesModel(ObservableCollection<RepoTreeItem> tree)
         {
             TvPackages.ItemsSource = tree;
         }

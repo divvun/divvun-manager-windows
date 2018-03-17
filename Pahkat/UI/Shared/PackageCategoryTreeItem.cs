@@ -8,6 +8,18 @@ using Pahkat.Models;
 
 namespace Pahkat.UI.Shared
 {
+    public class RepoTreeItem
+    {
+        public string Name { get; }
+        public ObservableCollection<PackageCategoryTreeItem> Items { get; }
+
+        public RepoTreeItem(String name, ObservableCollection<PackageCategoryTreeItem> items)
+        {
+            Name = name;
+            Items = items;
+        }
+    }
+
     public class PackageCategoryTreeItem : IComparable<PackageCategoryTreeItem>, IEquatable<PackageCategoryTreeItem>, INotifyPropertyChanged
     {
         private readonly IPackageStore _store;

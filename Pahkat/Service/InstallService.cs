@@ -73,9 +73,9 @@ namespace Pahkat.Service
                 case "inno":
                     return "/VERYSILENT /SP- /SUPPRESSMSGBOXES /NORESTART";
                 case "msi":
-                    return $"/x \"{info.Package.Installer.ProductCode}\" /qn /norestart";
+                    return $"/x \"{info.Package.WindowsInstaller.ProductCode}\" /qn /norestart";
                 default:
-                    return info.Package.Installer.UninstallArgs;
+                    return info.Package.WindowsInstaller.UninstallArgs;
             }
         }
 
@@ -87,10 +87,10 @@ namespace Pahkat.Service
             }
             
             var package = info.Package;
-            var installer = package.Installer;
+            var installer = package.WindowsInstaller;
             var process = info.Path.StartsWith("msiexec", StringComparison.OrdinalIgnoreCase)
                 ? CreateProcess("msiexec", ArgsForUninstallerType("msi", info))
-                : CreateProcess(info.Path, ArgsForUninstallerType(installer.Type, info));
+                : CreateProcess(info.Path, ArgsForUninstallerType(installer.Type.Value(), info));
             
             return ProcessPackage(package, PackageAction.Uninstall, process);
         }
@@ -106,7 +106,7 @@ namespace Pahkat.Service
                 case "nsis":
                     return "/SD";
                 default:
-                    return info.Package.Installer.Args;
+                    return info.Package.WindowsInstaller.Args;
             }
         }
 
@@ -118,10 +118,10 @@ namespace Pahkat.Service
             }
             
             var package = info.Package;
-            var installer = package.Installer;
+            var installer = package.WindowsInstaller;
             var process = info.Path.EndsWith(".msi", true, CultureInfo.InvariantCulture)
                 ? CreateProcess("msiexec", ArgsForInstallerType("msi", info))
-                : CreateProcess(info.Path, ArgsForInstallerType(installer.Type, info));
+                : CreateProcess(info.Path, ArgsForInstallerType(installer.Type.Value(), info));
 
             return ProcessPackage(package, PackageAction.Install, process);
         }

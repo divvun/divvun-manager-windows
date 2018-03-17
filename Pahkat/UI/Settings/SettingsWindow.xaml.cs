@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using Newtonsoft.Json;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.UI.Shared;
+using Pahkat.Util;
 
 namespace Pahkat.UI.Settings
 {
@@ -14,11 +17,14 @@ namespace Pahkat.UI.Settings
     {
         IObservable<EventArgs> OnSaveClicked();
         IObservable<EventArgs> OnCancelClicked();
+        IObservable<EventArgs> OnRepoAddClicked();
+        IObservable<int> OnRepoRemoveClicked();
         void SetInterfaceLanguage(string tag);
-        void SetRepository(string repo);
-        void SetRepositoryStatus(string status);
+        void SetRepoItemSource(ObservableCollection<RepoDataGridItem> repos);
         void SetUpdateFrequency(PeriodInterval period);
         void SetUpdateFrequencyStatus(DateTimeOffset dateTime);
+        void SelectRow(int index);
+        void SelectLastRow();
         SettingsFormData SettingsFormData();
         void HandleError(Exception error);
         void Close();
@@ -28,9 +34,9 @@ namespace Pahkat.UI.Settings
     {
         public string InterfaceLanguage;
         public PeriodInterval UpdateCheckInterval;
-        public Uri RepositoryUrl;
+        public RepoConfig[] Repositories;
     }
-    
+
     struct LanguageTag
     {
         public string Name { get; set; }
@@ -51,7 +57,56 @@ namespace Pahkat.UI.Settings
             };
         }
     }
-    
+
+    struct ChannelMenuItem
+    {
+        public string Name { get; set; }
+        public RepositoryMeta.Channel Value { get; set; }
+
+        internal static ChannelMenuItem Create(RepositoryMeta.Channel channel)
+        {
+            return new ChannelMenuItem
+            {
+                Name = channel.ToLocalisedName(),
+                Value = channel
+            };
+        }
+    }
+
+    public class RepoConfig
+    {
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
+        [JsonProperty("channel")]
+        public RepositoryMeta.Channel Channel { get; set; }
+
+        public RepoConfig(Uri url, RepositoryMeta.Channel channel)
+        {
+            Url = url;
+            Channel = channel;
+        }
+
+    }
+
+    public class RepoDataGridItem
+    {
+        public string Url { get; set; }
+        public RepositoryMeta.Channel Channel { get; set; }
+
+        public RepoDataGridItem(String url, RepositoryMeta.Channel channel)
+        {
+            Url = url;
+            Channel = channel;
+        }
+
+        public RepoConfig ToRepoConfig()
+        {
+            return new RepoConfig(new Uri(Url), Channel);
+        }
+
+        public static RepoDataGridItem Empty => new RepoDataGridItem(null, RepositoryMeta.Channel.Stable);
+    }
+
     /// <summary>
     /// Interaction logic for SettingsWindow.xaml
     /// </summary>
@@ -78,9 +133,23 @@ namespace Pahkat.UI.Settings
                 PeriodIntervalMenuItem.Create(PeriodInterval.Never)
             };
 
-            var app = (BahkatApp) Application.Current;
-            _presenter = new SettingsWindowPresenter(this, app.RepositoryService, app.ConfigStore);
-            _bag.Add(_presenter.Start());
+            DgComboBoxChannel.ItemsSource = new ObservableCollection<ChannelMenuItem>
+            {
+                ChannelMenuItem.Create(RepositoryMeta.Channel.Stable),
+                ChannelMenuItem.Create(RepositoryMeta.Channel.Alpha),
+                ChannelMenuItem.Create(RepositoryMeta.Channel.Beta),
+                ChannelMenuItem.Create(RepositoryMeta.Channel.Nightly)
+            };
+
+            //DgRepos.CanUserResizeColumns = false;
+            DgRepos.CanUserResizeRows = false;
+            DgRepos.CanUserReorderColumns = false;
+            DgRepos.CanUserAddRows = true;
+
+            var app = (PahkatApp)Application.Current;
+            _presenter = new SettingsWindowPresenter(this, app.ConfigStore);
+
+            _presenter.Start().DisposedBy(_bag);
         }
 
         public IObservable<EventArgs> OnSaveClicked() =>
@@ -89,9 +158,17 @@ namespace Pahkat.UI.Settings
         public IObservable<EventArgs> OnCancelClicked() =>
             BtnCancel.ReactiveClick().Select(x => x.EventArgs);
 
-        public void SetRepository(string repo)
+        public IObservable<EventArgs> OnRepoAddClicked() =>
+            BtnAddRepo.ReactiveClick().Select(x => x.EventArgs);
+
+        public IObservable<int> OnRepoRemoveClicked() =>
+            BtnRemoveRepo.ReactiveClick()
+                .Where(_ => DgRepos.SelectedIndex > -1)
+                .Select(_ => DgRepos.SelectedIndex);
+
+        public void SetRepoItemSource(ObservableCollection<RepoDataGridItem> repos)
         {
-            TxtRepoUri.Text = repo;
+            DgRepos.ItemsSource = repos;
         }
 
         public void SetInterfaceLanguage(string tag)
@@ -111,24 +188,35 @@ namespace Pahkat.UI.Settings
 
         public SettingsFormData SettingsFormData()
         {
-            Uri.TryCreate(TxtRepoUri.Text, UriKind.Absolute, out var repoUri);
+            // TODO: wtf is this for?
+            //Uri.TryCreate(TxtRepoUri.Text, UriKind.Absolute, out var repoUri);
             
             return new SettingsFormData
             {
                 InterfaceLanguage = (string) DdlLanguage.SelectedValue,
-                UpdateCheckInterval = (PeriodInterval) DdlUpdateFreq.SelectedValue,
-                RepositoryUrl = repoUri
+                UpdateCheckInterval = (PeriodInterval) DdlUpdateFreq.SelectedValue
             };
         }
 
         public void SetRepositoryStatus(string status)
         {
-            LblRepoName.Content = status;
+
+            //LblRepoName.Content = status;
         }
 
         public void HandleError(Exception error)
         {
-            throw new NotImplementedException();
+            MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        public void SelectRow(int index)
+        {
+            DgRepos.SelectedIndex = Math.Min(DgRepos.Items.Count - 1, index);
+        }
+
+        public void SelectLastRow()
+        {
+            DgRepos.SelectedIndex = DgRepos.Items.Count - 1;
         }
     }
 }

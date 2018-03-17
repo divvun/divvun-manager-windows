@@ -1,14 +1,20 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Text;
 using Pahkat.Extensions;
+using System.Security.Principal;
 
 namespace Pahkat.Util
 {
     public static class Util
     {
+        public static bool IsAdministrator()
+        {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
         public static string BytesToString(long bytes)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };

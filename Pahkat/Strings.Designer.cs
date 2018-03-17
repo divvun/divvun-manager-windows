@@ -585,6 +585,15 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to URL.
+        /// </summary>
+        public static string Url {
+            get {
+                return ResourceManager.GetString("Url", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version Skipped.
         /// </summary>
         public static string VersionSkipped {

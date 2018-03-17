@@ -20,7 +20,7 @@ namespace Pahkat.UI.Shared
         private CompositeDisposable _bag = new CompositeDisposable();
         
         // TODO: add a subscriber to the registry to stop this from firing so often
-        private PackageInstallStatus _status => _pkgServ.InstallStatus(Model);
+        private PackageStatus _status => _pkgServ.InstallStatus(Model);
         private PackageActionInfo _actionInfo;
 
         public PackageMenuItem(Package model, IPackageService pkgServ, IPackageStore store)
@@ -61,9 +61,9 @@ namespace Pahkat.UI.Shared
         {
             get
             {
-                if (Model.Installer != null)
+                if (Model.WindowsInstaller != null)
                 {
-                    return "(" + Util.Util.BytesToString(Model.Installer.Size) + ")";
+                    return "(" + Util.Util.BytesToString(Model.WindowsInstaller.Size) + ")";
                 }
                 return Strings.NotApplicable;
             }

@@ -14,15 +14,15 @@ namespace Pahkat.UI.Main
 {
     public class MainPagePresenter
     {
-        private ObservableCollection<PackageCategoryTreeItem> _tree =
-            new ObservableCollection<PackageCategoryTreeItem>();
+        private ObservableCollection<RepoTreeItem> _tree =
+            new ObservableCollection<RepoTreeItem>();
         
         private IMainPageView _view;
-        private RepositoryService _repoServ;
+        //private RepositoryService _repoServ;
         private IPackageService _pkgServ;
         private IPackageStore _store;
 
-        private Repository _currentRepo;
+        private Repository[] _currentRepos;
 
         private IDisposable BindPackageToggled(IMainPageView view, IPackageStore store)
         {
@@ -56,29 +56,31 @@ namespace Pahkat.UI.Main
         private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Repository repo)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
-            
+
             foreach (var package in repo.Packages.Values)
             {
                 if (!map.ContainsKey(package.Category))
                 {
                     map[package.Category] = new List<PackageMenuItem>();
                 }
-                
+
                 map[package.Category].Add(new PackageMenuItem(package, _pkgServ, _store));
             }
 
-            return map.OrderBy(x => x.Key).Select(x =>
+            var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x =>
             {
                 x.Value.Sort();
                 var items = new ObservableCollection<PackageMenuItem>(x.Value);
                 return new PackageCategoryTreeItem(_store, x.Key, items);
-            });
+            }));
+
+            return categories;
         }
 
         private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(Repository repo)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
-            
+
             foreach (var package in repo.Packages.Values)
             {
                 foreach (var bcp47 in package.Languages)
@@ -87,63 +89,68 @@ namespace Pahkat.UI.Main
                     {
                         map[bcp47] = new List<PackageMenuItem>();
                     }
-                    
-                    map[bcp47].Add(new PackageMenuItem(package, _pkgServ, _store));   
+
+                    map[bcp47].Add(new PackageMenuItem(package, _pkgServ, _store));
                 }
             }
 
-            return map.OrderBy(x => x.Key).Select(x =>
+            var languages = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x =>
             {
                 x.Value.Sort();
                 var items = new ObservableCollection<PackageMenuItem>(x.Value);
                 return new PackageCategoryTreeItem(_store, Util.Util.GetCultureDisplayName(x.Key), items);
-            });
-            
+            }));
+
+            return languages;
         }
         
         private void RefreshPackageList()
         {
             _tree.Clear();
             
-            if (_currentRepo == null)
+            if (_currentRepos == null)
             {
                 Console.WriteLine("Repository empty.");
                 _view.UpdateTitle(Strings.AppName);
                 return;
             }
 
-            IEnumerable<PackageCategoryTreeItem> categoryItems;
-            switch (_currentRepo.Meta.PrimaryFilter)
+            foreach (var repo in _currentRepos)
             {
-                case "language":
-                    categoryItems = FilterByLanguage(_currentRepo);
-                    break;
-                default:
-                    categoryItems = FilterByCategory(_currentRepo);
-                    break;
-            }
+                IEnumerable<PackageCategoryTreeItem> items;
+                switch (repo.Meta.PrimaryFilter)
+                {
+                    case RepositoryMeta.Filter.Language:
+                        items = FilterByLanguage(repo);
+                        break;
+                    case RepositoryMeta.Filter.Category:
+                    default:
+                        items = FilterByCategory(repo);
+                        break;
+                }
 
-            foreach (var item in categoryItems)
-            {
+                var item = new RepoTreeItem(repo.Meta.NativeName,
+                    new ObservableCollection<PackageCategoryTreeItem>(items));
                 _tree.Add(item);
             }
-            
-            _view.UpdateTitle($"{Strings.AppName} - {_currentRepo.Meta.NativeName}");
+
+            _view.UpdateTitle($"{Strings.AppName}");
             Console.WriteLine("Added packages.");
         }
 
-        private IDisposable BindUpdatePackageList(RepositoryService repoServ, IPackageService pkgServ, IPackageStore store)
-        {
-            return repoServ.System
-                .Select(x => x.RepoResult?.Repository)
-                .NotNull()
-                .DistinctUntilChanged()
-                .Subscribe(repo =>
-                {
-                    _currentRepo = repo;
-                    RefreshPackageList();
-                }, _view.HandleError);
-        }
+        //private IDisposable BindUpdatePackageList(RpcService rpc, IPackageService pkgServ, IPackageStore store)
+        //{
+        //    return rpc.Repository()
+        //    return repoServ.System
+        //        .Select(x => x.RepoResult?.Repository)
+        //        .NotNull()
+        //        .DistinctUntilChanged()
+        //        .Subscribe(repo =>
+        //        {
+        //            _currentRepo = repo;
+        //            RefreshPackageList();
+        //        }, _view.HandleError);
+        //}
 
         private void GeneratePrimaryButtonLabel(Dictionary<Package, PackageActionInfo> infos)
         {
@@ -164,9 +171,15 @@ namespace Pahkat.UI.Main
                 .Subscribe(GeneratePrimaryButtonLabel);
         }
 
-        public MainPagePresenter(IMainPageView view, RepositoryService repoServ, IPackageService pkgServ, IPackageStore store)
+        public void SetRepos(Repository[] repos)
         {
-            _repoServ = repoServ;
+            _currentRepos = repos;
+            RefreshPackageList();
+        }
+
+        public MainPagePresenter(IMainPageView view, IPackageService pkgServ, IPackageStore store)
+        {
+            //_repoServ = repoServ;
             _pkgServ = pkgServ;
             _view = view;
             _store = store;
@@ -179,7 +192,7 @@ namespace Pahkat.UI.Main
 
             return new CompositeDisposable(
                 BindPrimaryButtonLabel(_view, _store),
-                BindUpdatePackageList(_repoServ, _pkgServ, _store),
+                //BindUpdatePackageList(_repoServ, _pkgServ, _store),
                 BindPackageToggled(_view, _store),
                 BindGroupToggled(_view, _store),
                 BindPrimaryButton(_view)

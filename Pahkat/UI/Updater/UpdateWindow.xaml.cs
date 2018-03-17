@@ -52,9 +52,9 @@ namespace Pahkat.UI.Updater
                 .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
                 .NotNull();
             
-            var app = (BahkatApp) Application.Current;
+            var app = (PahkatApp) Application.Current;
             var presenter = new UpdateWindowPresenter(this,
-                app.RepositoryService,
+                //app.RepositoryService,
                 app.PackageService,
                 app.PackageStore);
             
@@ -68,7 +68,7 @@ namespace Pahkat.UI.Updater
 
         public void StartDownloading()
         {
-            var app = (BahkatApp) Application.Current;
+            var app = (PahkatApp) Application.Current;
             app.WindowService.Close<UpdateWindow>();
             app.WindowService.Show<MainWindow>(new DownloadPage(DownloadPagePresenter.Default));
         }
@@ -101,7 +101,7 @@ namespace Pahkat.UI.Updater
 
         public void CloseMainWindow()
         {
-            var app = (BahkatApp) Application.Current;
+            var app = (PahkatApp) Application.Current;
             app.WindowService.Close<MainWindow>();
         }
 

@@ -37,6 +37,9 @@
                     </Style>
                 </TreeView.ItemContainerStyle>
                 <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type shared:RepoTreeItem}" ItemsSource="{Binding Items}">
+                        <TextBlock Grid.Column="1" FontWeight="Bold" Text="{Binding Name}" />
+                    </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type shared:PackageCategoryTreeItem}" ItemsSource="{Binding Items}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -44,7 +47,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <CheckBox VerticalAlignment="Center" KeyboardNavigation.TabNavigation="None" Focusable="False" Grid.Column="0" IsChecked="{Binding IsGroupSelected}" />
-                            <TextBlock Grid.Column="1" FontWeight="Bold" Text="{Binding Name}" />
+                            <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Name}" />
                         </Grid>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type shared:PackageMenuItem}">

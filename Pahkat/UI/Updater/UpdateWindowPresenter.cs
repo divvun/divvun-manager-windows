@@ -13,16 +13,16 @@ namespace Pahkat.UI.Updater
     public class UpdateWindowPresenter
     {
         private readonly IUpdateWindowView _view;
-        private readonly RepositoryService _repoServ;
+        //private readonly RepositoryService _repoServ;
         private readonly IPackageService _pkgServ;
         private readonly IPackageStore _store;
         private ObservableCollection<PackageMenuItem> _listItems =
             new ObservableCollection<PackageMenuItem>();
         
-        public UpdateWindowPresenter(IUpdateWindowView view, RepositoryService repoServ, IPackageService pkgServ, IPackageStore store)
+        public UpdateWindowPresenter(IUpdateWindowView view, IPackageService pkgServ, IPackageStore store)
         {
             _view = view;
-            _repoServ = repoServ;
+            //_repoServ = repoServ;
             _pkgServ = pkgServ;
             _store = store;
         }
@@ -71,14 +71,14 @@ namespace Pahkat.UI.Updater
             return _view.OnRemindMeLaterClicked().Subscribe(x => _view.Close());
         }
 
-        private IDisposable BindRefreshPackageList()
-        {
-            return _repoServ.System
-                .Select(x => x.RepoResult?.Repository)
-                .NotNull()
-                .DistinctUntilChanged()
-                .Subscribe(RefreshPackageList, _view.HandleError);
-        }
+        //private IDisposable BindRefreshPackageList()
+        //{
+        //    return _repoServ.System
+        //        .Select(x => x.RepoResult?.Repository)
+        //        .NotNull()
+        //        .DistinctUntilChanged()
+        //        .Subscribe(RefreshPackageList, _view.HandleError);
+        //}
 
         private IDisposable BindPrimaryButtonPress()
         {
@@ -119,7 +119,7 @@ namespace Pahkat.UI.Updater
 
             return new CompositeDisposable(
                 BindPrimaryButton(_view, _store),
-                BindRefreshPackageList(),
+                //BindRefreshPackageList(),
                 BindSkipButtonPress(),
                 BindPrimaryButtonPress(),
                 BindPackageToggled(),

@@ -4,36 +4,68 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pahkat.UI.Settings"
-        xmlns:bahkat="clr-namespace:Pahkat"
+        xmlns:pahkat="clr-namespace:Pahkat"
         mc:Ignorable="d"
         ResizeMode="NoResize"
-        Title="{x:Static bahkat:Strings.Settings}" Height="300" Width="360">
+        Title="{x:Static pahkat:Strings.Settings}" Height="420" Width="400">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="34" />
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Margin="16">
-            <Label Name="LblLanguage" Content="{x:Static bahkat:Strings.InterfaceLanguage}" Target="{Binding ElementName=DdlLanguage}" />
+            <Label Name="LblLanguage" Content="{x:Static pahkat:Strings.InterfaceLanguage}" Target="{Binding ElementName=DdlLanguage}" />
             <ComboBox Name="DdlLanguage" Width="160" HorizontalAlignment="Left" DisplayMemberPath="Name" SelectedValuePath="Tag" />
             
-            <Label Name="LblUpdateFreq" Content="{x:Static bahkat:Strings.UpdateFrequency}" Target="{Binding ElementName=DdlUpdateFreq}" Margin="0,8,0,0"/>
+            <Label Name="LblUpdateFreq" Content="{x:Static pahkat:Strings.UpdateFrequency}" Target="{Binding ElementName=DdlUpdateFreq}" Margin="0,8,0,0"/>
             <ComboBox Name="DdlUpdateFreq" Width="160" HorizontalAlignment="Left" DisplayMemberPath="Name" SelectedValuePath="Value" />
             <Label Name="LblUpdateStatus" FontSize="11"/>
 
+            <Separator Margin="0,24,8,16"/>
             <!--
             <Label Name="LblUpdateChannel" Content="{x:Static bahkat:Strings.UpdateChannel}" Target="{Binding ElementName=DdlUpdateChannel}" />
             <ComboBox Name="DdlUpdateChannel" Width="160" HorizontalAlignment="Left" />
             -->
-            
-            <Label Name="LblRepoUri" Content="{x:Static bahkat:Strings.Repository}" Target="{Binding ElementName=TxtRepoUri}" />
-            <TextBox Name="TxtRepoUri" Height="23" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="256" />
-            <Label Name="LblRepoName" FontSize="11"/>
+
+            <Grid HorizontalAlignment="Left" Width="350">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="26"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Name="LblRepoUri" Content="{x:Static pahkat:Strings.Repository}" Target="{Binding ElementName=TxtRepoUri}" />
+                <Button Grid.Column="1" Height="22" Width="22" HorizontalAlignment="Right"
+                        Padding="-22,-27,-22,-22" Margin="0,0,0,8"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        FontSize="24"
+                        Name="BtnRemoveRepo">-</Button>
+                <Button Grid.Column="2" Height="22" Width="22" HorizontalAlignment="Right"
+                        Padding="-22,-27,-22,-22" Margin="0,0,0,8"
+                        HorizontalContentAlignment="Center"
+                        VerticalContentAlignment="Center"
+                        FontSize="24"
+                        Name="BtnAddRepo">+</Button>
+            </Grid>
+            <!--TextBox Name="TxtRepoUri" Height="23" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="256" />
+            <Label Name="LblRepoName" FontSize="11"/-->
+            <DataGrid Name="DgRepos" Background="White" Height="112" Width="350" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left" GridLinesVisibility="None" AutoGenerateColumns="False" SelectionMode="Single" CanUserResizeRows="False" HeadersVisibility="Column">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Width="220"
+                                        Header="{x:Static pahkat:Strings.Url}"
+                                        Binding="{Binding Url}" />
+                    <DataGridComboBoxColumn x:Name="DgComboBoxChannel" Width="106" 
+                                            Header="{x:Static pahkat:Strings.UpdateChannel}" 
+                                            SelectedValueBinding="{Binding Channel}" 
+                                            DisplayMemberPath="Name"
+                                            SelectedValuePath="Value" />
+                </DataGrid.Columns>
+            </DataGrid>
         </StackPanel>
         <Border Grid.Row="1" DockPanel.Dock="Bottom" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" BorderBrush="#FF828790" Padding="8,0,8,0">
             <DockPanel Height="auto" Width="auto" LastChildFill="False">
-                <Button DockPanel.Dock="Right" IsCancel="True"  Name="BtnCancel" Content="{x:Static bahkat:Strings.Cancel}" MinWidth="60" Height="23" Padding="10,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                <Button DockPanel.Dock="Right" Name="BtnSave" Content="{x:Static bahkat:Strings.Save}" MinWidth="60" Height="23" Margin="0,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                <Button DockPanel.Dock="Right" IsCancel="True"  Name="BtnCancel" Content="{x:Static pahkat:Strings.Cancel}" MinWidth="60" Height="23" Padding="10,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <Button DockPanel.Dock="Right" Name="BtnSave" Content="{x:Static pahkat:Strings.Save}" MinWidth="60" Height="23" Margin="0,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right" VerticalAlignment="Center" />
             </DockPanel>
         </Border>
     </Grid>

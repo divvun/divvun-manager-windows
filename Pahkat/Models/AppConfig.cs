@@ -7,15 +7,26 @@ using Pahkat.Properties;
 using Pahkat.Util;
 using Microsoft.Win32;
 using NUnit.Framework.Constraints;
+using Pahkat.UI.Settings;
+using System.IO;
+using Newtonsoft.Json;
+using System.Runtime.Serialization;
+using Newtonsoft.Json.Converters;
 
 namespace Pahkat.Models
 {
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum PeriodInterval
     {
+        [EnumMember(Value = "never")]
         Never,
+        [EnumMember(Value = "daily")]
         Daily,
+        [EnumMember(Value = "weekly")]
         Weekly,
+        [EnumMember(Value = "fortnightly")]
         Fortnightly,
+        [EnumMember(Value = "monthly")]
         Monthly
     }
 
@@ -62,67 +73,70 @@ namespace Pahkat.Models
     
     public class AppConfigState
     {
-        public Uri RepositoryUrl { get; internal set; }
+        public static string ConfigPath
+        {
+            get
+            {
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                // TODO: make sure core client uses another file
+                return Path.Combine(appData, "Pahkat", "config.json");
+            }
+        }
+
+        [JsonProperty("repositories")]
+        public RepoConfig[] Repositories { get; internal set; }
+        [JsonProperty("updateCheckInterval")]
         public PeriodInterval UpdateCheckInterval { get; internal set; }
+        [JsonProperty("nextUpdateCheck")]
         public DateTimeOffset NextUpdateCheck { get; internal set; }
+        [JsonProperty("interfaceLanguage")]
         public string InterfaceLanguage { get; internal set; }
 
-        private readonly IWindowsRegKey _rk;
-
-        internal static class Keys
+        public static AppConfigState Load()
         {
-            public const string SubkeyId = @"SOFTWARE\" + Constants.RegistryId;
-            
-            public const string RepositoryUrl = "RepositoryUrl";
-            public const string UpdateCheckInterval = "UpdateCheckInterval";
-            public const string NextUpdateCheck = "NextUpdateCheck";
-            public const string InterfaceLanguage = "InterfaceLanguage";
-        }
-        
-        public AppConfigState(IWindowsRegistry registry)
-        {
-            _rk = registry.LocalMachine.CreateSubKey(Keys.SubkeyId);
+            AppConfigState state;
 
             try
             {
-                RepositoryUrl = new Uri(_rk.Get(Keys.RepositoryUrl, Constants.Repository));
+                state = JsonConvert.DeserializeObject<AppConfigState>(
+                    File.ReadAllText(ConfigPath));
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                RepositoryUrl = new Uri(Constants.Repository);
+                state = new AppConfigState();
             }
-            
-            UpdateCheckInterval = _rk.Get(Keys.UpdateCheckInterval, v =>
+
+            if (state.Repositories == null)
             {
-                if (v is string x)
-                {
-                    PeriodInterval p;
-                    if (Enum.TryParse(x, out p))
-                    {
-                        return p;
-                    }
-                }
+                state.Repositories = new RepoConfig[] {
+                    new RepoConfig(new Uri("https://x.brendan.so/test-repo"), RepositoryMeta.Channel.Stable)
+                };
+            }
 
-                return Constants.UpdateCheckInterval;
-            });
-
-            NextUpdateCheck = _rk.Get(Keys.NextUpdateCheck, v =>
+            if (state.NextUpdateCheck == null)
             {
-                if (v is long x)
+                state.NextUpdateCheck = new DateTimeOffset();
+            }
+
+            if (state.InterfaceLanguage == null)
+            {
+                var culture = CultureInfo.CurrentUICulture;
+
+                if (culture.TwoLetterISOLanguageName != null)
                 {
-                    return DateTimeExtensions.FromUnixTimeSeconds(x);
+                    state.InterfaceLanguage = culture.TwoLetterISOLanguageName;
                 }
+                else if (culture.ThreeLetterISOLanguageName != null)
+                {
+                    state.InterfaceLanguage = culture.ThreeLetterISOLanguageName;
+                }
+                else
+                {
+                    state.InterfaceLanguage = "en";
+                }
+            }
 
-                return DateTimeOffset.Now;
-            });
-
-            InterfaceLanguage = _rk.Get(Keys.InterfaceLanguage,
-                CultureInfo.CurrentUICulture.IetfLanguageTag);
-        }
-
-        internal void UpdateRegKey(string valueName, object value, RegistryValueKind kind)
-        {
-            _rk.Set(valueName, value, kind);
+            return state;
         }
     }
     
@@ -130,13 +144,13 @@ namespace Pahkat.Models
 
     namespace AppConfigEvent
     {
-        internal class SetRepositoryUrl : IAppConfigEvent
+        internal class SetRepositories : IAppConfigEvent
         {
-            public Uri Uri { get; }
+            public RepoConfig[] Repositories { get; }
             
-            public SetRepositoryUrl(Uri uri)
+            public SetRepositories(RepoConfig[] repos)
             {
-                Uri = uri;
+                Repositories = repos;
             }
         }
         internal class SetInterfaceLanguage : IAppConfigEvent
@@ -167,9 +181,9 @@ namespace Pahkat.Models
     {
         public static readonly IAppConfigEvent IncrementNextUpdateCheck = new IncrementNextUpdateCheck();
         public static readonly IAppConfigEvent CheckForUpdatesImmediately = new CheckForUpdatesImmediately();
-        public static IAppConfigEvent SetRepositoryUrl(Uri uri)
+        public static IAppConfigEvent SetRepositories(RepoConfig[] repos)
         {
-            return new SetRepositoryUrl(uri);
+            return new SetRepositories(repos);
         }
         public static IAppConfigEvent SetInterfaceLanguage(string tag)
         {
@@ -183,10 +197,10 @@ namespace Pahkat.Models
     
     public class AppConfigStore : RxStore<AppConfigState, IAppConfigEvent>
     {   
-        private static void SaveNextUpdateCheck(AppConfigState state, DateTimeOffset time)
+        private static void Save(AppConfigState state)
         {
-            state.UpdateRegKey(AppConfigState.Keys.NextUpdateCheck, time.ToUnixTimeSeconds(), RegistryValueKind.QWord);
-            state.NextUpdateCheck = time;
+            var data = JsonConvert.SerializeObject(state, Formatting.Indented);
+            File.WriteAllText(AppConfigState.ConfigPath, data);
         }
 
         private static AppConfigState Reduce(AppConfigState state, IAppConfigEvent e)
@@ -199,39 +213,30 @@ namespace Pahkat.Models
                         return state;
                     }
                     state.UpdateCheckInterval = v.Interval;
-                    state.UpdateRegKey(AppConfigState.Keys.UpdateCheckInterval, 
-                        Enum.GetName(typeof(PeriodInterval), v.Interval),
-                        RegistryValueKind.String);
-                    return state;
+                    break;
                 case SetInterfaceLanguage v:
                     if (state.InterfaceLanguage == v.Tag)
                     {
                         return state;
                     }
                     state.InterfaceLanguage = v.Tag;
-                    state.UpdateRegKey(AppConfigState.Keys.InterfaceLanguage, v.Tag, RegistryValueKind.String);
-                    return state;
-                case SetRepositoryUrl v:
-                    if (state.RepositoryUrl == v.Uri)
-                    {
-                        return state;
-                    }
-                    state.RepositoryUrl = v.Uri;
-                    state.UpdateRegKey(AppConfigState.Keys.RepositoryUrl, v.Uri.AbsoluteUri, RegistryValueKind.String);
-                    return state;
+                    break;
+                case SetRepositories v:
+                    state.Repositories = v.Repositories;
+                    break;
                 case CheckForUpdatesImmediately v:
-                    SaveNextUpdateCheck(state, DateTimeOffset.Now);
-                    return state;
+                    state.NextUpdateCheck = DateTimeOffset.Now;
+                    break;
                 case IncrementNextUpdateCheck v:
-                    var nextUpdateCheck = state.NextUpdateCheck.Add(state.UpdateCheckInterval.ToTimeSpan());
-                    SaveNextUpdateCheck(state, nextUpdateCheck);
-                    return state;
+                    state.NextUpdateCheck = state.NextUpdateCheck.Add(state.UpdateCheckInterval.ToTimeSpan());
+                    break;
             }
 
+            Save(state);
             return state;
         }
 
-        public AppConfigStore(IWindowsRegistry registry) : base(new AppConfigState(registry), Reduce)
+        public AppConfigStore() : base(AppConfigState.Load(), Reduce)
         {
         }
     }

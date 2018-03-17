@@ -16,7 +16,7 @@ using Pahkat.Extensions;
 
 namespace Pahkat.Service
 {
-    public enum PackageInstallStatus
+    public enum PackageStatus
     {
         NotInstalled,
         UpToDate,
@@ -28,21 +28,21 @@ namespace Pahkat.Service
 
     public static class PackageInstallStatusExtensions
     {
-        public static string Description(this PackageInstallStatus status)
+        public static string Description(this PackageStatus status)
         {
             switch (status)
             {
-                case PackageInstallStatus.ErrorNoInstaller:
+                case PackageStatus.ErrorNoInstaller:
                     return Strings.ErrorNoInstaller;
-                case PackageInstallStatus.ErrorParsingVersion:
+                case PackageStatus.ErrorParsingVersion:
                     return Strings.ErrorInvalidVersion;
-                case PackageInstallStatus.RequiresUpdate:
+                case PackageStatus.RequiresUpdate:
                     return Strings.UpdateAvailable;
-                case PackageInstallStatus.NotInstalled:
+                case PackageStatus.NotInstalled:
                     return Strings.NotInstalled;
-                case PackageInstallStatus.UpToDate:
+                case PackageStatus.UpToDate:
                     return Strings.Installed;
-                case PackageInstallStatus.VersionSkipped:
+                case PackageStatus.VersionSkipped:
                     return Strings.VersionSkipped;
             }
 
@@ -71,7 +71,7 @@ namespace Pahkat.Service
 
     public interface IPackageService
     {
-        PackageInstallStatus InstallStatus(Package package);
+        PackageStatus InstallStatus(Package package);
         PackageAction DefaultPackageAction(Package package);
         IObservable<PackageInstallInfo> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken);
         PackageUninstallInfo UninstallInfo(Package package);
@@ -110,27 +110,27 @@ namespace Pahkat.Service
                 : PackageAction.Install;
         }
 
-        private PackageInstallStatus CompareVersion<T>(Func<string, T> creator, string packageVersion, string registryVersion) where T: IComparable<T>
+        private PackageStatus CompareVersion<T>(Func<string, T> creator, string packageVersion, string registryVersion) where T: IComparable<T>
         {
             var ver = creator(packageVersion);
             if (ver == null)
             {
-                return PackageInstallStatus.ErrorParsingVersion;
+                return PackageStatus.ErrorParsingVersion;
             }
             
             var parsedDispVer = creator(registryVersion);
             if (parsedDispVer == null)
             {
-                return PackageInstallStatus.ErrorParsingVersion;
+                return PackageStatus.ErrorParsingVersion;
             }
 
             if (ver.CompareTo(parsedDispVer) > 0)
             {
-                return PackageInstallStatus.RequiresUpdate;
+                return PackageStatus.RequiresUpdate;
             }
             else
             {
-                return PackageInstallStatus.UpToDate;
+                return PackageStatus.UpToDate;
             }
         }
 
@@ -175,7 +175,7 @@ namespace Pahkat.Service
 
         private IObservable<PackageInstallInfo> Download(PackageProgress pd, CancellationToken cancelToken)
         {
-            var inst = pd.Package.Installer;
+            var inst = pd.Package.WindowsInstaller;
             
             // Get file ending from URL
             var ext = Path.GetExtension(inst.Url.AbsoluteUri);
@@ -212,20 +212,20 @@ namespace Pahkat.Service
 
         public bool RequiresUpdate(Package package)
         {
-            return InstallStatus(package) == PackageInstallStatus.RequiresUpdate;
+            return InstallStatus(package) == PackageStatus.RequiresUpdate;
         }
 
         public bool IsUpToDate(Package package)
         {
-            return InstallStatus(package) == PackageInstallStatus.UpToDate;
+            return InstallStatus(package) == PackageStatus.UpToDate;
         }
 
         public bool IsError(Package package)
         {
             switch (InstallStatus(package))
             {
-                case PackageInstallStatus.ErrorNoInstaller:
-                case PackageInstallStatus.ErrorParsingVersion:
+                case PackageStatus.ErrorNoInstaller:
+                case PackageStatus.ErrorParsingVersion:
                     return true;
                 default:
                     return false;
@@ -236,9 +236,9 @@ namespace Pahkat.Service
         {
             switch (InstallStatus(package))
             {
-                case PackageInstallStatus.UpToDate:
-                case PackageInstallStatus.RequiresUpdate:
-                case PackageInstallStatus.VersionSkipped:
+                case PackageStatus.UpToDate:
+                case PackageStatus.RequiresUpdate:
+                case PackageStatus.VersionSkipped:
                     return true;
                 default:
                     return false;
@@ -249,9 +249,9 @@ namespace Pahkat.Service
         {
             switch (InstallStatus(package))
             {
-                case PackageInstallStatus.NotInstalled:
-                case PackageInstallStatus.RequiresUpdate:
-                case PackageInstallStatus.VersionSkipped:
+                case PackageStatus.NotInstalled:
+                case PackageStatus.RequiresUpdate:
+                case PackageStatus.VersionSkipped:
                     return true;
                 default:
                     return false;
@@ -265,52 +265,52 @@ namespace Pahkat.Service
         /// </summary>
         /// <param name="package"></param>
         /// <returns>The package install status</returns>
-        public PackageInstallStatus InstallStatus(Package package)
+        public PackageStatus InstallStatus(Package package)
         {
             if (package.Installer == null)
             {
-                return PackageInstallStatus.ErrorNoInstaller;
+                return PackageStatus.ErrorNoInstaller;
             }
 
-            var installer = package.Installer;
+            var installer = package.WindowsInstaller;
             var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
             var path = $@"{Keys.UninstallPath}\{installer.ProductCode}";
             var instKey = hklm.OpenSubKey(path);
 
             if (instKey == null)
             {
-                return PackageInstallStatus.NotInstalled;
+                return PackageStatus.NotInstalled;
             }
             
             var displayVersion = instKey.Get(Keys.DisplayVersion, "");
             if (displayVersion == "")
             {
-                return PackageInstallStatus.ErrorParsingVersion;
+                return PackageStatus.ErrorParsingVersion;
             }
 
             var comp = CompareVersion(AssemblyVersion.Create, package.Version, displayVersion);
-            if (comp != PackageInstallStatus.ErrorParsingVersion)
+            if (comp != PackageStatus.ErrorParsingVersion)
             {
                 return comp;
             }
 
             if (SkippedVersion(package) == package.Version)
             {
-                return PackageInstallStatus.VersionSkipped;
+                return PackageStatus.VersionSkipped;
             }
                 
             comp = CompareVersion(SemanticVersion.Create, package.Version, displayVersion);
-            if (comp != PackageInstallStatus.ErrorParsingVersion)
+            if (comp != PackageStatus.ErrorParsingVersion)
             {
                 return comp;
             }
 
-            return PackageInstallStatus.ErrorParsingVersion;
+            return PackageStatus.ErrorParsingVersion;
         }
 
         public PackageUninstallInfo UninstallInfo(Package package)
         {
-            var installer = package.Installer;
+            var installer = package.WindowsInstaller;
             var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
             var path = $@"{Keys.UninstallPath}\{installer.ProductCode}";
             var instKey = hklm.OpenSubKey(path);
@@ -320,7 +320,7 @@ namespace Pahkat.Service
             if (uninstString != null)
             {
                 var chunks = uninstString.ParseFileNameAndArgs();
-                var args = package.Installer.UninstallArgs ?? string.Join(" ", chunks.Item2);
+                var args = package.WindowsInstaller.UninstallArgs ?? string.Join(" ", chunks.Item2);
                 
                 return new PackageUninstallInfo
                 {
@@ -335,20 +335,23 @@ namespace Pahkat.Service
 
         public void SkipVersion(Package package)
         {
-            var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
-            var path = $@"{AppConfigState.Keys.SubkeyId}\{package.Installer.ProductCode}";
-            var instKey = hklm.CreateSubKey(path);
+            // TODO: implement
+            //var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
+            //var path = $@"{AppConfigState.Keys.SubkeyId}\{package.WindowsInstaller.ProductCode}";
+            //var instKey = hklm.CreateSubKey(path);
             
-            instKey.Set(Keys.SkipVersion, package.Version, RegistryValueKind.String);
+            //instKey.Set(Keys.SkipVersion, package.Version, RegistryValueKind.String);
         }
 
         private string SkippedVersion(Package package)
         {
-            var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
-            var path = $@"{AppConfigState.Keys.SubkeyId}\{package.Installer.ProductCode}";
-            var instKey = hklm.OpenSubKey(path);
+            // TODO: implement
+            //var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
+            //var path = $@"{AppConfigState.Keys.SubkeyId}\{package.WindowsInstaller.ProductCode}";
+            //var instKey = hklm.OpenSubKey(path);
 
-            return instKey?.Get<string>(Keys.SkipVersion);
+            //return instKey?.Get<string>(Keys.SkipVersion);
+            return null;
         }
 
         /// <summary>

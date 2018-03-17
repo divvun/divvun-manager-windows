@@ -15,15 +15,15 @@ namespace Pahkat.UI.Main
 {
     public class DownloadPagePresenter
     {
-        static public DownloadPagePresenter SelfUpdate(IDownloadPageView view)
-        {
-            var app = (IBahkatApp) Application.Current;
-            return new DownloadPagePresenter(view, app.SelfUpdateService, app.PackageService);
-        }
+        //static public DownloadPagePresenter SelfUpdate(IDownloadPageView view)
+        //{
+        //    var app = (IPahkatApp) Application.Current;
+        //    return new DownloadPagePresenter(view, app.PackageService);
+        //}
 
         static public DownloadPagePresenter Default(IDownloadPageView view)
         {
-            var app = (IBahkatApp) Application.Current;
+            var app = (IPahkatApp) Application.Current;
             return new DownloadPagePresenter(view, app.PackageStore, app.PackageService);
         }
         
