@@ -92,7 +92,7 @@
     <value>Cancel Downloads</value>
   </data>
   <data name="Cancelling" xml:space="preserve">
-    <value>Canceling...</value>
+    <value>Cancelling...</value>
   </data>
   <data name="Category" xml:space="preserve">
     <value>Category</value>
@@ -209,7 +209,7 @@
     <value>Loading...</value>
   </data>
   <data name="Minimize" xml:space="preserve">
-    <value>Minimize</value>
+    <value>Minimise</value>
   </data>
   <data name="NItemsRemaining" xml:space="preserve">
     <value>{0} items remaining.</value>

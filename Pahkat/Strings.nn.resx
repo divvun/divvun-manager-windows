@@ -59,339 +59,338 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AboutApp" xml:space="preserve">
-    <value>About Package Manager</value>
+    <value>Om Pakkehandteraren</value>
   </data>
   <data name="Alpha" xml:space="preserve">
-    <value>Alpha</value>
+    <value>Alfa</value>
   </data>
   <data name="AppHelp" xml:space="preserve">
-    <value>Help</value>
+    <value>Hjelp</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>Package Manager</value>
+    <value>Pakkehandterar</value>
   </data>
   <data name="AppUpdateBody" xml:space="preserve">
-    <value>Package Manager v{0} is now available. It is highly recommended that you update as soon as possible. Update now?</value>
+    <value>Pakkehandterar v{0} er no tilgjengeleg. Det er sterkt tilrådd at du oppdaterer så snart som råd. Vil du oppdatera no?</value>
   </data>
   <data name="AppUpdateTitle" xml:space="preserve">
-    <value>Package Manager Update Available</value>
+    <value>Pakkehandterar-oppdatering tilgjengeleg</value>
   </data>
   <data name="Beta" xml:space="preserve">
     <value>Beta</value>
   </data>
   <data name="BringAllToFront" xml:space="preserve">
-    <value>Bring All to Front</value>
+    <value>Flytt alle fremst</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Avbryt</value>
   </data>
   <data name="CancelDownloadsBody" xml:space="preserve">
-    <value>Are you sure you want to cancel all downloads?</value>
+    <value>Er du viss på at du vil avbryta nedlastingane?</value>
   </data>
   <data name="CancelDownloadsTitle" xml:space="preserve">
-    <value>Cancel Downloads</value>
+    <value>Avbryt nedlastingane</value>
   </data>
   <data name="Cancelling" xml:space="preserve">
-    <value>Canceling...</value>
+    <value>Eg avbryt...</value>
   </data>
   <data name="Category" xml:space="preserve">
-    <value>Category</value>
+    <value>Kategori</value>
   </data>
   <data name="Channel" xml:space="preserve">
-    <value>Channel</value>
+    <value>Kanal</value>
   </data>
   <data name="CheckForUpdates" xml:space="preserve">
-    <value>Check For Updates...</value>
+    <value>Sjå etter oppateringar...</value>
   </data>
   <data name="Completed" xml:space="preserve">
-    <value>Completed</value>
+    <value>Fullført</value>
   </data>
   <data name="Copy" xml:space="preserve">
-    <value>Copy</value>
+    <value>Kopier</value>
   </data>
   <data name="CrashReportBody" xml:space="preserve">
-    <value>Do you wish to send a crash report to the developers? No personal or private information is sent. (Recommended)</value>
+    <value>Ynskjer du å senda ein kræsjrapport til utviklarane? Ingen personleg info blir sendt inn. (Tilrådd)</value>
   </data>
   <data name="Cut" xml:space="preserve">
-    <value>Cut</value>
+    <value>Klypp ut</value>
   </data>
   <data name="Daily" xml:space="preserve">
-    <value>Daily</value>
+    <value>Dagleg</value>
   </data>
   <data name="Delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>Slett</value>
   </data>
   <data name="DownloadError" xml:space="preserve">
-    <value>Error 😞</value>
+    <value>Feil 😞</value>
   </data>
   <data name="Downloaded" xml:space="preserve">
-    <value>Downloaded</value>
+    <value>Nedlasta</value>
   </data>
   <data name="Downloading" xml:space="preserve">
-    <value>Downloading...</value>
+    <value>Lastar ned...</value>
   </data>
   <data name="Edit" xml:space="preserve">
-    <value>Edit</value>
+    <value>Rediger</value>
   </data>
   <data name="Error" xml:space="preserve">
-    <value>Error</value>
+    <value>Feil</value>
   </data>
   <data name="ErrorDuringInstallation" xml:space="preserve">
-    <value>An error occurring during installation.</value>
+    <value>Det gjekk skeis med installeringa.</value>
   </data>
   <data name="ErrorInvalidVersion" xml:space="preserve">
-    <value>Error: Invalid Version</value>
+    <value>Feil: ugyldig versjon</value>
   </data>
   <data name="ErrorNoInstaller" xml:space="preserve">
-    <value>Error: No Installer</value>
+    <value>Feil: ingen installerar</value>
   </data>
   <data name="ErrorUnknownPackage" xml:space="preserve">
-    <value>Error: Unknown Item</value>
+    <value>Feil: ukjent pakke</value>
   </data>
   <data name="EveryFourWeeks" xml:space="preserve">
-    <value>Every 4 Weeks</value>
+    <value>Fjerdekvar veke</value>
   </data>
   <data name="EveryTwoWeeks" xml:space="preserve">
-    <value>Every 2 Weeks</value>
+    <value>Annakvar veke</value>
   </data>
   <data name="Exit" xml:space="preserve">
-    <value>Exit</value>
+    <value>Avslutt</value>
   </data>
   <data name="Finish" xml:space="preserve">
-    <value>Finish</value>
+    <value>Ferdig</value>
   </data>
   <data name="Help" xml:space="preserve">
-    <value>Help</value>
+    <value>Pakkehandterar-hjelp</value>
   </data>
   <data name="HideApp" xml:space="preserve">
-    <value>Hide Package Manager</value>
+    <value>Gøym Pakkehandteraren</value>
   </data>
   <data name="HideOthers" xml:space="preserve">
-    <value>Hide Others</value>
+    <value>Gøym andre</value>
   </data>
   <data name="Install" xml:space="preserve">
-    <value>Install</value>
+    <value>Installer</value>
   </data>
   <data name="InstallNPackages" xml:space="preserve">
-    <value>Install {0} Items</value>
+    <value>Installer {0} pakker</value>
   </data>
   <data name="InstallSystem" xml:space="preserve">
-    <value>Install (System)</value>
+    <value>Installer (for heile systemet)</value>
   </data>
   <data name="InstallUninstallNPackages" xml:space="preserve">
-    <value>Install/Uninstall {0} Items</value>
+    <value>Installer/avinstaller {0} pakker</value>
   </data>
   <data name="InstallUser" xml:space="preserve">
-    <value>Install (User)</value>
+    <value>Installer (for brukar)</value>
   </data>
   <data name="Installed" xml:space="preserve">
-    <value>Installed</value>
+    <value>Installert</value>
   </data>
   <data name="InstallingPackage" xml:space="preserve">
-    <value>Installing {0} {1}...</value>
+    <value>Installerer {0} {1}...</value>
   </data>
   <data name="InstallingUninstalling" xml:space="preserve">
-    <value>Installing/Uninstalling</value>
+    <value>Installerer/avinstallerer</value>
   </data>
   <data name="InterfaceLanguage" xml:space="preserve">
-    <value>Interface Language</value>
+    <value>Vis programmet på:</value>
   </data>
   <data name="InvalidUrlBody" xml:space="preserve">
-    <value>Please ensure that the URL begins with \"https\" and try again.</value>
+    <value>Ver greid og sjekk at URL-en byrjar med \"https\" og prøv på nytt.</value>
   </data>
   <data name="InvalidUrlTitle" xml:space="preserve">
-    <value>The provided URL is invalid.</value>
+    <value>URL-en er ugyldig.</value>
   </data>
   <data name="Language" xml:space="preserve">
-    <value>Language</value>
+    <value>Språk</value>
   </data>
   <data name="Loading" xml:space="preserve">
-    <value>Loading...</value>
+    <value>Lastar inn...</value>
   </data>
   <data name="Minimize" xml:space="preserve">
-    <value>Minimize</value>
+    <value>Minimer</value>
   </data>
   <data name="NItemsRemaining" xml:space="preserve">
-    <value>{0} items remaining.</value>
+    <value>{0} pakker står att.</value>
   </data>
   <data name="NUpdatesAvailable" xml:space="preserve">
-    <value>{0} Updates Available</value>
+    <value>Det finst {0} oppdateringar</value>
   </data>
   <data name="Never" xml:space="preserve">
-    <value>Never</value>
+    <value>Aldri</value>
   </data>
   <data name="NextUpdateDue" xml:space="preserve">
-    <value>Next update check at: {0}</value>
+    <value>Neste oppdateringssjekk {0}</value>
   </data>
   <data name="Nightly" xml:space="preserve">
-    <value>Nightly</value>
+    <value>Nattleg</value>
   </data>
   <data name="NoPackagesSelected" xml:space="preserve">
-    <value>No Items Selected</value>
+    <value>Ingen valde pakker</value>
   </data>
   <data name="NoUpdatesBody" xml:space="preserve">
-    <value>No new updates were found.</value>
+    <value>Fann ingen nye oppdateringar</value>
   </data>
   <data name="NoUpdatesTitle" xml:space="preserve">
-    <value>No Updates</value>
+    <value>Ingen oppdateringar</value>
   </data>
   <data name="NotApplicable" xml:space="preserve">
-    <value>--</value>
+    <value>—</value>
   </data>
   <data name="NotInstalled" xml:space="preserve">
-    <value>Not Installed</value>
+    <value>Ikkje installert</value>
   </data>
   <data name="Ok" xml:space="preserve">
-    <value>OK</value>
+    <value>Greidt</value>
   </data>
   <data name="OpenPackageManager" xml:space="preserve">
-    <value>Open Package Manager</value>
+    <value>Opne Pakkehandteraren</value>
   </data>
   <data name="Paste" xml:space="preserve">
-    <value>Paste</value>
+    <value>Lim inn</value>
   </data>
   <data name="PasteAndMatchStyle" xml:space="preserve">
-    <value>Paste and Match Style</value>
+    <value>Lim inn tilpassa</value>
   </data>
   <data name="Preferences" xml:space="preserve">
-    <value>Preferences…</value>
+    <value>Innstillingar…</value>
   </data>
   <data name="ProcessCompletedBody" xml:space="preserve">
-    <value>You may now close this window, or return to the main screen.</value>
+    <value>No kan du lata att vindauget, eller gå attende til hovudvindauget.</value>
   </data>
   <data name="ProcessCompletedTitle" xml:space="preserve">
-    <value>Done!</value>
+    <value>Ferdig!</value>
   </data>
   <data name="Queued" xml:space="preserve">
-    <value>Queued</value>
+    <value>I kø</value>
   </data>
   <data name="QuitApp" xml:space="preserve">
-    <value>Quit Package Manager</value>
+    <value>Avslutt Pakkehandteraren</value>
   </data>
   <data name="Redo" xml:space="preserve">
-    <value>Redo</value>
+    <value>Gjer på nytt</value>
   </data>
   <data name="RemindMeLater" xml:space="preserve">
-    <value>Remind Me Later</value>
+    <value>Minn meg på det seinare</value>
   </data>
   <data name="RemoveRepoBody" xml:space="preserve">
-    <value>Are you sure you wish to remove this repository?</value>
+    <value>Er du sikker på at du vil fjerna repositoriet?</value>
   </data>
   <data name="RemoveRepoTitle" xml:space="preserve">
-    <value>This will remove the selected repository.</value>
+    <value>Dette vil fjerna det valde repositoriet.</value>
   </data>
   <data name="Repositories" xml:space="preserve">
-    <value>Repositories</value>
+    <value>Repositorium</value>
   </data>
   <data name="Repository" xml:space="preserve">
-    <value>Repository</value>
+    <value>Repositorium</value>
   </data>
   <data name="RepositoryError" xml:space="preserve">
-    <value>Repository Error</value>
+    <value>Repositoriefeil</value>
   </data>
   <data name="RepositoryErrorBody" xml:space="preserve">
-    <value>There was an error while opening the repository:
-
+    <value>Det dukka opp ein feil medan eg opna repositoriet:
 {0}</value>
   </data>
   <data name="RestartLater" xml:space="preserve">
-    <value>Restart Later</value>
+    <value>Omstart seinare</value>
   </data>
   <data name="RestartNow" xml:space="preserve">
-    <value>Restart Now</value>
+    <value>Omstart no</value>
   </data>
   <data name="RestartRequiredBody" xml:space="preserve">
-    <value>It is highly recommended that you restart your computer in order for some changes to take effect.</value>
+    <value>Det er sterkt tilrådd å starta datamaskina på nytt for at somme endringar skal tre i kraft</value>
   </data>
   <data name="RestartRequiredTitle" xml:space="preserve">
-    <value>Time to reboot!</value>
+    <value>Tid for å starta maskina på nytt!</value>
   </data>
   <data name="RestartTheAppForLanguageChanges" xml:space="preserve">
-    <value>Restart the app for language changes to take effect.</value>
+    <value>Start programmet på nytt for å byta språk.</value>
   </data>
   <data name="Save" xml:space="preserve">
-    <value>Save</value>
+    <value>Lagre</value>
   </data>
   <data name="SelectAll" xml:space="preserve">
-    <value>Select All</value>
+    <value>Vel alt</value>
   </data>
   <data name="Services" xml:space="preserve">
-    <value>Services</value>
+    <value>Tenester</value>
   </data>
   <data name="Settings" xml:space="preserve">
-    <value>Settings</value>
+    <value>Innstillingar</value>
   </data>
   <data name="ShowAll" xml:space="preserve">
-    <value>Show All</value>
+    <value>Vis alle</value>
   </data>
   <data name="SkipTheseUpdates" xml:space="preserve">
-    <value>Skip These Updates</value>
+    <value>Hopp over desse oppdateringane</value>
   </data>
   <data name="SortBy" xml:space="preserve">
-    <value>Sort by…</value>
+    <value>Sorter etter…</value>
   </data>
   <data name="Stable" xml:space="preserve">
-    <value>Stable</value>
+    <value>Stabil</value>
   </data>
   <data name="Starting" xml:space="preserve">
-    <value>Starting...</value>
+    <value>Startar...</value>
   </data>
   <data name="SystemLocale" xml:space="preserve">
-    <value>Default Language</value>
+    <value>Standardspråk</value>
   </data>
   <data name="ThereAreNUpdatesAvailable" xml:space="preserve">
-    <value>There are {0} updates available!</value>
+    <value>Det finst {0} oppdateringar!</value>
   </data>
   <data name="Undo" xml:space="preserve">
-    <value>Undo</value>
+    <value>Angre</value>
   </data>
   <data name="Uninstall" xml:space="preserve">
-    <value>Uninstall</value>
+    <value>Avinstaller</value>
   </data>
   <data name="UninstallNPackages" xml:space="preserve">
-    <value>Uninstall {0} Items</value>
+    <value>Avinstaller {0} pakker</value>
   </data>
   <data name="UninstallingPackage" xml:space="preserve">
-    <value>Uninstalling {0} {1}...</value>
+    <value>Avinstallerer {0} {1}...</value>
   </data>
   <data name="Update" xml:space="preserve">
-    <value>Update</value>
+    <value>Oppdater</value>
   </data>
   <data name="UpdateAvailable" xml:space="preserve">
-    <value>Update Available</value>
+    <value>Det finst ei oppdatering</value>
   </data>
   <data name="UpdateChannel" xml:space="preserve">
-    <value>Update Channel</value>
+    <value>Oppdateringskanal</value>
   </data>
   <data name="UpdateFrequency" xml:space="preserve">
-    <value>Update Frequency</value>
+    <value>Oppdateringsfrekvens</value>
   </data>
   <data name="UpdateSystem" xml:space="preserve">
-    <value>Update (System)</value>
+    <value>Oppdater (for heile systemet)</value>
   </data>
   <data name="UpdateUser" xml:space="preserve">
-    <value>Update (User)</value>
+    <value>Oppdater (for brukaren)</value>
   </data>
   <data name="Url" xml:space="preserve">
     <value>URL</value>
   </data>
   <data name="UserDescription" xml:space="preserve">
-    <value>{0} (User)</value>
+    <value>{0} (for brukaren)</value>
   </data>
   <data name="VersionSkipped" xml:space="preserve">
-    <value>Version Skipped</value>
+    <value>Ingorert versjon</value>
   </data>
   <data name="WaitingForCompletion" xml:space="preserve">
-    <value>Waiting for process to finish...</value>
+    <value>Ventar på at noko skal bli ferdig...</value>
   </data>
   <data name="Weekly" xml:space="preserve">
-    <value>Weekly</value>
+    <value>Kvar veke</value>
   </data>
   <data name="Window" xml:space="preserve">
-    <value>Window</value>
+    <value>Vindauge</value>
   </data>
   <data name="WouldYouLikeToDownloadThemNow" xml:space="preserve">
-    <value>Would you like to download them now?</value>
+    <value>Vil du lasta dei ned no?</value>
   </data>
   <data name="Zoom" xml:space="preserve">
     <value>Zoom</value>
