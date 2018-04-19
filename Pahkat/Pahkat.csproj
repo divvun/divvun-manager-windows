@@ -241,10 +241,16 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Strings.en-001.resx" />
+    <EmbeddedResource Include="Strings.en.resx" />
+    <EmbeddedResource Include="Strings.nb.resx" />
+    <EmbeddedResource Include="Strings.nn_Runr.resx" />
+    <EmbeddedResource Include="Strings.nn.resx" />
     <EmbeddedResource Include="Strings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <EmbeddedResource Include="Strings.se.resx" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="UI\TaskbarIcon.ico" />

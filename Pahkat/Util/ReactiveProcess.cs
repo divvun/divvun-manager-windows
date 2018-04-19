@@ -68,6 +68,11 @@ namespace Pahkat.Util
                     var str = _process.StandardOutput.ReadLine();
                     Console.WriteLine($"[Process {_process.Id} O] '{str}'");
 
+                    if (str == null)
+                    {
+                        continue;
+                    }
+
                     if (_process.StandardOutput.CurrentEncoding != Encoding.UTF8)
                     {
                         var raw = _process.StandardOutput.CurrentEncoding.GetBytes(str);

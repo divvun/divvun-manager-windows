@@ -19,7 +19,7 @@
             
             <Label Name="LblUpdateFreq" Content="{x:Static pahkat:Strings.UpdateFrequency}" Target="{Binding ElementName=DdlUpdateFreq}" Margin="0,8,0,0"/>
             <ComboBox Name="DdlUpdateFreq" Width="160" HorizontalAlignment="Left" DisplayMemberPath="Name" SelectedValuePath="Value" />
-            <Label Name="LblUpdateStatus" FontSize="11"/>
+            <Label Name="LblUpdateStatus" FontSize="11" Visibility="Collapsed"/>
 
             <Separator Margin="0,24,8,16"/>
             <!--

@@ -115,13 +115,26 @@ namespace Pahkat.UI.Settings
         private readonly SettingsWindowPresenter _presenter;
         private CompositeDisposable _bag = new CompositeDisposable();
 
+        private LanguageTag LanguageTag(string tag)
+        {
+            var data = Iso639.GetTag(tag);
+            var simplestTag = data.Tag1 ?? data.Tag3;
+            var name = data.Autonym ?? data.Name;
+            return new LanguageTag { Name = name, Tag = simplestTag };
+        }
+
         public SettingsWindow()
         {
             InitializeComponent();
 
             DdlLanguage.ItemsSource = new ObservableCollection<LanguageTag>
             {
-                new LanguageTag {Name = "English", Tag = "en"}
+                new LanguageTag { Name = "System Default", Tag = null },
+                LanguageTag("en"),
+                LanguageTag("nb"),
+                LanguageTag("nn"),
+                new LanguageTag { Name = "ᚿᛦᚿᚮᚱᛌᚴ", Tag = "nn-Runr" },
+                LanguageTag("se")
             };
 
             DdlUpdateFreq.ItemsSource = new ObservableCollection<PeriodIntervalMenuItem>

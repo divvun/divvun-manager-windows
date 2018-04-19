@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Pahkat.UI.Main" 
       xmlns:shared="clr-namespace:Pahkat.UI.Shared"
+      xmlns:pahkat="clr-namespace:Pahkat"
       mc:Ignorable="d" 
       d:DesignHeight="480" d:DesignWidth="640"
       Title="{Binding Title}">
@@ -18,9 +19,9 @@
                     <Image Source="icon-menu.png" Width="24" Height="24" Stretch="Fill"/>
                     <Button.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="Settings" />
+                            <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" />
                             <Separator />
-                            <MenuItem Click="OnClickExitMenuItem" Header="Exit" />
+                            <MenuItem Click="OnClickExitMenuItem" Header="{x:Static pahkat:Strings.Exit}" />
                         </ContextMenu>
                     </Button.ContextMenu>
                 </Button>

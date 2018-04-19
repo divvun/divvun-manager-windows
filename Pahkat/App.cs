@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Disposables;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
@@ -113,7 +114,8 @@ namespace Pahkat
         //public override RepositoryService RepositoryService { get; protected set; }
         public override IRavenClient RavenClient { get; protected set; }
         //public override SelfUpdaterService SelfUpdateService { get; protected set; }
-        
+
+        private CompositeDisposable _bag = new CompositeDisposable();
         private TaskbarIcon _icon;
 
         private void CreateNotifyIcon()
@@ -179,12 +181,30 @@ namespace Pahkat
             //SelfUpdateService = new SelfUpdaterService(ConfigStore, PackageService, DispatcherScheduler.Current);
         }
 
+        private void InitStrings()
+        {
+            ConfigStore.State.Select(x => x.InterfaceLanguage)
+                .DistinctUntilChanged()
+                .Subscribe(lang =>
+                {
+                    if (lang == null)
+                    {
+                        Strings.Culture = CultureInfo.CurrentCulture;
+                    }
+                    else
+                    {
+                        Strings.Culture = new CultureInfo(lang);
+                    }
+                }).DisposedBy(_bag);
+        }
+
         public RpcService Rpc = new RpcService();
 
         protected override void OnStartup(StartupEventArgs e)
         {
             // The order of these initialisers is important.
             InitPackageStore();
+            InitStrings();
 
             if (Mode == AppMode.Default)
             {

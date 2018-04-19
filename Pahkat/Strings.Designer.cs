@@ -61,7 +61,34 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Páhkat.
+        ///   Looks up a localized string similar to About Package Manager.
+        /// </summary>
+        public static string AboutApp {
+            get {
+                return ResourceManager.GetString("AboutApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Alpha.
+        /// </summary>
+        public static string Alpha {
+            get {
+                return ResourceManager.GetString("Alpha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Help.
+        /// </summary>
+        public static string AppHelp {
+            get {
+                return ResourceManager.GetString("AppHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Package Manager.
         /// </summary>
         public static string AppName {
             get {
@@ -70,29 +97,38 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Automatically Send Crash Reports.
+        ///   Looks up a localized string similar to Package Manager v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
         /// </summary>
-        public static string AutoCrashReporting {
+        public static string AppUpdateBody {
             get {
-                return ResourceManager.GetString("AutoCrashReporting", resourceCulture);
+                return ResourceManager.GetString("AppUpdateBody", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Páhkat v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
+        ///   Looks up a localized string similar to Package Manager Update Available.
         /// </summary>
-        public static string BahkatUpdateBody {
+        public static string AppUpdateTitle {
             get {
-                return ResourceManager.GetString("BahkatUpdateBody", resourceCulture);
+                return ResourceManager.GetString("AppUpdateTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Páhkat Update Available.
+        ///   Looks up a localized string similar to Beta.
         /// </summary>
-        public static string BahkatUpdateTitle {
+        public static string Beta {
             get {
-                return ResourceManager.GetString("BahkatUpdateTitle", resourceCulture);
+                return ResourceManager.GetString("Beta", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bring All to Front.
+        /// </summary>
+        public static string BringAllToFront {
+            get {
+                return ResourceManager.GetString("BringAllToFront", resourceCulture);
             }
         }
         
@@ -124,11 +160,56 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Canceling....
+        /// </summary>
+        public static string Cancelling {
+            get {
+                return ResourceManager.GetString("Cancelling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Category.
+        /// </summary>
+        public static string Category {
+            get {
+                return ResourceManager.GetString("Category", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Channel.
+        /// </summary>
+        public static string Channel {
+            get {
+                return ResourceManager.GetString("Channel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Check For Updates....
         /// </summary>
         public static string CheckForUpdates {
             get {
                 return ResourceManager.GetString("CheckForUpdates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Completed.
+        /// </summary>
+        public static string Completed {
+            get {
+                return ResourceManager.GetString("Completed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Copy.
+        /// </summary>
+        public static string Copy {
+            get {
+                return ResourceManager.GetString("Copy", resourceCulture);
             }
         }
         
@@ -142,11 +223,11 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Send Crash Report.
+        ///   Looks up a localized string similar to Cut.
         /// </summary>
-        public static string CrashReportTitle {
+        public static string Cut {
             get {
-                return ResourceManager.GetString("CrashReportTitle", resourceCulture);
+                return ResourceManager.GetString("Cut", resourceCulture);
             }
         }
         
@@ -156,6 +237,15 @@ namespace Pahkat {
         public static string Daily {
             get {
                 return ResourceManager.GetString("Daily", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Delete.
+        /// </summary>
+        public static string Delete {
+            get {
+                return ResourceManager.GetString("Delete", resourceCulture);
             }
         }
         
@@ -187,11 +277,29 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit.
+        /// </summary>
+        public static string Edit {
+            get {
+                return ResourceManager.GetString("Edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error.
         /// </summary>
         public static string Error {
             get {
                 return ResourceManager.GetString("Error", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurring during installation..
+        /// </summary>
+        public static string ErrorDuringInstallation {
+            get {
+                return ResourceManager.GetString("ErrorDuringInstallation", resourceCulture);
             }
         }
         
@@ -259,6 +367,33 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Help.
+        /// </summary>
+        public static string Help {
+            get {
+                return ResourceManager.GetString("Help", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hide Package Manager.
+        /// </summary>
+        public static string HideApp {
+            get {
+                return ResourceManager.GetString("HideApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hide Others.
+        /// </summary>
+        public static string HideOthers {
+            get {
+                return ResourceManager.GetString("HideOthers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Install.
         /// </summary>
         public static string Install {
@@ -286,6 +421,51 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Installing/Uninstalling.
+        /// </summary>
+        public static string InstallingUninstalling {
+            get {
+                return ResourceManager.GetString("InstallingUninstalling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install {0} Items.
+        /// </summary>
+        public static string InstallNPackages {
+            get {
+                return ResourceManager.GetString("InstallNPackages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install (System).
+        /// </summary>
+        public static string InstallSystem {
+            get {
+                return ResourceManager.GetString("InstallSystem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install/Uninstall {0} Items.
+        /// </summary>
+        public static string InstallUninstallNPackages {
+            get {
+                return ResourceManager.GetString("InstallUninstallNPackages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install (User).
+        /// </summary>
+        public static string InstallUser {
+            get {
+                return ResourceManager.GetString("InstallUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Interface Language.
         /// </summary>
         public static string InterfaceLanguage {
@@ -295,11 +475,47 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Please ensure that the URL begins with \&quot;https\&quot; and try again..
+        /// </summary>
+        public static string InvalidUrlBody {
+            get {
+                return ResourceManager.GetString("InvalidUrlBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The provided URL is invalid..
+        /// </summary>
+        public static string InvalidUrlTitle {
+            get {
+                return ResourceManager.GetString("InvalidUrlTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Language.
+        /// </summary>
+        public static string Language {
+            get {
+                return ResourceManager.GetString("Language", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loading....
         /// </summary>
         public static string Loading {
             get {
                 return ResourceManager.GetString("Loading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimize.
+        /// </summary>
+        public static string Minimize {
+            get {
+                return ResourceManager.GetString("Minimize", resourceCulture);
             }
         }
         
@@ -318,6 +534,15 @@ namespace Pahkat {
         public static string NextUpdateDue {
             get {
                 return ResourceManager.GetString("NextUpdateDue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nightly.
+        /// </summary>
+        public static string Nightly {
+            get {
+                return ResourceManager.GetString("Nightly", resourceCulture);
             }
         }
         
@@ -403,6 +628,33 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Paste.
+        /// </summary>
+        public static string Paste {
+            get {
+                return ResourceManager.GetString("Paste", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Paste and Match Style.
+        /// </summary>
+        public static string PasteAndMatchStyle {
+            get {
+                return ResourceManager.GetString("PasteAndMatchStyle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Preferences….
+        /// </summary>
+        public static string Preferences {
+            get {
+                return ResourceManager.GetString("Preferences", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You may now close this window, or return to the main screen..
         /// </summary>
         public static string ProcessCompletedBody {
@@ -421,11 +673,29 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Process {0} Items.
+        ///   Looks up a localized string similar to Queued.
         /// </summary>
-        public static string ProcessNPackages {
+        public static string Queued {
             get {
-                return ResourceManager.GetString("ProcessNPackages", resourceCulture);
+                return ResourceManager.GetString("Queued", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Quit Package Manager.
+        /// </summary>
+        public static string QuitApp {
+            get {
+                return ResourceManager.GetString("QuitApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Redo.
+        /// </summary>
+        public static string Redo {
+            get {
+                return ResourceManager.GetString("Redo", resourceCulture);
             }
         }
         
@@ -435,6 +705,33 @@ namespace Pahkat {
         public static string RemindMeLater {
             get {
                 return ResourceManager.GetString("RemindMeLater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure you wish to remove this repository?.
+        /// </summary>
+        public static string RemoveRepoBody {
+            get {
+                return ResourceManager.GetString("RemoveRepoBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This will remove the selected repository..
+        /// </summary>
+        public static string RemoveRepoTitle {
+            get {
+                return ResourceManager.GetString("RemoveRepoTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Repositories.
+        /// </summary>
+        public static string Repositories {
+            get {
+                return ResourceManager.GetString("Repositories", resourceCulture);
             }
         }
         
@@ -504,11 +801,38 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Restart the app for language changes to take effect..
+        /// </summary>
+        public static string RestartTheAppForLanguageChanges {
+            get {
+                return ResourceManager.GetString("RestartTheAppForLanguageChanges", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Save.
         /// </summary>
         public static string Save {
             get {
                 return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select All.
+        /// </summary>
+        public static string SelectAll {
+            get {
+                return ResourceManager.GetString("SelectAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Services.
+        /// </summary>
+        public static string Services {
+            get {
+                return ResourceManager.GetString("Services", resourceCulture);
             }
         }
         
@@ -522,6 +846,15 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Show All.
+        /// </summary>
+        public static string ShowAll {
+            get {
+                return ResourceManager.GetString("ShowAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Skip These Updates.
         /// </summary>
         public static string SkipTheseUpdates {
@@ -531,11 +864,56 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sort by….
+        /// </summary>
+        public static string SortBy {
+            get {
+                return ResourceManager.GetString("SortBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Stable.
+        /// </summary>
+        public static string Stable {
+            get {
+                return ResourceManager.GetString("Stable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Starting....
         /// </summary>
         public static string Starting {
             get {
                 return ResourceManager.GetString("Starting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default Language.
+        /// </summary>
+        public static string SystemLocale {
+            get {
+                return ResourceManager.GetString("SystemLocale", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are {0} updates available!.
+        /// </summary>
+        public static string ThereAreNUpdatesAvailable {
+            get {
+                return ResourceManager.GetString("ThereAreNUpdatesAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Undo.
+        /// </summary>
+        public static string Undo {
+            get {
+                return ResourceManager.GetString("Undo", resourceCulture);
             }
         }
         
@@ -554,6 +932,24 @@ namespace Pahkat {
         public static string UninstallingPackage {
             get {
                 return ResourceManager.GetString("UninstallingPackage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uninstall {0} Items.
+        /// </summary>
+        public static string UninstallNPackages {
+            get {
+                return ResourceManager.GetString("UninstallNPackages", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update.
+        /// </summary>
+        public static string Update {
+            get {
+                return ResourceManager.GetString("Update", resourceCulture);
             }
         }
         
@@ -585,11 +981,38 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Update (System).
+        /// </summary>
+        public static string UpdateSystem {
+            get {
+                return ResourceManager.GetString("UpdateSystem", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update (User).
+        /// </summary>
+        public static string UpdateUser {
+            get {
+                return ResourceManager.GetString("UpdateUser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to URL.
         /// </summary>
         public static string Url {
             get {
                 return ResourceManager.GetString("Url", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} (User).
+        /// </summary>
+        public static string UserDescription {
+            get {
+                return ResourceManager.GetString("UserDescription", resourceCulture);
             }
         }
         
@@ -617,6 +1040,33 @@ namespace Pahkat {
         public static string Weekly {
             get {
                 return ResourceManager.GetString("Weekly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Window.
+        /// </summary>
+        public static string Window {
+            get {
+                return ResourceManager.GetString("Window", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Would you like to download them now?.
+        /// </summary>
+        public static string WouldYouLikeToDownloadThemNow {
+            get {
+                return ResourceManager.GetString("WouldYouLikeToDownloadThemNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Zoom.
+        /// </summary>
+        public static string Zoom {
+            get {
+                return ResourceManager.GetString("Zoom", resourceCulture);
             }
         }
     }

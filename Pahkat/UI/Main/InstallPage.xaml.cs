@@ -107,6 +107,9 @@ namespace Pahkat.UI.Main
 
         public void HandleError(Exception error)
         {
+
+            var app = (PahkatApp)Application.Current;
+            app.RavenClient.CaptureException(error);
             MessageBox.Show(error.Message,
                 Strings.Error, 
                 MessageBoxButton.OK,

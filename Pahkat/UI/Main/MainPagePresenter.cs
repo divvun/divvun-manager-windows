@@ -152,15 +152,31 @@ namespace Pahkat.UI.Main
         //        }, _view.HandleError);
         //}
 
-        private void GeneratePrimaryButtonLabel(Dictionary<Package, PackageActionInfo> infos)
+        private void GeneratePrimaryButtonLabel(Dictionary<Package, PackageActionInfo> packages)
         {
-            if (infos.Count == 0)
+            if (packages.Count > 0)
+            {
+                string s;
+
+                if (packages.All(x => x.Value.Action == PackageAction.Install))
+                {
+                    s = string.Format(Strings.InstallNPackages, packages.Count);
+                }
+                else if (packages.All(x => x.Value.Action == PackageAction.Uninstall))
+                {
+                    s = string.Format(Strings.UninstallNPackages, packages.Count);
+                }
+                else
+                {
+                    s = string.Format(Strings.InstallUninstallNPackages, packages.Count);
+                }
+
+                _view.UpdatePrimaryButton(true, s);
+            }
+            else
             {
                 _view.UpdatePrimaryButton(false, Strings.NoPackagesSelected);
-                return;
             }
-
-            _view.UpdatePrimaryButton(true, string.Format(Strings.ProcessNPackages, infos.Count));
         }
 
         private IDisposable BindPrimaryButtonLabel(IMainPageView view, IPackageStore store)

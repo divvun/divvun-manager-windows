@@ -118,24 +118,6 @@ namespace Pahkat.Models
                 state.NextUpdateCheck = new DateTimeOffset();
             }
 
-            if (state.InterfaceLanguage == null)
-            {
-                var culture = CultureInfo.CurrentUICulture;
-
-                if (culture.TwoLetterISOLanguageName != null)
-                {
-                    state.InterfaceLanguage = culture.TwoLetterISOLanguageName;
-                }
-                else if (culture.ThreeLetterISOLanguageName != null)
-                {
-                    state.InterfaceLanguage = culture.ThreeLetterISOLanguageName;
-                }
-                else
-                {
-                    state.InterfaceLanguage = "en";
-                }
-            }
-
             return state;
         }
     }
@@ -202,6 +184,24 @@ namespace Pahkat.Models
             var data = JsonConvert.SerializeObject(state, Formatting.Indented);
             File.WriteAllText(AppConfigState.ConfigPath, data);
         }
+        
+        internal static string CurrentSystemLanguage()
+        {
+            var culture = CultureInfo.CurrentCulture;
+
+            if (culture.TwoLetterISOLanguageName != null)
+            {
+                return culture.TwoLetterISOLanguageName;
+            }
+            else if (culture.ThreeLetterISOLanguageName != null)
+            {
+                return culture.ThreeLetterISOLanguageName;
+            }
+            else
+            {
+                return "en";
+            }
+        }
 
         private static AppConfigState Reduce(AppConfigState state, IAppConfigEvent e)
         {
@@ -219,6 +219,7 @@ namespace Pahkat.Models
                     {
                         return state;
                     }
+
                     state.InterfaceLanguage = v.Tag;
                     break;
                 case SetRepositories v:

@@ -57,7 +57,22 @@ namespace Pahkat.UI.Updater
                 {
                     if (packages.Count > 0)
                     {
-                        view.UpdatePrimaryButton(true, string.Format(Strings.ProcessNPackages, packages.Count));
+                        string s;
+
+                        if (packages.All(x => x.Value.Action == PackageAction.Install))
+                        {
+                            s = string.Format(Strings.InstallNPackages, packages.Count);
+                        }
+                        else if (packages.All(x => x.Value.Action == PackageAction.Uninstall))
+                        {
+                            s = string.Format(Strings.UninstallNPackages, packages.Count);
+                        }
+                        else
+                        {
+                            s = string.Format(Strings.InstallUninstallNPackages, packages.Count);
+                        }
+
+                        view.UpdatePrimaryButton(true, s);
                     }
                     else
                     {

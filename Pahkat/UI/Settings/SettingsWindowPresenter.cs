@@ -79,11 +79,7 @@ namespace Pahkat.UI.Settings
         {
             _config.State.Take(1).Subscribe(x =>
             {
-                //_view.SetRepository(x.RepositoryUrl.AbsoluteUri);
-                // TODO: fix hack
-                // HACK: we probably can't just use the language part of the tag forever.
-                var langCode = x.InterfaceLanguage.Split('-')[0];
-                _view.SetInterfaceLanguage(langCode);
+                _view.SetInterfaceLanguage(x.InterfaceLanguage);
                 _view.SetUpdateFrequency(x.UpdateCheckInterval);
                 _view.SetUpdateFrequencyStatus(x.NextUpdateCheck.ToLocalTime());
 
