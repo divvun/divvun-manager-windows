@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Reactive.Linq;
 using Newtonsoft.Json;
 using System.Reactive.Concurrency;
+using System.ComponentModel;
 
 namespace Pahkat.Service
 {
@@ -22,16 +23,25 @@ namespace Pahkat.Service
         private ReactiveProcess _process;
         private Rpc.Client _client;
 
-        public RpcService()
+        public RpcService(SharpRaven.IRavenClient sentry)
         {
             var appRoot = new Uri(System.Reflection.Assembly.GetEntryAssembly().CodeBase);
             var pahkatcPath = new Uri(appRoot, "pahkatc.exe").AbsolutePath;
-
+            
             Console.WriteLine(pahkatcPath);
 
             _process = new ReactiveProcess(pahkatcPath, "ipc");
             _client = new Rpc.Client(_process.Output, _process.Input);
-            _process.Start();
+
+            try
+            {
+                _process.Start();
+            }
+            catch (Win32Exception e)
+            {
+                sentry.CaptureException(e, pahkatcPath);
+                throw e;
+            }
             //_process.Error.Subscribe(x => Console.WriteLine($"RPC[ERR] {x}"));
         }
 

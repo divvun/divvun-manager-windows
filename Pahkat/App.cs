@@ -198,10 +198,12 @@ namespace Pahkat
                 }).DisposedBy(_bag);
         }
 
-        public RpcService Rpc = new RpcService();
+        public RpcService Rpc;
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            Rpc = new RpcService(RavenClient);
+
             // The order of these initialisers is important.
             InitPackageStore();
             InitStrings();
