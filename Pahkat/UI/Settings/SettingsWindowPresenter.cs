@@ -74,10 +74,10 @@ namespace Pahkat.UI.Settings
                     _view.Close();
                 });
         }
-        
-        public IDisposable Start()
+
+        private IDisposable InitInterface()
         {
-            _config.State.Take(1).Subscribe(x =>
+            return _config.State.Take(1).Subscribe(x =>
             {
                 _view.SetInterfaceLanguage(x.InterfaceLanguage);
                 _view.SetUpdateFrequency(x.UpdateCheckInterval);
@@ -87,8 +87,12 @@ namespace Pahkat.UI.Settings
                     x.Repositories.Select(r => new RepoDataGridItem(r.Url.AbsoluteUri, r.Channel)));
                 _view.SetRepoItemSource(_data);
             });
-            
+        }
+        
+        public IDisposable Start()
+        {
             return new CompositeDisposable(
+                InitInterface(),
                 //BindRepoStatus(),
                 BindAddRepo(),
                 BindRemoveRepo(),
