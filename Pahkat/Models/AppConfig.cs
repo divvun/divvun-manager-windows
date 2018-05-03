@@ -12,6 +12,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Converters;
+using System.ComponentModel;
 
 namespace Pahkat.Models
 {
@@ -73,15 +74,17 @@ namespace Pahkat.Models
     
     public class AppConfigState
     {
-        public static string ConfigPath
+        public static string AppDataPath
         {
             get
             {
                 var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 // TODO: make sure core client uses another file
-                return Path.Combine(appData, "Pahkat", "config.json");
+                return Path.Combine(appData, "Pahkat");
             }
         }
+
+        public static readonly string ConfigPath = Path.Combine(AppDataPath, "config.json");
 
         [JsonProperty("repositories")]
         public RepoConfig[] Repositories { get; internal set; }
@@ -182,6 +185,7 @@ namespace Pahkat.Models
         private static void Save(AppConfigState state)
         {
             var data = JsonConvert.SerializeObject(state, Formatting.Indented);
+            Directory.CreateDirectory(AppConfigState.AppDataPath);
             File.WriteAllText(AppConfigState.ConfigPath, data);
         }
         
