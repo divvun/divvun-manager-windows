@@ -240,7 +240,7 @@
     <EmbeddedResource Include="Strings.en-001.resx" />
     <EmbeddedResource Include="Strings.en.resx" />
     <EmbeddedResource Include="Strings.nb.resx" />
-    <EmbeddedResource Include="Strings.nn_Runr.resx" />
+    <EmbeddedResource Include="Strings.nn-Runr.resx" />
     <EmbeddedResource Include="Strings.nn.resx" />
     <EmbeddedResource Include="Strings.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
