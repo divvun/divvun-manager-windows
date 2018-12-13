@@ -37,7 +37,7 @@ namespace Pahkat.Models
 
     public static class LinkedDataTypeExtensions
     {
-        public static String Value(this LinkedDataType instance)
+        public static string Value(this LinkedDataType instance)
         {
             switch (instance)
             {
@@ -150,7 +150,7 @@ namespace Pahkat.Models
 
     public static class RepositoryMetaFilterExtensions
     {
-        public static String Value(this RepositoryMeta.Filter instance)
+        public static string Value(this RepositoryMeta.Filter instance)
         {
             switch (instance)
             {
@@ -166,7 +166,7 @@ namespace Pahkat.Models
 
     public static class RepositoryMetaChannelExtensions
     {
-        public static String Value(this RepositoryMeta.Channel instance)
+        public static string Value(this RepositoryMeta.Channel instance)
         {
             switch (instance)
             {
@@ -479,7 +479,7 @@ namespace Pahkat.Models
 
     public static class WindowsInstallerInstallerTypeExtensions
     {
-        public static String Value(this WindowsInstaller.InstallerType instance)
+        public static string Value(this WindowsInstaller.InstallerType instance)
         {
             switch (instance)
             {
@@ -566,7 +566,7 @@ namespace Pahkat.Models
 
     public static class MacOsInstallerTargetExtensions
     {
-        public static String Value(this MacOsInstaller.Target instance)
+        public static string Value(this MacOsInstaller.Target instance)
         {
             switch (instance)
             {
@@ -773,7 +773,7 @@ namespace Pahkat.Models
 
     public static class RegistryKeyValueKindExtensions
     {
-        public static String Value(this RegistryKey.ValueKind instance)
+        public static string Value(this RegistryKey.ValueKind instance)
         {
             switch (instance)
             {
