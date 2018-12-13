@@ -27,6 +27,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -137,6 +138,10 @@
     <Compile Include="Models\SemanticVersion.cs" />
     <Compile Include="Properties\Constants.cs" />
     <Compile Include="Models\PackageStore.cs" />
+    <Compile Include="Service\CoreLib\Client.cs" />
+    <Compile Include="Service\CoreLib\InstallTarget.cs" />
+    <Compile Include="Service\CoreLib\PackageAction.cs" />
+    <Compile Include="Service\CoreLib\PackageActionType.cs" />
     <Compile Include="Service\RpcService.cs" />
     <Compile Include="Service\InstallService.cs" />
     <Compile Include="Service\PackageService.cs" />
@@ -266,6 +271,9 @@
   <ItemGroup>
     <Content Include="pahkatc.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="pahkat_client.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
