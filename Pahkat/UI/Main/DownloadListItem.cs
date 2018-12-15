@@ -3,8 +3,11 @@ using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Windows.Input;
 using System.Windows.Threading;
+using Pahkat.Models;
 using Pahkat.Service;
+using Pahkat.Service.CoreLib;
 
 namespace Pahkat.UI.Main
 {
@@ -14,26 +17,39 @@ namespace Pahkat.UI.Main
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Model.Package.Equals(other.Model.Package);
+            return Equals(Key, other.Key);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((DownloadListItem) obj);
         }
 
         public override int GetHashCode()
         {
-            return Model.GetHashCode();
+            unchecked
+            {
+                return ((Key != null ? Key.GetHashCode() : 0) * 397);
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public readonly PackageProgress Model;
+        public readonly AbsolutePackageKey Key;
+        public readonly Package Model;
         private long _downloaded;
         
-        public DownloadListItem(PackageProgress package)
+        public DownloadListItem(AbsolutePackageKey key, Package package)
         {
+            Key = key;
             Model = package;
         }
 
-        public string Title => Model.Package.NativeName;
-        public string Version => Model.Package.Version;
-        public long FileSize => Model.Package.WindowsInstaller.Size;
+        public string Title => Model.NativeName;
+        public string Version => Model.Version;
+        public long FileSize => Model.WindowsInstaller.Size;
         public long Downloaded
         {
             get => _downloaded;

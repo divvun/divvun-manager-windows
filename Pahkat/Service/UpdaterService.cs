@@ -87,7 +87,7 @@
 //                .Where(HasNewUpdates)
 //                .Subscribe(_ =>
 //                {
-//                    var app = (IBahkatApp)Application.Current;
+//                    var app = (IpahkatApp)Application.Current;
 //                    app.WindowService.Show<UpdateWindow>();
 //                });
 //        }

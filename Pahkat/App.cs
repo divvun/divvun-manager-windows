@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -25,6 +26,7 @@ using SharpRaven;
 using SharpRaven.Data;
 using Trustsoft.SingleInstanceApp;
 using Newtonsoft.Json;
+using Pahkat.Service.CoreLib;
 
 namespace Pahkat
 {
@@ -38,17 +40,19 @@ namespace Pahkat
         IPackageStore PackageStore { get; }
         IRavenClient RavenClient { get; }
         //SelfUpdaterService SelfUpdateService { get; }
+        PahkatClient Client { get; }
     }
 
     public abstract class AbstractPahkatApp : Application, IPahkatApp, ISingleInstanceApp
     {
-        public abstract AppConfigStore ConfigStore { get; }
+        public abstract AppConfigStore ConfigStore { get; protected set; }
         //public abstract RepositoryService RepositoryService { get; protected set; }
-        public abstract IPackageService PackageService { get; }
+        public abstract IPackageService PackageService { get; protected set;  }
         //public abstract UpdaterService UpdaterService { get; protected set; }
-        public abstract IWindowService WindowService { get; }
+        public abstract IWindowService WindowService { get; protected set;  }
         public abstract IPackageStore PackageStore { get; protected set; }
         public abstract IRavenClient RavenClient { get; protected set; }
+        public abstract PahkatClient Client { get; protected set; }
         //public abstract SelfUpdaterService SelfUpdateService { get; protected set; }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -64,12 +68,12 @@ namespace Pahkat
 
     static class DI
     {
-        internal static AppConfigStore CreateAppConfigStore()
+        internal static AppConfigStore CreateAppConfigStore(IPahkatApp app)
         {
 #if DEBUG
-            return new AppConfigStore();
+            return new AppConfigStore(app);
 #else
-            return new AppConfigStore();
+            return new AppConfigStore(app);
 #endif
         }
 
@@ -102,15 +106,17 @@ namespace Pahkat
         public const string ArgsInstall = "-i";
         public const string ArgsWindow = "-w";
 
-        public override AppConfigStore ConfigStore { get; } = DI.CreateAppConfigStore();
-        public override IPackageService PackageService { get; } = DI.CreatePackageService();
+
+        public override PahkatClient Client { protected set; get; }
+        public override AppConfigStore ConfigStore { protected set; get; } 
         public override IPackageStore PackageStore { get; protected set; }
         //public override UpdaterService UpdaterService { get; protected set; }
-        public override IWindowService WindowService { get; } = Service.WindowService.Create(
+        public override IWindowService WindowService { get; protected set; } = Service.WindowService.Create(
             CloseHandlingWindowConfig.Create<MainWindow>(),
             CloseHandlingWindowConfig.Create<UpdateWindow>(),
             CloseHandlingWindowConfig.Create<SettingsWindow>()
         );
+        public override IPackageService PackageService { get; protected set; } = DI.CreatePackageService();
         //public override RepositoryService RepositoryService { get; protected set; }
         public override IRavenClient RavenClient { get; protected set; }
         //public override SelfUpdaterService SelfUpdateService { get; protected set; }
@@ -198,13 +204,17 @@ namespace Pahkat
                 }).DisposedBy(_bag);
         }
 
-        public RpcService Rpc;
+        private void InitConfigStore()
+        {
+            ConfigStore = DI.CreateAppConfigStore(this);
+        }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            Rpc = new RpcService(RavenClient);
+            //Rpc = new RpcService(RavenClient);
 
             // The order of these initialisers is important.
+            InitConfigStore();
             InitPackageStore();
             InitStrings();
 
@@ -263,7 +273,7 @@ namespace Pahkat
             // Stop Quartz from holding the app open for all time
             //UpdaterService.Dispose();
             //SelfUpdateService.Dispose();
-            Rpc.Dispose();
+            //Rpc.Dispose();
 
             base.OnExit(e);
         }
@@ -272,6 +282,9 @@ namespace Pahkat
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
         public static void Main(string[] args)
         {
+//            var client = new PahkatClient();
+//            Trace.WriteLine(client.ConfigPath);
+
             var mode = args.Any((x) => x == ArgsInstall)
                 ? AppMode.Install
                 : AppMode.Default;
@@ -285,15 +298,15 @@ namespace Pahkat
                 }
             }
 
-            Native.RegisterApplicationRestart(ArgsSilent, 0);
+            SysNative.RegisterApplicationRestart(ArgsSilent, 0);
             var raven = DI.CreateRavenClient();
 
             AppDomain.CurrentDomain.UnhandledException += (sender, sargs) =>
             {
                 raven.Capture(new SentryEvent((Exception) sargs.ExceptionObject));
             };
-
-            var application = new PahkatApp {RavenClient = raven, Mode = mode};
+            var client = new PahkatClient();
+            var application = new PahkatApp {Client = client, RavenClient = raven, Mode = mode};
             application.Run();
 
             if (mode == AppMode.Default)

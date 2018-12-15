@@ -72,16 +72,16 @@ namespace Pahkat.Models
         public LinkedDataType _Type { get; private set; }
         [JsonProperty("agent")]
         public RepositoryAgent Agent { get; private set; }
-        [JsonProperty("base", Required = Required.Always)]
+        [JsonProperty("base", Required = Required.Default)]
         public Uri Base { get; private set; }
-        [JsonProperty("name", Required = Required.Always)]
+        [JsonProperty("name", Required = Required.Default)]
         public Dictionary<string, string> Name { get; private set; }
-        [JsonProperty("description", Required = Required.Always)]
+        [JsonProperty("description", Required = Required.Default)]
         public Dictionary<string, string> Description { get; private set; }
-        [JsonProperty("primaryFilter", Required = Required.Always)]
+        [JsonProperty("primaryFilter", Required = Required.Default)]
         [JsonConverter(typeof(StringEnumConverter))]
         public Filter PrimaryFilter { get; private set; }
-        [JsonProperty("channels", Required = Required.Always)]
+        [JsonProperty("channels", Required = Required.Default)]
         public List<Channel> Channels { get; private set; }
         [JsonProperty("categories")]
         public Dictionary<string, Dictionary<string, string>> Categories { get; private set; }
@@ -189,9 +189,9 @@ namespace Pahkat.Models
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LinkedDataType _Type { get; private set; }
-        [JsonProperty("name", Required = Required.Always)]
+        [JsonProperty("name", Required = Required.Default)]
         public string Name { get; private set; }
-        [JsonProperty("version", Required = Required.Always)]
+        [JsonProperty("version", Required = Required.Default)]
         public string Version { get; private set; }
         [JsonProperty("url")]
         public Uri Url { get; private set; }
@@ -234,9 +234,9 @@ namespace Pahkat.Models
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LinkedDataType _Type { get; private set; }
-        [JsonProperty("base", Required = Required.Always)]
+        [JsonProperty("base", Required = Required.Default)]
         public Uri Base { get; private set; }
-        [JsonProperty("packages", Required = Required.Always)]
+        [JsonProperty("packages", Required = Required.Default)]
         public Dictionary<string, Package> Packages { get; private set; }
 
         public bool Equals(PackagesMeta other)
@@ -275,25 +275,25 @@ namespace Pahkat.Models
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LinkedDataType _Type { get; private set; }
-        [JsonProperty("id", Required = Required.Always)]
+        [JsonProperty("id", Required = Required.Default)]
         public string Id { get; private set; }
-        [JsonProperty("name", Required = Required.Always)]
+        [JsonProperty("name", Required = Required.Default)]
         public Dictionary<string, string> Name { get; private set; }
-        [JsonProperty("description", Required = Required.Always)]
+        [JsonProperty("description", Required = Required.Default)]
         public Dictionary<string, string> Description { get; private set; }
-        [JsonProperty("version", Required = Required.Always)]
+        [JsonProperty("version", Required = Required.Default)]
         public string Version { get; private set; }
-        [JsonProperty("category", Required = Required.Always)]
+        [JsonProperty("category", Required = Required.Default)]
         public string Category { get; private set; }
-        [JsonProperty("languages", Required = Required.Always)]
+        [JsonProperty("languages", Required = Required.Default)]
         public List<string> Languages { get; private set; }
-        [JsonProperty("platform", Required = Required.Always)]
+        [JsonProperty("platform", Required = Required.Default)]
         public Dictionary<string, string> Platform { get; private set; }
-        [JsonProperty("dependencies", Required = Required.Always)]
+        [JsonProperty("dependencies", Required = Required.Default)]
         public Dictionary<string, string> Dependencies { get; private set; }
-        [JsonProperty("virtualDependencies", Required = Required.Always)]
+        [JsonProperty("virtualDependencies", Required = Required.Default)]
         public Dictionary<string, string> VirtualDependencies { get; private set; }
-        [JsonProperty("installer", Required = Required.Always)]
+        [JsonProperty("installer", Required = Required.Default)]
         public IInstaller Installer { get; private set; }
 
         [JsonConverter(typeof(JsonSubtypes), "@type")]
@@ -357,11 +357,11 @@ namespace Pahkat.Models
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LinkedDataType _Type { get; private set; }
-        [JsonProperty("url", Required = Required.Always)]
+        [JsonProperty("url", Required = Required.Default)]
         public Uri Url { get; private set; }
-        [JsonProperty("size", Required = Required.Always)]
+        [JsonProperty("size", Required = Required.Default)]
         public long Size { get; private set; }
-        [JsonProperty("installedSize", Required = Required.Always)]
+        [JsonProperty("installedSize", Required = Required.Default)]
         public long InstalledSize { get; private set; }
 
         public bool Equals(TarballInstaller other)
@@ -402,7 +402,7 @@ namespace Pahkat.Models
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LinkedDataType _Type { get; private set; }
-        [JsonProperty("url", Required = Required.Always)]
+        [JsonProperty("url", Required = Required.Default)]
         public Uri Url { get; private set; }
         [JsonProperty("type")]
         [JsonConverter(typeof(StringEnumConverter))]
@@ -411,15 +411,15 @@ namespace Pahkat.Models
         public string Args { get; private set; }
         [JsonProperty("uninstallArgs")]
         public string UninstallArgs { get; private set; }
-        [JsonProperty("productCode", Required = Required.Always)]
+        [JsonProperty("productCode", Required = Required.Default)]
         public string ProductCode { get; private set; }
-        [JsonProperty("requiresReboot", Required = Required.Always)]
+        [JsonProperty("requiresReboot", Required = Required.Default)]
         public bool RequiresReboot { get; private set; }
-        [JsonProperty("requiresUninstallReboot", Required = Required.Always)]
+        [JsonProperty("requiresUninstallReboot", Required = Required.Default)]
         public bool RequiresUninstallReboot { get; private set; }
-        [JsonProperty("size", Required = Required.Always)]
+        [JsonProperty("size", Required = Required.Default)]
         public long Size { get; private set; }
-        [JsonProperty("installedSize", Required = Required.Always)]
+        [JsonProperty("installedSize", Required = Required.Default)]
         public long InstalledSize { get; private set; }
 
         public enum InstallerType
@@ -500,19 +500,19 @@ namespace Pahkat.Models
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LinkedDataType _Type { get; private set; }
-        [JsonProperty("url", Required = Required.Always)]
+        [JsonProperty("url", Required = Required.Default)]
         public Uri Url { get; private set; }
-        [JsonProperty("pkgId", Required = Required.Always)]
+        [JsonProperty("pkgId", Required = Required.Default)]
         public string PkgId { get; private set; }
-        [JsonProperty("targets", Required = Required.Always)]
+        [JsonProperty("targets", Required = Required.Default)]
         public List<Target> Targets { get; private set; }
-        [JsonProperty("requiresReboot", Required = Required.Always)]
+        [JsonProperty("requiresReboot", Required = Required.Default)]
         public bool RequiresReboot { get; private set; }
-        [JsonProperty("requiresUninstallReboot", Required = Required.Always)]
+        [JsonProperty("requiresUninstallReboot", Required = Required.Default)]
         public bool RequiresUninstallReboot { get; private set; }
-        [JsonProperty("size", Required = Required.Always)]
+        [JsonProperty("size", Required = Required.Default)]
         public long Size { get; private set; }
-        [JsonProperty("installedSize", Required = Required.Always)]
+        [JsonProperty("installedSize", Required = Required.Default)]
         public long InstalledSize { get; private set; }
 
         public enum Target
@@ -585,9 +585,9 @@ namespace Pahkat.Models
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LinkedDataType _Type { get; private set; }
-        [JsonProperty("base", Required = Required.Always)]
+        [JsonProperty("base", Required = Required.Default)]
         public Uri Base { get; private set; }
-        [JsonProperty("virtuals", Required = Required.Always)]
+        [JsonProperty("virtuals", Required = Required.Default)]
         public Dictionary<string, string> Virtuals { get; private set; }
 
         public bool Equals(VirtualsMeta other)
@@ -626,19 +626,19 @@ namespace Pahkat.Models
         [JsonProperty("@type")]
         [JsonConverter(typeof(StringEnumConverter))]
         public LinkedDataType _Type { get; private set; }
-        [JsonProperty("virtual", Required = Required.Always)]
+        [JsonProperty("virtual", Required = Required.Default)]
         public bool IsVirtual { get; private set; }
-        [JsonProperty("id", Required = Required.Always)]
+        [JsonProperty("id", Required = Required.Default)]
         public string Id { get; private set; }
-        [JsonProperty("name", Required = Required.Always)]
+        [JsonProperty("name", Required = Required.Default)]
         public Dictionary<string, string> Name { get; private set; }
-        [JsonProperty("description", Required = Required.Always)]
+        [JsonProperty("description", Required = Required.Default)]
         public Dictionary<string, string> Description { get; private set; }
-        [JsonProperty("version", Required = Required.Always)]
+        [JsonProperty("version", Required = Required.Default)]
         public string Version { get; private set; }
-        [JsonProperty("url", Required = Required.Always)]
+        [JsonProperty("url", Required = Required.Default)]
         public Uri Url { get; private set; }
-        [JsonProperty("target", Required = Required.Always)]
+        [JsonProperty("target", Required = Required.Default)]
         public VirtualTarget Target { get; private set; }
 
         public bool Equals(Virtual other)
@@ -684,7 +684,7 @@ namespace Pahkat.Models
 
     public partial class VirtualTarget : IEquatable<VirtualTarget>
     {
-        [JsonProperty("registryKey", Required = Required.Always)]
+        [JsonProperty("registryKey", Required = Required.Default)]
         public RegistryKey RegistryKey { get; private set; }
 
         public bool Equals(VirtualTarget other)
@@ -716,7 +716,7 @@ namespace Pahkat.Models
 
     public partial class RegistryKey : IEquatable<RegistryKey>
     {
-        [JsonProperty("path", Required = Required.Always)]
+        [JsonProperty("path", Required = Required.Default)]
         public string Path { get; private set; }
         [JsonProperty("name")]
         public string Name { get; private set; }

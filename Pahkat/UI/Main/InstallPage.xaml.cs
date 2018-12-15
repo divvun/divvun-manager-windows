@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
+using Pahkat.Service.CoreLib;
 using Pahkat.UI.Shared;
 
 namespace Pahkat.UI.Main
@@ -17,9 +18,10 @@ namespace Pahkat.UI.Main
     public interface IInstallPageView : IPageView
     {
         IObservable<EventArgs> OnCancelClicked();
-        void SetCurrentPackage(OnStartPackageInfo info);
+        void SetStarting(PackageActionType action, Package package);
+        void SetEnding();
         void SetTotalPackages(long total);
-        void ShowCompletion(bool isCancelled, ProcessResult[] results);
+        void ShowCompletion(bool isCancelled, bool requiresReboot);
         void HandleError(Exception error);
         void ProcessCancelled();
         void RequestAdmin(string urlListFile);
@@ -33,21 +35,21 @@ namespace Pahkat.UI.Main
         private InstallPagePresenter _presenter;
         private CompositeDisposable _bag = new CompositeDisposable();
 
-        static public InstallPage Create(string installReqsPath)
+        static public InstallPage Create(string txActionsPath)
         {
-            var processInfo = JsonConvert.DeserializeObject<PackageProcessInfo>(
-                File.ReadAllText(installReqsPath));
-            return new InstallPage(processInfo);
+            var actions = JsonConvert.DeserializeObject<TransactionAction[]>(
+                File.ReadAllText(txActionsPath));
+            var transaction = ((IPahkatApp) Application.Current).Client.Transaction(actions);
+            return new InstallPage(transaction);
         }
 
-        public InstallPage(PackageProcessInfo pkgProcessInfo)
+        public InstallPage(IPahkatTransaction transaction)
         {
             InitializeComponent();
             
             _presenter = new InstallPagePresenter(
                 this,
-                pkgProcessInfo,
-                new InstallService(),
+                transaction,
                 DispatcherScheduler.Current);
             
             _bag.Add(_presenter.Start());
@@ -62,17 +64,30 @@ namespace Pahkat.UI.Main
         public IObservable<EventArgs> OnCancelClicked() =>
             BtnCancel.ReactiveClick().Select(x => x.EventArgs);
 
-        public void SetCurrentPackage(OnStartPackageInfo info)
+        private void SetRemaining()
         {
-            var fmtString = info.Action == PackageAction.Install
-                ? Strings.InstallingPackage
-                : Strings.UninstallingPackage;
-            LblPrimary.Text = string.Format(fmtString, info.Package.NativeName, info.Package.Version);
-            LblSecondary.Text = string.Format(Strings.NItemsRemaining, info.Remaining);
-            PrgBar.Value = info.Count;
+            var max = PrgBar.Maximum;
+            var value = PrgBar.Value;
+            
+            LblSecondary.Text = string.Format(Strings.NItemsRemaining, max - value);
         }
 
-        public void ShowCompletion(bool isCancelled, ProcessResult[] results)
+        public void SetStarting(PackageActionType action, Package package)
+        {
+            var fmtString = action == PackageActionType.Install
+                ? Strings.InstallingPackage
+                : Strings.UninstallingPackage;
+            LblPrimary.Text = string.Format(fmtString, package.NativeName, package.Version);
+            SetRemaining();
+        }
+
+        public void SetEnding()
+        {
+            PrgBar.Value += 1;
+            SetRemaining();
+        }
+
+        public void ShowCompletion(bool isCancelled, bool requiresReboot)
         {
             var app = (PahkatApp)Application.Current;
 
@@ -82,7 +97,7 @@ namespace Pahkat.UI.Main
                 _presenter.SaveResultsState(new InstallSaveState
                 {
                     IsCancelled = isCancelled,
-                    Results = results
+                    RequiresReboot = requiresReboot
                 });
                 app.Shutdown();
                 return;
@@ -96,7 +111,7 @@ namespace Pahkat.UI.Main
 
             app.PackageStore.Dispatch(PackageStoreAction.ResetSelection);
 
-            this.ReplacePageWith(new CompletionPage(results));
+            this.ReplacePageWith(new CompletionPage(requiresReboot));
         }
 
         public void ProcessCancelled()
@@ -139,7 +154,7 @@ namespace Pahkat.UI.Main
             process.WaitForExit();
             var state = _presenter.ReadResultsState();
 
-            ShowCompletion(state.IsCancelled, state.Results);
+            ShowCompletion(state.IsCancelled, state.RequiresReboot);
 
             app.WindowService.Show<MainWindow>();
         }

@@ -66,7 +66,7 @@ namespace Pahkat.Util
 
             // This undocumented API is weird; if a language isn't an OS language, _any_ script flag must be specified. Trust me.
             var autonymBuilder = new StringBuilder();
-            Native.GetLanguageNames(langCode + "-Latn", autonymBuilder, new StringBuilder(), new StringBuilder(), new StringBuilder());
+            SysNative.GetLanguageNames(langCode + "-Latn", autonymBuilder, new StringBuilder(), new StringBuilder(), new StringBuilder());
 
             if (autonymBuilder.ToString() != "")
             {

@@ -6,6 +6,8 @@ using System.Reactive.Linq;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
+using Pahkat.Service.CoreLib;
+using PackageActionType = Pahkat.Models.PackageActionType;
 
 namespace Pahkat.UI.Shared
 {
@@ -13,6 +15,7 @@ namespace Pahkat.UI.Shared
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public AbsolutePackageKey Key { get; private set; }
         public Package Model { get; private set; }
         private IPackageService _pkgServ;
         private IPackageStore _store;
@@ -20,17 +23,18 @@ namespace Pahkat.UI.Shared
         private CompositeDisposable _bag = new CompositeDisposable();
         
         // TODO: add a subscriber to the registry to stop this from firing so often
-        private PackageStatus _status => _pkgServ.InstallStatus(Model);
+        private PackageStatus _status => _pkgServ.InstallStatus(Key).Status;
         private PackageActionInfo _actionInfo;
 
-        public PackageMenuItem(Package model, IPackageService pkgServ, IPackageStore store)
+        public PackageMenuItem(AbsolutePackageKey key, Package model, IPackageService pkgServ, IPackageStore store)
         {
+            Key = key;
             Model = model;
             _pkgServ = pkgServ;
             _store = store;
 
             _bag.Add(_store.State
-                .Select(x => x.SelectedPackages.Get(Model, null))
+                .Select(x => x.SelectedPackages.Get(Key, null))
                 .DistinctUntilChanged()
                 .Subscribe(x =>
                 {
@@ -47,9 +51,9 @@ namespace Pahkat.UI.Shared
             {
                 switch (_actionInfo?.Action)
                 {
-                    case PackageAction.Install:
+                    case PackageActionType.Install:
                         return Strings.Install;
-                    case PackageAction.Uninstall:
+                    case PackageActionType.Uninstall:
                         return Strings.Uninstall;
                     default:
                         return _status.Description();
@@ -72,26 +76,37 @@ namespace Pahkat.UI.Shared
         public bool IsSelected
         {
             get => _actionInfo != null;
-            set => _store.Dispatch(PackageStoreAction.TogglePackageWithDefaultAction(Model, value));
+            set => _store.Dispatch(PackageStoreAction.TogglePackageWithDefaultAction(Key, value));
         }
 
         public void Dispose()
         {
             _bag.Dispose();
         }
-        
+
         public bool Equals(PackageMenuItem other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(Model, other.Model);
+            return Equals(Key, other.Key) && Equals(Model, other.Model);
         }
-        
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PackageMenuItem) obj);
+        }
+
         public override int GetHashCode()
         {
-            return (Model != null ? Model.GetHashCode() : 0);
+            unchecked
+            {
+                return ((Key != null ? Key.GetHashCode() : 0) * 397) ^ (Model != null ? Model.GetHashCode() : 0);
+            }
         }
-        
+
         public int CompareTo(PackageMenuItem other)
         {
             return String.Compare(Model.NativeName, other.Model.NativeName, StringComparison.CurrentCulture);

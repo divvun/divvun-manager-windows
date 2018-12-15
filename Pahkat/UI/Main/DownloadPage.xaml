@@ -4,7 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Pahkat.UI.Main"
-      xmlns:bahkat="clr-namespace:Pahkat"
+      xmlns:pahkat="clr-namespace:Pahkat"
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
       Title="{Binding Title}">
@@ -45,7 +45,7 @@
         </ListView>
         <Border Grid.Row="1" DockPanel.Dock="Bottom" BorderBrush="#FF828790">
             <DockPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-                <Button Name="BtnCancel" IsCancel="True" Content="{x:Static bahkat:Strings.Cancel}" Height="23" Width="60" HorizontalAlignment="Right" Margin="0,0,8,0" Click="BtnCancel_OnClick" />
+                <Button Name="BtnCancel" IsCancel="True" Content="{x:Static pahkat:Strings.Cancel}" Height="23" Width="60" HorizontalAlignment="Right" Margin="0,0,8,0" Click="BtnCancel_OnClick" />
             </DockPanel>
         </Border>
     </Grid>

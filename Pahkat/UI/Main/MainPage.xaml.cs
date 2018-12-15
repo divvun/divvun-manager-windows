@@ -45,28 +45,10 @@ namespace Pahkat.UI.Main
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
             .Select(e => e.EventArgs);
         
-        private IObservable<Repository[]> RequestRepos(RepoConfig[] configs)
+        private RepositoryIndex[] RequestRepos(RepoConfig[] configs)
         {
             var app = (PahkatApp)Application.Current;
-            
-            return configs.Select(config => app.Rpc.Repository(config.Url, config.Channel))
-                .Merge()
-                .ToArray()
-                .SelectMany(repos =>
-                {
-                    return repos.Select(repo => app.Rpc.Statuses(repo.Meta.Base).Select(s => Tuple.Create(repo, s)))
-                        .Merge()
-                        .Select(t =>
-                        {
-                            var repo = t.Item1;
-                            var statuses = t.Item2;
-
-                            repo.Statuses = statuses.ToDictionary(x => x.Key, y => y.Value.Status);
-                            return repo;
-                        })
-                        .ToArray()
-                        .Take(1);
-                }); 
+            return app.Client.Repos();
         }
 
         public MainPage()
@@ -105,17 +87,11 @@ namespace Pahkat.UI.Main
 
             app.ConfigStore.State.Select(x => x.Repositories)
                 .DistinctUntilChanged()
-                .Select(x => RequestRepos(x))
-                .Switch()
+                .Select(RequestRepos)
                 .SubscribeOn(Dispatcher.CurrentDispatcher)
                 .ObserveOn(Dispatcher.CurrentDispatcher)
-                .Subscribe(repos =>
-                {
-                    _presenter.SetRepos(repos);
-                }, error =>
-                {
-                    HandleError(error);
-                }).DisposedBy(_bag);
+                .Subscribe(_presenter.SetRepos, HandleError)
+                .DisposedBy(_bag);
         }
         
         private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e)
@@ -164,6 +140,7 @@ namespace Pahkat.UI.Main
 
         public void HandleError(Exception error)
         {
+            throw error;
             MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 

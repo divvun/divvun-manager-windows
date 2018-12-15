@@ -54,9 +54,9 @@ namespace Pahkat.Service
             });
         }
 
-        public IObservable<Repository> Repository(Uri url, RepositoryMeta.Channel channel)
+        public IObservable<RepositoryIndex> Repository(Uri url, RepositoryMeta.Channel channel)
         {
-            return MakeRequest<Repository>("repository", new[] { url.AbsoluteUri, channel.Value() });
+            return MakeRequest<RepositoryIndex>("repository", new[] { url.AbsoluteUri, channel.Value() });
         }
 
         public IObservable<Dictionary<string, PackageInstallResponse>> Statuses(Uri url)

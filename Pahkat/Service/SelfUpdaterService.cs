@@ -110,13 +110,13 @@
 //                .Where(_pkgServ.RequiresUpdate)
 //                .Subscribe(pkg =>
 //                {
-//                    var res = MessageBox.Show(string.Format(Strings.BahkatUpdateBody, pkg.Version),
-//                        Strings.BahkatUpdateTitle,
+//                    var res = MessageBox.Show(string.Format(Strings.pahkatUpdateBody, pkg.Version),
+//                        Strings.pahkatUpdateTitle,
 //                        MessageBoxButton.YesNo,
 //                        MessageBoxImage.Question);
 //                    if (res == MessageBoxResult.Yes)
 //                    {
-//                        var app = (BahkatApp) Application.Current;
+//                        var app = (pahkatApp) Application.Current;
 //                        app.WindowService.Show<MainWindow>(new DownloadPage(DownloadPagePresenter.SelfUpdate));
 //                    }
 //                });

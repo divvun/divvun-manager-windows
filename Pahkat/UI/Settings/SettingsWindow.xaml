@@ -23,7 +23,7 @@
 
             <Separator Margin="0,24,8,16"/>
             <!--
-            <Label Name="LblUpdateChannel" Content="{x:Static bahkat:Strings.UpdateChannel}" Target="{Binding ElementName=DdlUpdateChannel}" />
+            <Label Name="LblUpdateChannel" Content="{x:Static pahkat:Strings.UpdateChannel}" Target="{Binding ElementName=DdlUpdateChannel}" />
             <ComboBox Name="DdlUpdateChannel" Width="160" HorizontalAlignment="Left" />
             -->
 

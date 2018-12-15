@@ -1,38 +1,38 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Threading;
+using System.Windows;
 using Newtonsoft.Json;
-using Pahkat.Service;
+using Pahkat.Models;
+using Pahkat.Service.CoreLib;
+using Quartz.Util;
 
 namespace Pahkat.UI.Main
 {
     public struct InstallSaveState
     {
         public bool IsCancelled;
-        public ProcessResult[] Results;
+        public bool RequiresReboot;
     }
 
     public class InstallPagePresenter
     {
         private readonly IInstallPageView _view;
-        private readonly IInstallService _instServ;
-        private readonly PackageProcessInfo _pkgInfo;
+        private readonly IPahkatTransaction _transaction;
         private readonly IScheduler _scheduler;
         private readonly CancellationTokenSource _cancelSource;
         private readonly string _stateDir;
         
         public InstallPagePresenter(IInstallPageView view,
-            PackageProcessInfo pkgInfo,
-            IInstallService instServ, 
+            IPahkatTransaction transaction,
             IScheduler scheduler)
         {
             _view = view;
-            _pkgInfo = pkgInfo;
-            _instServ = instServ;
+            _transaction = transaction;
             _scheduler = scheduler;
             
             _cancelSource = new CancellationTokenSource();
@@ -55,50 +55,118 @@ namespace Pahkat.UI.Main
             return JsonConvert.DeserializeObject<InstallSaveState>(File.ReadAllText(jsonPath));
         }
 
+        private IDisposable PrivilegedStart()
+        {
+            var app = (IPahkatApp) Application.Current;
+            _view.SetTotalPackages(_transaction.Actions.Length);
+
+            var keys = new HashSet<AbsolutePackageKey>(_transaction.Actions.Select((x) => x.Id));
+            var packages = new Dictionary<AbsolutePackageKey, Package>();
+            
+            // Cache the packages in advance
+            foreach (var repo in app.Client.Repos())
+            {
+                var copiedKeys = new HashSet<AbsolutePackageKey>(keys);
+                foreach (var key in copiedKeys)
+                {
+                    var package = repo.Package(key);
+                    if (package != null)
+                    {
+                        keys.Remove(key);
+                        packages[key] = package;
+                    }
+                }
+            }
+
+            var requiresReboot = false;
+
+            return _transaction.Process()
+                .ObserveOn(DispatcherScheduler.Current)
+                .Subscribe((evt) =>
+            {
+                var action = _transaction.Actions.First((x) => x.Id.Equals(evt.PackageKey));
+                var package = packages[evt.PackageKey];
+                
+                switch (evt.Event)
+                {
+                    case PackageEventType.Installing:
+                        _view.SetStarting(action.Action, package);
+                        if (package.WindowsInstaller.RequiresReboot)
+                        {
+                            requiresReboot = true;
+                        }
+                        break;
+                    case PackageEventType.Uninstalling:
+                        _view.SetStarting(action.Action, package);
+                        if (package.WindowsInstaller.RequiresUninstallReboot)
+                        {
+                            requiresReboot = true;
+                        }
+                        break;
+                    case PackageEventType.Completed:
+                        _view.SetEnding();
+                        break;
+                }
+            },
+            _view.HandleError,
+            () => {
+                if (_cancelSource.IsCancellationRequested)
+                {
+                    this._view.ProcessCancelled();
+                }
+                else
+                {
+                    _view.ShowCompletion(false, requiresReboot);
+                }
+            });
+                
+//
+//            return new CompositeDisposable(
+//                // Handles forwarding progress status to the UI
+//                onStartPackageSubject
+//                    .ObserveOn(_scheduler)
+//                    .SubscribeOn(_scheduler)
+//                    .Subscribe(_view.SetCurrentPackage, _view.HandleError),
+//                // Processes the packages (install and uninstall)
+//                _instServ.Process(_pkgInfo, onStartPackageSubject, _cancelSource.Token)
+//                    .ToArray()
+//                    .SubscribeOn(_scheduler)
+//                    .ObserveOn(_scheduler)
+//                    .Subscribe(results =>
+//                    {
+//                        _view.ShowCompletion(_cancelSource.IsCancellationRequested, results);
+//                    }, _view.HandleError),
+//                // Cancel button binding
+//                _view.OnCancelClicked().Subscribe(_ =>
+//                {
+//                    _cancelSource.Cancel();
+//                    _view.ProcessCancelled();
+//                }),
+//                // Dispose the subject itself
+//                onStartPackageSubject
+//            );
+        }
+
         public IDisposable Start()
         {
             if (!Util.Util.IsAdministrator())
             {
                 Directory.CreateDirectory(_stateDir);
                 var jsonPath = Path.Combine(_stateDir, "install.json");
-                File.WriteAllText(jsonPath, JsonConvert.SerializeObject(_pkgInfo));
+                File.WriteAllText(jsonPath, JsonConvert.SerializeObject(_transaction.Actions));
                 _view.RequestAdmin(jsonPath);
 
                 return _view.OnCancelClicked().Subscribe(_ =>
                 {
                     _cancelSource.Cancel();
                     _view.ProcessCancelled();
-                    _view.ShowCompletion(true, null);
+                    _view.ShowCompletion(true, false);
                 });
             }
-
-            var onStartPackageSubject = new Subject<OnStartPackageInfo>();
-            _view.SetTotalPackages(_pkgInfo.ToInstall.LongLength + _pkgInfo.ToUninstall.LongLength);
-
-            return new CompositeDisposable(
-                // Handles forwarding progress status to the UI
-                onStartPackageSubject
-                    .ObserveOn(_scheduler)
-                    .SubscribeOn(_scheduler)
-                    .Subscribe(_view.SetCurrentPackage, _view.HandleError),
-                // Processes the packages (install and uninstall)
-                _instServ.Process(_pkgInfo, onStartPackageSubject, _cancelSource.Token)
-                    .ToArray()
-                    .SubscribeOn(_scheduler)
-                    .ObserveOn(_scheduler)
-                    .Subscribe(results =>
-                    {
-                        _view.ShowCompletion(_cancelSource.IsCancellationRequested, results);
-                    }, _view.HandleError),
-                // Cancel button binding
-                _view.OnCancelClicked().Subscribe(_ =>
-                {
-                    _cancelSource.Cancel();
-                    _view.ProcessCancelled();
-                }),
-                // Dispose the subject itself
-                onStartPackageSubject
-            );
+            else
+            {
+                return PrivilegedStart();
+            }
         }
     }
 }

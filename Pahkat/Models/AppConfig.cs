@@ -13,14 +13,14 @@ using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using Newtonsoft.Json.Converters;
 using System.ComponentModel;
+using System.Windows;
+using Pahkat.Service.CoreLib;
 
 namespace Pahkat.Models
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum PeriodInterval
     {
-        [EnumMember(Value = "never")]
-        Never,
         [EnumMember(Value = "daily")]
         Daily,
         [EnumMember(Value = "weekly")]
@@ -28,7 +28,9 @@ namespace Pahkat.Models
         [EnumMember(Value = "fortnightly")]
         Fortnightly,
         [EnumMember(Value = "monthly")]
-        Monthly
+        Monthly,
+        [EnumMember(Value = "never")]
+        Never
     }
 
     public static class PeriodIntervalExtensions
@@ -74,54 +76,19 @@ namespace Pahkat.Models
     
     public class AppConfigState
     {
-        public static string AppDataPath
-        {
-            get
-            {
-                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                // TODO: make sure core client uses another file
-                return Path.Combine(appData, "Pahkat");
-            }
-        }
-
-        public static readonly string ConfigPath = Path.Combine(AppDataPath, "config.json");
-
-        [JsonProperty("repositories")]
         public RepoConfig[] Repositories { get; internal set; }
-        [JsonProperty("updateCheckInterval")]
         public PeriodInterval UpdateCheckInterval { get; internal set; }
-        [JsonProperty("nextUpdateCheck")]
         public DateTimeOffset NextUpdateCheck { get; internal set; }
-        [JsonProperty("interfaceLanguage")]
         public string InterfaceLanguage { get; internal set; }
 
-        public static AppConfigState Load()
+        public AppConfigState(IPahkatApp app)
         {
-            AppConfigState state;
+            var config = app.Client.Config;
 
-            try
-            {
-                state = JsonConvert.DeserializeObject<AppConfigState>(
-                    File.ReadAllText(ConfigPath));
-            }
-            catch (Exception e)
-            {
-                state = new AppConfigState();
-            }
-
-            if (state.Repositories == null)
-            {
-                state.Repositories = new RepoConfig[] {
-                    new RepoConfig(new Uri("https://x.brendan.so/test-repo"), RepositoryMeta.Channel.Stable)
-                };
-            }
-
-            if (state.NextUpdateCheck == null)
-            {
-                state.NextUpdateCheck = new DateTimeOffset();
-            }
-
-            return state;
+            Repositories = config.GetRepos();
+            UpdateCheckInterval = config.GetUiSetting<PeriodInterval>("UpdateCheckInterval");
+            NextUpdateCheck = config.GetUiSetting<DateTimeOffset>("NextUpdateCheck");
+            InterfaceLanguage = config.GetUiSetting("InterfaceLanguage") ?? "";
         }
     }
     
@@ -181,31 +148,8 @@ namespace Pahkat.Models
     }
     
     public class AppConfigStore : RxStore<AppConfigState, IAppConfigEvent>
-    {   
-        private static void Save(AppConfigState state)
-        {
-            var data = JsonConvert.SerializeObject(state, Formatting.Indented);
-            Directory.CreateDirectory(AppConfigState.AppDataPath);
-            File.WriteAllText(AppConfigState.ConfigPath, data);
-        }
-        
-        internal static string CurrentSystemLanguage()
-        {
-            var culture = CultureInfo.CurrentCulture;
-
-            if (culture.TwoLetterISOLanguageName != null)
-            {
-                return culture.TwoLetterISOLanguageName;
-            }
-            else if (culture.ThreeLetterISOLanguageName != null)
-            {
-                return culture.ThreeLetterISOLanguageName;
-            }
-            else
-            {
-                return "en";
-            }
-        }
+    {
+        private static PahkatConfig Config => ((IPahkatApp) Application.Current).Client.Config;
 
         private static AppConfigState Reduce(AppConfigState state, IAppConfigEvent e)
         {
@@ -216,7 +160,9 @@ namespace Pahkat.Models
                     {
                         return state;
                     }
+                    
                     state.UpdateCheckInterval = v.Interval;
+                    Config.SetUiSetting("UpdateCheckInterval", v.Interval);
                     break;
                 case SetInterfaceLanguage v:
                     if (state.InterfaceLanguage == v.Tag)
@@ -225,23 +171,28 @@ namespace Pahkat.Models
                     }
 
                     state.InterfaceLanguage = v.Tag;
+                    Config.SetUiSetting("InterfaceLanguage", v.Tag);
                     break;
                 case SetRepositories v:
                     state.Repositories = v.Repositories;
+                    Config.SetRepos(v.Repositories);
                     break;
                 case CheckForUpdatesImmediately v:
-                    state.NextUpdateCheck = DateTimeOffset.Now;
+                    var now = DateTimeOffset.Now;
+                    state.NextUpdateCheck = now;
+                    Config.SetUiSetting("NextUpdateCheck", now);
                     break;
                 case IncrementNextUpdateCheck v:
-                    state.NextUpdateCheck = state.NextUpdateCheck.Add(state.UpdateCheckInterval.ToTimeSpan());
+                    var next = state.NextUpdateCheck.Add(state.UpdateCheckInterval.ToTimeSpan());
+                    state.NextUpdateCheck = next;
+                    Config.SetUiSetting("NextUpdateCheck", next);
                     break;
             }
 
-            Save(state);
             return state;
         }
 
-        public AppConfigStore() : base(AppConfigState.Load(), Reduce)
+        public AppConfigStore(IPahkatApp app) : base(new AppConfigState(app), Reduce)
         {
         }
     }

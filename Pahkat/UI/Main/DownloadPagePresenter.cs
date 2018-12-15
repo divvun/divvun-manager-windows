@@ -7,9 +7,12 @@ using System.Reactive.Linq;
 using System.Threading;
 using Pahkat.Service;
 using System.Collections.ObjectModel;
+using System.Reactive.Concurrency;
 using System.Windows;
 using Pahkat.Models;
 using Pahkat.Extensions;
+using Pahkat.Service.CoreLib;
+using PackageActionType = Pahkat.Models.PackageActionType;
 
 namespace Pahkat.UI.Main
 {
@@ -35,23 +38,11 @@ namespace Pahkat.UI.Main
         private readonly IPackageService _pkgServ;
         private readonly CancellationTokenSource _cancelSource;
 
-        private void UpdateProgress(object sender, DownloadProgressChangedEventArgs args)
+        private void UpdateProgress(PackageProgress package, uint cur, uint total)
         {
-            var package = (PackageProgress) sender;
-
             _listItems
                 .First(x => Equals(package, x.Model))
-                .Downloaded = args.BytesReceived;
-        }
-
-        private PackageProgress CreatePackageProgress(Package package)
-        {
-            var prog = new PackageProgress()
-            {
-                Package = package
-            };
-            prog.Progress = (sender, e) => UpdateProgress(prog, e);
-            return prog;
+                .Downloaded = cur;
         }
         
         public DownloadPagePresenter(IDownloadPageView view, IPackageStore pkgStore, IPackageService pkgServ)
@@ -74,53 +65,67 @@ namespace Pahkat.UI.Main
                     _view.DownloadCancelled();
                 });
 
-            var justSelected = _pkgStore.State
-                .Select(x => x.SelectedPackages)
+            var app = (IPahkatApp) Application.Current;
+
+            var transaction = _pkgStore.State
+                .Select(x =>
+                {
+                    var actions = x.SelectedPackages.Select((p) =>
+                    {
+                        return new TransactionAction(p.Value.Action, p.Key, InstallerTarget.System);
+                    });
+                    return app.Client.Transaction(actions.ToArray());
+                })
                 .Take(1)
                 .Replay(1)
                 .RefCount();
 
-            var downloader = justSelected.Select(selected =>
-                {
-                    var packages = selected.Values
-                        .Where(x => x.Action == PackageAction.Install)
-                        .Select(x => x.Package)
-                        .Select(CreatePackageProgress)
-                        .ToArray();
-
-                    foreach (var item in packages)
+            var downloadablePackages = transaction.SelectMany(tx =>
+            {
+                return tx.Actions
+                    .Where(x => x.Action == PackageActionType.Install)
+                    .Select((action =>
                     {
-                        _listItems.Add(new DownloadListItem(item));
-                    }
+                        Package package = null;
+                        foreach (var repo in app.Client.Repos())
+                        {
+                            package = repo.Package(action.Id);
+                            if (package != null)
+                            {
+                                break;
+                            }
+                        }
 
-                    return packages;
-                })
-                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageProgress>())
-                .Select(packages => _pkgServ.Download(packages, 3, _cancelSource.Token))
-                .Switch()
+                        var item = new DownloadListItem(action.Id, package);
+                        _listItems.Add(item);
+
+                        return new Tuple<TransactionAction, DownloadListItem>(action, item);
+                    }))
+                    .ToArray();
+            });
+
+            var downloading = downloadablePackages.Select((tuple) => app.Client.Download(tuple.Item1.Id, tuple.Item1.Target)
+                    .Do((status) => _view.SetStatus(tuple.Item2, status)))
+                .Merge(3)
                 .ToArray()
-                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageInstallInfo>());
+                .Select((_) => transaction)
+                .Switch()
+                .ObserveOn(DispatcherScheduler.Current)
+                .Subscribe((tx) => _view.StartInstallation(tx), _view.HandleError);
 
-            var uninstaller = justSelected.Select(selected => selected.Values
-                    .Where(x => x.Action == PackageAction.Uninstall))
-                .Select(packages => packages
-                    .Select(x => _pkgServ.UninstallInfo(x.Package))
-                    .Where(x => x != null)
-                    .ToArray())
-                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageUninstallInfo>());
+//            var downloader = 
+//                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageProgress>())
+//                .Select(packages =>
+//                {
+//                    
+////                    return _pkgServ.Download(packages, 3, _cancelSource.Token);
+//                })
+//                .Switch()
+//                .ToArray()
+//                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageInstallInfo>());
+                
 
-            var everything = Observable.Zip(
-                downloader,
-                uninstaller,
-                (downloaded, uninstalls) => new PackageProcessInfo
-                {
-                    ToInstall = downloaded,
-                    ToUninstall = uninstalls
-                })
-                .SingleAsync()
-                .Subscribe(_view.StartInstallation, _view.HandleError);
-
-            return new CompositeDisposable(everything, cancel);
+            return new CompositeDisposable(downloading, cancel);
         }
     }
 }

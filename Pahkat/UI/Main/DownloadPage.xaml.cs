@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -19,16 +20,18 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Pahkat.Extensions;
 using Pahkat.Service;
+using Pahkat.Service.CoreLib;
 using Pahkat.UI.Shared;
 
 namespace Pahkat.UI.Main
 {
     public interface IDownloadPageView : IPageView
     {
-        void StartInstallation(PackageProcessInfo info);
+        void StartInstallation(IPahkatTransaction transaction);
         void InitProgressList(ObservableCollection<DownloadListItem> source);
         IObservable<EventArgs> OnCancelClicked();
         void DownloadCancelled();
+        void SetStatus(DownloadListItem item, DownloadProgress progress);
         void HandleError(Exception error);
     }
 
@@ -46,21 +49,38 @@ namespace Pahkat.UI.Main
             _bag.Add(presenter(this).Start());
         }
 
+        public void StartInstallation(IPahkatTransaction transaction)
+        {
+            this.ReplacePageWith(new InstallPage(transaction));
+        }
+
         public void InitProgressList(ObservableCollection<DownloadListItem> source)
         {
             LvPrimary.ItemsSource = source;
         }
 
-        public void StartInstallation(PackageProcessInfo info)
-        {
-            this.ReplacePageWith(new InstallPage(info));
-        }
-        
         public void DownloadCancelled()
         {
             BtnCancel.IsEnabled = false;
             LvPrimary.ItemsSource = null;
             this.ReplacePageWith(new MainPage());
+        }
+
+        public void SetStatus(DownloadListItem candidate, DownloadProgress progress)
+        {
+            var source = (ObservableCollection<DownloadListItem>) LvPrimary.ItemsSource;
+            var item = source.First(candidate.Equals);
+            
+            switch (progress.Status)
+            {
+                case PackageDownloadStatus.Progress:
+                case PackageDownloadStatus.Completed:
+                    item.Downloaded = (long)progress.Downloaded;
+                    break;
+                case PackageDownloadStatus.Error:
+                    item.Downloaded = -1;
+                    break;
+            }
         }
 
         public IObservable<EventArgs> OnCancelClicked()

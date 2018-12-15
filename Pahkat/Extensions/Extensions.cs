@@ -160,21 +160,21 @@ namespace Pahkat.Extensions
         {
             var windowHandle = new WindowInteropHelper(window).Handle;
             
-            var menuHandle = Native.GetSystemMenu(windowHandle, false);
+            var menuHandle = SysNative.GetSystemMenu(windowHandle, false);
             if (menuHandle != IntPtr.Zero) {
-                Native.EnableMenuItem(menuHandle, Native.SC_CLOSE, Native.MF_GRAYED);
-                Native.DestroyMenu(menuHandle);
+                SysNative.EnableMenuItem(menuHandle, SysNative.SC_CLOSE, SysNative.MF_GRAYED);
+                SysNative.DestroyMenu(menuHandle);
             }
         }
   
         public static void EnableCloseButton(this Window window) {
             var windowHandle = new WindowInteropHelper(window).Handle;
             
-            var menuHandle = Native.GetSystemMenu(windowHandle, false);
+            var menuHandle = SysNative.GetSystemMenu(windowHandle, false);
             if (menuHandle != IntPtr.Zero)
             {
-                Native.EnableMenuItem(menuHandle, Native.SC_CLOSE, 0);
-                Native.DestroyMenu(menuHandle);
+                SysNative.EnableMenuItem(menuHandle, SysNative.SC_CLOSE, 0);
+                SysNative.DestroyMenu(menuHandle);
             }
         }  
         
@@ -205,7 +205,34 @@ namespace Pahkat.Extensions
         }
     }
 
-    public static class Native
+    public static class MarshalUtf8
+    {
+        public static unsafe string PtrToStringUtf8(IntPtr utf8Ptr)
+        {
+            var bytes = (byte*)utf8Ptr.ToPointer();
+            var size = 0;
+            while (bytes[size] != 0)
+            {
+                ++size;
+            }
+            var buffer = new byte[size];
+            Marshal.Copy(utf8Ptr, buffer, 0, size);
+            return Encoding.UTF8.GetString(buffer);
+        }
+
+
+        public static IntPtr StringToHGlobalUtf8(string str)
+        {
+            var buffer = Encoding.UTF8.GetBytes(str);
+            Array.Resize(ref buffer, buffer.Length + 1);
+            buffer[buffer.Length - 1] = 0;
+            var ptr = Marshal.AllocHGlobal(buffer.Length);
+            Marshal.Copy(buffer, 0, ptr, buffer.Length);
+            return ptr;
+        }
+    }
+
+    public static class SysNative
     {
         [DllImport("kernel32.dll", SetLastError=true)]
         public static extern int RegisterApplicationRestart([MarshalAs(UnmanagedType.LPWStr)] string commandLineArgs, int Flags);

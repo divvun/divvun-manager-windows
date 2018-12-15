@@ -8,7 +8,9 @@ using System.Reactive.Linq;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
+using Pahkat.Service.CoreLib;
 using Pahkat.UI.Shared;
+using PackageActionType = Pahkat.Models.PackageActionType;
 
 namespace Pahkat.UI.Main
 {
@@ -22,15 +24,14 @@ namespace Pahkat.UI.Main
         private IPackageService _pkgServ;
         private IPackageStore _store;
 
-        private Repository[] _currentRepos;
+        private RepositoryIndex[] _currentRepos;
 
         private IDisposable BindPackageToggled(IMainPageView view, IPackageStore store)
         {
-            
             return view.OnPackageToggled()
                 .Select(item => PackageStoreAction.TogglePackage(
-                    item.Model,
-                    _pkgServ.DefaultPackageAction(item.Model),
+                    item.Key,
+                    _pkgServ.DefaultPackageAction(item.Key),
                     !item.IsSelected))
                 .Subscribe(store.Dispatch);
         }
@@ -41,7 +42,7 @@ namespace Pahkat.UI.Main
                 .Select(item =>
                 {
                     return PackageStoreAction.ToggleGroup(
-                        item.Items.Select(x => new PackageActionInfo(x.Model, _pkgServ.DefaultPackageAction(x.Model))).ToArray(),
+                        item.Items.Select(x => new PackageActionInfo(x.Key, _pkgServ.DefaultPackageAction(x.Key))).ToArray(),
                         !item.IsGroupSelected);
                 })
                 .Subscribe(store.Dispatch);
@@ -53,7 +54,7 @@ namespace Pahkat.UI.Main
                 .Subscribe(_ => view.ShowDownloadPage());
         }
 
-        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Repository repo)
+        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(RepositoryIndex repo)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
 
@@ -64,7 +65,7 @@ namespace Pahkat.UI.Main
                     map[package.Category] = new List<PackageMenuItem>();
                 }
 
-                map[package.Category].Add(new PackageMenuItem(package, _pkgServ, _store));
+                map[package.Category].Add(new PackageMenuItem(repo.AbsoluteKeyFor(package), package, _pkgServ, _store));
             }
 
             var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x =>
@@ -77,7 +78,7 @@ namespace Pahkat.UI.Main
             return categories;
         }
 
-        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(Repository repo)
+        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(RepositoryIndex repo)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
 
@@ -90,7 +91,7 @@ namespace Pahkat.UI.Main
                         map[bcp47] = new List<PackageMenuItem>();
                     }
 
-                    map[bcp47].Add(new PackageMenuItem(package, _pkgServ, _store));
+                    map[bcp47].Add(new PackageMenuItem(repo.AbsoluteKeyFor(package), package, _pkgServ, _store));
                 }
             }
 
@@ -152,17 +153,17 @@ namespace Pahkat.UI.Main
         //        }, _view.HandleError);
         //}
 
-        private void GeneratePrimaryButtonLabel(Dictionary<Package, PackageActionInfo> packages)
+        private void GeneratePrimaryButtonLabel(Dictionary<AbsolutePackageKey, PackageActionInfo> packages)
         {
             if (packages.Count > 0)
             {
                 string s;
 
-                if (packages.All(x => x.Value.Action == PackageAction.Install))
+                if (packages.All(x => x.Value.Action == PackageActionType.Install))
                 {
                     s = string.Format(Strings.InstallNPackages, packages.Count);
                 }
-                else if (packages.All(x => x.Value.Action == PackageAction.Uninstall))
+                else if (packages.All(x => x.Value.Action == PackageActionType.Uninstall))
                 {
                     s = string.Format(Strings.UninstallNPackages, packages.Count);
                 }
@@ -187,7 +188,7 @@ namespace Pahkat.UI.Main
                 .Subscribe(GeneratePrimaryButtonLabel);
         }
 
-        public void SetRepos(Repository[] repos)
+        public void SetRepos(RepositoryIndex[] repos)
         {
             _currentRepos = repos;
             RefreshPackageList();

@@ -11,8 +11,12 @@ using System.Text;
 using System.Threading;
 using Pahkat.Models;
 using System.Reactive.Disposables;
+using System.Windows;
 using System.Windows.Media.Animation;
 using Pahkat.Extensions;
+using Pahkat.Service.CoreLib;
+using SharpRaven.Data.Context;
+using PackageActionType = Pahkat.Models.PackageActionType;
 
 namespace Pahkat.Service
 {
@@ -52,8 +56,9 @@ namespace Pahkat.Service
 
     public struct PackageProgress
     {
+        public AbsolutePackageKey Key;
         public Package Package;
-        public DownloadProgressChangedEventHandler Progress;
+        public Action<PackageProgress, ulong, ulong> Progress;
     }
 
     public struct PackageInstallInfo
@@ -71,18 +76,13 @@ namespace Pahkat.Service
 
     public interface IPackageService
     {
-        PackageStatus InstallStatus(Package package);
-        PackageAction DefaultPackageAction(Package package);
-        IObservable<PackageInstallInfo> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken);
-        PackageUninstallInfo UninstallInfo(Package package);
-        void SkipVersion(Package package);
-        bool RequiresUpdate(Package package);
-        bool IsUpToDate(Package package);
-        bool IsError(Package package);
-        bool IsUninstallable(Package package);
-        bool IsInstallable(Package package);
-        bool IsValidAction(PackageActionInfo packageActionInfo);
-        bool IsValidAction(Package package, PackageAction action);
+        PackageStatusResponse InstallStatus(AbsolutePackageKey package);
+        PackageActionType DefaultPackageAction(AbsolutePackageKey package);
+//        IObservable<PackageInstallInfo> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken);
+        PackageUninstallInfo UninstallInfo(AbsolutePackageKey package);
+        void SkipVersion(AbsolutePackageKey package);
+        bool RequiresUpdate(AbsolutePackageKey package);
+        bool IsValidAction(AbsolutePackageKey package, PackageActionType action);
     }
     
     public class PackageService : IPackageService
@@ -103,11 +103,11 @@ namespace Pahkat.Service
             _registry = registry;
         }
         
-        public PackageAction DefaultPackageAction(Package package)
+        public PackageActionType DefaultPackageAction(AbsolutePackageKey package)
         {
             return IsUpToDate(package)
-                ? PackageAction.Uninstall
-                : PackageAction.Install;
+                ? PackageActionType.Uninstall
+                : PackageActionType.Install;
         }
 
         private PackageStatus CompareVersion<T>(Func<string, T> creator, string packageVersion, string registryVersion) where T: IComparable<T>
@@ -173,56 +173,37 @@ namespace Pahkat.Service
             }
         }
 
-        private IObservable<PackageInstallInfo> Download(PackageProgress pd, CancellationToken cancelToken)
-        {
-            var inst = pd.Package.WindowsInstaller;
-            
-            // Get file ending from URL
-            var ext = Path.GetExtension(inst.Url.AbsoluteUri);
-            
-            // Make name package name + version
-            var fileName = $"{pd.Package.Id}-{pd.Package.Version}{ext}";
-            var path = Path.Combine(Path.GetTempPath(), fileName);
+//        public bool IsValidAction(PackageActionInfo packageActionInfo)
+//        {
+//            return IsValidAction(packageActionInfo.Package, packageActionInfo.Action);
+//        }
 
-            return DownloadFileTaskAsync(inst.Url, path, pd.Progress, cancelToken)
-                .Select(x => new PackageInstallInfo
-                {
-                    Package = pd.Package,
-                    Path = x
-                });
-        }
-
-        public bool IsValidAction(PackageActionInfo packageActionInfo)
-        {
-            return IsValidAction(packageActionInfo.Package, packageActionInfo.Action);
-        }
-
-        public bool IsValidAction(Package package, PackageAction action)
+        public bool IsValidAction(AbsolutePackageKey package, PackageActionType action)
         {
             switch (action)
             {
-                case PackageAction.Install:
+                case PackageActionType.Install:
                     return IsInstallable(package);
-                case PackageAction.Uninstall:
+                case PackageActionType.Uninstall:
                     return IsUninstallable(package);
             }
             
             throw new ArgumentException("PackageAction switch exhausted unexpectedly.");
         }
 
-        public bool RequiresUpdate(Package package)
+        public bool RequiresUpdate(AbsolutePackageKey package)
         {
-            return InstallStatus(package) == PackageStatus.RequiresUpdate;
+            return InstallStatus(package).Status == PackageStatus.RequiresUpdate;
         }
 
-        public bool IsUpToDate(Package package)
+        public bool IsUpToDate(AbsolutePackageKey package)
         {
-            return InstallStatus(package) == PackageStatus.UpToDate;
+            return InstallStatus(package).Status == PackageStatus.UpToDate;
         }
 
-        public bool IsError(Package package)
+        public bool IsError(AbsolutePackageKey package)
         {
-            switch (InstallStatus(package))
+            switch (InstallStatus(package).Status)
             {
                 case PackageStatus.ErrorNoInstaller:
                 case PackageStatus.ErrorParsingVersion:
@@ -232,9 +213,9 @@ namespace Pahkat.Service
             }
         }
 
-        public bool IsUninstallable(Package package)
+        public bool IsUninstallable(AbsolutePackageKey package)
         {
-            switch (InstallStatus(package))
+            switch (InstallStatus(package).Status)
             {
                 case PackageStatus.UpToDate:
                 case PackageStatus.RequiresUpdate:
@@ -245,9 +226,9 @@ namespace Pahkat.Service
             }
         }
         
-        public bool IsInstallable(Package package)
+        public bool IsInstallable(AbsolutePackageKey package)
         {
-            switch (InstallStatus(package))
+            switch (InstallStatus(package).Status)
             {
                 case PackageStatus.NotInstalled:
                 case PackageStatus.RequiresUpdate:
@@ -263,53 +244,42 @@ namespace Pahkat.Service
         /// either the Assembly versioning technique or the Semantic versioning technique. Attempts Assembly first
         /// as this tends to be more common on Windows than other platforms.
         /// </summary>
-        /// <param name="package"></param>
+        /// <param name="packageKey"></param>
         /// <returns>The package install status</returns>
-        public PackageStatus InstallStatus(Package package)
+        public PackageStatusResponse InstallStatus(AbsolutePackageKey packageKey)
         {
-            if (package.Installer == null)
+            var app = (IPahkatApp) Application.Current;
+            foreach (var repo in app.Client.Repos())
             {
-                return PackageStatus.ErrorNoInstaller;
+                var status = repo.PackageStatus(packageKey);
+                if (status.HasValue)
+                {
+                    return status.Value;
+                }
             }
 
-            var installer = package.WindowsInstaller;
-            var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
-            var path = $@"{Keys.UninstallPath}\{installer.ProductCode}";
-            var instKey = hklm.OpenSubKey(path);
-
-            if (instKey == null)
-            {
-                return PackageStatus.NotInstalled;
-            }
-            
-            var displayVersion = instKey.Get(Keys.DisplayVersion, "");
-            if (displayVersion == "")
-            {
-                return PackageStatus.ErrorParsingVersion;
-            }
-
-            var comp = CompareVersion(AssemblyVersion.Create, package.Version, displayVersion);
-            if (comp != PackageStatus.ErrorParsingVersion)
-            {
-                return comp;
-            }
-
-            if (SkippedVersion(package) == package.Version)
-            {
-                return PackageStatus.VersionSkipped;
-            }
-                
-            comp = CompareVersion(SemanticVersion.Create, package.Version, displayVersion);
-            if (comp != PackageStatus.ErrorParsingVersion)
-            {
-                return comp;
-            }
-
-            return PackageStatus.ErrorParsingVersion;
+            return new PackageStatusResponse(PackageStatus.ErrorNoInstaller, InstallerTarget.User);
         }
 
-        public PackageUninstallInfo UninstallInfo(Package package)
+        [Obsolete("Use Rust implementation")]
+        public PackageUninstallInfo UninstallInfo(AbsolutePackageKey packageKey)
         {
+            var app = (IPahkatApp) Application.Current;
+            Package package = null;
+            foreach (var repo in app.Client.Repos())
+            {
+                package = repo.Package(packageKey);
+                if (package != null)
+                {
+                    break;
+                }
+            }
+
+            if (package == null)
+            {
+                return new PackageUninstallInfo();
+            }
+            
             var installer = package.WindowsInstaller;
             var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
             var path = $@"{Keys.UninstallPath}\{installer.ProductCode}";
@@ -333,7 +303,7 @@ namespace Pahkat.Service
             return null;
         }
 
-        public void SkipVersion(Package package)
+        public void SkipVersion(AbsolutePackageKey package)
         {
             // TODO: implement
             //var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
@@ -342,17 +312,17 @@ namespace Pahkat.Service
             
             //instKey.Set(Keys.SkipVersion, package.Version, RegistryValueKind.String);
         }
-
-        private string SkippedVersion(Package package)
-        {
-            // TODO: implement
-            //var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
-            //var path = $@"{AppConfigState.Keys.SubkeyId}\{package.WindowsInstaller.ProductCode}";
-            //var instKey = hklm.OpenSubKey(path);
-
-            //return instKey?.Get<string>(Keys.SkipVersion);
-            return null;
-        }
+//
+//        private string SkippedVersion(Package package)
+//        {
+//            // TODO: implement
+//            //var hklm = _registry.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Default);
+//            //var path = $@"{AppConfigState.Keys.SubkeyId}\{package.WindowsInstaller.ProductCode}";
+//            //var instKey = hklm.OpenSubKey(path);
+//
+//            //return instKey?.Get<string>(Keys.SkipVersion);
+//            return null;
+//        }
 
         /// <summary>
         /// Downloads the supplied packages. Each object should contain a unique progress handler so the UI can be
@@ -362,11 +332,21 @@ namespace Pahkat.Service
         /// <param name="maxConcurrent"></param>
         /// <param name="cancelToken"></param>
         /// <returns></returns>
-        public IObservable<PackageInstallInfo> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken)
-        {
-            return packages
-                .Select(pkg => Download(pkg, cancelToken))
-                .Merge(maxConcurrent);
-        }
+//        public IObservable<PackageInstallInfo> Download(PackageProgress[] packages, int maxConcurrent, CancellationToken cancelToken)
+//        {
+//            return packages
+//                .Select(pkg => Download(pkg, cancelToken))
+//                .Merge(maxConcurrent);
+//        }
+//
+//        private IObservable<PackageInstallInfo> Download(PackageProgress pd, CancellationToken cancelToken)
+//        {
+//            var app = (IPahkatApp) Application.Current;
+//            return app.Client.Download(pd.Key, InstallerTarget.System)
+//                .Do((progress) =>
+//                {
+//                    pd.Progress.Invoke(pd, progress.Downloaded, progress.Total);
+//                })
+//        }
     }
 }

@@ -16,7 +16,7 @@ namespace Pahkat.UI.Main
         IObservable<EventArgs> OnRestartButtonClicked();
         IObservable<EventArgs> OnFinishButtonClicked();
         
-        void ShowErrors(ProcessResult[] errors);
+//        void ShowErrors(ProcessResult[] errors);
         void RequiresReboot(bool requiresReboot);
         void ShowMain();
         void RebootSystem();
@@ -29,11 +29,11 @@ namespace Pahkat.UI.Main
     {
         private CompositeDisposable _bag = new CompositeDisposable();
         
-        public CompletionPage(ProcessResult[] results)
+        public CompletionPage(bool requiresReboot)
         {
             InitializeComponent();
             
-            var presenter = new CompletionPagePresenter(this, results);
+            var presenter = new CompletionPagePresenter(this, requiresReboot);
             _bag.Add(presenter.Start());
         }
 
@@ -43,11 +43,11 @@ namespace Pahkat.UI.Main
         public IObservable<EventArgs> OnFinishButtonClicked() => 
             BtnFinish.ReactiveClick().Select(x => x.EventArgs);
 
-        public void ShowErrors(ProcessResult[] errors)
-        {
-            // TODO: add error handling when things go wrong.
-            // MessageBox.Show("Some errors occurred while procs");
-        }
+//        public void ShowErrors(ProcessResult[] errors)
+//        {
+//            // TODO: add error handling when things go wrong.
+//            // MessageBox.Show("Some errors occurred while procs");
+//        }
 
         public void RequiresReboot(bool requiresReboot)
         {

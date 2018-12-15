@@ -3,24 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using Pahkat.Models.PackageEvent;
 using Pahkat.Service;
+using Pahkat.Service.CoreLib;
 using Pahkat.Util;
 
 namespace Pahkat.Models
 {
-    public enum PackageAction
+    public enum PackageActionType: byte
     {
-        Install,
+        Install = 0,
         Uninstall
+    }
+    
+    public static class PackageActionTypeExtensions
+    {
+        public static byte ToByte(this PackageActionType action)
+        {
+            switch (action)
+            {
+                case PackageActionType.Install:
+                    return 0;
+                case PackageActionType.Uninstall:
+                    return 1;
+                default:
+                    return 255;
+            }
+        }
     }
     
     public class PackageActionInfo : IEquatable<PackageActionInfo>
     {
-        public Package Package;
-        public PackageAction Action;
+        public readonly AbsolutePackageKey PackageKey;
+        public readonly PackageActionType Action;
 
-        public PackageActionInfo(Package package, PackageAction action)
+        public PackageActionInfo(AbsolutePackageKey packageKey, PackageActionType action)
         {
-            Package = package;
+            PackageKey = packageKey;
             Action = action;
         }
 
@@ -28,7 +45,7 @@ namespace Pahkat.Models
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Equals(Package, other.Package) && Action == other.Action;
+            return Equals(PackageKey, other.PackageKey) && Action == other.Action;
         }
 
         public override bool Equals(object obj)
@@ -43,7 +60,7 @@ namespace Pahkat.Models
         {
             unchecked
             {
-                return ((Package != null ? Package.GetHashCode() : 0) * 397) ^ (int) Action;
+                return ((PackageKey != null ? PackageKey.GetHashCode() : 0) * 397) ^ (int) Action;
             }
         }
     }
@@ -66,23 +83,23 @@ namespace Pahkat.Models
             return (SelectedPackages != null ? SelectedPackages.GetHashCode() : 0);
         }
 
-        public Dictionary<Package, PackageActionInfo> SelectedPackages { get; private set; }
+        public Dictionary<AbsolutePackageKey, PackageActionInfo> SelectedPackages { get; private set; }
 
         public static PackageState Default()
         {
             return new PackageState
             {
-                SelectedPackages = new Dictionary<Package, PackageActionInfo>()
+                SelectedPackages = new Dictionary<AbsolutePackageKey, PackageActionInfo>()
             };
         }
 
-        public static PackageState SelfUpdate(Package package)
+        public static PackageState SelfUpdate(AbsolutePackageKey packageKey)
         {
             return new PackageState
             {
-                SelectedPackages = new Dictionary<Package, PackageActionInfo>
+                SelectedPackages = new Dictionary<AbsolutePackageKey, PackageActionInfo>
                 {
-                    { package, new PackageActionInfo(package, PackageAction.Install) }
+                    { packageKey, new PackageActionInfo(packageKey, PackageActionType.Install) }
                 }
             };
         }
@@ -92,39 +109,39 @@ namespace Pahkat.Models
 
     public static class PackageStoreAction
     {
-        public static IPackageEvent AddSelectedPackage(Package package, PackageAction action)
+        public static IPackageEvent AddSelectedPackage(AbsolutePackageKey packageKey, PackageActionType action)
         {
             return new AddSelectedPackage
             {
-                Package = package,
+                PackageKey = packageKey,
                 Action = action
             };
         }
 
-        public static IPackageEvent TogglePackage(Package package, PackageAction action, bool value)
+        public static IPackageEvent TogglePackage(AbsolutePackageKey packageKey, PackageActionType action, bool value)
         {
             return new TogglePackage
             {
-                Package = package,
+                PackageKey = packageKey,
                 Action = action,
                 Value = value
             };
         }
         
-        public static IPackageEvent TogglePackageWithDefaultAction(Package package, bool value)
+        public static IPackageEvent TogglePackageWithDefaultAction(AbsolutePackageKey packageKey, bool value)
         {
             return new TogglePackageWithDefaultAction
             {
-                Package = package,
+                PackageKey = packageKey,
                 Value = value
             };
         }
         
-        public static IPackageEvent ToggleGroupWithDefaultAction(Package[] packages, bool value)
+        public static IPackageEvent ToggleGroupWithDefaultAction(AbsolutePackageKey[] packageKeys, bool value)
         {
             return new ToggleGroupWithDefaultAction
             {
-                Packages = packages,
+                PackageKeys = packageKeys,
                 Value = value
             };
         }
@@ -140,11 +157,11 @@ namespace Pahkat.Models
 
         public static IPackageEvent ResetSelection => new ResetSelection();
 
-        public static IPackageEvent RemoveSelectedPackage(Package package)
+        public static IPackageEvent RemoveSelectedPackage(AbsolutePackageKey packageKey)
         {
             return new RemoveSelectedPackage
             {
-                Package = package
+                PackageKey = packageKey
             };
         }
     }
@@ -153,31 +170,31 @@ namespace Pahkat.Models
     {
         internal struct AddSelectedPackage : IPackageEvent
         {
-            public Package Package;
-            public PackageAction Action;
+            public AbsolutePackageKey PackageKey;
+            public PackageActionType Action;
         }
         
         internal struct RemoveSelectedPackage : IPackageEvent
         {
-            public Package Package;
+            public AbsolutePackageKey PackageKey;
         }
 
         internal struct TogglePackage : IPackageEvent
         {
-            public Package Package;
-            public PackageAction Action;
+            public AbsolutePackageKey PackageKey;
+            public PackageActionType Action;
             public bool Value;
         }
         
         internal struct TogglePackageWithDefaultAction : IPackageEvent
         {
-            public Package Package;
+            public AbsolutePackageKey PackageKey;
             public bool Value;
         }
         
         internal struct ToggleGroupWithDefaultAction : IPackageEvent
         {
-            public Package[] Packages;
+            public AbsolutePackageKey[] PackageKeys;
             public bool Value;
         }
 
@@ -214,62 +231,63 @@ namespace Pahkat.Models
                     state.SelectedPackages.Clear();
                     break;
                 case AddSelectedPackage v:
-                    if (!_pkgServ.IsValidAction(v.Package, v.Action))
+                    if (!_pkgServ.IsValidAction(v.PackageKey, v.Action))
                     {
                         break;
                     }
 
-                    state.SelectedPackages[v.Package] = new PackageActionInfo(v.Package, v.Action);
+                    state.SelectedPackages[v.PackageKey] = new PackageActionInfo(v.PackageKey, v.Action);
                     break;
                 case RemoveSelectedPackage v:
-                    state.SelectedPackages.Remove(v.Package);
+                    state.SelectedPackages.Remove(v.PackageKey);
                     break;
                 case ToggleGroupWithDefaultAction v:
                     // Convert into an ordinary ToggleGroup
-                    return Reduce(state, PackageStoreAction.ToggleGroup(v.Packages
+                    return Reduce(state, PackageStoreAction.ToggleGroup(v.PackageKeys
                         .Select(pkg => new PackageActionInfo(pkg, _pkgServ.DefaultPackageAction(pkg)))
                         .ToArray(), v.Value));
                 case ToggleGroup v:
                     if (v.Value)
                     {
-                        foreach (var item in v.PackageActions.Where(_pkgServ.IsValidAction))
+                        var filtered = v.PackageActions.Where((x) => _pkgServ.IsValidAction(x.PackageKey, x.Action));
+                        foreach (var item in filtered)
                         {
-                            state.SelectedPackages[item.Package] = item;
+                            state.SelectedPackages[item.PackageKey] = item;
                         }
                     }
                     else
                     {
                         foreach (var item in v.PackageActions)
                         {
-                            state.SelectedPackages.Remove(item.Package);
+                            state.SelectedPackages.Remove(item.PackageKey);
                         }
                     }
                     break;
                 case TogglePackageWithDefaultAction v:
                     // Convert into an ordinary TogglePackage
-                    return Reduce(state, PackageStoreAction.TogglePackage(v.Package,
-                        _pkgServ.DefaultPackageAction(v.Package),
+                    return Reduce(state, PackageStoreAction.TogglePackage(v.PackageKey,
+                        _pkgServ.DefaultPackageAction(v.PackageKey),
                         v.Value));
                 case TogglePackage v:
                     if (v.Value)
                     {
-                        if (!_pkgServ.IsValidAction(v.Package, v.Action))
+                        if (!_pkgServ.IsValidAction(v.PackageKey, v.Action))
                         {
                             break;
                         }
 
-                        state.SelectedPackages[v.Package] = new PackageActionInfo(v.Package, v.Action);
+                        state.SelectedPackages[v.PackageKey] = new PackageActionInfo(v.PackageKey, v.Action);
                     }
                     else
                     {
-                        state.SelectedPackages.Remove(v.Package);
+                        state.SelectedPackages.Remove(v.PackageKey);
                     }
                     break;
             }
             
             Console.WriteLine(string.Join(", ", state.SelectedPackages
                 .Select(x => x.Value)
-                .Select(x => $"{x.Package.Id}:{x.Action}")));
+                .Select(x => $"{x.PackageKey.ToString()}:{x.Action}")));
             
             return state;
         }

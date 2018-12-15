@@ -27,7 +27,7 @@ namespace Pahkat.UI.Updater
             _store = store;
         }
         
-        private void RefreshPackageList(Repository repo)
+        private void RefreshPackageList(RepositoryIndex repo)
         {
             _view.CloseMainWindow();
             
@@ -35,13 +35,14 @@ namespace Pahkat.UI.Updater
             _store.Dispatch(PackageStoreAction.ResetSelection);
            
             var items = repo.Packages.Values
+                .Select(repo.AbsoluteKeyFor)
                 .Where(_pkgServ.RequiresUpdate)
-                .Select(x => new PackageMenuItem(x, _pkgServ, _store))
+                .Select(x => new PackageMenuItem(x, repo.Package(x), _pkgServ, _store))
                 .ToArray();
                 
             foreach (var item in items)
             {
-                _store.Dispatch(PackageStoreAction.AddSelectedPackage(item.Model, PackageAction.Install));
+                _store.Dispatch(PackageStoreAction.AddSelectedPackage(item.Key, PackageActionType.Install));
                 _listItems.Add(item);
             }
             
@@ -59,11 +60,11 @@ namespace Pahkat.UI.Updater
                     {
                         string s;
 
-                        if (packages.All(x => x.Value.Action == PackageAction.Install))
+                        if (packages.All(x => x.Value.Action == PackageActionType.Install))
                         {
                             s = string.Format(Strings.InstallNPackages, packages.Count);
                         }
-                        else if (packages.All(x => x.Value.Action == PackageAction.Uninstall))
+                        else if (packages.All(x => x.Value.Action == PackageActionType.Uninstall))
                         {
                             s = string.Format(Strings.UninstallNPackages, packages.Count);
                         }
@@ -103,7 +104,7 @@ namespace Pahkat.UI.Updater
         private IDisposable BindPackageToggled()
         {
             return _view.OnPackageToggled()
-                .Select(item => PackageStoreAction.TogglePackage(item.Model, PackageAction.Install, !item.IsSelected))
+                .Select(item => PackageStoreAction.TogglePackage(item.Key, PackageActionType.Install, !item.IsSelected))
                 .Subscribe(_store.Dispatch);
         }
         
@@ -115,9 +116,9 @@ namespace Pahkat.UI.Updater
                 .Take(1)
                 .Subscribe(pkgs =>
                 {
-                    var packages = pkgs.Keys.Select(x => new PackageActionInfo(x, PackageAction.Uninstall)).ToArray();
+                    var packages = pkgs.Keys.Select(x => new PackageActionInfo(x, PackageActionType.Uninstall)).ToArray();
                     
-                    foreach (var pkg in packages.Select(x => x.Package))
+                    foreach (var pkg in packages.Select(x => x.PackageKey))
                     {
                         _pkgServ.SkipVersion(pkg);
                     }
