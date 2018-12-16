@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -35,10 +38,11 @@ namespace Pahkat.UI.Main
         private InstallPagePresenter _presenter;
         private CompositeDisposable _bag = new CompositeDisposable();
 
-        static public InstallPage Create(string txActionsPath)
+        public static InstallPage Create(string txActionsPath)
         {
-            var actions = JsonConvert.DeserializeObject<TransactionAction[]>(
-                File.ReadAllText(txActionsPath));
+            var str = File.ReadAllText(txActionsPath);
+            var weakActions = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(str);
+            var actions = weakActions.Select(TransactionAction.FromJson).ToArray();
             var transaction = ((IPahkatApp) Application.Current).Client.Transaction(actions);
             return new InstallPage(transaction);
         }
@@ -150,13 +154,23 @@ namespace Pahkat.UI.Main
                 }
             };
 
-            process.Start();
-            process.WaitForExit();
-            var state = _presenter.ReadResultsState();
+            try
+            {
+                process.Start();
+                process.WaitForExit();
+                var state = _presenter.ReadResultsState();
+                ShowCompletion(state.IsCancelled, state.RequiresReboot);
+            }
+            catch (Win32Exception ex)
+            {
+                HandleError(ex);
+                ShowCompletion(true, false);
+            }
+            finally
+            {
+                app.WindowService.Show<MainWindow>();
+            }
 
-            ShowCompletion(state.IsCancelled, state.RequiresReboot);
-
-            app.WindowService.Show<MainWindow>();
         }
 
         public void Dispose()

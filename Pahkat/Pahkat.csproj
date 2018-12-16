@@ -348,9 +348,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="pahkatc.exe">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="pahkat_client.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -104,26 +104,40 @@ namespace Pahkat.UI.Main
                     .ToArray();
             });
 
-            var downloading = downloadablePackages.Select((tuple) => app.Client.Download(tuple.Item1.Id, tuple.Item1.Target)
-                    .Do((status) => _view.SetStatus(tuple.Item2, status)))
+            var downloading = downloadablePackages.Select((tuple) =>
+                {
+                    return app.Client.Download(tuple.Item1.Id, tuple.Item1.Target)
+//                        .SubscribeOn(DispatcherScheduler.Current)
+                        .ObserveOn(DispatcherScheduler.Current)
+                        .Do((status) =>
+                        {
+                            _view.SetStatus(tuple.Item2, status);
+                        });
+                })
                 .Merge(3)
+                .Where((p) => p.Status == PackageDownloadStatus.Error)
                 .ToArray()
                 .Select((_) => transaction)
-                .Switch()
-                .ObserveOn(DispatcherScheduler.Current)
-                .Subscribe((tx) => _view.StartInstallation(tx), _view.HandleError);
-
-//            var downloader = 
-//                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageProgress>())
-//                .Select(packages =>
+//                .Select((ps) => transaction.Select((tx) =>
 //                {
-//                    
-////                    return _pkgServ.Download(packages, 3, _cancelSource.Token);
-//                })
-//                .Switch()
-//                .ToArray()
-//                .DefaultIfEmpty(Extensions.Extensions.EmptyArray<PackageInstallInfo>());
-                
+//                    // We return whether there are any errors so we can short-circuit
+//                    return new Tuple<IPahkatTransaction, bool>(tx, );
+//                }))
+                .Switch()
+                .SubscribeOn(DispatcherScheduler.Current)
+//                .ObserveOn(DispatcherScheduler.Current)
+                .Subscribe((t) =>
+                {
+//                    if (t.Item2)
+//                    {
+//                        // TODO: far better error handling for failed downloads
+//                        _view.HandleError(new Exception(Strings.DownloadError));
+//                    }
+//                    else
+//                    {
+                        _view.StartInstallation(t);
+//                    }
+                }, _view.HandleError);
 
             return new CompositeDisposable(downloading, cancel);
         }

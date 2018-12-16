@@ -9,7 +9,6 @@ using System.Windows;
 using Newtonsoft.Json;
 using Pahkat.Models;
 using Pahkat.Service.CoreLib;
-using Quartz.Util;
 
 namespace Pahkat.UI.Main
 {
@@ -34,9 +33,8 @@ namespace Pahkat.UI.Main
             _view = view;
             _transaction = transaction;
             _scheduler = scheduler;
-            
-            _cancelSource = new CancellationTokenSource();
 
+            _cancelSource = new CancellationTokenSource();
 
             var appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             _stateDir = Path.Combine(appdata, "Pahkat", "state");
@@ -81,7 +79,8 @@ namespace Pahkat.UI.Main
             var requiresReboot = false;
 
             return _transaction.Process()
-                .ObserveOn(DispatcherScheduler.Current)
+                .Delay(TimeSpan.FromSeconds(0.5))
+                .ObserveOn(_scheduler)
                 .Subscribe((evt) =>
             {
                 var action = _transaction.Actions.First((x) => x.Id.Equals(evt.PackageKey));
@@ -153,7 +152,7 @@ namespace Pahkat.UI.Main
             {
                 Directory.CreateDirectory(_stateDir);
                 var jsonPath = Path.Combine(_stateDir, "install.json");
-                File.WriteAllText(jsonPath, JsonConvert.SerializeObject(_transaction.Actions));
+                File.WriteAllText(jsonPath, JsonConvert.SerializeObject(_transaction.Actions.Select(x => x.ToJson())));
                 _view.RequestAdmin(jsonPath);
 
                 return _view.OnCancelClicked().Subscribe(_ =>

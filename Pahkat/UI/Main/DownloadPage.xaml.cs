@@ -71,10 +71,11 @@ namespace Pahkat.UI.Main
             var source = (ObservableCollection<DownloadListItem>) LvPrimary.ItemsSource;
             var item = source.First(candidate.Equals);
             
+            Console.WriteLine($"{progress.Status} {progress.Downloaded} {progress.Total} {progress.PackageId}");
+            
             switch (progress.Status)
             {
                 case PackageDownloadStatus.Progress:
-                case PackageDownloadStatus.Completed:
                     item.Downloaded = (long)progress.Downloaded;
                     break;
                 case PackageDownloadStatus.Error:

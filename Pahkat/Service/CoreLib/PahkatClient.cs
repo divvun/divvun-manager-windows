@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using System.Security.Policy;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Moq.Language.Flow;
 using Pahkat.Extensions;
 using Pahkat.UI.Settings;
 using Quartz.Xml.JobSchedulingData20;
@@ -38,6 +39,24 @@ namespace Pahkat.Service.CoreLib
             var o = Native.pahkat_create_action(Action.ToByte(), Target.ToByte(), cKey);
             Marshal.FreeHGlobal(cKey);
             return o;
+        }
+
+        public Dictionary<string, string> ToJson()
+        {
+            var x = new Dictionary<string, string>();
+            x["action"] = Action == PackageActionType.Install ? "install" : "uninstall";
+            x["id"] = Id.ToString();
+            x["target"] = Target == InstallerTarget.System ? "system" : "user";
+            return x;
+        }
+
+        public static TransactionAction FromJson(Dictionary<string, string> x)
+        {
+            return new TransactionAction(
+                x["action"] == "install" ? PackageActionType.Install : PackageActionType.Uninstall,
+                new AbsolutePackageKey(new Uri(x["id"])),
+                x["target"] == "system" ? InstallerTarget.System : InstallerTarget.User
+            );
         }
     }
 
@@ -199,11 +218,7 @@ namespace Pahkat.Service.CoreLib
 
             var weakActions = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(str);
             // HACK: parsing the key as a string causes newtonsoft JSON to throw up.
-            Actions = weakActions.Select((x) => new TransactionAction(
-                x["action"] == "install" ? PackageActionType.Install : PackageActionType.Uninstall,
-                new AbsolutePackageKey(new Uri(x["id"])),
-                x["target"] == "system" ? InstallerTarget.System : InstallerTarget.User)
-            ).ToArray();
+            Actions = weakActions.Select((x) => TransactionAction.FromJson(x)).ToArray();
             
 //            Actions = JsonConvert.DeserializeObject<TransactionAction[]>(str);
         }
@@ -324,8 +339,13 @@ namespace Pahkat.Service.CoreLib
     [StructLayout(LayoutKind.Sequential)]
     internal struct pahkat_error_t
     {
-        uint Code;
-        IntPtr Message;
+        internal uint Code;
+        internal IntPtr Message;
+
+        public override string ToString()
+        {
+            return $"{MarshalUtf8.PtrToStringUtf8(Message)} (error code {Code})";
+        }
     }
 
     public struct DownloadProgress
@@ -515,32 +535,37 @@ namespace Pahkat.Service.CoreLib
                     {
                         observer.OnNext(DownloadProgress.Progress(localPackageKey, cur, max));
                         observer.OnNext(DownloadProgress.Completed(localPackageKey));
-//                        observer.OnNext(DownloadProgress.NotStarted(localPackageKey));
-                        observer.OnCompleted();
+//                        observer.OnCompleted();
                     }
                 }
 
-                observer.OnNext(DownloadProgress.NotStarted(packageKey));
-                observer.OnNext(DownloadProgress.Starting(packageKey));
-
                 var task = new Task(() =>
                 {
+                    observer.OnNext(DownloadProgress.NotStarted(packageKey));
+                    observer.OnNext(DownloadProgress.Starting(packageKey));
+                    
                     unsafe
                     {
                         var cKey = MarshalUtf8.StringToHGlobalUtf8(packageKey.ToString());
-                        var ret = Native.pahkat_download_package(handle, cKey, target.ToByte(), Callback, out var errors);
+                        var ret = Native.pahkat_download_package(handle, cKey, target.ToByte(), Callback, out var error);
 
-                        if (errors != null)
+                        if (error != null)
                         {
-                            Native.pahkat_error_free(errors);
+                            var str = error->ToString();
+                            observer.OnNext(DownloadProgress.Error(packageKey, str));
+                            observer.OnError(new Exception(str));
+                            Native.pahkat_error_free(error);
                         }
-
-                        if (ret > 0)
+                        else
                         {
-                            observer.OnNext(DownloadProgress.Error(packageKey, $"Error code {ret}"));
-                            observer.OnNext(DownloadProgress.NotStarted(packageKey));
                             observer.OnCompleted();
                         }
+
+//                        if (ret > 0)
+//                        {
+//                            observer.OnNext(DownloadProgress.Error(packageKey, $"Error code {ret}"));
+//                        }
+                        
                     }
                 });
 
@@ -703,23 +728,22 @@ namespace Pahkat.Service.CoreLib
         public static extern void pahkat_str_free(IntPtr str);
 
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe void pahkat_error_free(pahkat_error_t** error);
+        public static extern unsafe void pahkat_error_free(pahkat_error_t* error);
 
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe uint pahkat_download_package(IntPtr handle, IntPtr packageKey, byte target, DownloadProgressCallback callback, out pahkat_error_t** error);
+        public static extern unsafe uint pahkat_download_package(IntPtr handle, IntPtr packageKey, byte target, DownloadProgressCallback callback, out pahkat_error_t* error);
 
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe IntPtr pahkat_create_package_transaction(IntPtr handle, uint actionCount, IntPtr[] actions, out pahkat_error_t** error);
+        public static extern unsafe IntPtr pahkat_create_package_transaction(IntPtr handle, uint actionCount, IntPtr[] actions, out pahkat_error_t* error);
 
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr pahkat_create_action(byte action, byte target, IntPtr packageKey);
         
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe IntPtr pahkat_package_transaction_actions(IntPtr handle, IntPtr transaction, out pahkat_error_t** error);
+        public static extern unsafe IntPtr pahkat_package_transaction_actions(IntPtr handle, IntPtr transaction, out pahkat_error_t* error);
 
-        // todo:
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe uint pahkat_run_package_transaction(IntPtr handle, IntPtr transaction, uint txId, PackageTransactionRunCallback callback, out pahkat_error_t** error);
+        public static extern unsafe uint pahkat_run_package_transaction(IntPtr handle, IntPtr transaction, uint txId, PackageTransactionRunCallback callback, out pahkat_error_t* error);
 
     }
 }
