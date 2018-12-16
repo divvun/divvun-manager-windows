@@ -19,6 +19,7 @@
                     <Image Source="icon-menu.png" Width="24" Height="24" Stretch="Fill"/>
                     <Button.ContextMenu>
                         <ContextMenu>
+                            <MenuItem Click="OnClickAboutMenuItem" Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" />
                             <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" />
                             <Separator />
                             <MenuItem Click="OnClickExitMenuItem" Header="{x:Static pahkat:Strings.Exit}" />

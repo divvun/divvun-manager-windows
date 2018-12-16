@@ -1,0 +1,23 @@
+<Page x:Class="Pahkat.UI.SelfUpdate.SelfUpdatePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:Pahkat.UI.SelfUpdate"
+      xmlns:pahkat="clr-namespace:Pahkat"
+      mc:Ignorable="d"
+      Title="SelfUpdatePage">
+    <Grid Width="auto" Margin="16,16,16,16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.Row="0" Grid.Column="0" x:Name="LblPrimary" HorizontalAlignment="Center" FontSize="16" FontWeight="SemiBold" Text="{x:Static pahkat:Strings.AppIsUpdating}" VerticalAlignment="Center"  />
+        <ProgressBar Grid.Row="1" Grid.Column="0" x:Name="PrgBar" Height="12"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" x:Name="LblSecondary" HorizontalAlignment="Center" Text="Please wait..." VerticalAlignment="Center" />
+    </Grid>
+</Page>

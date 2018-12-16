@@ -59,7 +59,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AboutApp" xml:space="preserve">
-    <value>Om Pakkehåndtereren</value>
+    <value>Om Divvun Installer</value>
   </data>
   <data name="Alpha" xml:space="preserve">
     <value>Alfa</value>
@@ -68,13 +68,13 @@
     <value>Hjelp</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>Pakkehåndterer</value>
+    <value>Divvun Installer</value>
   </data>
   <data name="AppUpdateBody" xml:space="preserve">
-    <value>Pakkehåndterer v{0} er nå tilgjengelig. Det er sterkt anbefalt at du oppdaterer så snart som mulig. Vil du oppdatere nå?</value>
+    <value>Divvun Installer v{0} er nå tilgjengelig. Det er sterkt anbefalt at du oppdaterer så snart som mulig. Vil du oppdatere nå?</value>
   </data>
   <data name="AppUpdateTitle" xml:space="preserve">
-    <value>Pakkehåndterer-oppdatering tilgjengelig</value>
+    <value>Divvun Installer-oppdatering tilgjengelig</value>
   </data>
   <data name="Beta" xml:space="preserve">
     <value>Beta</value>

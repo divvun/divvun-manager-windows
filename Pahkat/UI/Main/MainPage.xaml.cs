@@ -15,6 +15,7 @@ using Pahkat.Util;
 using System.Collections.Generic;
 using Pahkat.Service;
 using Pahkat.Models;
+using Pahkat.UI.About;
 
 namespace Pahkat.UI.Main
 {
@@ -99,6 +100,12 @@ namespace Pahkat.UI.Main
             var app = (IPahkatApp)Application.Current;
             app.WindowService.Show<SettingsWindow>();
         }
+        
+        private void OnClickAboutMenuItem(object sender, RoutedEventArgs e)
+        {
+            var app = (IPahkatApp)Application.Current;
+            app.WindowService.Show<AboutWindow>();
+        }
 
         private void OnClickExitMenuItem(object sender, RoutedEventArgs e)
         {
@@ -140,7 +147,6 @@ namespace Pahkat.UI.Main
 
         public void HandleError(Exception error)
         {
-            throw error;
             MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 

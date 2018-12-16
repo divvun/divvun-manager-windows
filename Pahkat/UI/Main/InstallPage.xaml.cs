@@ -126,7 +126,6 @@ namespace Pahkat.UI.Main
 
         public void HandleError(Exception error)
         {
-
             var app = (PahkatApp)Application.Current;
             app.RavenClient.CaptureException(error);
             MessageBox.Show(error.Message,
@@ -143,7 +142,7 @@ namespace Pahkat.UI.Main
             app.WindowService.Hide<MainWindow>();
 
             var args = $"-i {urlListFile} -w {windowState}";
-            var path = new Uri(System.Reflection.Assembly.GetEntryAssembly().CodeBase).AbsolutePath;
+            var path = System.Reflection.Assembly.GetExecutingAssembly().Location;
             var process = new Process
             {
                 StartInfo =

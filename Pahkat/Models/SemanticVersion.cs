@@ -20,6 +20,12 @@ namespace Pahkat.Models
             Extra = extra;
         }
 
+        public override string ToString()
+        {
+            // TODO: do this properly
+            return $"{Major}.{Minor}.{Patch}";
+        }
+
         internal static SemanticVersion Create(string raw)
         {
             var match = _regex.Match(raw);

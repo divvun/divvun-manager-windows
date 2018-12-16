@@ -59,7 +59,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AboutApp" xml:space="preserve">
-    <value>About Package Manager</value>
+    <value>About Divvun Installer</value>
   </data>
   <data name="Alpha" xml:space="preserve">
     <value>Alpha</value>
@@ -68,13 +68,13 @@
     <value>Help</value>
   </data>
   <data name="AppName" xml:space="preserve">
-    <value>Package Manager</value>
+    <value>Divvun Installer</value>
   </data>
   <data name="AppUpdateBody" xml:space="preserve">
-    <value>Package Manager v{0} is now available. It is highly recommended that you update as soon as possible. Update now?</value>
+    <value>Divvun Installer v{0} is now available. It is highly recommended that you update as soon as possible. Update now?</value>
   </data>
   <data name="AppUpdateTitle" xml:space="preserve">
-    <value>Package Manager Update Available</value>
+    <value>Divvun Installer Update Available</value>
   </data>
   <data name="Beta" xml:space="preserve">
     <value>Beta</value>
@@ -164,7 +164,7 @@
     <value>Help</value>
   </data>
   <data name="HideApp" xml:space="preserve">
-    <value>Hide Package Manager</value>
+    <value>Hide Divvun Installer</value>
   </data>
   <data name="HideOthers" xml:space="preserve">
     <value>Hide Others</value>
@@ -245,7 +245,7 @@
     <value>OK</value>
   </data>
   <data name="OpenPackageManager" xml:space="preserve">
-    <value>Open Package Manager</value>
+    <value>Open Divvun Installer</value>
   </data>
   <data name="Paste" xml:space="preserve">
     <value>Paste</value>
@@ -266,7 +266,7 @@
     <value>Queued</value>
   </data>
   <data name="QuitApp" xml:space="preserve">
-    <value>Quit Package Manager</value>
+    <value>Quit Divvun Installer</value>
   </data>
   <data name="Redo" xml:space="preserve">
     <value>Redo</value>

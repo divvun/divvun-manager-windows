@@ -118,32 +118,6 @@ namespace Pahkat.UI.Main
                     _view.ShowCompletion(false, requiresReboot);
                 }
             });
-                
-//
-//            return new CompositeDisposable(
-//                // Handles forwarding progress status to the UI
-//                onStartPackageSubject
-//                    .ObserveOn(_scheduler)
-//                    .SubscribeOn(_scheduler)
-//                    .Subscribe(_view.SetCurrentPackage, _view.HandleError),
-//                // Processes the packages (install and uninstall)
-//                _instServ.Process(_pkgInfo, onStartPackageSubject, _cancelSource.Token)
-//                    .ToArray()
-//                    .SubscribeOn(_scheduler)
-//                    .ObserveOn(_scheduler)
-//                    .Subscribe(results =>
-//                    {
-//                        _view.ShowCompletion(_cancelSource.IsCancellationRequested, results);
-//                    }, _view.HandleError),
-//                // Cancel button binding
-//                _view.OnCancelClicked().Subscribe(_ =>
-//                {
-//                    _cancelSource.Cancel();
-//                    _view.ProcessCancelled();
-//                }),
-//                // Dispose the subject itself
-//                onStartPackageSubject
-//            );
         }
 
         public IDisposable Start()

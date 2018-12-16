@@ -419,7 +419,7 @@ namespace Pahkat.Service.CoreLib
         Error
     }
 
-    public struct PackageStatusResponse
+    public class PackageStatusResponse
     {
         [JsonProperty("status", Required = Required.Always)]
         public readonly PackageStatus Status;

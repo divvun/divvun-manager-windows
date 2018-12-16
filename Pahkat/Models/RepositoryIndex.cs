@@ -8,6 +8,7 @@ using System.Runtime.Remoting.Messaging;
 using Newtonsoft.Json.Serialization;
 using Pahkat.Service.CoreLib;
 using JetBrains.Annotations;
+using Pahkat.Extensions;
 
 namespace Pahkat.Models
 {
@@ -88,16 +89,16 @@ namespace Pahkat.Models
         }
 
         [CanBeNull]
-        public PackageStatusResponse? PackageStatus(AbsolutePackageKey key)
+        public PackageStatusResponse PackageStatus(AbsolutePackageKey key)
         {
-            return Statuses[key];
+            return Statuses.Get(key, null);
         }
 
         [Obsolete("Use PackageStatus(AbsolutePackageKey)")]
         [CanBeNull]
-        public PackageStatusResponse? PackageStatus(Package package)
+        public PackageStatusResponse PackageStatus(Package package)
         {
-            var key = Statuses.Keys.First((x) => x.Id == package.Id);
+            var key = Statuses.Keys.FirstOrDefault((x) => x.Id == package.Id);
             return key != null ? PackageStatus(key) : null;
         }
 

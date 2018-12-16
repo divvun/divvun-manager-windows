@@ -1,0 +1,8 @@
+{
+  "repos": [
+    {
+      "url": "https://pahkat.org/repo/windows/",
+      "channel": "stable"
+    }
+  ]
+}

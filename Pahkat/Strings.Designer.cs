@@ -19,7 +19,7 @@ namespace Pahkat {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Strings {
@@ -61,7 +61,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to About Package Manager.
+        ///   Looks up a localized string similar to About Divvun Installer.
         /// </summary>
         public static string AboutApp {
             get {
@@ -88,7 +88,16 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Package Manager.
+        ///   Looks up a localized string similar to Divvun Installer is updating....
+        /// </summary>
+        public static string AppIsUpdating {
+            get {
+                return ResourceManager.GetString("AppIsUpdating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Divvun Installer.
         /// </summary>
         public static string AppName {
             get {
@@ -97,7 +106,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Package Manager v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
+        ///   Looks up a localized string similar to Divvun Installer v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
         /// </summary>
         public static string AppUpdateBody {
             get {
@@ -106,7 +115,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Package Manager Update Available.
+        ///   Looks up a localized string similar to Divvun Installer Update Available.
         /// </summary>
         public static string AppUpdateTitle {
             get {
@@ -376,7 +385,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hide Package Manager.
+        ///   Looks up a localized string similar to Hide Divvun Installer.
         /// </summary>
         public static string HideApp {
             get {
@@ -619,7 +628,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open Package Manager.
+        ///   Looks up a localized string similar to Open Divvun Installer.
         /// </summary>
         public static string OpenPackageManager {
             get {
@@ -682,7 +691,7 @@ namespace Pahkat {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Quit Package Manager.
+        ///   Looks up a localized string similar to Quit Divvun Installer.
         /// </summary>
         public static string QuitApp {
             get {

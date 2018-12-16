@@ -252,9 +252,9 @@ namespace Pahkat.Service
             foreach (var repo in app.Client.Repos())
             {
                 var status = repo.PackageStatus(packageKey);
-                if (status.HasValue)
+                if (status != null)
                 {
-                    return status.Value;
+                    return status;
                 }
             }
 

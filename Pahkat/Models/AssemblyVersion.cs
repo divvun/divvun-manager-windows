@@ -41,5 +41,15 @@ namespace Pahkat.Models
 
             return 0;
         }
+
+        public static AssemblyVersion From(Version dotNetVersion)
+        {
+            return AssemblyVersion.Create(dotNetVersion.ToString());
+        }
+
+        public SemanticVersion ToSemanticVersion()
+        {
+            return SemanticVersion.Create($"{Major}.{Minor}.{Build}");
+        }
     }
 }

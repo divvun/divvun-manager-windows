@@ -15,6 +15,11 @@ namespace Pahkat.Util
             return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
+        public static string BytesToString(ulong bytes)
+        {
+            return BytesToString((long) bytes);
+        }
+
         public static string BytesToString(long bytes)
         {
             string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
