@@ -1,121 +1,97 @@
-﻿//using System;
-//using System.Collections;
-//using System.Collections.Generic;
-//using System.Diagnostics.CodeAnalysis;
-//using System.Linq;
-//using System.Reactive.Linq;
-//using System.Windows;
-//using Pahkat.Extensions;
-//using Pahkat.Models;
-//using Pahkat.UI.Updater;
-//using Quartz;
-//using Quartz.Impl;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Windows;
+using Pahkat.Extensions;
+using Pahkat.Models;
+using Pahkat.UI.Updater;
+using Quartz;
+using Quartz.Impl;
 
-//namespace Pahkat.Service
-//{
-//    public class UpdaterService : IDisposable
-//    {
-//        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
-//        private class UpdateCheckJob : IJob
-//        {
-//            public void Execute(IJobExecutionContext context)
-//            {
-//                var repoServ = (RepositoryService)context.Trigger.JobDataMap["repoServ"];
-//                repoServ.Refresh();
-//            }
-//        }
+namespace Pahkat.Service
+{
+    public class UpdaterService : IDisposable
+    {
+        [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
+        private class UpdateCheckJob : IJob
+        {
+            public void Execute(IJobExecutionContext context)
+            {
+                var service = (UpdaterService)context.MergedJobDataMap["UpdaterService"];
+                service.CheckForUpdates(false);
+            }
+        }
+        
+        private Quartz.IScheduler _jobScheduler = StdSchedulerFactory.GetDefaultScheduler();
+        private readonly TriggerKey _updateCheckKey = new TriggerKey("NextUpdateCheck");
 
-//        private readonly AppConfigStore _configStore;
-//        //private readonly RepositoryService _repoServ;
-//        private readonly IPackageService _pkgServ;
-//        private readonly Quartz.IScheduler _jobScheduler = StdSchedulerFactory.GetDefaultScheduler();
-//        private readonly TriggerKey _updateCheckKey = new TriggerKey("NextUpdateCheck");
+        private void InitRepoRefresher(AppConfigStore configStore)
+        {
+            configStore.State.Select(x => x.NextUpdateCheck)
+                .Subscribe(date =>
+                {
+                    _jobScheduler.UnscheduleJob(_updateCheckKey);
+                    
+                    IDictionary<string, object> dict = new Dictionary<string, object>();
+                    dict["UpdaterService"] = this;
 
-//        private void InitRepoRefresher(AppConfigStore configStore)
-//        {
-//            configStore.State.Select(x => x.NextUpdateCheck)
-//                .Subscribe(date =>
+                    var trigger = TriggerBuilder.Create()
+                        .WithIdentity(_updateCheckKey)
+                        .StartAt(date)
+                        .UsingJobData(new JobDataMap(dict))
+                        .Build();
+
+                    var detail = JobBuilder.Create<UpdateCheckJob>().Build();
+
+                    _jobScheduler.ScheduleJob(detail, trigger);
+                });
+        }
+
+        public bool HasUpdates()
+        {
+            var app = (PahkatApp) Application.Current;
+            return app.Client.Repos().Any((repo) =>
+            {
+                return repo.Statuses.Values.Any((s) => s.Status == PackageStatus.RequiresUpdate);
+            });
+        }
+
+        public void CheckForUpdates(bool skipSelfUpdate)
+        {
+            var app = (PahkatApp) Application.Current;
+            if (!skipSelfUpdate)
+            {
+                // Unfortunately, this causes some very strange things. Loops, a random main window, oh god.
+//                var selfUpdateClient = app.CheckForSelfUpdate();
+//                if (selfUpdateClient != null)
 //                {
-//                    _jobScheduler.UnscheduleJob(_updateCheckKey);
-
-//                    var jobMap = (IDictionary)new Dictionary<string, object>
+//                    if (app.RunSelfUpdate())
 //                    {
-//                        { "repoServ", _repoServ }
-//                    };
+//                        return;
+//                    }
+//                }
+            }
+            
+            if (HasUpdates())
+            {
+                app.WindowService.Show<UpdateWindow>();
+            }
+        }
 
-//                    var trigger = TriggerBuilder.Create()
-//                        .WithIdentity(_updateCheckKey)
-//                        .StartAt(date)
-//                        .UsingJobData(new JobDataMap(jobMap))
-//                        .Build();
+        public UpdaterService(AppConfigStore configStore)
+        {
+            _jobScheduler.Start();
+            InitRepoRefresher(configStore);
+            CheckForUpdates(true);
+        }
 
-//                    var detail = JobBuilder.Create<UpdateCheckJob>().Build();
-
-//                    _jobScheduler.ScheduleJob(detail, trigger);
-//                });
-//        }
-
-//        private bool HasNewUpdates(Repository repo)
-//        {
-//            // Update the next check time
-//            _configStore.Dispatch(AppConfigAction.IncrementNextUpdateCheck);
-
-//            return repo.Packages.Values.Any(_pkgServ.RequiresUpdate);
-//        }
-
-//        private void InitUpdateWindowSubscriber()
-//        {
-//            Observable.CombineLatest<Repository, DateTimeOffset, Repository>(
-//                    _repoServ.System.Select(s => s.RepoResult?.Repository),
-//                    _configStore.State.Select(x => x.NextUpdateCheck),
-//                    (repo, nextCheck) =>
-//                    {
-//                        if (repo == null)
-//                        {
-//                            return null;
-//                        }
-
-//                        if (DateTimeOffset.Now >= nextCheck)
-//                        {
-//                            return repo;
-//                        }
-
-//                        return null;
-//                    })
-//                .NotNull()
-//                .DistinctUntilChanged()
-//                .Where(HasNewUpdates)
-//                .Subscribe(_ =>
-//                {
-//                    var app = (IpahkatApp)Application.Current;
-//                    app.WindowService.Show<UpdateWindow>();
-//                });
-//        }
-
-//        public IObservable<bool> CheckForUpdatesImmediately()
-//        {
-//            _configStore.Dispatch(AppConfigAction.CheckForUpdatesImmediately);
-
-//            return _repoServ.System
-//                .Select(s => s.RepoResult?.Repository)
-//                .Take(1)
-//                .Select(repo => repo?.Packages.Values.Any(_pkgServ.RequiresUpdate) ?? false);
-//        }
-
-//        public UpdaterService(AppConfigStore configStore, RepositoryService repoServ, IPackageService pkgServ)
-//        {
-//            _configStore = configStore;
-//            _repoServ = repoServ;
-//            _pkgServ = pkgServ;
-//            _jobScheduler.Start();
-
-//            InitRepoRefresher(configStore);
-//            InitUpdateWindowSubscriber();
-//        }
-
-//        public void Dispose()
-//        {
-//            _jobScheduler.Shutdown();
-//        }
-//    }
-//}
+        public void Dispose()
+        {
+            _jobScheduler.Shutdown();
+            _jobScheduler = null;
+        }
+    }
+}

@@ -49,6 +49,7 @@ namespace Pahkat.UI.Main
         private RepositoryIndex[] RequestRepos(RepoConfig[] configs)
         {
             var app = (PahkatApp)Application.Current;
+            app.Client.RefreshRepos();
             return app.Client.Repos();
         }
 
@@ -87,7 +88,7 @@ namespace Pahkat.UI.Main
             TvPackages.Focus();
 
             app.ConfigStore.State.Select(x => x.Repositories)
-                .DistinctUntilChanged()
+//                .DistinctUntilChanged()
                 .Select(RequestRepos)
                 .SubscribeOn(Dispatcher.CurrentDispatcher)
                 .ObserveOn(Dispatcher.CurrentDispatcher)

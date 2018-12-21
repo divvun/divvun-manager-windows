@@ -314,5 +314,7 @@ OpenCover/
 # Azure Stream Analytics local run output
 ASALocalRun/
 
-Pahkat/pahkatc.exe
-Pahkat/pahkat_client.dll
+Pahkat/*.exe
+Pahkat/*.dll
+PahkatUpdater/*.exe
+PahkatUpdater/*.dll

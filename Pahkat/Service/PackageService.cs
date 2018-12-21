@@ -20,40 +20,6 @@ using PackageActionType = Pahkat.Models.PackageActionType;
 
 namespace Pahkat.Service
 {
-    public enum PackageStatus
-    {
-        NotInstalled,
-        UpToDate,
-        RequiresUpdate,
-        VersionSkipped,
-        ErrorNoInstaller,
-        ErrorParsingVersion
-    }
-
-    public static class PackageInstallStatusExtensions
-    {
-        public static string Description(this PackageStatus status)
-        {
-            switch (status)
-            {
-                case PackageStatus.ErrorNoInstaller:
-                    return Strings.ErrorNoInstaller;
-                case PackageStatus.ErrorParsingVersion:
-                    return Strings.ErrorInvalidVersion;
-                case PackageStatus.RequiresUpdate:
-                    return Strings.UpdateAvailable;
-                case PackageStatus.NotInstalled:
-                    return Strings.NotInstalled;
-                case PackageStatus.UpToDate:
-                    return Strings.Installed;
-                case PackageStatus.VersionSkipped:
-                    return Strings.VersionSkipped;
-            }
-
-            return null;
-        }
-    }
-
     public struct PackageProgress
     {
         public AbsolutePackageKey Key;

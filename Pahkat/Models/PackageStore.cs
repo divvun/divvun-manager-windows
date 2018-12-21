@@ -30,6 +30,41 @@ namespace Pahkat.Models
         }
     }
     
+    public enum PackageStatus
+    {
+        NotInstalled,
+        UpToDate,
+        RequiresUpdate,
+        VersionSkipped,
+        ErrorNoInstaller,
+        ErrorParsingVersion
+    }
+
+    public static class PackageInstallStatusExtensions
+    {
+        public static string Description(this PackageStatus status)
+        {
+            switch (status)
+            {
+                case PackageStatus.ErrorNoInstaller:
+                    return Strings.ErrorNoInstaller;
+                case PackageStatus.ErrorParsingVersion:
+                    return Strings.ErrorInvalidVersion;
+                case PackageStatus.RequiresUpdate:
+                    return Strings.UpdateAvailable;
+                case PackageStatus.NotInstalled:
+                    return Strings.NotInstalled;
+                case PackageStatus.UpToDate:
+                    return Strings.Installed;
+                case PackageStatus.VersionSkipped:
+                    return Strings.VersionSkipped;
+            }
+
+            return null;
+        }
+    }
+
+    
     public class PackageActionInfo : IEquatable<PackageActionInfo>
     {
         public readonly AbsolutePackageKey PackageKey;

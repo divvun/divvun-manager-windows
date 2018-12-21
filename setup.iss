@@ -2,10 +2,10 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Divvun Installer"
-#define MyAppVersion "0.1.1"
+#define MyAppVersion "1.0.0"
 #define MyAppPublisher "Universitetet i Tromsø - Norges arktiske universitet"
-#define MyAppURL "https://divvun.no"
-#define MyAppExeName "Pahkat.exe"
+#define MyAppURL "http://divvun.no"
+#define MyAppExeName "DivvunInstaller.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -26,7 +26,8 @@ Compression=lzma
 SolidCompression=yes                 
 AppMutex=DivvunInstaller
 SignedUninstaller=yes
-SignTool=signtool                 
+SignTool=signtool
+MinVersion=6.3.9200                 
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -66,9 +67,8 @@ Source: ".\Pahkat\bin\x86\Release\*"; DestDir: "{app}"; Flags: ignoreversion rec
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Parameters: "-s"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Parameters: "-n"; Flags: nowait postinstall

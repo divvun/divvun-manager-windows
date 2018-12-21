@@ -1,4 +1,4 @@
-﻿using JsonSubTypes;
+using JsonSubTypes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -11,8 +11,45 @@ using System.Runtime.Serialization;
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable MergeCastWithTypeCheck
 
-namespace Pahkat.Models
+namespace PahkatUpdater.Pahkat
 {
+    public enum PackageActionType: byte
+    {
+        Install = 0,
+        Uninstall
+    }
+    
+    public static class PackageActionTypeExtensions
+    {
+        public static byte ToByte(this PackageActionType action)
+        {
+            switch (action)
+            {
+                case PackageActionType.Install:
+                    return 0;
+                case PackageActionType.Uninstall:
+                    return 1;
+                default:
+                    return 255;
+            }
+        }
+    }
+    
+    public class RepoConfig
+    {
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
+        [JsonProperty("channel")]
+        public RepositoryMeta.Channel Channel { get; set; }
+
+        public RepoConfig(Uri url, RepositoryMeta.Channel channel)
+        {
+            Url = url;
+            Channel = channel;
+        }
+
+    }
+    
     public enum LinkedDataType
     {
         [EnumMember(Value = "Repository")]

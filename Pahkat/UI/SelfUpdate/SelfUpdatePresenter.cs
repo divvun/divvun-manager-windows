@@ -108,8 +108,6 @@ namespace Pahkat.UI.SelfUpdate
             try
             {
                 process.Start();
-                app.WindowService.Hide<SelfUpdateWindow>();
-                process.WaitForExit();
             }
             catch (Win32Exception ex)
             {
@@ -119,31 +117,9 @@ namespace Pahkat.UI.SelfUpdate
 
         private void Install(CompositeDisposable bag)
         {
-            if (!Util.Util.IsAdministrator())
-            {
-//                Directory.CreateDirectory(_stateDir);
-//                var jsonPath = Path.Combine(_stateDir, "install.json");
-//                var txAction = new TransactionAction(PackageActionType.Install, _key, InstallerTarget.System);
-//                
-//                File.WriteAllText(jsonPath, JsonConvert.SerializeObject(new [] { txAction.ToJson() }));
-                RequestAdmin();
-                return;
-            }
-            
-            var action = new TransactionAction(PackageActionType.Install, _key, _status.Target);
-            _view.SetSubtitle(string.Format(Strings.InstallingPackage, Strings.AppName, _package.Version));
-
-            _client.Transaction(new[] {action}).Process()
-                .SubscribeOn(DispatcherScheduler.Current)
-                .ObserveOn(DispatcherScheduler.Current)
-                .Subscribe(null, (error) =>
-                {
-                    _view.SetSubtitle(Strings.DownloadError);
-                    _view.HandleError(error);
-                }, () =>
-                {
-                    _view.SetSubtitle(Strings.WaitingForCompletion);
-                }).DisposedBy(bag);
+            var path = _client.PackagePath(_key);
+            Process.Start(path);
+            Application.Current.Shutdown();
         }
     }
 }

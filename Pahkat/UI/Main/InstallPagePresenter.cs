@@ -43,14 +43,14 @@ namespace Pahkat.UI.Main
         public void SaveResultsState(InstallSaveState state)
         {
             Directory.CreateDirectory(_stateDir);
-            var jsonPath = Path.Combine(_stateDir, "results.json");
-            File.WriteAllText(jsonPath, JsonConvert.SerializeObject(state));
+            File.WriteAllText(ResultsPath, JsonConvert.SerializeObject(state));
         }
+
+        public string ResultsPath => Path.Combine(_stateDir, "results.json");
 
         public InstallSaveState ReadResultsState()
         {
-            var jsonPath = Path.Combine(_stateDir, "results.json");
-            return JsonConvert.DeserializeObject<InstallSaveState>(File.ReadAllText(jsonPath));
+            return JsonConvert.DeserializeObject<InstallSaveState>(File.ReadAllText(ResultsPath));
         }
 
         private IDisposable PrivilegedStart()
@@ -80,6 +80,7 @@ namespace Pahkat.UI.Main
 
             return _transaction.Process()
                 .Delay(TimeSpan.FromSeconds(0.5))
+                .SubscribeOn(NewThreadScheduler.Default)
                 .ObserveOn(_scheduler)
                 .Subscribe((evt) =>
             {
@@ -126,6 +127,16 @@ namespace Pahkat.UI.Main
             {
                 Directory.CreateDirectory(_stateDir);
                 var jsonPath = Path.Combine(_stateDir, "install.json");
+                var resultsPath = Path.Combine(_stateDir, "results.json");
+                try
+                {
+                    File.Delete(resultsPath);
+                }
+                catch (Exception e)
+                {
+                    // ignored
+                }
+
                 File.WriteAllText(jsonPath, JsonConvert.SerializeObject(_transaction.Actions.Select(x => x.ToJson())));
                 _view.RequestAdmin(jsonPath);
 

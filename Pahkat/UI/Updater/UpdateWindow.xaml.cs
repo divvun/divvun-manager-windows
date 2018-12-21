@@ -39,6 +39,8 @@ namespace Pahkat.UI.Updater
         {
             InitializeComponent();
 
+            BtnSkip.Visibility = Visibility.Hidden;
+
             _packageToggled = Observable.Merge(
                     TvPackages.ReactiveKeyDown()
                         .Where(x => x.EventArgs.Key == Key.Space)

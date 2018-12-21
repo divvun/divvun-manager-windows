@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Windows;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
@@ -27,26 +30,28 @@ namespace Pahkat.UI.Updater
             _store = store;
         }
         
-        private void RefreshPackageList(RepositoryIndex repo)
+        private void RefreshPackageList(RepositoryIndex[] repos)
         {
-            _view.CloseMainWindow();
-            
             _listItems.Clear();
             _store.Dispatch(PackageStoreAction.ResetSelection);
-           
-            var items = repo.Packages.Values
-                .Select(repo.AbsoluteKeyFor)
-                .Where(_pkgServ.RequiresUpdate)
-                .Select(x => new PackageMenuItem(x, repo.Package(x), _pkgServ, _store))
-                .ToArray();
-                
-            foreach (var item in items)
+
+            foreach (var repo in repos)
             {
-                _store.Dispatch(PackageStoreAction.AddSelectedPackage(item.Key, PackageActionType.Install));
-                _listItems.Add(item);
+                var it = repo.Packages.Values
+                    .Select(repo.AbsoluteKeyFor)
+                    .Where(_pkgServ.RequiresUpdate)
+                    .Select(x => new PackageMenuItem(x, repo.Package(x), _pkgServ, _store))
+                    .ToArray();
+                foreach (var item in it)
+                {
+                    _store.Dispatch(PackageStoreAction.AddSelectedPackage(item.Key, PackageActionType.Install));
+                    _listItems.Add(item);
+                }
             }
             
-            _view.UpdateTitle($"{Strings.AppName} - {repo.Meta.NativeName} - {string.Format(Strings.NUpdatesAvailable, items.Length)}");
+            _view.UpdateTitle($"{Strings.AppName} - {string.Format(Strings.NUpdatesAvailable, _listItems.Count)}");
+            _view.CloseMainWindow();
+
             Console.WriteLine("Added packages.");
         }
         
@@ -87,14 +92,14 @@ namespace Pahkat.UI.Updater
             return _view.OnRemindMeLaterClicked().Subscribe(x => _view.Close());
         }
 
-        //private IDisposable BindRefreshPackageList()
-        //{
-        //    return _repoServ.System
-        //        .Select(x => x.RepoResult?.Repository)
-        //        .NotNull()
-        //        .DistinctUntilChanged()
-        //        .Subscribe(RefreshPackageList, _view.HandleError);
-        //}
+        private IDisposable BindRefreshPackageList()
+        {
+            var app = (IPahkatApp) Application.Current;
+            
+            return Observable.Return(app.Client.Repos())
+                .DistinctUntilChanged()
+                .Subscribe(RefreshPackageList, _view.HandleError);
+        }
 
         private IDisposable BindPrimaryButtonPress()
         {
@@ -135,7 +140,7 @@ namespace Pahkat.UI.Updater
 
             return new CompositeDisposable(
                 BindPrimaryButton(_view, _store),
-                //BindRefreshPackageList(),
+                BindRefreshPackageList(),
                 BindSkipButtonPress(),
                 BindPrimaryButtonPress(),
                 BindPackageToggled(),

@@ -50,6 +50,11 @@ namespace Pahkat.Util
 
         public static string GetCultureDisplayName(string tag)
         {
+            if (tag == "zxx")
+            {
+                return "---";
+            }
+            
             string langCode;
             CultureInfo culture = null;
             try

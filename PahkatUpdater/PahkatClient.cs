@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Pahkat.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,14 +7,12 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Security.Policy;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Moq.Language.Flow;
-using Pahkat.Extensions;
-using Pahkat.UI.Settings;
-using Quartz.Xml.JobSchedulingData20;
+using PahkatUpdater.Pahkat;
 
-namespace Pahkat.Service.CoreLib
+namespace PahkatUpdater
 {
     public enum InstallerTarget: byte
     {
@@ -35,6 +32,33 @@ namespace Pahkat.Service.CoreLib
                 default:
                     return 255;
             }
+        }
+    }
+    
+    public static class MarshalUtf8
+    {
+        public static unsafe string PtrToStringUtf8(IntPtr utf8Ptr)
+        {
+            var bytes = (byte*)utf8Ptr.ToPointer();
+            var size = 0;
+            while (bytes[size] != 0)
+            {
+                ++size;
+            }
+            var buffer = new byte[size];
+            Marshal.Copy(utf8Ptr, buffer, 0, size);
+            return Encoding.UTF8.GetString(buffer);
+        }
+
+
+        public static IntPtr StringToHGlobalUtf8(string str)
+        {
+            var buffer = Encoding.UTF8.GetBytes(str);
+            Array.Resize(ref buffer, buffer.Length + 1);
+            buffer[buffer.Length - 1] = 0;
+            var ptr = Marshal.AllocHGlobal(buffer.Length);
+            Marshal.Copy(buffer, 0, ptr, buffer.Length);
+            return ptr;
         }
     }
     
@@ -88,6 +112,11 @@ namespace Pahkat.Service.CoreLib
         Installing,
         Completed,
         Error
+    }
+
+    public struct TransactionEvent
+    {
+        
     }
 
     public struct PackageEvent
@@ -449,6 +478,40 @@ namespace Pahkat.Service.CoreLib
             Target = target;
         }
     }
+    
+    public enum PackageStatus
+    {
+        NotInstalled,
+        UpToDate,
+        RequiresUpdate,
+        VersionSkipped,
+        ErrorNoInstaller,
+        ErrorParsingVersion
+    }
+
+//    public static class PackageInstallStatusExtensions
+//    {
+//        public static string Description(this PackageStatus status)
+//        {
+//            switch (status)
+//            {
+//                case PackageStatus.ErrorNoInstaller:
+//                    return Strings.ErrorNoInstaller;
+//                case PackageStatus.ErrorParsingVersion:
+//                    return Strings.ErrorInvalidVersion;
+//                case PackageStatus.RequiresUpdate:
+//                    return Strings.UpdateAvailable;
+//                case PackageStatus.NotInstalled:
+//                    return Strings.NotInstalled;
+//                case PackageStatus.UpToDate:
+//                    return Strings.Installed;
+//                case PackageStatus.VersionSkipped:
+//                    return Strings.VersionSkipped;
+//            }
+//
+//            return null;
+//        }
+//    }
 
     public class PahkatClient : IDisposable
     {

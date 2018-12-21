@@ -7,9 +7,12 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Newtonsoft.Json;
+using NUnit.Framework.Constraints;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
@@ -55,8 +58,9 @@ namespace Pahkat.UI.Main
                 this,
                 transaction,
                 DispatcherScheduler.Current);
-            
-            _bag.Add(_presenter.Start());
+
+            this.Loaded += (sender, args) => _bag.Add(_presenter.Start());
+
         }
 
         public void SetTotalPackages(long total)
@@ -156,7 +160,11 @@ namespace Pahkat.UI.Main
             try
             {
                 process.Start();
-                process.WaitForExit();
+                
+                while (!File.Exists(_presenter.ResultsPath))
+                {
+                    Thread.Sleep(500);
+                }
                 var state = _presenter.ReadResultsState();
                 ShowCompletion(state.IsCancelled, state.RequiresReboot);
             }

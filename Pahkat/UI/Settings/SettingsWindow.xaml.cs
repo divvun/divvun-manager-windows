@@ -73,21 +73,6 @@ namespace Pahkat.UI.Settings
         }
     }
 
-    public class RepoConfig
-    {
-        [JsonProperty("url")]
-        public Uri Url { get; set; }
-        [JsonProperty("channel")]
-        public RepositoryMeta.Channel Channel { get; set; }
-
-        public RepoConfig(Uri url, RepositoryMeta.Channel channel)
-        {
-            Url = url;
-            Channel = channel;
-        }
-
-    }
-
     public class RepoDataGridItem
     {
         public string Url { get; set; }

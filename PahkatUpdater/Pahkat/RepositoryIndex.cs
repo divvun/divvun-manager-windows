@@ -1,32 +1,12 @@
-﻿using Newtonsoft.Json;
-using Pahkat.Service;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using Newtonsoft.Json.Serialization;
-using Pahkat.Service.CoreLib;
 using JetBrains.Annotations;
-using Pahkat.Extensions;
 
-namespace Pahkat.Models
+namespace PahkatUpdater.Pahkat
 {
-    public class RepoConfig
-    {
-        [JsonProperty("url")]
-        public Uri Url { get; set; }
-        [JsonProperty("channel")]
-        public RepositoryMeta.Channel Channel { get; set; }
-
-        public RepoConfig(Uri url, RepositoryMeta.Channel channel)
-        {
-            Url = url;
-            Channel = channel;
-        }
-
-    }
-    
     public static class RepositoryChannelExtensions
     {
         public static string ToLocalisedName(this RepositoryMeta.Channel channel)

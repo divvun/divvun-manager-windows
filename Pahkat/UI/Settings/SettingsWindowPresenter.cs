@@ -4,8 +4,10 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Windows;
 using Pahkat.Models;
 using Pahkat.Service;
+using Pahkat.UI.Main;
 
 namespace Pahkat.UI.Settings
 {

@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Pahkat</RootNamespace>
-    <AssemblyName>Pahkat</AssemblyName>
+    <AssemblyName>DivvunInstaller</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -113,6 +113,9 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>divvun-logo-512.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc">
@@ -221,10 +224,6 @@
     <Compile Include="Properties\Constants.cs" />
     <Compile Include="Models\PackageStore.cs" />
     <Compile Include="Service\CoreLib\PahkatClient.cs" />
-    <Compile Include="Service\CoreLib\InstallerTarget.cs" />
-    <Compile Include="Service\CoreLib\PackageAction.cs" />
-    <Compile Include="Service\CoreLib\PackageActionType.cs" />
-    <Compile Include="Service\RpcService.cs" />
     <Compile Include="Service\PackageService.cs" />
     <Compile Include="Service\SelfUpdaterService.cs" />
     <Compile Include="Service\UpdaterService.cs" />
@@ -366,10 +365,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="divvun-logo-512.ico" />
     <Content Include="pahkat_client.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="selfupdate.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="updater.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

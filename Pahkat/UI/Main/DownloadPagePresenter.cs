@@ -18,16 +18,10 @@ namespace Pahkat.UI.Main
 {
     public class DownloadPagePresenter
     {
-        //static public DownloadPagePresenter SelfUpdate(IDownloadPageView view)
-        //{
-        //    var app = (IPahkatApp) Application.Current;
-        //    return new DownloadPagePresenter(view, app.PackageService);
-        //}
-
-        static public DownloadPagePresenter Default(IDownloadPageView view)
+        public static DownloadPagePresenter Default(IDownloadPageView view)
         {
             var app = (IPahkatApp) Application.Current;
-            return new DownloadPagePresenter(view, app.PackageStore, app.PackageService);
+            return new DownloadPagePresenter(view, app.PackageStore);
         }
         
         private ObservableCollection<DownloadListItem> _listItems =
@@ -35,7 +29,6 @@ namespace Pahkat.UI.Main
         
         private readonly IDownloadPageView _view;
         private readonly IPackageStore _pkgStore;
-        private readonly IPackageService _pkgServ;
         private readonly CancellationTokenSource _cancelSource;
 
         private void UpdateProgress(PackageProgress package, uint cur, uint total)
@@ -45,11 +38,10 @@ namespace Pahkat.UI.Main
                 .Downloaded = cur;
         }
         
-        public DownloadPagePresenter(IDownloadPageView view, IPackageStore pkgStore, IPackageService pkgServ)
+        public DownloadPagePresenter(IDownloadPageView view, IPackageStore pkgStore)
         {
             _view = view;
             _pkgStore = pkgStore;
-            _pkgServ = pkgServ;
             
             _cancelSource = new CancellationTokenSource();
         }
@@ -118,11 +110,6 @@ namespace Pahkat.UI.Main
                 .Where((p) => p.Status == PackageDownloadStatus.Error)
                 .ToArray()
                 .Select((_) => transaction)
-//                .Select((ps) => transaction.Select((tx) =>
-//                {
-//                    // We return whether there are any errors so we can short-circuit
-//                    return new Tuple<IPahkatTransaction, bool>(tx, );
-//                }))
                 .Switch()
                 .SubscribeOn(DispatcherScheduler.Current)
 //                .ObserveOn(DispatcherScheduler.Current)

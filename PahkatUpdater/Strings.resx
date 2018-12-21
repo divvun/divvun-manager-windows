@@ -1,0 +1,402 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="metadata">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0"/>
+							</xsd:sequence>
+							<xsd:attribute name="name" use="required" type="xsd:string"/>
+							<xsd:attribute name="type" type="xsd:string"/>
+							<xsd:attribute name="mimetype" type="xsd:string"/>
+							<xsd:attribute ref="xml:space"/>
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="assembly">
+						<xsd:complexType>
+							<xsd:attribute name="alias" type="xsd:string"/>
+							<xsd:attribute name="name" type="xsd:string"/>
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+							<xsd:attribute ref="xml:space"/>
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required"/>
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="AboutApp" xml:space="preserve">
+    <value>About Divvun Installer</value>
+  </data>
+  <data name="Alpha" xml:space="preserve">
+    <value>Alpha</value>
+  </data>
+  <data name="AppHelp" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>Divvun Installer</value>
+  </data>
+  <data name="AppUpdateBody" xml:space="preserve">
+    <value>Divvun Installer v{0} is now available. It is highly recommended that you update as soon as possible. Update now?</value>
+  </data>
+  <data name="AppIsUpdating" xml:space="preserve">
+    <value>Divvun Installer is updating...</value>
+  </data>
+  <data name="AppUpdateTitle" xml:space="preserve">
+    <value>Divvun Installer Update Available</value>
+  </data>
+  <data name="Beta" xml:space="preserve">
+    <value>Beta</value>
+  </data>
+  <data name="BringAllToFront" xml:space="preserve">
+    <value>Bring All to Front</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="CancelDownloadsBody" xml:space="preserve">
+    <value>Are you sure you want to cancel all downloads?</value>
+  </data>
+  <data name="CancelDownloadsTitle" xml:space="preserve">
+    <value>Cancel Downloads</value>
+  </data>
+  <data name="Cancelling" xml:space="preserve">
+    <value>Canceling...</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Channel" xml:space="preserve">
+    <value>Channel</value>
+  </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>Check For Updates...</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="CrashReportBody" xml:space="preserve">
+    <value>Do you wish to send a crash report to the developers? No personal or private information is sent. (Recommended)</value>
+  </data>
+  <data name="Cut" xml:space="preserve">
+    <value>Cut</value>
+  </data>
+  <data name="Daily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="DownloadError" xml:space="preserve">
+    <value>Error 😞</value>
+  </data>
+  <data name="Downloaded" xml:space="preserve">
+    <value>Downloaded</value>
+  </data>
+  <data name="Downloading" xml:space="preserve">
+    <value>Downloading...</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="ErrorDuringInstallation" xml:space="preserve">
+    <value>An error occurring during installation.</value>
+  </data>
+  <data name="ErrorInvalidVersion" xml:space="preserve">
+    <value>Error: Invalid Version</value>
+  </data>
+  <data name="ErrorNoInstaller" xml:space="preserve">
+    <value>Error: No Installer</value>
+  </data>
+  <data name="ErrorUnknownPackage" xml:space="preserve">
+    <value>Error: Unknown Item</value>
+  </data>
+  <data name="EveryFourWeeks" xml:space="preserve">
+    <value>Every 4 Weeks</value>
+  </data>
+  <data name="EveryTwoWeeks" xml:space="preserve">
+    <value>Every 2 Weeks</value>
+  </data>
+  <data name="Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Finish" xml:space="preserve">
+    <value>Finish</value>
+  </data>
+  <data name="Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+  <data name="HideApp" xml:space="preserve">
+    <value>Hide Divvun Installer</value>
+  </data>
+  <data name="HideOthers" xml:space="preserve">
+    <value>Hide Others</value>
+  </data>
+  <data name="Install" xml:space="preserve">
+    <value>Install</value>
+  </data>
+  <data name="InstallNPackages" xml:space="preserve">
+    <value>Install {0} Items</value>
+  </data>
+  <data name="InstallSystem" xml:space="preserve">
+    <value>Install (System)</value>
+  </data>
+  <data name="InstallUninstallNPackages" xml:space="preserve">
+    <value>Install/Uninstall {0} Items</value>
+  </data>
+  <data name="InstallUser" xml:space="preserve">
+    <value>Install (User)</value>
+  </data>
+  <data name="Installed" xml:space="preserve">
+    <value>Installed</value>
+  </data>
+  <data name="InstallingPackage" xml:space="preserve">
+    <value>Installing {0} {1}...</value>
+  </data>
+  <data name="InstallingUninstalling" xml:space="preserve">
+    <value>Installing/Uninstalling</value>
+  </data>
+  <data name="InterfaceLanguage" xml:space="preserve">
+    <value>Interface Language</value>
+  </data>
+  <data name="InvalidUrlBody" xml:space="preserve">
+    <value>Please ensure that the URL begins with \"https\" and try again.</value>
+  </data>
+  <data name="InvalidUrlTitle" xml:space="preserve">
+    <value>The provided URL is invalid.</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="NItemsRemaining" xml:space="preserve">
+    <value>{0} items remaining.</value>
+  </data>
+  <data name="NUpdatesAvailable" xml:space="preserve">
+    <value>{0} Updates Available</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="NextUpdateDue" xml:space="preserve">
+    <value>Next update check at: {0}</value>
+  </data>
+  <data name="Nightly" xml:space="preserve">
+    <value>Nightly</value>
+  </data>
+  <data name="NoPackagesSelected" xml:space="preserve">
+    <value>No Items Selected</value>
+  </data>
+  <data name="NoUpdatesBody" xml:space="preserve">
+    <value>No new updates were found.</value>
+  </data>
+  <data name="NoUpdatesTitle" xml:space="preserve">
+    <value>No Updates</value>
+  </data>
+  <data name="NotApplicable" xml:space="preserve">
+    <value>--</value>
+  </data>
+  <data name="NotInstalled" xml:space="preserve">
+    <value>Not Installed</value>
+  </data>
+  <data name="Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="OpenPackageManager" xml:space="preserve">
+    <value>Open Divvun Installer</value>
+  </data>
+  <data name="Paste" xml:space="preserve">
+    <value>Paste</value>
+  </data>
+  <data name="PasteAndMatchStyle" xml:space="preserve">
+    <value>Paste and Match Style</value>
+  </data>
+  <data name="Preferences" xml:space="preserve">
+    <value>Preferences…</value>
+  </data>
+  <data name="ProcessCompletedBody" xml:space="preserve">
+    <value>You may now close this window, or return to the main screen.</value>
+  </data>
+  <data name="ProcessCompletedTitle" xml:space="preserve">
+    <value>Done!</value>
+  </data>
+  <data name="Queued" xml:space="preserve">
+    <value>Queued</value>
+  </data>
+  <data name="QuitApp" xml:space="preserve">
+    <value>Quit Divvun Installer</value>
+  </data>
+  <data name="Redo" xml:space="preserve">
+    <value>Redo</value>
+  </data>
+  <data name="RemindMeLater" xml:space="preserve">
+    <value>Remind Me Later</value>
+  </data>
+  <data name="RemoveRepoBody" xml:space="preserve">
+    <value>Are you sure you wish to remove this repository?</value>
+  </data>
+  <data name="RemoveRepoTitle" xml:space="preserve">
+    <value>This will remove the selected repository.</value>
+  </data>
+  <data name="Repositories" xml:space="preserve">
+    <value>Repositories</value>
+  </data>
+  <data name="Repository" xml:space="preserve">
+    <value>Repository</value>
+  </data>
+  <data name="RepositoryError" xml:space="preserve">
+    <value>Repository Error</value>
+  </data>
+  <data name="RepositoryErrorBody" xml:space="preserve">
+    <value>There was an error while opening the repository:
+
+{0}</value>
+  </data>
+  <data name="RestartLater" xml:space="preserve">
+    <value>Restart Later</value>
+  </data>
+  <data name="RestartNow" xml:space="preserve">
+    <value>Restart Now</value>
+  </data>
+  <data name="RestartRequiredBody" xml:space="preserve">
+    <value>It is highly recommended that you restart your computer in order for some changes to take effect.</value>
+  </data>
+  <data name="RestartRequiredTitle" xml:space="preserve">
+    <value>Time to reboot!</value>
+  </data>
+  <data name="RestartTheAppForLanguageChanges" xml:space="preserve">
+    <value>Restart the app for language changes to take effect.</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Select All</value>
+  </data>
+  <data name="Services" xml:space="preserve">
+    <value>Services</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="ShowAll" xml:space="preserve">
+    <value>Show All</value>
+  </data>
+  <data name="SkipTheseUpdates" xml:space="preserve">
+    <value>Skip These Updates</value>
+  </data>
+  <data name="SortBy" xml:space="preserve">
+    <value>Sort by…</value>
+  </data>
+  <data name="Stable" xml:space="preserve">
+    <value>Stable</value>
+  </data>
+  <data name="Starting" xml:space="preserve">
+    <value>Starting...</value>
+  </data>
+  <data name="SystemLocale" xml:space="preserve">
+    <value>Default Language</value>
+  </data>
+  <data name="ThereAreNUpdatesAvailable" xml:space="preserve">
+    <value>There are {0} updates available!</value>
+  </data>
+  <data name="Undo" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Uninstall" xml:space="preserve">
+    <value>Uninstall</value>
+  </data>
+  <data name="UninstallNPackages" xml:space="preserve">
+    <value>Uninstall {0} Items</value>
+  </data>
+  <data name="UninstallingPackage" xml:space="preserve">
+    <value>Uninstalling {0} {1}...</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>Update Available</value>
+  </data>
+  <data name="UpdateChannel" xml:space="preserve">
+    <value>Update Channel</value>
+  </data>
+  <data name="UpdateFrequency" xml:space="preserve">
+    <value>Update Frequency</value>
+  </data>
+  <data name="UpdateSystem" xml:space="preserve">
+    <value>Update (System)</value>
+  </data>
+  <data name="UpdateUser" xml:space="preserve">
+    <value>Update (User)</value>
+  </data>
+  <data name="Url" xml:space="preserve">
+    <value>URL</value>
+  </data>
+  <data name="UserDescription" xml:space="preserve">
+    <value>{0} (User)</value>
+  </data>
+  <data name="VersionSkipped" xml:space="preserve">
+    <value>Version Skipped</value>
+  </data>
+  <data name="WaitingForCompletion" xml:space="preserve">
+    <value>Waiting for process to finish...</value>
+  </data>
+  <data name="Weekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Window</value>
+  </data>
+  <data name="WouldYouLikeToDownloadThemNow" xml:space="preserve">
+    <value>Would you like to download them now?</value>
+  </data>
+  <data name="Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+</root>
