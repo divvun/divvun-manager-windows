@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using Pahkat.Service;
 using Pahkat.Models;
 using Pahkat.UI.About;
+using Pahkat.Sdk;
 
 namespace Pahkat.UI.Main
 {

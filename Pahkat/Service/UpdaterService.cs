@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Windows;
 using Pahkat.Extensions;
 using Pahkat.Models;
+using Pahkat.Sdk;
 using Pahkat.UI.Updater;
 using Quartz;
 using Quartz.Impl;

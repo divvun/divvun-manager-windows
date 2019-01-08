@@ -31,7 +31,7 @@ using SharpRaven;
 using SharpRaven.Data;
 using Trustsoft.SingleInstanceApp;
 using Newtonsoft.Json;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 using Pahkat.UI.About;
 using Pahkat.UI.SelfUpdate;
 using SharpRaven.Data.Context;

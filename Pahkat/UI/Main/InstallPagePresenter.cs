@@ -8,7 +8,7 @@ using System.Threading;
 using System.Windows;
 using Newtonsoft.Json;
 using Pahkat.Models;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 
 namespace Pahkat.UI.Main
 {

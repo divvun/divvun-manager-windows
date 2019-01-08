@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable MergeCastWithTypeCheck
 
-namespace Pahkat.Models
+namespace Pahkat.Sdk
 {
     public enum LinkedDataType
     {

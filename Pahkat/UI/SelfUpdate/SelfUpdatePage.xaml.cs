@@ -2,7 +2,7 @@ using System;
 using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Controls;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 using Pahkat.UI.Main;
 using Pahkat.UI.Shared;
 using SharpRaven.Data.Context;

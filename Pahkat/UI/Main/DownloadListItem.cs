@@ -7,7 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using Pahkat.Models;
 using Pahkat.Service;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 
 namespace Pahkat.UI.Main
 {

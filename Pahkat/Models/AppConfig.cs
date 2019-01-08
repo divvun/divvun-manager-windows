@@ -14,7 +14,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json.Converters;
 using System.ComponentModel;
 using System.Windows;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 
 namespace Pahkat.Models
 {

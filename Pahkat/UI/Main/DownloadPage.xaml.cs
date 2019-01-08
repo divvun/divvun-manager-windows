@@ -20,7 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Pahkat.Extensions;
 using Pahkat.Service;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 using Pahkat.UI.Shared;
 
 namespace Pahkat.UI.Main

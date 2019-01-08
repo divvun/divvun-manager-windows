@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Pahkat.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,21 +6,22 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using System.Security.Policy;
+//using System.Security.Policy;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Moq.Language.Flow;
-using Pahkat.Extensions;
-using Pahkat.UI.Settings;
-using Quartz.Xml.JobSchedulingData20;
+//using Moq.Language.Flow;
+//using Pahkat.Extensions;
+//using Pahkat.UI.Settings;
+//using Quartz.Xml.JobSchedulingData20;
 
-namespace Pahkat.Service.CoreLib
+namespace Pahkat.Sdk
 {
-    public enum InstallerTarget: byte
+    public enum InstallerTarget : byte
     {
         System,
         User
     }
+
     public static class InstallerTargetExtensions
     {
         public static byte ToByte(this InstallerTarget target)
@@ -37,7 +37,7 @@ namespace Pahkat.Service.CoreLib
             }
         }
     }
-    
+
     public struct TransactionAction
     {
         [JsonProperty("action", Required = Required.Always)]
@@ -151,7 +151,7 @@ namespace Pahkat.Service.CoreLib
             var cValue = value != null ? MarshalUtf8.StringToHGlobalUtf8(value) : IntPtr.Zero;
             Native.pahkat_config_ui_set(_handle, cKey, cValue);
             Marshal.FreeHGlobal(cKey);
-            
+
             if (cValue != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(cValue);
@@ -163,7 +163,7 @@ namespace Pahkat.Service.CoreLib
             var value = JsonConvert.SerializeObject(obj);
             SetUiSetting(key, value);
         }
-        
+
         [CanBeNull]
         public string GetUiSetting([NotNull] string key)
         {
@@ -205,12 +205,12 @@ namespace Pahkat.Service.CoreLib
         }
     }
 
-    public class PahkatTransaction: IPahkatTransaction
+    public class PahkatTransaction : IPahkatTransaction
     {
         private readonly PahkatClient _client;
         private readonly IntPtr _handle;
         private readonly IntPtr[] _actions;
-        
+
         public TransactionAction[] Actions { get; }
 
         public PahkatTransaction(PahkatClient client, TransactionAction[] actions)
@@ -222,7 +222,7 @@ namespace Pahkat.Service.CoreLib
             unsafe
             {
                 _handle = Native.pahkat_create_package_transaction(client.handle,
-                    (uint) actions.Length,
+                    (uint)actions.Length,
                     _actions,
                     out var errors);
 
@@ -235,16 +235,16 @@ namespace Pahkat.Service.CoreLib
             var weakActions = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(str);
             // HACK: parsing the key as a string causes newtonsoft JSON to throw up.
             Actions = weakActions.Select((x) => TransactionAction.FromJson(x)).ToArray();
-            
-//            Actions = JsonConvert.DeserializeObject<TransactionAction[]>(str);
+
+            //            Actions = JsonConvert.DeserializeObject<TransactionAction[]>(str);
         }
 
         public IObservable<PackageEvent> Process()
         {
             return Observable.Create<PackageEvent>((observer) =>
             {
-//                var task = new Task(() =>
-//                {
+                //                var task = new Task(() =>
+                //                {
                 unsafe
                 {
                     var result = Native.pahkat_run_package_transaction(_client.handle, _handle, 0,
@@ -254,7 +254,7 @@ namespace Pahkat.Service.CoreLib
                             var evt = PackageEvent.FromCode(packageKey, eventCode);
                             observer.OnNext(evt);
                         }), out var errors);
-    
+
                     if (result == 0)
                     {
                         observer.OnCompleted();
@@ -264,15 +264,15 @@ namespace Pahkat.Service.CoreLib
                         observer.OnError(new Exception($"Return code {result}"));
                     }
                 }
-//                });
-//
-//                task.Start();
-                
+                //                });
+                //
+                //                task.Start();
+
                 return Disposable.Empty;
             });
         }
     }
-    
+
     public class AbsolutePackageKey
     {
         public readonly string Url;
@@ -283,12 +283,12 @@ namespace Pahkat.Service.CoreLib
         {
             return $"{Url}packages/{Id}#{Channel}";
         }
-        
+
         public AbsolutePackageKey(Uri url)
         {
             var pathChunks = new Stack<string>(url.AbsolutePath.Split('/'));
             var id = pathChunks.Pop();
-            
+
             // Pop packages off
             var key = pathChunks.Pop();
             if (key != "packages")
@@ -297,7 +297,7 @@ namespace Pahkat.Service.CoreLib
             }
 
             var channel = url.Fragment.Substring(1);
-            
+
             var builder = new UriBuilder(url);
             builder.Path = string.Join("/", pathChunks.Reverse()) + "/";
             builder.Fragment = string.Empty;
@@ -330,7 +330,7 @@ namespace Pahkat.Service.CoreLib
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((AbsolutePackageKey) obj);
+            return Equals((AbsolutePackageKey)obj);
         }
 
         public override int GetHashCode()
@@ -439,7 +439,7 @@ namespace Pahkat.Service.CoreLib
     {
         [JsonProperty("status", Required = Required.Always)]
         public readonly PackageStatus Status;
-        
+
         [JsonProperty("target", Required = Required.Always)]
         public readonly InstallerTarget Target;
 
@@ -461,7 +461,7 @@ namespace Pahkat.Service.CoreLib
         {
             IntPtr ptr = configPath != null ? MarshalUtf8.StringToHGlobalUtf8(configPath) : IntPtr.Zero;
             handle = Native.pahkat_client_new(ptr);
-            
+
             Config = new PahkatConfig(handle);
 
             if (handle == IntPtr.Zero)
@@ -568,7 +568,7 @@ namespace Pahkat.Service.CoreLib
                     {
                         observer.OnNext(DownloadProgress.Progress(localPackageKey, cur, max));
                         observer.OnNext(DownloadProgress.Completed(localPackageKey));
-//                        observer.OnCompleted();
+                        //                        observer.OnCompleted();
                     }
                 }
 
@@ -576,7 +576,7 @@ namespace Pahkat.Service.CoreLib
                 {
                     observer.OnNext(DownloadProgress.NotStarted(packageKey));
                     observer.OnNext(DownloadProgress.Starting(packageKey));
-                    
+
                     unsafe
                     {
                         var cKey = MarshalUtf8.StringToHGlobalUtf8(packageKey.ToString());
@@ -594,11 +594,11 @@ namespace Pahkat.Service.CoreLib
                             observer.OnCompleted();
                         }
 
-//                        if (ret > 0)
-//                        {
-//                            observer.OnNext(DownloadProgress.Error(packageKey, $"Error code {ret}"));
-//                        }
-                        
+                        //                        if (ret > 0)
+                        //                        {
+                        //                            observer.OnNext(DownloadProgress.Error(packageKey, $"Error code {ret}"));
+                        //                        }
+
                     }
                 });
 
@@ -608,16 +608,16 @@ namespace Pahkat.Service.CoreLib
             });
         }
 
-//        private IObservable<IPahkatTransaction> AdminTransaction(TransactionAction[] actions)
-//        {
-//            
-//        }
-//
+        //        private IObservable<IPahkatTransaction> AdminTransaction(TransactionAction[] actions)
+        //        {
+        //            
+        //        }
+        //
         public IPahkatTransaction Transaction(TransactionAction[] actions)
         {
             if (actions.Any((action) => action.Target == InstallerTarget.System))
             {
-//                return AdminTransaction(actions);
+                //                return AdminTransaction(actions);
                 return new PahkatTransaction(this, actions);
             }
             else
@@ -712,18 +712,18 @@ namespace Pahkat.Service.CoreLib
             Dispose(true);
         }
 
-//        void ProcessDownloadCallback(string packageId, ulong cur, ulong max)
-//        {
-//            Console.WriteLine($"Received download callback for {packageId}, cur: {cur}, max: {max}");
-//        }
+        //        void ProcessDownloadCallback(string packageId, ulong cur, ulong max)
+        //        {
+        //            Console.WriteLine($"Received download callback for {packageId}, cur: {cur}, max: {max}");
+        //        }
 
     }
 
     internal static class Native
     {
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public  delegate void DownloadProgressCallback(IntPtr packageId, ulong cur, ulong max);
-        
+        public delegate void DownloadProgressCallback(IntPtr packageId, ulong cur, ulong max);
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate void PackageTransactionRunCallback(uint txId, IntPtr packageId, uint action);
 
@@ -777,7 +777,7 @@ namespace Pahkat.Service.CoreLib
 
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr pahkat_create_action(byte action, byte target, IntPtr packageKey);
-        
+
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe IntPtr pahkat_package_transaction_actions(IntPtr handle, IntPtr transaction, out pahkat_error_t* error);
 

@@ -8,9 +8,8 @@ using System.Reactive.Linq;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 using Pahkat.UI.Shared;
-using PackageActionType = Pahkat.Models.PackageActionType;
 
 namespace Pahkat.UI.Main
 {

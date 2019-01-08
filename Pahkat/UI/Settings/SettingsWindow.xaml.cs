@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using Newtonsoft.Json;
 using Pahkat.Extensions;
 using Pahkat.Models;
+using Pahkat.Sdk;
 using Pahkat.UI.Shared;
 using Pahkat.Util;
 

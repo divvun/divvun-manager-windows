@@ -217,13 +217,10 @@
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Models\AppConfig.cs" />
     <Compile Include="Models\AssemblyVersion.cs" />
-    <Compile Include="Models\PackageManager.cs" />
-    <Compile Include="Models\RepositoryIndex.cs" />
     <Compile Include="Models\Rpc.cs" />
     <Compile Include="Models\SemanticVersion.cs" />
     <Compile Include="Properties\Constants.cs" />
     <Compile Include="Models\PackageStore.cs" />
-    <Compile Include="Service\CoreLib\PahkatClient.cs" />
     <Compile Include="Service\PackageService.cs" />
     <Compile Include="Service\SelfUpdaterService.cs" />
     <Compile Include="Service\UpdaterService.cs" />
@@ -366,15 +363,18 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="divvun-logo-512.ico" />
-    <Content Include="pahkat_client.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="selfupdate.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="updater.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pahkat.Sdk\Pahkat.Sdk.csproj">
+      <Project>{57c50024-4c9e-4ff5-81d6-41f5e842f755}</Project>
+      <Name>Pahkat.Sdk</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

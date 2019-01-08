@@ -16,7 +16,7 @@ using NUnit.Framework.Constraints;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 using Pahkat.UI.Shared;
 
 namespace Pahkat.UI.Main

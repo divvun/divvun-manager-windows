@@ -14,9 +14,7 @@ using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Media.Animation;
 using Pahkat.Extensions;
-using Pahkat.Service.CoreLib;
-using SharpRaven.Data.Context;
-using PackageActionType = Pahkat.Models.PackageActionType;
+using Pahkat.Sdk;
 
 namespace Pahkat.Service
 {

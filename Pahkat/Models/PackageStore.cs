@@ -3,42 +3,42 @@ using System.Collections.Generic;
 using System.Linq;
 using Pahkat.Models.PackageEvent;
 using Pahkat.Service;
-using Pahkat.Service.CoreLib;
+using Pahkat.Sdk;
 using Pahkat.Util;
 
 namespace Pahkat.Models
 {
-    public enum PackageActionType: byte
-    {
-        Install = 0,
-        Uninstall
-    }
+    //public enum PackageActionType: byte
+    //{
+    //    Install = 0,
+    //    Uninstall
+    //}
     
-    public static class PackageActionTypeExtensions
-    {
-        public static byte ToByte(this PackageActionType action)
-        {
-            switch (action)
-            {
-                case PackageActionType.Install:
-                    return 0;
-                case PackageActionType.Uninstall:
-                    return 1;
-                default:
-                    return 255;
-            }
-        }
-    }
-    
-    public enum PackageStatus
-    {
-        NotInstalled,
-        UpToDate,
-        RequiresUpdate,
-        VersionSkipped,
-        ErrorNoInstaller,
-        ErrorParsingVersion
-    }
+    //public static class PackageActionTypeExtensions
+    //{
+    //    public static byte ToByte(this PackageActionType action)
+    //    {
+    //        switch (action)
+    //        {
+    //            case PackageActionType.Install:
+    //                return 0;
+    //            case PackageActionType.Uninstall:
+    //                return 1;
+    //            default:
+    //                return 255;
+    //        }
+    //    }
+    //}
+
+    //public enum PackageStatus
+    //{
+    //    NotInstalled,
+    //    UpToDate,
+    //    RequiresUpdate,
+    //    VersionSkipped,
+    //    ErrorNoInstaller,
+    //    ErrorParsingVersion
+    //}
 
     public static class PackageInstallStatusExtensions
     {

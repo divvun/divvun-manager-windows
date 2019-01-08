@@ -1,4 +1,4 @@
-﻿using Pahkat.Service.CoreLib;
+﻿using Pahkat.Sdk;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

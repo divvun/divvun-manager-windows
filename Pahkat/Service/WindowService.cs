@@ -7,6 +7,7 @@ using Pahkat.UI;
 using Pahkat.UI.Main;
 using Pahkat.UI.Shared;
 using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
+using Pahkat.Sdk;
 
 namespace Pahkat.Service
 {

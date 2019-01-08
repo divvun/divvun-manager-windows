@@ -11,8 +11,7 @@ using System.Reactive.Concurrency;
 using System.Windows;
 using Pahkat.Models;
 using Pahkat.Extensions;
-using Pahkat.Service.CoreLib;
-using PackageActionType = Pahkat.Models.PackageActionType;
+using Pahkat.Sdk;
 
 namespace Pahkat.UI.Main
 {

@@ -91,27 +91,6 @@ namespace Pahkat.Extensions
                 x => watcher.EventArrived -= x);
         }
 
-        public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key)
-            where TValue : new()
-        {
-            if (!dict.ContainsKey(key))
-            {
-                dict[key] = new TValue();
-            }
-
-            return dict[key];
-        }
-
-        public static TValue Get<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue fallback)
-        {
-            if (dict.ContainsKey(key))
-            {
-                return dict[key];
-            }
-
-            return fallback;
-        }
-
         public static void ReplacePageWith(this Page page, object destination)
         {
             void Handler()
@@ -202,33 +181,6 @@ namespace Pahkat.Extensions
             var timeSpan = TimeSpan.FromSeconds(seconds);
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             return epoch.Add(timeSpan).ToLocalTime();
-        }
-    }
-
-    public static class MarshalUtf8
-    {
-        public static unsafe string PtrToStringUtf8(IntPtr utf8Ptr)
-        {
-            var bytes = (byte*)utf8Ptr.ToPointer();
-            var size = 0;
-            while (bytes[size] != 0)
-            {
-                ++size;
-            }
-            var buffer = new byte[size];
-            Marshal.Copy(utf8Ptr, buffer, 0, size);
-            return Encoding.UTF8.GetString(buffer);
-        }
-
-
-        public static IntPtr StringToHGlobalUtf8(string str)
-        {
-            var buffer = Encoding.UTF8.GetBytes(str);
-            Array.Resize(ref buffer, buffer.Length + 1);
-            buffer[buffer.Length - 1] = 0;
-            var ptr = Marshal.AllocHGlobal(buffer.Length);
-            Marshal.Copy(buffer, 0, ptr, buffer.Length);
-            return ptr;
         }
     }
 

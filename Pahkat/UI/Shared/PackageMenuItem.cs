@@ -6,8 +6,7 @@ using System.Reactive.Linq;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
-using Pahkat.Service.CoreLib;
-using PackageActionType = Pahkat.Models.PackageActionType;
+using Pahkat.Sdk;
 
 namespace Pahkat.UI.Shared
 {
