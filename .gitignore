@@ -316,5 +316,7 @@ ASALocalRun/
 
 Pahkat/*.exe
 Pahkat/*.dll
+Pahkat.Sdk/*.exe
+Pahkat.Sdk/*.dll
 PahkatUpdater/*.exe
 PahkatUpdater/*.dll
