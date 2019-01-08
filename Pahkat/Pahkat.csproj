@@ -38,7 +38,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>true</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -366,14 +366,15 @@
     <Content Include="selfupdate.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="updater.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Pahkat.Sdk\Pahkat.Sdk.csproj">
       <Project>{57c50024-4c9e-4ff5-81d6-41f5e842f755}</Project>
       <Name>Pahkat.Sdk</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PahkatUpdater\PahkatUpdater.csproj">
+      <Project>{6de19b31-c7a1-411e-9da4-40421067f580}</Project>
+      <Name>PahkatUpdater</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

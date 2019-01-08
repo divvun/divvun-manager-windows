@@ -5,6 +5,7 @@ using System.IO.Pipes;
 using System.Linq;
 using System.Security.Permissions;
 using System.Windows;
+using Pahkat.Sdk;
 using PahkatUpdater.UI;
 
 namespace PahkatUpdater

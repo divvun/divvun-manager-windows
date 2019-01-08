@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pahkat", "Pahkat\Pahkat.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pahkat.Sdk", "Pahkat.Sdk\Pahkat.Sdk.csproj", "{57C50024-4C9E-4FF5-81D6-41F5E842F755}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PahkatUpdater", "PahkatUpdater\PahkatUpdater.csproj", "{6DE19B31-C7A1-411E-9DA4-40421067F580}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,24 @@ Global
 		{57C50024-4C9E-4FF5-81D6-41F5E842F755}.Release|x64.Build.0 = Release|Any CPU
 		{57C50024-4C9E-4FF5-81D6-41F5E842F755}.Release|x86.ActiveCfg = Release|Any CPU
 		{57C50024-4C9E-4FF5-81D6-41F5E842F755}.Release|x86.Build.0 = Release|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Debug|x64.Build.0 = Debug|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Debug|x86.ActiveCfg = Debug|x86
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Debug|x86.Build.0 = Debug|x86
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.DebugMockRegistry|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.DebugMockRegistry|Any CPU.Build.0 = Debug|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.DebugMockRegistry|x64.ActiveCfg = Debug|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.DebugMockRegistry|x64.Build.0 = Debug|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.DebugMockRegistry|x86.ActiveCfg = Debug|x86
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.DebugMockRegistry|x86.Build.0 = Debug|x86
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Release|x64.ActiveCfg = Release|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Release|x64.Build.0 = Release|Any CPU
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Release|x86.ActiveCfg = Release|x86
+		{6DE19B31-C7A1-411E-9DA4-40421067F580}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

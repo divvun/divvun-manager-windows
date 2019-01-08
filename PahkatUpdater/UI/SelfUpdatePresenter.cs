@@ -12,8 +12,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using Newtonsoft.Json;
+using Pahkat.Sdk;
 using PahkatUpdater;
-using PahkatUpdater.Pahkat;
 using PahkatUpdater.UI;
 
 namespace PahkatUpdater.UI
