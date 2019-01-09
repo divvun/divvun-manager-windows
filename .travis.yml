@@ -1,5 +1,5 @@
 os: windows
-language: csharp
+language: shell
 solution: Pahkat.sln
 script:
   - ./travis-build.bat
