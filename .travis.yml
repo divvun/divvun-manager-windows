@@ -1,5 +1,6 @@
 os: windows
 language: shell
-solution: Pahkat.sln
 script:
-  - ./travis-build.bat
+  - choco install nuget.commandline
+  - choco install visualstudio2017community --package-parameters "--add Microsoft.VisualStudio.Workload.ManagedDesktop"
+  - powershell "cmd /C travis-build.bat"
