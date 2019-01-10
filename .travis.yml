@@ -3,4 +3,6 @@ language: shell
 script:
   - choco install nuget.commandline
   - choco install visualstudio2017community --package-parameters "--add Microsoft.VisualStudio.Workload.ManagedDesktop"
+  - choco install innosetup
+  - nuget restore
   - powershell "cmd /C travis-build.bat"
