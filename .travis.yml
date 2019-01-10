@@ -5,4 +5,4 @@ script:
   - choco install visualstudio2017community --package-parameters "--add Microsoft.VisualStudio.Workload.ManagedDesktop"
   - choco install innosetup
   - nuget restore
-  - powershell "Start-Process -FilePath .\travis-build.bat -Wait -Verb runAs"
+  - powershell ".\travis-build.bat"
