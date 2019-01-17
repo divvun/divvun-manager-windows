@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Windows;
-using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Sdk;
 using Pahkat.UI.Updater;

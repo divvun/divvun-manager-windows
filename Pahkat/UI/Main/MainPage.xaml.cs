@@ -15,6 +15,8 @@ using Pahkat.Util;
 using Pahkat.UI.About;
 using Pahkat.Sdk;
 using System.Windows.Navigation;
+using Pahkat.Service;
+using System.Threading.Tasks;
 
 namespace Pahkat.UI.Main
 {
@@ -46,13 +48,6 @@ namespace Pahkat.UI.Main
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
             .Select(e => e.EventArgs);
         
-        private RepositoryIndex[] RequestRepos(RepoConfig[] configs)
-        {
-            var app = (PahkatApp)Application.Current;
-            app.Client.RefreshRepos();
-            return app.Client.Repos();
-        }
-
         public MainPage()
         {
             InitializeComponent();
@@ -87,25 +82,64 @@ namespace Pahkat.UI.Main
 
             TvPackages.Focus();
 
+            RefreshPackageList();
+        }
+
+        private RepositoryIndex[] RequestRepos(RepoConfig[] configs)
+        {
+            var app = (PahkatApp)Application.Current;
+            app.Client.RefreshRepos();
+            return app.Client.Repos();
+        }
+
+        private void RefreshPackageList()
+        {
+            var app = (PahkatApp)Application.Current;
             app.ConfigStore.State.Select(x => x.Repositories)
-//                .DistinctUntilChanged()
+                //                .DistinctUntilChanged()
                 .Select(RequestRepos)
                 .SubscribeOn(Dispatcher.CurrentDispatcher)
                 .ObserveOn(Dispatcher.CurrentDispatcher)
                 .Subscribe(_presenter.SetRepos, HandleError)
                 .DisposedBy(_bag);
         }
-        
+
+        private void OnClickAboutMenuItem(object sender, RoutedEventArgs e)
+        {
+            var app = (IPahkatApp)Application.Current;
+            app.WindowService.Show<AboutWindow>();
+        }
+
         private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e)
         {
             var app = (IPahkatApp)Application.Current;
             app.WindowService.Show<SettingsWindow>();
         }
-        
-        private void OnClickAboutMenuItem(object sender, RoutedEventArgs e)
+
+        private void OnClickRefreshMenuItem(object sender, RoutedEventArgs e)
         {
-            var app = (IPahkatApp)Application.Current;
-            app.WindowService.Show<AboutWindow>();
+            RefreshPackageList();
+        }
+
+        private async void OnClickCheckForPackageUpdatesMenuItem(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                BtnCheckForPackageUpdates.IsEnabled = false;
+                var app = (IPahkatApp)Application.Current;
+                await Task.Run(() =>
+                {
+                    new UpdaterService(app.ConfigStore);
+                });
+            }
+            catch (Exception exc)
+            {
+                MessageBox.Show(exc.Message, Strings.CheckForPackageUpdates, MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                BtnCheckForPackageUpdates.IsEnabled = true;
+            }
         }
 
         private void OnClickExitMenuItem(object sender, RoutedEventArgs e)

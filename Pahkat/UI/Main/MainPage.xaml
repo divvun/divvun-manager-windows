@@ -22,6 +22,9 @@
                             <MenuItem Click="OnClickAboutMenuItem" Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" />
                             <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" />
                             <Separator />
+                            <MenuItem Click="OnClickRefreshMenuItem" Name="BtnRefresh" Header="{x:Static pahkat:Strings.Refresh}" />
+                            <MenuItem Click="OnClickCheckForPackageUpdatesMenuItem" Name="BtnCheckForPackageUpdates" Header="{x:Static pahkat:Strings.CheckForPackageUpdates}" />
+                            <Separator />
                             <MenuItem Click="OnClickExitMenuItem" Header="{x:Static pahkat:Strings.Exit}" />
                         </ContextMenu>
                     </Button.ContextMenu>
