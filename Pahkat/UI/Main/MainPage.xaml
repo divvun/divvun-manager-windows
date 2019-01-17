@@ -8,7 +8,7 @@
       xmlns:pahkat="clr-namespace:Pahkat"
       mc:Ignorable="d" 
       d:DesignHeight="480" d:DesignWidth="640"
-      Title="{Binding Title}">
+      Title="{Binding Title}" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
 
      <Grid>
         <DockPanel>

@@ -1,25 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Pahkat.Extensions;
-using Pahkat.Service;
 using Pahkat.Sdk;
 using Pahkat.UI.Shared;
 
@@ -42,6 +30,7 @@ namespace Pahkat.UI.Main
     {
         private Subject<EventArgs> _cancelSubject = new Subject<EventArgs>();
         private CompositeDisposable _bag = new CompositeDisposable();
+        private NavigationService _navigationService;
         
         public DownloadPage(Func<IDownloadPageView, DownloadPagePresenter> presenter)
         {
@@ -115,6 +104,25 @@ namespace Pahkat.UI.Main
         public void Dispose()
         {
             _bag.Dispose();
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            _navigationService = this.NavigationService;
+            _navigationService.Navigating += NavigationService_Navigating;
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _navigationService.Navigating -= NavigationService_Navigating;
+        }
+
+        private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.Back)
+            {
+                e.Cancel = true;
+            }
         }
     }
 }

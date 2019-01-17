@@ -12,11 +12,9 @@ using Pahkat.Extensions;
 using Pahkat.UI.Settings;
 using Pahkat.UI.Shared;
 using Pahkat.Util;
-using System.Collections.Generic;
-using Pahkat.Service;
-using Pahkat.Models;
 using Pahkat.UI.About;
 using Pahkat.Sdk;
+using System.Windows.Navigation;
 
 namespace Pahkat.UI.Main
 {
@@ -41,6 +39,7 @@ namespace Pahkat.UI.Main
         private IObservable<PackageMenuItem> _packageToggled;
         private IObservable<PackageCategoryTreeItem> _groupToggled;
         private CompositeDisposable _bag = new CompositeDisposable();
+        private NavigationService _navigationService;
 
         public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
         public IObservable<PackageCategoryTreeItem> OnGroupToggled() => _groupToggled;
@@ -155,6 +154,25 @@ namespace Pahkat.UI.Main
         public void Dispose()
         {
             _bag.Dispose();
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            _navigationService = this.NavigationService;
+            _navigationService.Navigating += NavigationService_Navigating;
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _navigationService.Navigating -= NavigationService_Navigating;
+        }
+
+        private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.Back)
+            {
+                e.Cancel = true;
+            }
         }
     }
 }

@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using Pahkat.Extensions;
-using Pahkat.Service;
 using Pahkat.UI.Shared;
 
 namespace Pahkat.UI.Main
@@ -28,6 +27,7 @@ namespace Pahkat.UI.Main
     public partial class CompletionPage : Page, ICompletionPageView, IDisposable
     {
         private CompositeDisposable _bag = new CompositeDisposable();
+        private NavigationService _navigationService;
         
         public CompletionPage(bool requiresReboot)
         {
@@ -85,6 +85,25 @@ namespace Pahkat.UI.Main
         public void Dispose()
         {
             _bag?.Dispose();
+        }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            _navigationService = this.NavigationService;
+            _navigationService.Navigating += NavigationService_Navigating;
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _navigationService.Navigating -= NavigationService_Navigating;
+        }
+
+        private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+            if (e.NavigationMode == NavigationMode.Back)
+            {
+                e.Cancel = true;
+            }
         }
     }
 }

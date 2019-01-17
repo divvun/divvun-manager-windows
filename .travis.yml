@@ -4,5 +4,4 @@ script:
   - choco install nuget.commandline
   - choco install visualstudio2017community --package-parameters "--add Microsoft.VisualStudio.Workload.ManagedDesktop"
   - choco install innosetup
-  - nuget restore
-  - powershell ".\travis-build.bat"
+  - powershell ".\travis-build.bat $PFX_PASSWORD"
