@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq;
-using System.Net;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
@@ -10,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Reactive.Concurrency;
 using System.Windows;
 using Pahkat.Models;
-using Pahkat.Extensions;
 using Pahkat.Sdk;
 
 namespace Pahkat.UI.Main
@@ -29,6 +26,8 @@ namespace Pahkat.UI.Main
         private readonly IDownloadPageView _view;
         private readonly IPackageStore _pkgStore;
         private readonly CancellationTokenSource _cancelSource;
+        private IPahkatTransaction _downloadedTransaction;
+        private bool _waitingForCancelDialog;
 
         private void UpdateProgress(PackageProgress package, uint cur, uint total)
         {
@@ -41,7 +40,6 @@ namespace Pahkat.UI.Main
         {
             _view = view;
             _pkgStore = pkgStore;
-            
             _cancelSource = new CancellationTokenSource();
         }
 
@@ -52,8 +50,26 @@ namespace Pahkat.UI.Main
             var cancel = _view.OnCancelClicked()
                 .Subscribe(_ =>
                 {
+                    _waitingForCancelDialog = false;
+                    _downloadedTransaction = null;
                     _cancelSource.Cancel();
                     _view.DownloadCancelled();
+                });
+
+            var resume = _view.OnResumeClicked()
+                .Subscribe(_ =>
+                {
+                    _waitingForCancelDialog = false;
+                    if (_downloadedTransaction != null)
+                    {
+                        _view.StartInstallation(_downloadedTransaction);
+                    }
+                });
+
+            var cancelDialogOpen = _view.OnCancelDialogOpen()
+                .Subscribe(_ =>
+                {
+                    _waitingForCancelDialog = true;
                 });
 
             var app = (IPahkatApp) Application.Current;
@@ -121,7 +137,14 @@ namespace Pahkat.UI.Main
                     //                    }
                     //                    else
                     //                    {
-                    _view.DownloadComplete(t);
+                    if (!_waitingForCancelDialog)
+                    {
+                        _view.StartInstallation(t);
+                    }
+                    else
+                    {
+                        _downloadedTransaction = t;
+                    }
                     //                    }
                 }, _view.HandleError);
 

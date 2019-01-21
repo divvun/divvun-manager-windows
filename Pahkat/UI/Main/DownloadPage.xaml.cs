@@ -17,8 +17,9 @@ namespace Pahkat.UI.Main
     {
         void StartInstallation(IPahkatTransaction transaction);
         void InitProgressList(ObservableCollection<DownloadListItem> source);
+        IObservable<EventArgs> OnCancelDialogOpen();
         IObservable<EventArgs> OnCancelClicked();
-        void DownloadComplete(IPahkatTransaction transaction);
+        IObservable<EventArgs> OnResumeClicked();
         void DownloadCancelled();
         void SetStatus(DownloadListItem item, DownloadProgress progress);
         void HandleError(Exception error);
@@ -30,11 +31,11 @@ namespace Pahkat.UI.Main
     public partial class DownloadPage : Page, IDownloadPageView, IDisposable
     {
         private Subject<EventArgs> _cancelSubject = new Subject<EventArgs>();
+        private Subject<EventArgs> _resumeSubject = new Subject<EventArgs>();
+        private Subject<EventArgs> _cancelDialogOpenSubject = new Subject<EventArgs>();
         private CompositeDisposable _bag = new CompositeDisposable();
         private NavigationService _navigationService;
-        private volatile bool _waitingForUserInput = false;
-        private IPahkatTransaction _downloadedTransaction;
-        
+
         public DownloadPage(Func<IDownloadPageView, DownloadPagePresenter> presenter)
         {
             InitializeComponent();
@@ -51,18 +52,6 @@ namespace Pahkat.UI.Main
             LvPrimary.ItemsSource = source;
         }
 
-        public void DownloadComplete(IPahkatTransaction transaction)
-        {
-            if (!_waitingForUserInput)
-            {
-                StartInstallation(transaction);
-            }
-            else
-            {
-                _downloadedTransaction = transaction;
-            }
-        }
-
         public void DownloadCancelled()
         {
             BtnCancel.IsEnabled = false;
@@ -73,13 +62,15 @@ namespace Pahkat.UI.Main
         public void SetStatus(DownloadListItem candidate, DownloadProgress progress)
         {
             if (LvPrimary.ItemsSource == null)
+            {
                 return;
+            }
 
-            var source = (ObservableCollection<DownloadListItem>) LvPrimary.ItemsSource;
+            var source = (ObservableCollection<DownloadListItem>)LvPrimary.ItemsSource;
             var item = source.First(candidate.Equals);
-            
+
             Console.WriteLine($"{progress.Status} {progress.Downloaded} {progress.Total} {progress.PackageId}");
-            
+
             switch (progress.Status)
             {
                 case PackageDownloadStatus.Progress:
@@ -91,9 +82,19 @@ namespace Pahkat.UI.Main
             }
         }
 
+        public IObservable<EventArgs> OnCancelDialogOpen()
+        {
+            return _cancelDialogOpenSubject.AsObservable();
+        }
+
         public IObservable<EventArgs> OnCancelClicked()
         {
             return _cancelSubject.AsObservable();
+        }
+
+        public IObservable<EventArgs> OnResumeClicked()
+        {
+            return _resumeSubject.AsObservable();
         }
 
         public void HandleError(Exception error)
@@ -104,20 +105,17 @@ namespace Pahkat.UI.Main
 
         private void BtnCancel_OnClick(object sender, RoutedEventArgs e)
         {
-            _waitingForUserInput = true;
+            _cancelDialogOpenSubject.OnNext(e);
+
             var res = MessageBox.Show(
                 Strings.CancelDownloadsBody,
                 Strings.CancelDownloadsTitle,
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
-            _waitingForUserInput = false;
 
             if (res != MessageBoxResult.Yes)
             {
-                if (_downloadedTransaction != null)
-                {
-                    StartInstallation(_downloadedTransaction);
-                }
+                _resumeSubject.OnNext(e);
                 return;
             }
 
