@@ -18,6 +18,7 @@ namespace Pahkat.UI.Main
         void StartInstallation(IPahkatTransaction transaction);
         void InitProgressList(ObservableCollection<DownloadListItem> source);
         IObservable<EventArgs> OnCancelClicked();
+        void DownloadComplete(IPahkatTransaction transaction);
         void DownloadCancelled();
         void SetStatus(DownloadListItem item, DownloadProgress progress);
         void HandleError(Exception error);
@@ -31,6 +32,8 @@ namespace Pahkat.UI.Main
         private Subject<EventArgs> _cancelSubject = new Subject<EventArgs>();
         private CompositeDisposable _bag = new CompositeDisposable();
         private NavigationService _navigationService;
+        private volatile bool _waitingForUserInput = false;
+        private IPahkatTransaction _downloadedTransaction;
         
         public DownloadPage(Func<IDownloadPageView, DownloadPagePresenter> presenter)
         {
@@ -48,6 +51,18 @@ namespace Pahkat.UI.Main
             LvPrimary.ItemsSource = source;
         }
 
+        public void DownloadComplete(IPahkatTransaction transaction)
+        {
+            if (!_waitingForUserInput)
+            {
+                StartInstallation(transaction);
+            }
+            else
+            {
+                _downloadedTransaction = transaction;
+            }
+        }
+
         public void DownloadCancelled()
         {
             BtnCancel.IsEnabled = false;
@@ -57,6 +72,9 @@ namespace Pahkat.UI.Main
 
         public void SetStatus(DownloadListItem candidate, DownloadProgress progress)
         {
+            if (LvPrimary.ItemsSource == null)
+                return;
+
             var source = (ObservableCollection<DownloadListItem>) LvPrimary.ItemsSource;
             var item = source.First(candidate.Equals);
             
@@ -86,17 +104,23 @@ namespace Pahkat.UI.Main
 
         private void BtnCancel_OnClick(object sender, RoutedEventArgs e)
         {
+            _waitingForUserInput = true;
             var res = MessageBox.Show(
                 Strings.CancelDownloadsBody,
                 Strings.CancelDownloadsTitle,
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
+            _waitingForUserInput = false;
 
             if (res != MessageBoxResult.Yes)
             {
+                if (_downloadedTransaction != null)
+                {
+                    StartInstallation(_downloadedTransaction);
+                }
                 return;
             }
-            
+
             BtnCancel.IsEnabled = false;
             _cancelSubject.OnNext(e);
         }

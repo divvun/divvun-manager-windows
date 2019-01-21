@@ -114,15 +114,15 @@ namespace Pahkat.UI.Main
 //                .ObserveOn(DispatcherScheduler.Current)
                 .Subscribe((t) =>
                 {
-//                    if (t.Item2)
-//                    {
-//                        // TODO: far better error handling for failed downloads
-//                        _view.HandleError(new Exception(Strings.DownloadError));
-//                    }
-//                    else
-//                    {
-                        _view.StartInstallation(t);
-//                    }
+                    //                    if (t.Item2)
+                    //                    {
+                    //                        // TODO: far better error handling for failed downloads
+                    //                        _view.HandleError(new Exception(Strings.DownloadError));
+                    //                    }
+                    //                    else
+                    //                    {
+                    _view.DownloadComplete(t);
+                    //                    }
                 }, _view.HandleError);
 
             return new CompositeDisposable(downloading, cancel);
