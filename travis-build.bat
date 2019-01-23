@@ -13,4 +13,5 @@ set "BIN=DivvunInstaller.exe"
   rem signtool sign /debug /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll || exit /b !ERRORLEVEL!
   rem signtool sign /debug /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\%BIN% || exit /b !ERRORLEVEL!
   rem "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %cd%\%PFX% /p %PFX_PASSWORD% $f" setup.iss
+  "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Qp /O.\output setup.iss
 endlocal
