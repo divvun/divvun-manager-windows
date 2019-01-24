@@ -1,0 +1,31 @@
+version: 1.0.{build}
+image: Visual Studio 2017
+configuration: Release
+platform: x86
+environment:
+  PFX_PASSWORD:
+    secure: X3wxyOt1frnJOFA1Nh6UjYeCY994vrcCcm05QFCm53v7TjilPngLdwN7MZGMFCRi
+  PFX: C:\projects\pahkat-client-windows\enc\creds\windows\divvun.pfx
+  DIVVUN_KEY:
+    secure: O2YLaJAmMg+GH5u54RvYfT9L084K3wH+jVhXAd9JpIPKBBLTzNEkriidokOtCuFcqz+U79nExQefKS1WBTN6PeR2BaO93A2MpmwEWcpT0wxHXgVYijpjjB+iv+ULj0Sj
+install:
+- sh: choco install innosetup
+before_build:
+- cmd: nuget restore
+build:
+  project: Pahkat.sln
+  verbosity: minimal
+after_build:
+- cmd: >-
+    git clone https://github.com/bbqsrc/divvun-keyboard-config.git C:\divvun-keyboard-config
+    openssl aes-256-cbc -d -in C:\divvun-keyboard-config\config.txz.enc -pass pass:%DIVVUN_KEY% -out config.txz
+    7z e config.txz
+    tar xf config.tar
+    "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
+    "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
+    "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
+    "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
+    "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Qp /O.\output /S"signtool=C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% $f" setup.iss
+artifacts:
+- path: output/install.exe
+  name: install.exe
