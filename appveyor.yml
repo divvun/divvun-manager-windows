@@ -18,13 +18,21 @@ build:
 after_build:
 - cmd: >-
     git clone https://github.com/bbqsrc/divvun-keyboard-config.git C:\divvun-keyboard-config
+
     openssl aes-256-cbc -d -in C:\divvun-keyboard-config\config.txz.enc -pass pass:%DIVVUN_KEY% -out config.txz
+
     7z e config.txz
+
     tar xf config.tar
+
     "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
+
     "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
+
     "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
+
     "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
+
     "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Qp /O.\output /S"signtool=C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% $f" setup.iss
 artifacts:
 - path: output/install.exe
