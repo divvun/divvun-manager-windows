@@ -28,7 +28,7 @@ namespace Pahkat.UI.Main
         void ShowCompletion(bool isCancelled, bool requiresReboot);
         void HandleError(Exception error);
         void ProcessCancelled();
-        void RequestAdmin(string urlListFile);
+        void RequestAdmin(string jsonFilePath);
     }
 
     /// <summary>
@@ -137,14 +137,14 @@ namespace Pahkat.UI.Main
                 MessageBoxImage.Error);
         }
 
-        public void RequestAdmin(string urlListFile)
+        public void RequestAdmin(string jsonFilePath)
         {
             var app = (PahkatApp)Application.Current;
             var window = app.WindowService.Get<MainWindow>();
             var windowState = JsonConvert.SerializeObject(new WindowSaveState(window.Instance));
             app.WindowService.Hide<MainWindow>();
 
-            var args = $"-i {urlListFile} -w {windowState}";
+            var args = $"-i \"{jsonFilePath}\" -w {windowState}";
             var path = System.Reflection.Assembly.GetExecutingAssembly().Location;
             var process = new Process
             {
