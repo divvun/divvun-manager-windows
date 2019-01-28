@@ -24,6 +24,7 @@ namespace Pahkat.UI.Main
         private IPackageStore _store;
 
         private RepositoryIndex[] _currentRepos;
+        private string _searchText;
 
         private IDisposable BindPackageToggled(IMainPageView view, IPackageStore store)
         {
@@ -53,11 +54,22 @@ namespace Pahkat.UI.Main
                 .Subscribe(_ => view.ShowDownloadPage());
         }
 
+        private IDisposable BindSearchTextChanged(IMainPageView view)
+        {
+            return view.OnSearchTextChanged()
+                .Subscribe((text) =>
+                {
+                    _searchText = text;
+                    RefreshPackageList();
+                });
+        }
+
         private IEnumerable<PackageCategoryTreeItem> FilterByCategory(RepositoryIndex repo)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
+            var packages = ApplySearchText(repo.Packages.Values);
 
-            foreach (var package in repo.Packages.Values)
+            foreach (var package in packages)
             {
                 if (!map.ContainsKey(package.Category))
                 {
@@ -80,8 +92,9 @@ namespace Pahkat.UI.Main
         private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(RepositoryIndex repo)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
+            var packages = ApplySearchText(repo.Packages.Values);
 
-            foreach (var package in repo.Packages.Values)
+            foreach (var package in packages)
             {
                 foreach (var bcp47 in package.Languages)
                 {
@@ -102,6 +115,16 @@ namespace Pahkat.UI.Main
             }));
 
             return languages;
+        }
+
+        private IEnumerable<Package> ApplySearchText(IEnumerable<Package> packages)
+        {
+            return packages.Where(x =>
+            {
+                return string.IsNullOrWhiteSpace(_searchText)
+                    ? true
+                    : x.NativeName.ToLowerInvariant().Contains(_searchText.ToLowerInvariant());
+            });
         }
         
         private void RefreshPackageList()
@@ -129,8 +152,10 @@ namespace Pahkat.UI.Main
                         break;
                 }
 
-                var item = new RepoTreeItem(repo.Meta.NativeName,
-                    new ObservableCollection<PackageCategoryTreeItem>(items));
+                var item = new RepoTreeItem(
+                    repo.Meta.NativeName,
+                    new ObservableCollection<PackageCategoryTreeItem>(items)
+                );
                 _tree.Add(item);
             }
 
@@ -199,6 +224,7 @@ namespace Pahkat.UI.Main
             _pkgServ = pkgServ;
             _view = view;
             _store = store;
+
         }
 
         public IDisposable Start()
@@ -211,7 +237,8 @@ namespace Pahkat.UI.Main
                 //BindUpdatePackageList(_repoServ, _pkgServ, _store),
                 BindPackageToggled(_view, _store),
                 BindGroupToggled(_view, _store),
-                BindPrimaryButton(_view)
+                BindPrimaryButton(_view),
+                BindSearchTextChanged(_view)
             );
         }
     }

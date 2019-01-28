@@ -461,4 +461,7 @@
   <data name="Zoom" xml:space="preserve">
     <value>Zoom</value>
   </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
 </root>

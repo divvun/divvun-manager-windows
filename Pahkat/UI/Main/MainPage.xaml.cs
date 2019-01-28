@@ -17,11 +17,13 @@ using Pahkat.Sdk;
 using System.Windows.Navigation;
 using Pahkat.Service;
 using System.Threading.Tasks;
+using System.Reactive.Subjects;
 
 namespace Pahkat.UI.Main
 {
     public interface IMainPageView : IPageView
     {
+        IObservable<string> OnSearchTextChanged();
         IObservable<PackageMenuItem> OnPackageToggled();
         IObservable<PackageCategoryTreeItem> OnGroupToggled();
         IObservable<EventArgs> OnPrimaryButtonPressed();
@@ -42,7 +44,9 @@ namespace Pahkat.UI.Main
         private IObservable<PackageCategoryTreeItem> _groupToggled;
         private CompositeDisposable _bag = new CompositeDisposable();
         private NavigationService _navigationService;
+        private Subject<string> _searchTextChangedSubject = new Subject<string>();
 
+        public IObservable<string> OnSearchTextChanged() => _searchTextChangedSubject.AsObservable();
         public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
         public IObservable<PackageCategoryTreeItem> OnGroupToggled() => _groupToggled;
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
@@ -206,6 +210,30 @@ namespace Pahkat.UI.Main
             if (e.NavigationMode == NavigationMode.Back)
             {
                 e.Cancel = true;
+            }
+        }
+
+        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SearchTextBox.Text != Strings.Search)
+            {
+                _searchTextChangedSubject.OnNext(SearchTextBox.Text);
+            }
+        }
+
+        private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (SearchTextBox.Text == Strings.Search)
+            {
+                SearchTextBox.Text = string.Empty;
+            }
+        }
+
+        private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {            
+            if (string.IsNullOrWhiteSpace(SearchTextBox.Text))
+            {
+                SearchTextBox.Text = Strings.Search;
             }
         }
     }

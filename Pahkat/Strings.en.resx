@@ -461,4 +461,7 @@
   <data name="CheckForPackageUpdates" xml:space="preserve">
     <value>Check for package updates</value>
   </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
 </root>

@@ -10,7 +10,7 @@
       d:DesignHeight="480" d:DesignWidth="640"
       Title="{Binding Title}" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
 
-     <Grid>
+    <Grid>
         <DockPanel>
             <DockPanel DockPanel.Dock="top" Height="32">
                 <Button Name="BtnMenu" Width="26" Height="24" Margin="4,0,0,0" Padding="0" 
@@ -30,7 +30,11 @@
                     </Button.ContextMenu>
                 </Button>
                 <!--TextBox Name="TxtSearch" Height="23" Margin="8,0,8,0" TextWrapping="Wrap" Text="Search" VerticalContentAlignment="Center" Width="160"/-->
-                <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" />
+                <DockPanel HorizontalAlignment="Right">
+                    <!--<Label Content="Search" Height="24" VerticalAlignment="Center"/>-->
+                    <TextBox x:Name="SearchTextBox" VerticalContentAlignment="Center" TextWrapping="NoWrap" Width="160" Text="{x:Static pahkat:Strings.Search}" HorizontalAlignment="Right" Margin="0,4,4,4" TextChanged="SearchTextBox_TextChanged" GotFocus="SearchTextBox_GotFocus" LostFocus="SearchTextBox_LostFocus"/>
+                    <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" />
+                </DockPanel>
             </DockPanel>
             <TreeView Name="TvPackages" HorizontalContentAlignment="Stretch" Width="auto">
                 <TreeView.ItemContainerStyle>
