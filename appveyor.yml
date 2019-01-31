@@ -9,7 +9,12 @@ environment:
   DIVVUN_KEY:
     secure: O2YLaJAmMg+GH5u54RvYfT9L084K3wH+jVhXAd9JpIPKBBLTzNEkriidokOtCuFcqz+U79nExQefKS1WBTN6PeR2BaO93A2MpmwEWcpT0wxHXgVYijpjjB+iv+ULj0Sj
 install:
-- sh: choco install innosetup
+- cmd: >-
+    choco install innosetup
+
+    appveyor DownloadFile https://ci.appveyor.com/api/projects/%APPVEYOR_ACCOUNT_NAME%/pahkat-client-core/artifacts/target/release/pahkat_client.dll?branch=master
+
+    move pahkat_client.dll .\Pahkat.Sdk\
 before_build:
 - cmd: nuget restore
 build:
@@ -36,4 +41,4 @@ after_build:
     "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Qp /O.\output /S"signtool=C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% $f" setup.iss
 artifacts:
 - path: output/install.exe
-  name: install.exe
+  name: DivvunInstaller.exe
