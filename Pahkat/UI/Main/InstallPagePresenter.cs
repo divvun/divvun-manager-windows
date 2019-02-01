@@ -106,6 +106,9 @@ namespace Pahkat.UI.Main
                     case PackageEventType.Completed:
                         _view.SetEnding();
                         break;
+                    case PackageEventType.Error:
+                        MessageBox.Show(Strings.ErrorDuringInstallation, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
                 }
             },
             _view.HandleError,
