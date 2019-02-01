@@ -337,8 +337,11 @@ namespace Pahkat
         protected override void OnExit(ExitEventArgs e)
         {
             // Stop Quartz from holding the app open for all time
-            UpdaterService.Dispose();
-            UpdaterService = null;
+            if (UpdaterService != null)
+            {
+                UpdaterService.Dispose();
+                UpdaterService = null;
+            }
 
             base.OnExit(e);
         }
