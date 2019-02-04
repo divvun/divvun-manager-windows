@@ -27,6 +27,7 @@ namespace Pahkat.UI.Main
         IObservable<PackageMenuItem> OnPackageToggled();
         IObservable<PackageCategoryTreeItem> OnGroupToggled();
         IObservable<EventArgs> OnPrimaryButtonPressed();
+        IObservable<RepositoryIndex[]> OnNewRepositories();
         void UpdateTitle(string title);
         void SetPackagesModel(ObservableCollection<RepoTreeItem> tree);
         void ShowDownloadPage();
@@ -44,14 +45,16 @@ namespace Pahkat.UI.Main
         private IObservable<PackageCategoryTreeItem> _groupToggled;
         private CompositeDisposable _bag = new CompositeDisposable();
         private NavigationService _navigationService;
-        private Subject<string> _searchTextChangedSubject = new Subject<string>();
+        private ISubject<string> _searchTextChangedSubject = new BehaviorSubject<string>("");
+        private IObservable<RepositoryIndex[]> _onNewRepositories;
 
         public IObservable<string> OnSearchTextChanged() => _searchTextChangedSubject.AsObservable();
         public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
         public IObservable<PackageCategoryTreeItem> OnGroupToggled() => _groupToggled;
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
             .Select(e => e.EventArgs);
-        
+        public IObservable<RepositoryIndex[]> OnNewRepositories() => _onNewRepositories;
+
         public MainPage()
         {
             InitializeComponent();
@@ -82,11 +85,13 @@ namespace Pahkat.UI.Main
                 .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
                 .NotNull();
 
+            _onNewRepositories = CreateOnRefreshPackageList();
+
             _presenter.Start().DisposedBy(_bag);
 
             TvPackages.Focus();
 
-            RefreshPackageList();
+            //RefreshPackageList();
         }
 
         private RepositoryIndex[] RequestRepos(RepoConfig[] configs)
@@ -96,16 +101,17 @@ namespace Pahkat.UI.Main
             return app.Client.Repos();
         }
 
-        private void RefreshPackageList()
+        private IObservable<RepositoryIndex[]> CreateOnRefreshPackageList()
         {
             var app = (PahkatApp)Application.Current;
-            app.ConfigStore.State.Select(x => x.Repositories)
+            return app.ConfigStore.State.Select(x => x.Repositories)
                 //                .DistinctUntilChanged()
                 .Select(RequestRepos)
                 .SubscribeOn(Dispatcher.CurrentDispatcher)
                 .ObserveOn(Dispatcher.CurrentDispatcher)
-                .Subscribe(_presenter.SetRepos, HandleError)
-                .DisposedBy(_bag);
+                .Do(repos => {
+                    Console.WriteLine("weeeee");
+                });
         }
 
         private void OnClickAboutMenuItem(object sender, RoutedEventArgs e)
@@ -122,7 +128,9 @@ namespace Pahkat.UI.Main
 
         private void OnClickRefreshMenuItem(object sender, RoutedEventArgs e)
         {
-            RefreshPackageList();
+            // TODO: redownload the repos
+            var app = (IPahkatApp)Application.Current;
+            app.Client.RefreshRepos();
         }
 
         private async void OnClickCheckForPackageUpdatesMenuItem(object sender, RoutedEventArgs e)
@@ -215,6 +223,7 @@ namespace Pahkat.UI.Main
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // TODO: label goes on top, not this
             if (SearchTextBox.Text != Strings.Search)
             {
                 _searchTextChangedSubject.OnNext(SearchTextBox.Text);

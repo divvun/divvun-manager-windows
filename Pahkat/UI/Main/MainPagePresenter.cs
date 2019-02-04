@@ -19,12 +19,8 @@ namespace Pahkat.UI.Main
             new ObservableCollection<RepoTreeItem>();
         
         private IMainPageView _view;
-        //private RepositoryService _repoServ;
         private IPackageService _pkgServ;
         private IPackageStore _store;
-
-        private RepositoryIndex[] _currentRepos;
-        private string _searchText;
 
         private IDisposable BindPackageToggled(IMainPageView view, IPackageStore store)
         {
@@ -54,29 +50,18 @@ namespace Pahkat.UI.Main
                 .Subscribe(_ => view.ShowDownloadPage());
         }
 
-        private IDisposable BindSearchTextChanged(IMainPageView view)
-        {
-            return view.OnSearchTextChanged()
-                .Subscribe((text) =>
-                {
-                    _searchText = text;
-                    RefreshPackageList();
-                });
-        }
-
-        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(RepositoryIndex repo)
+        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Dictionary<Package, AbsolutePackageKey> keyMap)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
-            var packages = ApplySearchText(repo.Packages.Values);
 
-            foreach (var package in packages)
+            foreach (var package in keyMap.Keys)
             {
                 if (!map.ContainsKey(package.Category))
                 {
                     map[package.Category] = new List<PackageMenuItem>();
                 }
 
-                map[package.Category].Add(new PackageMenuItem(repo.AbsoluteKeyFor(package), package, _pkgServ, _store));
+                map[package.Category].Add(new PackageMenuItem(keyMap[package], package, _pkgServ, _store));
             }
 
             var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x =>
@@ -89,12 +74,11 @@ namespace Pahkat.UI.Main
             return categories;
         }
 
-        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(RepositoryIndex repo)
+        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(Dictionary<Package, AbsolutePackageKey> keyMap)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
-            var packages = ApplySearchText(repo.Packages.Values);
 
-            foreach (var package in packages)
+            foreach (var package in keyMap.Keys)
             {
                 foreach (var bcp47 in package.Languages)
                 {
@@ -103,7 +87,7 @@ namespace Pahkat.UI.Main
                         map[bcp47] = new List<PackageMenuItem>();
                     }
 
-                    map[bcp47].Add(new PackageMenuItem(repo.AbsoluteKeyFor(package), package, _pkgServ, _store));
+                    map[bcp47].Add(new PackageMenuItem(keyMap[package], package, _pkgServ, _store));
                 }
             }
 
@@ -117,65 +101,65 @@ namespace Pahkat.UI.Main
             return languages;
         }
 
-        private IEnumerable<Package> ApplySearchText(IEnumerable<Package> packages)
+        private bool IsFoundBySearchQuery(string query, Package package)
         {
-            return packages.Where(x =>
-            {
-                return string.IsNullOrWhiteSpace(_searchText)
-                    ? true
-                    : x.NativeName.ToLowerInvariant().Contains(_searchText.ToLowerInvariant());
-            });
+            // TODO: https://github.com/rangp/fuzzystrings
+            return string.IsNullOrWhiteSpace(query) || package.NativeName.ToLowerInvariant().Contains(query.ToLowerInvariant());
         }
-        
-        private void RefreshPackageList()
-        {
-            _tree.Clear();
-            
-            if (_currentRepos == null)
-            {
-                Console.WriteLine("Repository empty.");
-                _view.UpdateTitle(Strings.AppName);
-                return;
-            }
 
-            foreach (var repo in _currentRepos)
+        private IDisposable BindNewRepositories(IMainPageView view)
+        {
+            return Observable.CombineLatest(_view.OnNewRepositories(), _view.OnSearchTextChanged(), (repos, query) =>
             {
-                IEnumerable<PackageCategoryTreeItem> items;
-                switch (repo.Meta.PrimaryFilter)
+                return new Tuple<RepositoryIndex[], string>(repos, query);
+            })
+            .Subscribe((t) =>
+            {
+                var repos = t.Item1;
+                var query = t.Item2;
+
+                _tree.Clear();
+
+                if (repos == null)
                 {
-                    case RepositoryMeta.Filter.Language:
-                        items = FilterByLanguage(repo);
-                        break;
-                    case RepositoryMeta.Filter.Category:
-                    default:
-                        items = FilterByCategory(repo);
-                        break;
+                    Console.WriteLine("Repository empty.");
+                    _view.UpdateTitle(Strings.AppName);
+                    return;
                 }
 
-                var item = new RepoTreeItem(
-                    repo.Meta.NativeName,
-                    new ObservableCollection<PackageCategoryTreeItem>(items)
-                );
-                _tree.Add(item);
-            }
+                foreach (var repo in repos)
+                {
+                    IEnumerable<PackageCategoryTreeItem> items;
 
-            _view.UpdateTitle($"{Strings.AppName}");
-            Console.WriteLine("Added packages.");
+
+                    var keyMap = new Dictionary<Package, AbsolutePackageKey>();
+                    foreach (var pkg in repo.Packages.Values.Where((pkg) => IsFoundBySearchQuery(query, pkg))) {
+                        keyMap[pkg] = repo.AbsoluteKeyFor(pkg);
+                    };
+    
+                    switch (repo.Meta.PrimaryFilter)
+                    {
+                        case RepositoryMeta.Filter.Language:
+                            items = FilterByLanguage(keyMap);
+                            break;
+                        case RepositoryMeta.Filter.Category:
+                        default:
+                            items = FilterByCategory(keyMap);
+                            break;
+                    }
+
+                    var item = new RepoTreeItem(
+                        repo.Meta.NativeName,
+                        new ObservableCollection<PackageCategoryTreeItem>(items)
+                    );
+
+                    _tree.Add(item);
+                    _view.UpdateTitle(Strings.AppName);
+                    Console.WriteLine("Added packages.");
+                }
+
+            }, _view.HandleError);
         }
-
-        //private IDisposable BindUpdatePackageList(RpcService rpc, IPackageService pkgServ, IPackageStore store)
-        //{
-        //    return rpc.Repository()
-        //    return repoServ.System
-        //        .Select(x => x.RepoResult?.Repository)
-        //        .NotNull()
-        //        .DistinctUntilChanged()
-        //        .Subscribe(repo =>
-        //        {
-        //            _currentRepo = repo;
-        //            RefreshPackageList();
-        //        }, _view.HandleError);
-        //}
 
         private void GeneratePrimaryButtonLabel(Dictionary<AbsolutePackageKey, PackageActionInfo> packages)
         {
@@ -212,11 +196,11 @@ namespace Pahkat.UI.Main
                 .Subscribe(GeneratePrimaryButtonLabel);
         }
 
-        public void SetRepos(RepositoryIndex[] repos)
-        {
-            _currentRepos = repos;
-            RefreshPackageList();
-        }
+        //public void SetRepos(RepositoryIndex[] repos)
+        //{
+        //    _currentRepos = repos;
+        //    RefreshPackageList();
+        //}
 
         public MainPagePresenter(IMainPageView view, IPackageService pkgServ, IPackageStore store)
         {
@@ -238,7 +222,7 @@ namespace Pahkat.UI.Main
                 BindPackageToggled(_view, _store),
                 BindGroupToggled(_view, _store),
                 BindPrimaryButton(_view),
-                BindSearchTextChanged(_view)
+                BindNewRepositories(_view)
             );
         }
     }
