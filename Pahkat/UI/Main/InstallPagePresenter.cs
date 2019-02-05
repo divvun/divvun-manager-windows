@@ -7,7 +7,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Windows;
 using Newtonsoft.Json;
-using Pahkat.Models;
 using Pahkat.Sdk;
 
 namespace Pahkat.UI.Main
@@ -36,7 +35,7 @@ namespace Pahkat.UI.Main
 
             _cancelSource = new CancellationTokenSource();
 
-            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             _stateDir = Path.Combine(appdata, "Pahkat", "state");
         }
 
