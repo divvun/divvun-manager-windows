@@ -59,7 +59,7 @@ namespace Pahkat.Service
             public const string QuietUninstallString = "QuietUninstallString";
             public const string UninstallString = "UninstallString";
         }
-        
+
         private readonly IWindowsRegistry _registry;
         
         public PackageService(IWindowsRegistry registry)

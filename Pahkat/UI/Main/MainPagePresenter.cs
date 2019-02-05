@@ -10,6 +10,7 @@ using Pahkat.Models;
 using Pahkat.Service;
 using Pahkat.Sdk;
 using Pahkat.UI.Shared;
+using DuoVia.FuzzyStrings;
 
 namespace Pahkat.UI.Main
 {
@@ -103,8 +104,17 @@ namespace Pahkat.UI.Main
 
         private bool IsFoundBySearchQuery(string query, Package package)
         {
-            // TODO: https://github.com/rangp/fuzzystrings
-            return string.IsNullOrWhiteSpace(query) || package.NativeName.ToLowerInvariant().Contains(query.ToLowerInvariant());
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return true;
+            }
+
+            const double matchCoefficient = 0.33;
+
+            return package.NativeName
+                .Split(new[] { ' ' })
+                .Where(word => word.FuzzyMatch(query) >= matchCoefficient)
+                .Count() >= 1;
         }
 
         private IDisposable BindNewRepositories(IMainPageView view)
