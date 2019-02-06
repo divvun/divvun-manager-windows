@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
 using Pahkat.Sdk;
@@ -109,7 +107,7 @@ namespace Pahkat.UI.Main
                 return true;
             }
 
-            const double matchCoefficient = 0.33;
+            const double matchCoefficient = 0.2;
 
             return package.NativeName
                 .Split(new[] { ' ' })

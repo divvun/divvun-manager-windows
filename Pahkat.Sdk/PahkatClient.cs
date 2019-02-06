@@ -460,7 +460,7 @@ namespace Pahkat.Sdk
         public PahkatClient(string configPath = null)
         {
             IntPtr ptr = configPath != null ? MarshalUtf8.StringToHGlobalUtf8(configPath) : IntPtr.Zero;
-            handle = Native.pahkat_client_new(ptr);
+            handle = Native.pahkat_client_new(ptr, 1);
 
             Config = new PahkatConfig(handle);
 
@@ -489,6 +489,11 @@ namespace Pahkat.Sdk
         public void RefreshRepos()
         {
             Native.pahkat_refresh_repos(handle);
+        }
+
+        public void ForceRefreshRepos()
+        {
+            Native.pahkat_force_refresh_repos(handle);
         }
 
         public RepositoryIndex[] Repos()
@@ -728,7 +733,7 @@ namespace Pahkat.Sdk
         public delegate void PackageTransactionRunCallback(uint txId, IntPtr packageId, uint action);
 
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr pahkat_client_new(IntPtr configPath);
+        public static extern IntPtr pahkat_client_new(IntPtr configPath, byte saveChanges);
 
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr pahkat_config_path(IntPtr handle);
@@ -747,6 +752,9 @@ namespace Pahkat.Sdk
 
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern void pahkat_refresh_repos(IntPtr handle);
+
+        [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void pahkat_force_refresh_repos(IntPtr handle);
 
         [DllImport("pahkat_client.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void pahkat_client_free(IntPtr handle);

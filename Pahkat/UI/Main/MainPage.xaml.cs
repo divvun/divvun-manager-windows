@@ -47,6 +47,7 @@ namespace Pahkat.UI.Main
         private NavigationService _navigationService;
         private ISubject<string> _searchTextChangedSubject = new BehaviorSubject<string>("");
         private IObservable<RepositoryIndex[]> _onNewRepositories;
+        private ISubject<bool> _onForceRefreshClickedSubject = new Subject<bool>();
 
         public IObservable<string> OnSearchTextChanged() => _searchTextChangedSubject.AsObservable();
         public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
@@ -85,33 +86,35 @@ namespace Pahkat.UI.Main
                 .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
                 .NotNull();
 
-            _onNewRepositories = CreateOnRefreshPackageList();
+            var onConfigChanged = app.ConfigStore.State
+                .Select(x => x.Repositories)
+                .Select(configs => RequestRepos(false))
+                .SubscribeOn(Dispatcher.CurrentDispatcher)
+                .ObserveOn(Dispatcher.CurrentDispatcher);
+
+            var onForceRefreshClick = _onForceRefreshClickedSubject
+                .AsObservable()
+                .Select(force => RequestRepos(force));
+
+            _onNewRepositories = Observable.Merge(onConfigChanged, onForceRefreshClick);
 
             _presenter.Start().DisposedBy(_bag);
 
             TvPackages.Focus();
-
-            //RefreshPackageList();
         }
 
-        private RepositoryIndex[] RequestRepos(RepoConfig[] configs)
+        private RepositoryIndex[] RequestRepos(bool forceRefresh)
         {
             var app = (PahkatApp)Application.Current;
-            app.Client.RefreshRepos();
+            if (forceRefresh)
+            {
+                app.Client.ForceRefreshRepos();
+            }
+            else
+            {
+                app.Client.RefreshRepos();
+            }
             return app.Client.Repos();
-        }
-
-        private IObservable<RepositoryIndex[]> CreateOnRefreshPackageList()
-        {
-            var app = (PahkatApp)Application.Current;
-            return app.ConfigStore.State.Select(x => x.Repositories)
-                //                .DistinctUntilChanged()
-                .Select(RequestRepos)
-                .SubscribeOn(Dispatcher.CurrentDispatcher)
-                .ObserveOn(Dispatcher.CurrentDispatcher)
-                .Do(repos => {
-                    Console.WriteLine("weeeee");
-                });
         }
 
         private void OnClickAboutMenuItem(object sender, RoutedEventArgs e)
@@ -128,9 +131,7 @@ namespace Pahkat.UI.Main
 
         private void OnClickRefreshMenuItem(object sender, RoutedEventArgs e)
         {
-            // TODO: redownload the repos
-            var app = (IPahkatApp)Application.Current;
-            app.Client.RefreshRepos();
+            _onForceRefreshClickedSubject.OnNext(true);
         }
 
         private async void OnClickCheckForPackageUpdatesMenuItem(object sender, RoutedEventArgs e)
