@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using Pahkat.Service;
 using System.Threading.Tasks;
 using System.Reactive.Subjects;
+using System.Reactive.Concurrency;
 
 namespace Pahkat.UI.Main
 {
@@ -88,13 +89,15 @@ namespace Pahkat.UI.Main
 
             var onConfigChanged = app.ConfigStore.State
                 .Select(x => x.Repositories)
-                .Select(configs => RequestRepos(false))
-                .SubscribeOn(Dispatcher.CurrentDispatcher)
+                .Select(async configs => await RequestRepos())
+                .Switch()
                 .ObserveOn(Dispatcher.CurrentDispatcher);
 
             var onForceRefreshClick = _onForceRefreshClickedSubject
                 .AsObservable()
-                .Select(force => RequestRepos(force));
+                .Select(async force => await ForceRequestRepos())
+                .Switch()
+                .ObserveOn(Dispatcher.CurrentDispatcher);
 
             _onNewRepositories = Observable.Merge(onConfigChanged, onForceRefreshClick);
 
@@ -103,18 +106,24 @@ namespace Pahkat.UI.Main
             TvPackages.Focus();
         }
 
-        private RepositoryIndex[] RequestRepos(bool forceRefresh)
+        private async Task<RepositoryIndex[]> RequestRepos()
         {
-            var app = (PahkatApp)Application.Current;
-            if (forceRefresh)
+            return await Task.Run(() =>
             {
-                app.Client.ForceRefreshRepos();
-            }
-            else
-            {
+                var app = (PahkatApp)Application.Current;
                 app.Client.RefreshRepos();
-            }
-            return app.Client.Repos();
+                return app.Client.Repos();
+            });
+        }
+
+        private async Task<RepositoryIndex[]> ForceRequestRepos()
+        {
+            return await Task.Run(() =>
+            {
+                var app = (PahkatApp)Application.Current;
+                app.Client.ForceRefreshRepos();
+                return app.Client.Repos();
+            });
         }
 
         private void OnClickAboutMenuItem(object sender, RoutedEventArgs e)
