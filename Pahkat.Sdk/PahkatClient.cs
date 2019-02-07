@@ -462,12 +462,12 @@ namespace Pahkat.Sdk
             IntPtr ptr = configPath != null ? MarshalUtf8.StringToHGlobalUtf8(configPath) : IntPtr.Zero;
             handle = Native.pahkat_client_new(ptr, saveChanges ? (byte)1 : (byte)0);
 
-            Config = new PahkatConfig(handle);
-
             if (handle == IntPtr.Zero)
             {
                 throw new Exception("pahkat_client_new returned a NULL pointer");
             }
+
+            Config = new PahkatConfig(handle);
 
             if (ptr != IntPtr.Zero)
             {
