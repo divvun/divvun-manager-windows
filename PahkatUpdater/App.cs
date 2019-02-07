@@ -85,10 +85,10 @@ namespace PahkatUpdater
                 ShowError("No self-update manifest found. Your Divvun Installer installation might be damaged.");
                 return;
             }
-            
+
             try
             {
-                Client = new PahkatClient(selfUpdateConfig);
+                Client = new PahkatClient(selfUpdateConfig, false);
             } catch (Exception ex) {
                 ShowError(ex.Message);
                 return;

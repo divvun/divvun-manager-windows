@@ -464,4 +464,10 @@
   <data name="Search" xml:space="preserve">
     <value>Search</value>
   </data>
+  <data name="BetaUpdateAvailable" xml:space="preserve">
+    <value>Beta Update Available</value>
+  </data>
+  <data name="BetaUpdateQuestion" xml:space="preserve">
+    <value>You are using a developer mode channel override. Would you like to update to the latest beta?</value>
+  </data>
 </root>

@@ -133,6 +133,24 @@ namespace Pahkat {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Beta Update Available.
+        /// </summary>
+        public static string BetaUpdateAvailable {
+            get {
+                return ResourceManager.GetString("BetaUpdateAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You are using a developer mode channel override. Would you like to update to the latest beta?.
+        /// </summary>
+        public static string BetaUpdateQuestion {
+            get {
+                return ResourceManager.GetString("BetaUpdateQuestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bring All to Front.
         /// </summary>
         public static string BringAllToFront {

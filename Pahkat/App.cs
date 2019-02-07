@@ -356,11 +356,26 @@ namespace Pahkat
             
             var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var selfUpdateJsonPath = Path.Combine(basePath, "selfupdate.json");
+            var overrideUpdateChannel = false;
 
             PahkatClient client;
             try
             {
-                client = new PahkatClient(selfUpdateJsonPath);
+                client = new PahkatClient(selfUpdateJsonPath, false);
+
+                // determine if the user has overridden the the update
+                // channel to use for self updates. If so we need to
+                // reconfigure the pahkat client to use that channel instead
+                var selfUpdateChannelString = client.Config.GetUiSetting("selfUpdateChannel");
+                if (selfUpdateChannelString != null)
+                {
+                    if (Enum.TryParse<RepositoryMeta.Channel>(selfUpdateChannelString, true, out var selfUpdateChannel))
+                    {
+                        client.Config.SetRepos(new[] { new RepoConfig(client.Config.GetRepos().First().Url, selfUpdateChannel) });
+                        client.RefreshRepos();
+                        overrideUpdateChannel = true;
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -378,14 +393,29 @@ namespace Pahkat
             {
                 return null;
             }
-            
-            switch (repo.PackageStatus(package).Status)
+
+            switch (repo.PackageStatus(repo.AbsoluteKeyFor(package)).Status)
             {
                 #if DEBUG
                 #else
                 case PackageStatus.NotInstalled:
                 #endif
                 case PackageStatus.RequiresUpdate:
+                    if (overrideUpdateChannel)
+                    {
+                        var result = MessageBox.Show(
+                            Strings.BetaUpdateQuestion,
+                            Strings.BetaUpdateAvailable,
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Warning,
+                            MessageBoxResult.No
+                        );
+                        
+                        if (result != MessageBoxResult.Yes)
+                        {
+                            return null;
+                        }
+                    }
                     return client;
                 default:
                     return null;

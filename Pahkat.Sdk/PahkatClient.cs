@@ -457,10 +457,10 @@ namespace Pahkat.Sdk
 
         public readonly PahkatConfig Config;
 
-        public PahkatClient(string configPath = null)
+        public PahkatClient(string configPath = null, bool saveChanges = true)
         {
             IntPtr ptr = configPath != null ? MarshalUtf8.StringToHGlobalUtf8(configPath) : IntPtr.Zero;
-            handle = Native.pahkat_client_new(ptr, 1);
+            handle = Native.pahkat_client_new(ptr, saveChanges ? (byte)1 : (byte)0);
 
             Config = new PahkatConfig(handle);
 
