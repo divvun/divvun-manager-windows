@@ -394,10 +394,10 @@ namespace Pahkat
                 return null;
             }
 
-            switch (repo.PackageStatus(repo.AbsoluteKeyFor(package)).Status)
+            var status = repo.PackageStatus(repo.AbsoluteKeyFor(package)).Status;
+            switch (status)
             {
                 #if DEBUG
-                #else
                 case PackageStatus.NotInstalled:
                 #endif
                 case PackageStatus.RequiresUpdate:

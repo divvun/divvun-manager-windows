@@ -28,8 +28,8 @@ namespace PahkatUpdater
                 clientWriter.Flush();
             }
 
-            StartPahkat();
-            Shutdown();
+            //StartPahkat();
+            //Shutdown();
         }
 
         public void StartPahkat()

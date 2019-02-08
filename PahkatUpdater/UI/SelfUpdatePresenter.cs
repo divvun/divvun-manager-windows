@@ -82,20 +82,20 @@ namespace PahkatUpdater.UI
         {
             var app = ((App) Application.Current);
             _view.SetSubtitle(string.Format(Strings.InstallingPackage, Strings.AppName, _package.Version));
-//            var path = app.Client.PackagePath(_key);
-//            try
-//            {
-//                var p = Process.Start(path);
-//                p.WaitForExit();
-//            }
-//            catch (Exception ex)
-//            {
-//                app.ShowError(ex.Message);
-//            }
-//            
-//            app.StartPahkat();
-//            app.Shutdown();
-            
+            //var path = app.Client.PackagePath(_key);
+            //try
+            //{
+            //    var p = Process.Start(path);
+            //    p.WaitForExit();
+            //}
+            //catch (Exception ex)
+            //{
+            //    app.ShowError(ex.Message);
+            //}
+
+            //app.StartPahkat();
+            //app.Shutdown();
+
             var tx = new TransactionAction(PackageActionType.Install, _key, InstallerTarget.System);
             bag.Add(_client.Transaction(new[] {tx}).Process()
                 .SubscribeOn(DispatcherScheduler.Current)
@@ -116,8 +116,9 @@ namespace PahkatUpdater.UI
                     }
                 }), (error) =>
                 {
-                    app.StartPahkat();
-                    Application.Current.Shutdown();
+                    app.ShowError(error.Message);
+                    //app.StartPahkat();
+                    //Application.Current.Shutdown();
                 }, () =>
                 {
                     app.StartPahkat();
