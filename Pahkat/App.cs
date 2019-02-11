@@ -201,8 +201,8 @@ namespace Pahkat
             ConfigStore = DI.CreateAppConfigStore(this);
         }
 
-        public string CurrentVersion => AssemblyVersion.From(Assembly.GetEntryAssembly().GetName().Version)
-            .ToSemanticVersion()
+        public string CurrentVersion => Assembly.GetEntryAssembly()
+            .GetSemanticVersion()
             .ToString();
 
         private void EnsureValidRepoConfig()

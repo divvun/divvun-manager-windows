@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using Pahkat.Models;
+using Pahkat.Sdk;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -34,3 +36,13 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.*")]
+
+static class SemanticVersionExtension
+{
+    internal static SemanticVersion GetSemanticVersion(this Assembly assembly)
+    {
+        var semverExtra = "-rc.1";
+        var assemblyVersion = assembly.GetName().Version;
+        return new SemanticVersion($"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}{semverExtra}");
+    }
+}

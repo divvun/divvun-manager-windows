@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>true</Prefer32Bit>
@@ -219,9 +219,7 @@
     <Compile Include="App.cs" />
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Models\AppConfig.cs" />
-    <Compile Include="Models\AssemblyVersion.cs" />
     <Compile Include="Models\Rpc.cs" />
-    <Compile Include="Models\SemanticVersion.cs" />
     <Compile Include="Properties\Constants.cs" />
     <Compile Include="Models\PackageStore.cs" />
     <Compile Include="Service\PackageService.cs" />

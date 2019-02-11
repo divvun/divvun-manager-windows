@@ -792,5 +792,10 @@ namespace Pahkat.Sdk
         [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe uint pahkat_run_package_transaction(IntPtr handle, IntPtr transaction, uint txId, PackageTransactionRunCallback callback, out pahkat_error_t* error);
 
+        [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe byte pahkat_semver_is_valid(IntPtr versionString);
+
+        [DllImport("pahkat_client.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe int pahkat_semver_compare(IntPtr lhsVersionString, IntPtr rhsVersionString);
     }
 }

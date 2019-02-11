@@ -11,8 +11,8 @@ namespace Pahkat.UI.About
             InitializeComponent();
 
             LblAppName.Text = Strings.AppName;
-            LblVersion.Text = AssemblyVersion.From(Assembly.GetEntryAssembly().GetName().Version)
-                .ToSemanticVersion()
+            LblVersion.Text = Assembly.GetEntryAssembly()
+                .GetSemanticVersion()
                 .ToString();
             BtnWebsite.Content = "Divvun Website";
             BtnWebsite.Click += (sender, e) =>
