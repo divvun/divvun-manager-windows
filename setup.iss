@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Divvun Installer"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.0.1-rc.1"
 #define MyAppPublisher "Universitetet i Tromsø - Norges arktiske universitet"
 #define MyAppURL "http://divvun.no"
 #define MyAppExeName "DivvunInstaller.exe"
