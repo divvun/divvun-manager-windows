@@ -226,7 +226,17 @@ namespace Pahkat.Sdk
                     _actions,
                     out var errors);
 
+                if (_handle == IntPtr.Zero)
+                {
+                    throw new Exception("Failed to create package transaction");
+                }
+
                 cStr = Native.pahkat_package_transaction_actions(client.handle, _handle, out var txErrors);
+
+                if (cStr == IntPtr.Zero)
+                {
+                    throw new Exception("Failed to get package transaction actions");
+                }
             }
 
             var str = MarshalUtf8.PtrToStringUtf8(cStr);
