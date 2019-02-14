@@ -89,11 +89,17 @@ namespace PahkatUpdater
             try
             {
                 Client = new PahkatClient(selfUpdateConfig, false);
+
+                // determine if the user has overridden the the update
+                // channel to use for self updates. If so we need to
+                // reconfigure the pahkat client to use that channel instead
+                Client.TrySwitchChannel(Client.Config.GetUiSetting("selfUpdateChannel"));
+
             } catch (Exception ex) {
                 ShowError(ex.Message);
                 return;
             }
-            
+
             Window = new SelfUpdateWindow(Client, installDir);
             Window.Show();
         }

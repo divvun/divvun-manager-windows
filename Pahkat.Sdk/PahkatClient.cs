@@ -486,6 +486,20 @@ namespace Pahkat.Sdk
             }
         }
 
+        public bool TrySwitchChannel(string channelString)
+        {
+            if (channelString != null)
+            {
+                if (Enum.TryParse<RepositoryMeta.Channel>(channelString, true, out var channel))
+                {
+                    Config.SetRepos(new[] { new RepoConfig(Config.GetRepos().First().Url, channel) });
+                    RefreshRepos();
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void RefreshRepos()
         {
             Native.pahkat_refresh_repos(handle);

@@ -366,16 +366,7 @@ namespace Pahkat
                 // determine if the user has overridden the the update
                 // channel to use for self updates. If so we need to
                 // reconfigure the pahkat client to use that channel instead
-                var selfUpdateChannelString = client.Config.GetUiSetting("selfUpdateChannel");
-                if (selfUpdateChannelString != null)
-                {
-                    if (Enum.TryParse<RepositoryMeta.Channel>(selfUpdateChannelString, true, out var selfUpdateChannel))
-                    {
-                        client.Config.SetRepos(new[] { new RepoConfig(client.Config.GetRepos().First().Url, selfUpdateChannel) });
-                        client.RefreshRepos();
-                        overrideUpdateChannel = true;
-                    }
-                }
+                overrideUpdateChannel = client.TrySwitchChannel(client.Config.GetUiSetting("selfUpdateChannel"));
             }
             catch (Exception e)
             {
