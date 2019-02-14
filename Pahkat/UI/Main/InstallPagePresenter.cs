@@ -35,8 +35,8 @@ namespace Pahkat.UI.Main
 
             _cancelSource = new CancellationTokenSource();
 
-            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            _stateDir = Path.Combine(appdata, "Pahkat", "state");
+            var tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments);
+            _stateDir = Path.Combine(tmpPath, "Pahkat", "state");
         }
 
         public void SaveResultsState(InstallSaveState state)

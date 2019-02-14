@@ -539,10 +539,9 @@ namespace Pahkat.Sdk
                     var cStatus = Native.pahkat_status(handle, cPackageKey, out error);
                     Marshal.FreeHGlobal(cPackageKey);
 
-                    // TODO: check errors
-
-                    if (cStatus == IntPtr.Zero)
+                    if (cStatus == IntPtr.Zero || error != 0)
                     {
+                        Console.WriteLine($"An error occurred while getting status for: {packageKey} (error code: {error})");
                         continue;
                     }
 
