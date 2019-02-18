@@ -35,6 +35,10 @@ namespace Pahkat.UI.Main
 
             _cancelSource = new CancellationTokenSource();
 
+            // todo: This uses the common documents folder to share the installation state
+            //       and is no way optimal. Since the user might change when asking for
+            //       administrative rights there are few temporary folders available to the
+            //       non-admin user. For future releases, find a better folder.
             var tmpPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments);
             _stateDir = Path.Combine(tmpPath, "Pahkat", "state");
         }
