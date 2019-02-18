@@ -41,7 +41,7 @@ static class SemanticVersionExtension
 {
     internal static SemanticVersion GetSemanticVersion(this Assembly assembly)
     {
-        var semverExtra = "-rc.1";
+        var semverExtra = "";
         var assemblyVersion = assembly.GetName().Version;
         return new SemanticVersion($"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}{semverExtra}");
     }
