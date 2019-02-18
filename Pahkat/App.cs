@@ -280,6 +280,7 @@ namespace Pahkat
                     {
                         if (RunSelfUpdate())
                         {
+                            selfUpdateClient.Config.SetUiSetting("no.divvun.Pahkat.updatingTo", null);
                             return;
                         }
                     }
@@ -385,6 +386,11 @@ namespace Pahkat
                 return null;
             }
 
+            if (!AssertSuccessfulUpdate(client, package.Version))
+            {
+                return null;
+            }
+
             var status = repo.PackageStatus(repo.AbsoluteKeyFor(package)).Status;
             switch (status)
             {
@@ -407,6 +413,7 @@ namespace Pahkat
                             return null;
                         }
                     }
+                    client.Config.SetUiSetting("no.divvun.Pahkat.updatingTo", package.Version);
                     return client;
                 default:
                     return null;
@@ -445,6 +452,29 @@ namespace Pahkat
             {
                 SingleInstance<PahkatApp>.Cleanup();
             }
+        }
+
+        private bool AssertSuccessfulUpdate(PahkatClient client, string packageVersion)
+        {
+            var updatingTo = client.Config.GetUiSetting("no.divvun.Pahkat.updatingTo");
+
+            if (!string.IsNullOrEmpty(updatingTo) && updatingTo == packageVersion)
+            {
+                var result = MessageBox.Show(
+                    "It seems that the previous update attempt failed. If problems persist, please download the installer directly from the website. Would you like to go there now?",
+                    "Update Failed",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning
+                );
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    Process.Start("http://divvun.no/korrektur/oswide.html");
+                }
+            }
+
+            client.Config.SetUiSetting("no.divvun.Pahkat.updatingTo", null);
+            return true;
         }
     }
 }
