@@ -1,13 +1,23 @@
-version: 1.0.{build}
+version: '{build}'
+branches:
+  only:
+  - master
 image: Visual Studio 2017
 configuration: Release
 platform: x86
 environment:
   PFX_PASSWORD:
-    secure: X3wxyOt1frnJOFA1Nh6UjYeCY994vrcCcm05QFCm53v7TjilPngLdwN7MZGMFCRi
+    secure: TOUK93S0KJBaB7vjTJ/Wxcy3bTw55VNfk05kiz37cyLbGlgrL2F6vYt9b+9ofz2j
   PFX: C:\projects\pahkat-client-windows\enc\creds\windows\divvun.pfx
   DIVVUN_KEY:
-    secure: O2YLaJAmMg+GH5u54RvYfT9L084K3wH+jVhXAd9JpIPKBBLTzNEkriidokOtCuFcqz+U79nExQefKS1WBTN6PeR2BaO93A2MpmwEWcpT0wxHXgVYijpjjB+iv+ULj0Sj
+    secure: ackb0siNZbJLyOe1YR/lkfr0d4T98RpWjh45wdk/Nn0IEkAh0SgmnfnxEBDKZZwcwH0hNo8SvHOpV+WEc4GWglcq7CXLUTbiwP9cYD9phL6547vzTeZ17HCVQiq0QtO1
+  DEPLOY_NAME: divvun-installer-staging
+  DEPLOY_SVN_URL: https://pahkat.uit.no/repo/divvun-installer-staging
+  DEPLOY_SVN_USER: divvunci
+  DEPLOY_SVN_PASSWORD:
+    secure: +kBSsT/UuXPXDadjRA5hl3dIynEVqmdkvG0THk0Wk6Pfa2PBfbRzNOrtvx7HdVH3bWcueAl8WWiLwP6JapNYwKqBh3Dlye721AZ8GriB+UPfdP/5qSGy7Xg+W3ccMaX8
+  PAHKAT_EXEC_PATH: C:\pahkat.exe
+  DEPLOY_ARTIFACT_PATH: ..\..\output\install.exe
 install:
 - cmd: >-
     choco install innosetup
@@ -15,6 +25,10 @@ install:
     appveyor DownloadFile https://ci.appveyor.com/api/projects/%APPVEYOR_ACCOUNT_NAME%/pahkat-client-core/artifacts/target/release/pahkat_client.dll?branch=master
 
     move pahkat_client.dll .\Pahkat.Sdk\
+
+    appveyor DownloadFile https://github.com/divvun/pahkat/releases/download/0.6.0/pahkat.exe
+
+    move pahkat.exe C:\
 before_build:
 - cmd: nuget restore
 build:
@@ -22,9 +36,9 @@ build:
   verbosity: minimal
 after_build:
 - cmd: >-
-    git clone https://github.com/bbqsrc/divvun-keyboard-config.git C:\divvun-keyboard-config
+    git clone https://github.com/divvun/divvun-ci-config C:\divvun-ci-config
 
-    openssl aes-256-cbc -d -in C:\divvun-keyboard-config\config.txz.enc -pass pass:%DIVVUN_KEY% -out config.txz
+    openssl aes-256-cbc -d -in C:\divvun-ci-config\config.txz.enc -pass pass:%DIVVUN_KEY% -out config.txz
 
     7z e config.txz
 
@@ -42,3 +56,10 @@ after_build:
 artifacts:
 - path: output/install.exe
   name: DivvunInstaller.exe
+deploy_script:
+- ps: >-
+    $Env:BRANCH = $Env:APPVEYOR_REPO_BRANCH
+
+    cd Deployment
+
+    .\deploy.ps1

@@ -115,6 +115,7 @@ namespace Pahkat
         public const string ArgsWindow = "-w";
         public const string ArgsSkipSelfUpdate = "-n";
         public const string ArgsSelfUpdate = "-u";
+        public const string ArgsOutputSemver = "-semver";
 
         public override PahkatClient Client { protected set; get; }
         public override AppConfigStore ConfigStore { protected set; get; } 
@@ -424,6 +425,12 @@ namespace Pahkat
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
         public static void Main(string[] args)
         {
+            if (args.Length >= 2 && args[0] == ArgsOutputSemver)
+            {
+                File.WriteAllText(args[1], Assembly.GetExecutingAssembly().GetSemanticVersion().ToString());
+                return;
+            }
+
             var mode = args.Any((x) => x == ArgsInstall)
                 ? AppMode.Install
                 : AppMode.Default;
