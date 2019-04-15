@@ -64,7 +64,7 @@
                             <Grid.ColumnDefinitions>
                                 <!-- Hardcoded because Windows isn't fair and relative sizing led to inconsistent widths -->
                                 <ColumnDefinition Width="21"/>
-                                <ColumnDefinition Width="138"/>
+                                <ColumnDefinition Width="208"/>
                                 <ColumnDefinition Width="92"/>
                                 <ColumnDefinition Width="92"/>
                                 <ColumnDefinition Width="120"/>
