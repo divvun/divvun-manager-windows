@@ -17,13 +17,13 @@ jobs:
     displayName: 'Install prerequisites'
     env:
       DIVVUN_KEY: $(divvunKey)
-- task: VSBuild@1
-  inputs:
-    solution: Pahkat.sln
-    platform: x86
-    configuration: release
-    restoreNugetPackages: true
-    displayName: 'Build'
+  - task: VSBuild@1
+    inputs:
+      solution: Pahkat.sln
+      platform: x86
+      configuration: release
+      restoreNugetPackages: true
+      displayName: 'Build'
   - powershell: |
       $Env:PATH += ";C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool"
       $Env:PATH += ";$(System.DefaultWorkingDirectory)"
