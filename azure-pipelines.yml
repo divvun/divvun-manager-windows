@@ -9,7 +9,6 @@ jobs:
   - bash: |
       set -e
       curl -sLo pahkat.exe https://github.com/divvun/pahkat/releases/download/0.6.0/pahkat.exe
-      curl -sLo Pahkat.Sdk/pahkat_client.dll https://ci.appveyor.com/api/projects/divvun/pahkat-client-core/artifacts/target/release/pahkat_client.dll?branch=master
       git clone https://github.com/divvun/divvun-ci-config.git
       openssl aes-256-cbc -d -in ./divvun-ci-config/config.txz.enc -pass pass:$DIVVUN_KEY -out config.txz -md md5
       7z e config.txz
@@ -17,6 +16,16 @@ jobs:
     displayName: 'Install prerequisites'
     env:
       DIVVUN_KEY: $(divvunKey)
+  - task: DownloadBuildArtifacts@0
+    inputs:
+      buildType: 'specific'
+      project: 'divvun-installer'
+      pipeline: 'divvun.pahkat-client-core'
+      buildVersionToDownload: 'latestFromBranch'
+      allowPartiallySucceededBuilds: false
+      branchName: 'refs/heads/master'
+      downloadPath: '$(System.DefaultWorkingDirectory)' 
+    displayName: 'Download pahkat-client-core artifact'
   - task: NuGetCommand@2
     inputs:
       command: 'restore'
@@ -29,6 +38,8 @@ jobs:
       configuration: release
     displayName: 'Build'
   - script: |
+      # todo: remove when download artifact works
+      dir
       set PATH="%PATH%;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool;$(System.DefaultWorkingDirectory)"
       "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
       "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
