@@ -29,15 +29,14 @@ jobs:
       configuration: release
     displayName: 'Build'
   - powershell: |
-      $Env:PATH += ";C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool"
-      $Env:PATH += ";$(System.DefaultWorkingDirectory)"
-      $pfx = "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx"
-      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $Env:PFX_PASSWORD /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
-      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $Env:PFX_PASSWORD /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
-      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $Env:PFX_PASSWORD /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
-      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $Env:PFX_PASSWORD /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
-      iscc /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $Env:PFX_PASSWORD $f" setup.iss
-      Copy-Item output\install.exe "$(System.DefaultWorkingDirectory)/divvun-installer.exe"
+      PATH="%PATH%;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool"
+      PATH="%PATH%;$(System.DefaultWorkingDirectory)"
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
+      iscc /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% $f" setup.iss
+      copy output\install.exe "$(System.DefaultWorkingDirectory)/divvun-installer.exe"
     displayName: 'Sign'
     env:
       PFX_PASSWORD: $(pfxPassword)
@@ -45,6 +44,7 @@ jobs:
     inputs:
       pathtoPublish: '$(System.DefaultWorkingDirectory)/divvun-installer.exe'
       artifactName: windows
+    displayName: 'Publish artifact'
   # - powershell: |
   #     $Env:PATH += ";$(System.DefaultWorkingDirectory)"
   #     $version = [IO.File]::ReadAllText(".\version.txt").Trim()
