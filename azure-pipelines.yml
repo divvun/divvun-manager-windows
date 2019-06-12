@@ -28,7 +28,7 @@ jobs:
       platform: x86
       configuration: release
     displayName: 'Build'
-  - shell: |
+  - script: |
       set PATH="%PATH%;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool;$(System.DefaultWorkingDirectory)"
       signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
       signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
