@@ -47,7 +47,7 @@ jobs:
   - powershell: |
       $Env:PATH += ";$(System.DefaultWorkingDirectory)"
       . .\divvun-ci-config\repo\scripts\PahkatDeploySvn.ps1
-      ..\Pahkat\bin\x86\Release\DivvunInstaller.exe -semver .\app-semver | Out-Null
+      .\Pahkat\bin\x86\Release\DivvunInstaller.exe -semver .\app-semver | Out-Null
       $version = Get-Content .\app-semver
       PahkatDeploySvn -SvnUrl https://pahkat.uit.no/repo/divvun-installer -Artifact "$(System.DefaultWorkingDirectory)\divvun-installer.exe" -Package divvun-installer-windows -Version $version
     displayName: 'Deploy to nightly channel'
