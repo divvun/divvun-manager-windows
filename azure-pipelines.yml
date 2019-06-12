@@ -17,21 +17,26 @@ jobs:
     displayName: 'Install prerequisites'
     env:
       DIVVUN_KEY: $(divvunKey)
+  - task: NuGetCommand@2
+    inputs:
+      command: 'restore'
+      restoreSolution: 'Pahkat.sln'
+    displayName: 'Restore NuGet packages'
   - task: VSBuild@1
     inputs:
       solution: Pahkat.sln
       platform: x86
       configuration: release
-      restoreNugetPackages: true
-      displayName: 'Build'
+    displayName: 'Build'
   - powershell: |
       $Env:PATH += ";C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool"
       $Env:PATH += ";$(System.DefaultWorkingDirectory)"
-      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
-      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
-      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
-      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
-      iscc /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $(System.DefaultWorkingDirectory)\divvun-ci-config\enc\creds\windows\divvun.pfx /p %PFX_PASSWORD% $f" setup.iss
+      $pfx = "$(System.DefaultWorkingDirectory)\divvun-ci-config\enc\creds\windows\divvun.pfx"
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $PFX_PASSWORD /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $PFX_PASSWORD /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $PFX_PASSWORD /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $PFX_PASSWORD /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
+      iscc /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $pfx /p $PFX_PASSWORD $f" setup.iss
     displayName: 'Sign'
     env:
       PFX_PASSWORD: $(pfxPassword)
