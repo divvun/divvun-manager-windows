@@ -24,6 +24,7 @@ jobs:
       buildVersionToDownload: 'latestFromBranch'
       allowPartiallySucceededBuilds: false
       branchName: 'refs/heads/master'
+      artifactName: 'windows'
       downloadPath: '$(System.DefaultWorkingDirectory)' 
     displayName: 'Download pahkat-client-core artifact'
   - task: NuGetCommand@2
