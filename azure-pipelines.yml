@@ -1,0 +1,51 @@
+trigger:
+- master
+
+jobs:
+- job: 'Windows'
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - bash: |
+      set -e
+      curl -sLo pahkat.exe https://github.com/divvun/pahkat/releases/download/0.6.0/pahkat.exe
+      curl -sLo Pahkat.Sdk/pahkat_client.dll https://ci.appveyor.com/api/projects/divvun/pahkat-client-core/artifacts/target/release/pahkat_client.dll?branch=master
+      git clone https://github.com/divvun/divvun-ci-config.git
+      openssl aes-256-cbc -d -in ./divvun-ci-config/config.txz.enc -pass pass:$DIVVUN_KEY -out config.txz -md md5
+      7z e config.txz
+      tar xf config.tar
+    displayName: 'Install prerequisites'
+    env:
+      DIVVUN_KEY: $(divvunKey)
+- task: VSBuild@1
+  inputs:
+    solution: Pahkat.sln
+    platform: x86
+    configuration: release
+    restoreNugetPackages: true
+    displayName: 'Build'
+  - powershell: |
+      $Env:PATH += ";C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool"
+      $Env:PATH += ";$(System.DefaultWorkingDirectory)"
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
+      signtool sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %PFX% /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
+      iscc /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f $(System.DefaultWorkingDirectory)\divvun-ci-config\enc\creds\windows\divvun.pfx /p %PFX_PASSWORD% $f" setup.iss
+    displayName: 'Sign'
+    env:
+      PFX_PASSWORD: $(pfxPassword)
+  # - task: PublishBuildArtifacts@1
+  #   inputs:
+  #     pathtoPublish: '$(System.DefaultWorkingDirectory)/speller-smn.exe'
+  #     artifactName: windows
+  # - powershell: |
+  #     $Env:PATH += ";$(System.DefaultWorkingDirectory)"
+  #     $version = [IO.File]::ReadAllText(".\version.txt").Trim()
+  #     . .\divvun-ci-config\repo\scripts\PahkatDeploySvn.ps1
+  #     PahkatDeploySvn -SvnUrl https://pahkat.uit.no/repo/windows -Artifact "$(System.DefaultWorkingDirectory)\speller-smn.exe" -Package speller-smn -Version $version
+  #   displayName: 'Deploy to nightly channel'
+  #   env:
+  #     DEPLOY_SVN_USER: $(svnUser)
+  #     DEPLOY_SVN_PASSWORD: $(svnPassword)
+  #     DEPLOY_SVN_COMMIT: $(svnCommit)
