@@ -35,7 +35,7 @@ jobs:
       "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
       "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
       "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Qp /O.\output /S"signtool=C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% $f" setup.iss
-      copy output\install.exe "$(System.DefaultWorkingDirectory)/divvun-installer.exe"
+      copy output\install.exe "$(System.DefaultWorkingDirectory)\divvun-installer.exe"
     displayName: 'Sign'
     env:
       PFX_PASSWORD: $(pfxPassword)
