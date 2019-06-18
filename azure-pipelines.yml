@@ -6,16 +6,16 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
-  - task: DownloadBuildArtifacts@0
+  - task: DownloadPipelineArtifact@1
     inputs:
       buildType: 'specific'
-      project: 'divvun-installer'
-      pipeline: 'divvun.pahkat-client-core'
+      project: '2d442586-71f6-4212-8f0e-b684fcfa4e1a'
+      pipeline: '6'
+      specificBuildWithTriggering: false
       buildVersionToDownload: 'latestFromBranch'
-      allowPartiallySucceededBuilds: false
       branchName: 'refs/heads/master'
-      artifactName: 'windows'
-      downloadPath: '$(System.DefaultWorkingDirectory)' 
+      artifactName: 'windows-dll'
+      targetPath: '$(System.ArtifactsDirectory)'
     displayName: 'Download pahkat-client-core artifact'
   - bash: |
       set -e
@@ -24,7 +24,7 @@ jobs:
       openssl aes-256-cbc -d -in ./divvun-ci-config/config.txz.enc -pass pass:$DIVVUN_KEY -out config.txz -md md5
       7z e config.txz
       tar xf config.tar
-      mv windows/pahkat_client.dll Pahkat.Sdk
+      mv $SYSTEM_ARTIFACTSDIRECTORY/pahkat_client.dll Pahkat.Sdk
     displayName: 'Install prerequisites'
     env:
       DIVVUN_KEY: $(divvunKey)
@@ -50,9 +50,9 @@ jobs:
     displayName: 'Sign'
     env:
       PFX_PASSWORD: $(pfxPassword)
-  - task: PublishBuildArtifacts@1
+  - task: PublishPipelineArtifact@0
     inputs:
-      pathtoPublish: '$(System.DefaultWorkingDirectory)/divvun-installer.exe'
+      targetPath: '$(System.DefaultWorkingDirectory)/divvun-installer.exe'
       artifactName: windows
     displayName: 'Publish artifact'
   - powershell: |
