@@ -13,6 +13,6 @@ is to install [kbdi](https://github.com/divvun/kbdi), and run
 
 - `nn-Runr`
 
-You must also put a copy of 
-[pahkat-client-core](https://github.com/divvun/pahkat-client-core) compiled
-with the `ipc` feature into the `Pahkat/` directory prior to building.
+For a debug build, run `build-2019-dev.bat`.
+
+You will need [pahkat-client-core](https://github.com/divvun/pahkat-client-core) checked out in the shared parent directory where you have cloned this repository for the build to succeed.
