@@ -50,6 +50,9 @@ jobs:
     displayName: 'Sign'
     env:
       PFX_PASSWORD: $(pfxPassword)
+  - bash: |
+      set -e
+      echo $(GitAssemblyInformationalVersion)
   - task: PublishPipelineArtifact@0
     inputs:
       targetPath: '$(System.DefaultWorkingDirectory)/divvun-installer.exe'
