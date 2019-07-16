@@ -202,9 +202,7 @@ namespace Pahkat
             ConfigStore = DI.CreateAppConfigStore(this);
         }
 
-        public string CurrentVersion => Assembly.GetEntryAssembly()
-            .GetSemanticVersion()
-            .ToString();
+        public string CurrentVersion => ThisAssembly.AssemblyInformationalVersion;
 
         private void EnsureValidRepoConfig()
         {
@@ -427,7 +425,7 @@ namespace Pahkat
         {
             if (args.Length >= 2 && args[0] == ArgsOutputSemver)
             {
-                File.WriteAllText(args[1], Assembly.GetExecutingAssembly().GetSemanticVersion().ToString());
+                File.WriteAllText(args[1], ThisAssembly.AssemblyInformationalVersion);
                 return;
             }
 

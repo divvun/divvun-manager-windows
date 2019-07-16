@@ -45,7 +45,7 @@ jobs:
       "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
       "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
       "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
-      "C:\Program Files (x86)\Inno Setup 5\ISCC.exe" /Qp /O.\output /S"signtool=C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% $f" setup.iss
+      "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Qp /O.\output /S"signtool=C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% $f" /dMyAppVersion="$(GitAssemblyInformationalVersion)" setup.iss
       copy output\install.exe "$(System.DefaultWorkingDirectory)\divvun-installer.exe"
     displayName: 'Sign'
     env:
@@ -58,9 +58,7 @@ jobs:
   - powershell: |
       $Env:PATH += ";$(System.DefaultWorkingDirectory)"
       . .\divvun-ci-config\repo\scripts\PahkatDeploySvn.ps1
-      .\Pahkat\bin\x86\Release\DivvunInstaller.exe -semver .\app-semver | Out-Null
-      $version = Get-Content .\app-semver
-      PahkatDeploySvn -SvnUrl https://pahkat.uit.no/repo/divvun-installer -Artifact "$(System.DefaultWorkingDirectory)\divvun-installer.exe" -Package divvun-installer-windows -Version $version
+      PahkatDeploySvn -SvnUrl https://pahkat.uit.no/repo/divvun-installer -Artifact "$(System.DefaultWorkingDirectory)\divvun-installer.exe" -Package divvun-installer-windows -Version $(GitAssemblyInformationalVersion)
     displayName: 'Deploy to nightly channel'
     env:
       DEPLOY_SVN_USER: $(svnUser)
