@@ -64,9 +64,7 @@ namespace Pahkat.UI.Main
             var app = (PahkatApp)Application.Current;
 
             _presenter = new MainPagePresenter(this,
-                //app.RepositoryService,
-                app.PackageService,
-                app.PackageStore);
+                app.UserSelection);
             
             _packageToggled = Observable.Merge(
                 TvPackages.ReactiveKeyDown()
@@ -111,8 +109,8 @@ namespace Pahkat.UI.Main
             return await Task.Run(() =>
             {
                 var app = (PahkatApp)Application.Current;
-                app.Client.RefreshRepos();
-                return app.Client.Repos();
+                app.PackageStore.RefreshRepos();
+                return app.PackageStore.RepoIndexes();
             });
         }
 
@@ -121,20 +119,20 @@ namespace Pahkat.UI.Main
             return await Task.Run(() =>
             {
                 var app = (PahkatApp)Application.Current;
-                app.Client.ForceRefreshRepos();
-                return app.Client.Repos();
+                app.PackageStore.ForceRefreshRepos();
+                return app.PackageStore.RepoIndexes();
             });
         }
 
         private void OnClickAboutMenuItem(object sender, RoutedEventArgs e)
         {
-            var app = (IPahkatApp)Application.Current;
+            var app = (PahkatApp)Application.Current;
             app.WindowService.Show<AboutWindow>();
         }
 
         private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e)
         {
-            var app = (IPahkatApp)Application.Current;
+            var app = (PahkatApp)Application.Current;
             app.WindowService.Show<SettingsWindow>();
         }
 
@@ -148,7 +146,7 @@ namespace Pahkat.UI.Main
             try
             {
                 BtnCheckForPackageUpdates.IsEnabled = false;
-                var app = (IPahkatApp)Application.Current;
+                var app = (PahkatApp)Application.Current;
                 await Task.Run(() =>
                 {
                     new UpdaterService(app.ConfigStore);
@@ -156,7 +154,7 @@ namespace Pahkat.UI.Main
             }
             catch (Exception exc)
             {
-                MessageBox.Show(exc.Message, Strings.CheckForPackageUpdates, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(exc.Message, Strings.CheckForUpdates, MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {

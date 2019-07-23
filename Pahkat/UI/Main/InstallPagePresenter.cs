@@ -20,13 +20,13 @@ namespace Pahkat.UI.Main
     public class InstallPagePresenter
     {
         private readonly IInstallPageView _view;
-        private readonly IPahkatTransaction _transaction;
+        private readonly Transaction _transaction;
         private readonly IScheduler _scheduler;
         private readonly CancellationTokenSource _cancelSource;
         private readonly string _stateDir;
         
         public InstallPagePresenter(IInstallPageView view,
-            IPahkatTransaction transaction,
+            Transaction transaction,
             IScheduler scheduler)
         {
             _view = view;
@@ -58,14 +58,15 @@ namespace Pahkat.UI.Main
 
         private IDisposable PrivilegedStart()
         {
-            var app = (IPahkatApp) Application.Current;
-            _view.SetTotalPackages(_transaction.Actions.Length);
+            var app = (PahkatApp) Application.Current;
+            var actions = _transaction.Actions();
+            _view.SetTotalPackages(actions.Count);
 
-            var keys = new HashSet<AbsolutePackageKey>(_transaction.Actions.Select((x) => x.Id));
+            var keys = new HashSet<AbsolutePackageKey>(actions.Select((x) => x.Id));
             var packages = new Dictionary<AbsolutePackageKey, Package>();
             
             // Cache the packages in advance
-            foreach (var repo in app.Client.Repos())
+            foreach (var repo in app.PackageStore.RepoIndexes())
             {
                 var copiedKeys = new HashSet<AbsolutePackageKey>(keys);
                 foreach (var key in copiedKeys)
@@ -87,7 +88,7 @@ namespace Pahkat.UI.Main
                 .ObserveOn(_scheduler)
                 .Subscribe((evt) =>
             {
-                var action = _transaction.Actions.First((x) => x.Id.Equals(evt.PackageKey));
+                var action = _transaction.Actions().First((x) => x.Id.Equals(evt.PackageKey));
                 var package = packages[evt.PackageKey];
                 
                 switch (evt.Event)
@@ -143,7 +144,7 @@ namespace Pahkat.UI.Main
                     // ignored
                 }
 
-                File.WriteAllText(jsonPath, JsonConvert.SerializeObject(_transaction.Actions.Select(x => x.ToJson())));
+                File.WriteAllText(jsonPath, JsonConvert.SerializeObject(_transaction.Actions()));
                 _view.RequestAdmin(jsonPath);
 
                 return _view.OnCancelClicked().Subscribe(_ =>

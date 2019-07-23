@@ -10,7 +10,7 @@ namespace PahkatUpdater.UI
     /// </summary>
     public partial class SelfUpdateWindow : Window
     {
-        public SelfUpdateWindow(PahkatClient client, string installDir)
+        public SelfUpdateWindow(PackageStore client, string installDir)
         {
             InitializeComponent();
             FrmContainer.Navigate(new SelfUpdatePage(client, installDir));

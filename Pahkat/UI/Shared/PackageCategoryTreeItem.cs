@@ -22,7 +22,7 @@ namespace Pahkat.UI.Shared
 
     public class PackageCategoryTreeItem : IComparable<PackageCategoryTreeItem>, IEquatable<PackageCategoryTreeItem>, INotifyPropertyChanged
     {
-        private readonly IPackageStore _store;
+        private readonly IUserPackageSelectionStore _store;
         private CompositeDisposable _bag = new CompositeDisposable();
         private bool _isGroupSelected;
         
@@ -32,12 +32,12 @@ namespace Pahkat.UI.Shared
         public bool IsGroupSelected
         {
             get => _isGroupSelected;
-            set => _store.Dispatch(PackageStoreAction.ToggleGroupWithDefaultAction(Items.Select(x => x.Key).ToArray(), value));
+            set => _store.Dispatch(UserSelectionAction.ToggleGroupWithDefaultAction(Items.Select(x => x.Key).ToArray(), value));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public PackageCategoryTreeItem(IPackageStore store, string name,
+        public PackageCategoryTreeItem(IUserPackageSelectionStore store, string name,
             ObservableCollection<PackageMenuItem> items)
         {
             _store = store;

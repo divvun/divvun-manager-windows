@@ -35,7 +35,7 @@ namespace Pahkat.UI.Settings
     {
         public string InterfaceLanguage;
         public PeriodInterval UpdateCheckInterval;
-        public RepoConfig[] Repositories;
+        public RepoRecord[] Repositories;
     }
 
     struct LanguageTag
@@ -85,9 +85,9 @@ namespace Pahkat.UI.Settings
             Channel = channel;
         }
 
-        public RepoConfig ToRepoConfig()
+        public RepoRecord ToRepoConfig()
         {
-            return new RepoConfig(new Uri(Url), Channel);
+            return new RepoRecord(new Uri(Url), Channel);
         }
 
         public static RepoDataGridItem Empty => new RepoDataGridItem(null, RepositoryMeta.Channel.Stable);
@@ -187,9 +187,6 @@ namespace Pahkat.UI.Settings
 
         public SettingsFormData SettingsFormData()
         {
-            // TODO: wtf is this for?
-            //Uri.TryCreate(TxtRepoUri.Text, UriKind.Absolute, out var repoUri);
-            
             return new SettingsFormData
             {
                 InterfaceLanguage = (string) DdlLanguage.SelectedValue,

@@ -16,27 +16,27 @@ namespace Pahkat.UI.Main
     {
         public static DownloadPagePresenter Default(IDownloadPageView view)
         {
-            var app = (IPahkatApp) Application.Current;
-            return new DownloadPagePresenter(view, app.PackageStore);
+            var app = (PahkatApp) Application.Current;
+            return new DownloadPagePresenter(view, app.UserSelection);
         }
         
         private ObservableCollection<DownloadListItem> _listItems =
             new ObservableCollection<DownloadListItem>();
         
         private readonly IDownloadPageView _view;
-        private readonly IPackageStore _pkgStore;
+        private readonly IUserPackageSelectionStore _pkgStore;
         private readonly CancellationTokenSource _cancelSource;
-        private IPahkatTransaction _downloadedTransaction;
+        private Transaction _downloadedTransaction;
         private bool _waitingForCancelDialog;
 
-        private void UpdateProgress(PackageProgress package, uint cur, uint total)
-        {
-            _listItems
-                .First(x => Equals(package, x.Model))
-                .Downloaded = cur;
-        }
+        //private void UpdateProgress(PackageProgress package, uint cur, uint total)
+        //{
+        //    _listItems
+        //        .First(x => Equals(package, x.Model))
+        //        .Downloaded = cur;
+        //}
         
-        public DownloadPagePresenter(IDownloadPageView view, IPackageStore pkgStore)
+        public DownloadPagePresenter(IDownloadPageView view, IUserPackageSelectionStore pkgStore)
         {
             _view = view;
             _pkgStore = pkgStore;
@@ -72,16 +72,24 @@ namespace Pahkat.UI.Main
                     _waitingForCancelDialog = true;
                 });
 
-            var app = (IPahkatApp) Application.Current;
+            var app = (PahkatApp) Application.Current;
 
             var transaction = _pkgStore.State
                 .Select(x =>
                 {
                     var actions = x.SelectedPackages.Select((p) =>
                     {
-                        return new TransactionAction(p.Value.Action, p.Key, InstallerTarget.System);
+                        if (p.Value.Action == PackageAction.Install)
+                        {
+                            return TransactionAction.Install(p.Key, PackageTarget.System);
+                        }
+                        else
+                        {
+                            return TransactionAction.Uninstall(p.Key, PackageTarget.System);
+                        }
                     });
-                    return app.Client.Transaction(actions.ToArray());
+
+                    return Transaction.New(app.PackageStore, actions.ToList());
                 })
                 .Take(1)
                 .Replay(1)
@@ -89,12 +97,12 @@ namespace Pahkat.UI.Main
 
             var downloadablePackages = transaction.SelectMany(tx =>
             {
-                return tx.Actions
-                    .Where(x => x.Action == PackageActionType.Install)
+                return tx.Actions()
+                    .Where(x => x.Action == PackageAction.Install)
                     .Select((action =>
                     {
                         Package package = null;
-                        foreach (var repo in app.Client.Repos())
+                        foreach (var repo in app.PackageStore.RepoIndexes())
                         {
                             package = repo.Package(action.Id);
                             if (package != null)
@@ -113,7 +121,7 @@ namespace Pahkat.UI.Main
 
             var downloading = downloadablePackages.Select((tuple) =>
                 {
-                    return app.Client.Download(tuple.Item1.Id, tuple.Item1.Target)
+                    return app.PackageStore.Download(tuple.Item1.Id, tuple.Item1.Target)
 //                        .SubscribeOn(DispatcherScheduler.Current)
                         .ObserveOn(DispatcherScheduler.Current)
                         .Do((status) =>

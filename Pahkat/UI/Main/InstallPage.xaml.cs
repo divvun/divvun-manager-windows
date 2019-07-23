@@ -22,7 +22,7 @@ namespace Pahkat.UI.Main
     public interface IInstallPageView : IPageView
     {
         IObservable<EventArgs> OnCancelClicked();
-        void SetStarting(PackageActionType action, Package package);
+        void SetStarting(PackageAction action, Package package);
         void SetEnding();
         void SetTotalPackages(long total);
         void ShowCompletion(bool isCancelled, bool requiresReboot);
@@ -42,14 +42,11 @@ namespace Pahkat.UI.Main
 
         public static InstallPage Create(string txActionsPath)
         {
-            var str = File.ReadAllText(txActionsPath);
-            var weakActions = JsonConvert.DeserializeObject<Dictionary<string, string>[]>(str);
-            var actions = weakActions.Select(TransactionAction.FromJson).ToArray();
-            var transaction = ((IPahkatApp) Application.Current).Client.Transaction(actions);
+            var transaction = TransactionExt.FromActionsFile(txActionsPath);
             return new InstallPage(transaction);
         }
 
-        public InstallPage(IPahkatTransaction transaction)
+        public InstallPage(Transaction transaction)
         {
             InitializeComponent();
             
@@ -79,9 +76,9 @@ namespace Pahkat.UI.Main
             LblSecondary.Text = string.Format(Strings.NItemsRemaining, max - value);
         }
 
-        public void SetStarting(PackageActionType action, Package package)
+        public void SetStarting(PackageAction action, Package package)
         {
-            var fmtString = action == PackageActionType.Install
+            var fmtString = action == PackageAction.Install
                 ? Strings.InstallingPackage
                 : Strings.UninstallingPackage;
             LblPrimary.Text = string.Format(fmtString, package.NativeName, package.Version);
@@ -116,7 +113,7 @@ namespace Pahkat.UI.Main
                 return;
             }
 
-            app.PackageStore.Dispatch(PackageStoreAction.ResetSelection);
+            app.UserSelection.Dispatch(UserSelectionAction.ResetSelection);
 
             this.ReplacePageWith(new CompletionPage(requiresReboot));
         }
@@ -130,7 +127,7 @@ namespace Pahkat.UI.Main
         public void HandleError(Exception error)
         {
             var app = (PahkatApp)Application.Current;
-            app.RavenClient.CaptureException(error);
+            app.SentryClient.CaptureException(error);
             MessageBox.Show(error.Message,
                 Strings.Error, 
                 MessageBoxButton.OK,

@@ -52,9 +52,12 @@ namespace Pahkat.Service
         public bool HasUpdates()
         {
             var app = (PahkatApp) Application.Current;
-            return app.Client.Repos().Any((repo) =>
+            return app.PackageStore.RepoIndexes().Any((repo) =>
             {
-                return repo.Statuses.Values.Any((s) => s.Status == PackageStatus.RequiresUpdate);
+                return repo.Packages.Values.Any((p) =>
+                {
+                    return app.PackageStore.Status(repo.AbsoluteKeyFor(p)).Item1 == PackageStatus.RequiresUpdate;
+                });
             });
         }
 

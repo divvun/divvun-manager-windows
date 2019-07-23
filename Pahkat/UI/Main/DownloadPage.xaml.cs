@@ -15,7 +15,7 @@ namespace Pahkat.UI.Main
 {
     public interface IDownloadPageView : IPageView
     {
-        void StartInstallation(IPahkatTransaction transaction);
+        void StartInstallation(Transaction transaction);
         void InitProgressList(ObservableCollection<DownloadListItem> source);
         IObservable<EventArgs> OnCancelDialogOpen();
         IObservable<EventArgs> OnCancelClicked();
@@ -42,7 +42,7 @@ namespace Pahkat.UI.Main
             _bag.Add(presenter(this).Start());
         }
 
-        public void StartInstallation(IPahkatTransaction transaction)
+        public void StartInstallation(Transaction transaction)
         {
             this.ReplacePageWith(new InstallPage(transaction));
         }

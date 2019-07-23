@@ -56,9 +56,7 @@ namespace Pahkat.UI.Updater
             
             var app = (PahkatApp) Application.Current;
             var presenter = new UpdateWindowPresenter(this,
-                //app.RepositoryService,
-                app.PackageService,
-                app.PackageStore);
+                app.UserSelection);
             
             _bag.Add(presenter.Start());
         }

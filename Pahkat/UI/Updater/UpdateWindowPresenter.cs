@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -9,7 +7,6 @@ using System.Windows;
 using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Sdk;
-using Pahkat.Service;
 using Pahkat.UI.Shared;
 
 namespace Pahkat.UI.Updater
@@ -17,35 +14,31 @@ namespace Pahkat.UI.Updater
     public class UpdateWindowPresenter
     {
         private readonly IUpdateWindowView _view;
-        //private readonly RepositoryService _repoServ;
-        private readonly IPackageService _pkgServ;
-        private readonly IPackageStore _store;
+        private readonly UserPackageSelectionStore _store;
         private ObservableCollection<PackageMenuItem> _listItems =
             new ObservableCollection<PackageMenuItem>();
         
-        public UpdateWindowPresenter(IUpdateWindowView view, IPackageService pkgServ, IPackageStore store)
+        public UpdateWindowPresenter(IUpdateWindowView view, UserPackageSelectionStore store)
         {
             _view = view;
-            //_repoServ = repoServ;
-            _pkgServ = pkgServ;
             _store = store;
         }
         
         private void RefreshPackageList(RepositoryIndex[] repos)
         {
             _listItems.Clear();
-            _store.Dispatch(PackageStoreAction.ResetSelection);
+            _store.Dispatch(UserSelectionAction.ResetSelection);
 
             foreach (var repo in repos)
             {
                 var it = repo.Packages.Values
                     .Select(repo.AbsoluteKeyFor)
-                    .Where(_pkgServ.RequiresUpdate)
-                    .Select(x => new PackageMenuItem(x, repo.Package(x), _pkgServ, _store))
+                    .Where(x => x.RequiresUpdate())
+                    .Select(x => new PackageMenuItem(x, repo.Package(x), _store))
                     .ToArray();
                 foreach (var item in it)
                 {
-                    _store.Dispatch(PackageStoreAction.AddSelectedPackage(item.Key, PackageActionType.Install));
+                    _store.Dispatch(UserSelectionAction.AddSelectedPackage(item.Key, PackageAction.Install));
                     _listItems.Add(item);
                 }
             }
@@ -56,7 +49,7 @@ namespace Pahkat.UI.Updater
             Console.WriteLine("Added packages.");
         }
         
-        private IDisposable BindPrimaryButton(IUpdateWindowView view, IPackageStore store)
+        private IDisposable BindPrimaryButton(IUpdateWindowView view, IUserPackageSelectionStore store)
         {
             return store.State
                 .Select(state => state.SelectedPackages)
@@ -66,11 +59,11 @@ namespace Pahkat.UI.Updater
                     {
                         string s;
 
-                        if (packages.All(x => x.Value.Action == PackageActionType.Install))
+                        if (packages.All(x => x.Value.Action == PackageAction.Install))
                         {
                             s = string.Format(Strings.InstallNPackages, packages.Count);
                         }
-                        else if (packages.All(x => x.Value.Action == PackageActionType.Uninstall))
+                        else if (packages.All(x => x.Value.Action == PackageAction.Uninstall))
                         {
                             s = string.Format(Strings.UninstallNPackages, packages.Count);
                         }
@@ -95,9 +88,9 @@ namespace Pahkat.UI.Updater
 
         private IDisposable BindRefreshPackageList()
         {
-            var app = (IPahkatApp) Application.Current;
+            var app = (PahkatApp) Application.Current;
             
-            return Observable.Return(app.Client.Repos())
+            return Observable.Return(app.PackageStore.RepoIndexes())
                 .DistinctUntilChanged()
                 .Subscribe(RefreshPackageList, _view.HandleError);
         }
@@ -110,7 +103,7 @@ namespace Pahkat.UI.Updater
         private IDisposable BindPackageToggled()
         {
             return _view.OnPackageToggled()
-                .Select(item => PackageStoreAction.TogglePackage(item.Key, PackageActionType.Install, !item.IsSelected))
+                .Select(item => UserSelectionAction.TogglePackage(item.Key, PackageAction.Install, !item.IsSelected))
                 .Subscribe(_store.Dispatch);
         }
         
@@ -122,14 +115,17 @@ namespace Pahkat.UI.Updater
                 .Take(1)
                 .Subscribe(pkgs =>
                 {
-                    var packages = pkgs.Keys.Select(x => new PackageActionInfo(x, PackageActionType.Uninstall)).ToArray();
-                    
-                    foreach (var pkg in packages.Select(x => x.PackageKey))
+                    var app = (PahkatApp)Application.Current;
+                    var config = app.PackageStore.Config();
+
+                    foreach (var record in pkgs)
                     {
-                        _pkgServ.SkipVersion(pkg);
+                        var package = app.PackageStore.ResolvePackage(record.Key);
+                        config.AddSkippedVersion(record.Key, package.Version);
                     }
 
-                    _store.Dispatch(PackageStoreAction.ToggleGroup(packages, false));
+                    var packages = pkgs.Keys.Select(x => new PackageActionInfo(x, PackageAction.Uninstall)).ToArray();
+                    _store.Dispatch(UserSelectionAction.ToggleGroup(packages, false));
                     _view.RefreshList();
                 });
         }

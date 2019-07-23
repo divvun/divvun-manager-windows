@@ -16,7 +16,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Linq;
-using System.Security;
 using Castle.Core.Internal;
 using Pahkat.Extensions;
 using Pahkat.Models;
@@ -33,73 +32,25 @@ using Trustsoft.SingleInstanceApp;
 using Newtonsoft.Json;
 using Pahkat.Sdk;
 using Pahkat.UI.About;
-using Pahkat.UI.SelfUpdate;
-using SharpRaven.Data.Context;
 
 namespace Pahkat
 {
-    public interface IPahkatApp
-    {
-        AppConfigStore ConfigStore { get; }
-        //RepositoryService RepositoryService { get; }
-        IPackageService PackageService { get; }
-        //UpdaterService UpdaterService { get; }
-        IWindowService WindowService { get; }
-        IPackageStore PackageStore { get; }
-        IRavenClient RavenClient { get; }
-        //SelfUpdaterService SelfUpdateService { get; }
-        PahkatClient Client { get; }
-    }
-
-    public abstract class AbstractPahkatApp : Application, IPahkatApp, ISingleInstanceApp
+    public abstract class AbstractPahkatApp : Application, ISingleInstanceApp
     {
         public abstract AppConfigStore ConfigStore { get; protected set; }
-        //public abstract RepositoryService RepositoryService { get; protected set; }
-        public abstract IPackageService PackageService { get; protected set;  }
         public abstract UpdaterService UpdaterService { get; protected set; }
         public abstract IWindowService WindowService { get; protected set;  }
-        public abstract IPackageStore PackageStore { get; protected set; }
-        public abstract IRavenClient RavenClient { get; protected set; }
-        public abstract PahkatClient Client { get; protected set; }
-        //public abstract SelfUpdaterService SelfUpdateService { get; protected set; }
+        public abstract PackageStore PackageStore { get; protected set; }
+        public abstract IRavenClient SentryClient { get; protected set; }
+        public abstract UserPackageSelectionStore UserSelection { get; protected set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            // main window turn on, who set up us the bomb
-            //ConfigStore.State
-            //    .Select(s => s.RepositoryUrl)
-            //    .Subscribe(RepositoryService.SetRepositoryUri);
         }
 
         public abstract bool OnActivate(IList<string> args);
     }
-
-    static class DI
-    {
-        internal static AppConfigStore CreateAppConfigStore(IPahkatApp app)
-        {
-#if DEBUG
-            return new AppConfigStore(app);
-#else
-            return new AppConfigStore(app);
-#endif
-        }
-
-        internal static IPackageService CreatePackageService()
-        {
-#if DEBUG
-            return new PackageService(new MockRegistry());
-#else
-            return new PackageService(new WindowsRegistry());
-#endif
-        }
-
-        internal static RavenClient CreateRavenClient()
-        {
-            return new RavenClient(Constants.SentryDsn);
-        }
-    }
-
+    
     public enum AppMode
     {
         Default,
@@ -115,23 +66,18 @@ namespace Pahkat
         public const string ArgsWindow = "-w";
         public const string ArgsSkipSelfUpdate = "-n";
         public const string ArgsSelfUpdate = "-u";
-        public const string ArgsOutputSemver = "-semver";
 
-        public override PahkatClient Client { protected set; get; }
-        public override AppConfigStore ConfigStore { protected set; get; } 
-        public override IPackageStore PackageStore { get; protected set; }
+        public override AppConfigStore ConfigStore { protected set; get; }
+        public override PackageStore PackageStore { get; protected set; }
         public override UpdaterService UpdaterService { get; protected set; }
         public override IWindowService WindowService { get; protected set; } = Service.WindowService.Create(
             CloseHandlingWindowConfig.Create<MainWindow>(),
             CloseHandlingWindowConfig.Create<UpdateWindow>(),
             CloseHandlingWindowConfig.Create<SettingsWindow>(),
-            CloseHandlingWindowConfig.Create<SelfUpdateWindow>(),
             CloseHandlingWindowConfig.Create<AboutWindow>()
         );
-        public override IPackageService PackageService { get; protected set; } = DI.CreatePackageService();
-        //public override RepositoryService RepositoryService { get; protected set; }
-        public override IRavenClient RavenClient { get; protected set; }
-        //public override SelfUpdaterService SelfUpdateService { get; protected set; }
+        public override IRavenClient SentryClient { get; protected set; }
+        public override UserPackageSelectionStore UserSelection { get; protected set; }
 
         private CompositeDisposable _bag = new CompositeDisposable();
         private TaskbarIcon _icon;
@@ -170,11 +116,6 @@ namespace Pahkat
             _icon.TrayMouseDoubleClick += (sender, args) => WindowService.Show<MainWindow>();
         }
 
-        private void InitPackageStore()
-        {
-            PackageStore = new PackageStore(PackageService);
-        }
-
         private void InitUpdaterService()
         {
             UpdaterService = new UpdaterService(ConfigStore);
@@ -192,14 +133,22 @@ namespace Pahkat
                     }
                     else
                     {
-                        Strings.Culture = new CultureInfo(lang);
+                        try
+                        {
+                            Strings.Culture = new CultureInfo(lang);
+                        }
+                        catch (Exception e)
+                        {
+                            MessageBox.Show($"Failed to set language to {lang}; falling back to {CultureInfo.CurrentCulture.Name}.");
+                            Strings.Culture = CultureInfo.CurrentCulture;
+                        }
                     }
                 }).DisposedBy(_bag);
         }
 
         private void InitConfigStore()
         {
-            ConfigStore = DI.CreateAppConfigStore(this);
+            ConfigStore = new AppConfigStore(this);
         }
 
         public string CurrentVersion => ThisAssembly.AssemblyInformationalVersion;
@@ -210,11 +159,13 @@ namespace Pahkat
                 .Where((x) => x.IsNullOrEmpty())
                 .Subscribe((_) =>
                 {
-                    var repos = new[]
-                        {new RepoConfig(new Uri("https://pahkat.uit.no/repo/windows/"), RepositoryMeta.Channel.Stable)};
+                    var repos = new List<RepoRecord>()
+                    {
+                        new RepoRecord(new Uri("https://pahkat.uit.no/repo/windows/"), RepositoryMeta.Channel.Stable)
+                    };
                     ConfigStore.Dispatch(AppConfigAction.SetRepositories(repos));
-                    Client.Config.SetRepos(repos);
-                    Client.RefreshRepos();
+                    PackageStore.Config().SetRepos(repos.ToList());
+                    PackageStore.RefreshRepos();
                 }).DisposedBy(_bag);
         }
 
@@ -235,7 +186,7 @@ namespace Pahkat
             var line = reader.ReadLine();
             pipeServer.Disconnect();
     
-            if (line == "error")
+            if (line == "error" || line == null)
             {
                 MessageBox.Show("The updater had an error; loading Divvun Installer anyway.");
                 return false;
@@ -247,17 +198,16 @@ namespace Pahkat
             }
         }
 
-        public bool SkipSelfUpdateOnLaunch { private set; get; }= false;
+        public bool SkipSelfUpdateOnLaunch { private set; get; } = false;
         
         protected override void OnStartup(StartupEventArgs e)
         {
-            //Rpc = new RpcService(RavenClient);
-
             // The order of these initialisers is important.
+            PackageStore = PackageStore.Default();
+            Pahkat.Sdk.Settings.EnableLogging();
             InitConfigStore();
-            InitPackageStore();
+            UserSelection = new UserPackageSelectionStore();
             InitStrings();
-            
             EnsureValidRepoConfig();
 
             var args = Environment.GetCommandLineArgs();
@@ -267,10 +217,10 @@ namespace Pahkat
             if (Mode == AppMode.Default)
             {
                 var shouldSelfUpdateCheck = !SkipSelfUpdateOnLaunch &&
-                                            Client.Config.GetUiSetting("LastVersion") == CurrentVersion;
+                                            PackageStore.Config().GetUiValueRaw("LastVersion") == CurrentVersion;
                 
                 // Ensures first run doesn't lead to random updates.
-                Client.Config.SetUiSetting("LastVersion", CurrentVersion);
+                PackageStore.Config().SetUiValue("LastVersion", CurrentVersion);
 
                 if (shouldSelfUpdateCheck)
                 {
@@ -279,7 +229,7 @@ namespace Pahkat
                     {
                         if (RunSelfUpdate())
                         {
-                            selfUpdateClient.Config.SetUiSetting("no.divvun.Pahkat.updatingTo", null);
+                            selfUpdateClient.Config().SetUiValue("no.divvun.Pahkat.updatingTo", null);
                             return;
                         }
                     }
@@ -321,7 +271,8 @@ namespace Pahkat
             }
 
             // If -s, run silently. Used for start-up service.
-            if (!args.Contains(ArgsSilent) && !WindowService.Get<SelfUpdateWindow>().Instance.IsVisible)
+            // TODO: review
+            if (!args.Contains(ArgsSilent)) //  && !WindowService.Get<SelfUpdateWindow>().Instance.IsVisible)
             {
                 if (Mode == AppMode.Default && UpdaterService != null && UpdaterService.HasUpdates())
                 {
@@ -345,8 +296,21 @@ namespace Pahkat
 
             base.OnExit(e);
         }
+        private bool TrySwitchChannel(PackageStore selfUpdateStore)
+        {
+            var appConfig = PackageStore.Config();
+            var selfUpdateChannel = appConfig.GetUiValueRaw("selfUpdateChannel");
+            if (Enum.TryParse<RepositoryMeta.Channel>(selfUpdateChannel, true, out var channel))
+            {
+                var config = selfUpdateStore.Config();
+                config.SetRepos(new List<RepoRecord> { new RepoRecord(config.Repos().First().Url, channel) });
+                selfUpdateStore.ForceRefreshRepos();
+                return true;
+            }
+            return false;
+        }
 
-        public PahkatClient CheckForSelfUpdate()
+        public PackageStore CheckForSelfUpdate()
         {
 //            SessionEnding += (sender, args) =>
 //            {
@@ -358,39 +322,40 @@ namespace Pahkat
             var selfUpdateJsonPath = Path.Combine(basePath, "selfupdate.json");
             var overrideUpdateChannel = false;
 
-            PahkatClient client;
+            PackageStore selfUpdateStore;
             try
             {
-                client = new PahkatClient(selfUpdateJsonPath, false);
+                selfUpdateStore = PackageStore.NewForSelfUpdate(selfUpdateJsonPath);
 
                 // determine if the user has overridden the the update
                 // channel to use for self updates. If so we need to
                 // reconfigure the pahkat client to use that channel instead
-                overrideUpdateChannel = client.TrySwitchChannel(client.Config.GetUiSetting("selfUpdateChannel"));
+                overrideUpdateChannel = TrySwitchChannel(selfUpdateStore);
             }
             catch (Exception e)
             {
                 return null;
             }
 
-            var repo = client.Repos().FirstOrDefault();
+            var repo = selfUpdateStore.RepoIndexes().FirstOrDefault();
             if (repo == null)
             {
                 return null;
             }
 
-            var package = repo.Packages.Get(Constants.PackageId, null);
+            Package package = repo.Packages.Get(Constants.PackageId, null);
             if (package == null)
             {
                 return null;
             }
 
-            if (!AssertSuccessfulUpdate(client, package.Version))
+            if (!overrideUpdateChannel && !AssertSuccessfulUpdate(package.Version))
             {
                 return null;
             }
 
-            var status = repo.PackageStatus(repo.AbsoluteKeyFor(package)).Status;
+            var key = repo.AbsoluteKeyFor(package);
+            var status = selfUpdateStore.Status(key).Item1;
             switch (status)
             {
                 #if DEBUG
@@ -412,8 +377,8 @@ namespace Pahkat
                             return null;
                         }
                     }
-                    client.Config.SetUiSetting("no.divvun.Pahkat.updatingTo", package.Version);
-                    return client;
+                    PackageStore.Config().SetUiValue("no.divvun.Pahkat.updatingTo", package.Version);
+                    return selfUpdateStore;
                 default:
                     return null;
             }
@@ -423,16 +388,11 @@ namespace Pahkat
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
         public static void Main(string[] args)
         {
-            if (args.Length >= 2 && args[0] == ArgsOutputSemver)
-            {
-                File.WriteAllText(args[1], ThisAssembly.AssemblyInformationalVersion);
-                return;
-            }
-
             var mode = args.Any((x) => x == ArgsInstall)
                 ? AppMode.Install
                 : AppMode.Default;
             
+            // Check if multiple instances of Divvun Installer are running before creating new app
             if (mode == AppMode.Default)
             {
                 const string key = "DivvunInstaller";
@@ -443,14 +403,16 @@ namespace Pahkat
                 }
             }
 
-            var raven = DI.CreateRavenClient();
-
+            // Set up Sentry exception capturing
+            var sentry = new RavenClient(Constants.SentryDsn);
             AppDomain.CurrentDomain.UnhandledException += (sender, sargs) =>
             {
-                raven.Capture(new SentryEvent((Exception) sargs.ExceptionObject));
+                sentry.Capture(new SentryEvent((Exception) sargs.ExceptionObject));
             };
-            var client = new PahkatClient();
-            var application = new PahkatApp {Client = client, RavenClient = raven, Mode = mode};
+
+
+            // Start app
+            var application = new PahkatApp {SentryClient = sentry, Mode = mode};
             application.Run();
 
             if (mode == AppMode.Default)
@@ -459,9 +421,9 @@ namespace Pahkat
             }
         }
 
-        private bool AssertSuccessfulUpdate(PahkatClient client, string packageVersion)
+        private bool AssertSuccessfulUpdate(string packageVersion)
         {
-            var updatingTo = client.Config.GetUiSetting("no.divvun.Pahkat.updatingTo");
+            var updatingTo = PackageStore.Config().GetUiValueRaw("no.divvun.Pahkat.updatingTo");
 
             if (!string.IsNullOrEmpty(updatingTo) && updatingTo == packageVersion)
             {
@@ -478,7 +440,7 @@ namespace Pahkat
                 }
             }
 
-            client.Config.SetUiSetting("no.divvun.Pahkat.updatingTo", null);
+            PackageStore.Config().SetUiValue("no.divvun.Pahkat.updatingTo", null);
             return true;
         }
     }

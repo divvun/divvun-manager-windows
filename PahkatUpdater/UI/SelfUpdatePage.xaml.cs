@@ -19,7 +19,7 @@ namespace PahkatUpdater.UI
         private SelfUpdatePresenter _presenter;
         private CompositeDisposable _bag = new CompositeDisposable();
         
-        public SelfUpdatePage(PahkatClient client, string installDir)
+        public SelfUpdatePage(PackageStore client, string installDir)
         {
             InitializeComponent();
             

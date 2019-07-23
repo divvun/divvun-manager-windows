@@ -163,7 +163,7 @@
     <value>Channel</value>
   </data>
   <data name="CheckForUpdates" xml:space="preserve">
-    <value>Check For Updates...</value>
+    <value>Check for Updates...</value>
   </data>
   <data name="Completed" xml:space="preserve">
     <value>Completed</value>
@@ -457,9 +457,6 @@
   </data>
   <data name="Zoom" xml:space="preserve">
     <value>Zoom</value>
-  </data>
-  <data name="CheckForPackageUpdates" xml:space="preserve">
-    <value>Check for package updates</value>
   </data>
   <data name="Refresh" xml:space="preserve">
     <value>Refresh</value>

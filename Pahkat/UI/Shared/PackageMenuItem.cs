@@ -7,6 +7,7 @@ using Pahkat.Extensions;
 using Pahkat.Models;
 using Pahkat.Service;
 using Pahkat.Sdk;
+using System.Windows;
 
 namespace Pahkat.UI.Shared
 {
@@ -16,20 +17,18 @@ namespace Pahkat.UI.Shared
 
         public AbsolutePackageKey Key { get; private set; }
         public Package Model { get; private set; }
-        private IPackageService _pkgServ;
-        private IPackageStore _store;
+        private UserPackageSelectionStore _store;
 
         private CompositeDisposable _bag = new CompositeDisposable();
-        
+
         // TODO: add a subscriber to the registry to stop this from firing so often
-        private PackageStatus _status => _pkgServ.InstallStatus(Key).Status;
+        private PackageStatus _status => ((PahkatApp)Application.Current).PackageStore.Status(Key).Item1;
         private PackageActionInfo _actionInfo;
 
-        public PackageMenuItem(AbsolutePackageKey key, Package model, IPackageService pkgServ, IPackageStore store)
+        public PackageMenuItem(AbsolutePackageKey key, Package model, UserPackageSelectionStore store)
         {
             Key = key;
             Model = model;
-            _pkgServ = pkgServ;
             _store = store;
 
             _bag.Add(_store.State
@@ -50,9 +49,9 @@ namespace Pahkat.UI.Shared
             {
                 switch (_actionInfo?.Action)
                 {
-                    case PackageActionType.Install:
+                    case PackageAction.Install:
                         return Strings.Install;
-                    case PackageActionType.Uninstall:
+                    case PackageAction.Uninstall:
                         return Strings.Uninstall;
                     default:
                         return _status.Description();
@@ -75,7 +74,7 @@ namespace Pahkat.UI.Shared
         public bool IsSelected
         {
             get => _actionInfo != null;
-            set => _store.Dispatch(PackageStoreAction.TogglePackageWithDefaultAction(Key, value));
+            set => _store.Dispatch(UserSelectionAction.TogglePackageWithDefaultAction(Key, value));
         }
 
         public void Dispose()
@@ -108,7 +107,7 @@ namespace Pahkat.UI.Shared
 
         public int CompareTo(PackageMenuItem other)
         {
-            return String.Compare(Model.NativeName, other.Model.NativeName, StringComparison.CurrentCulture);
+            return string.Compare(Model.NativeName, other.Model.NativeName, StringComparison.CurrentCulture);
         }
     }
 }

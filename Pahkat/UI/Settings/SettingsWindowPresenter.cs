@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
@@ -57,13 +58,13 @@ namespace Pahkat.UI.Settings
                 .Select(_ => _view.SettingsFormData())
                 .Subscribe(data =>
                 {
-                    RepoConfig[] repos;
+                    List<RepoRecord> repos;
                     try
                     {
                         repos = _data.Select(x =>
                         {
-                            return new RepoConfig(new Uri(x.Url), x.Channel);
-                        }).ToArray();
+                            return new RepoRecord(new Uri(x.Url), x.Channel);
+                        }).ToList();
                     } catch (Exception e)
                     {
                         _view.HandleError(e);

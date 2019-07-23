@@ -5,10 +5,10 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Pahkat.Models;
-using Pahkat.Service;
 using Pahkat.Sdk;
 using Pahkat.UI.Shared;
 using DuoVia.FuzzyStrings;
+using Pahkat.Extensions;
 
 namespace Pahkat.UI.Main
 {
@@ -18,26 +18,25 @@ namespace Pahkat.UI.Main
             new ObservableCollection<RepoTreeItem>();
         
         private IMainPageView _view;
-        private IPackageService _pkgServ;
-        private IPackageStore _store;
+        private UserPackageSelectionStore _store;
 
-        private IDisposable BindPackageToggled(IMainPageView view, IPackageStore store)
+        private IDisposable BindPackageToggled(IMainPageView view, IUserPackageSelectionStore store)
         {
             return view.OnPackageToggled()
-                .Select(item => PackageStoreAction.TogglePackage(
+                .Select(item => UserSelectionAction.TogglePackage(
                     item.Key,
-                    _pkgServ.DefaultPackageAction(item.Key),
+                    item.Key.DefaultPackageAction(),
                     !item.IsSelected))
                 .Subscribe(store.Dispatch);
         }
         
-        private IDisposable BindGroupToggled(IMainPageView view, IPackageStore store)
+        private IDisposable BindGroupToggled(IMainPageView view, IUserPackageSelectionStore store)
         {
             return view.OnGroupToggled()
                 .Select(item =>
                 {
-                    return PackageStoreAction.ToggleGroup(
-                        item.Items.Select(x => new PackageActionInfo(x.Key, _pkgServ.DefaultPackageAction(x.Key))).ToArray(),
+                    return UserSelectionAction.ToggleGroup(
+                        item.Items.Select(x => new PackageActionInfo(x.Key)).ToArray(),
                         !item.IsGroupSelected);
                 })
                 .Subscribe(store.Dispatch);
@@ -60,7 +59,7 @@ namespace Pahkat.UI.Main
                     map[package.Category] = new List<PackageMenuItem>();
                 }
 
-                map[package.Category].Add(new PackageMenuItem(keyMap[package], package, _pkgServ, _store));
+                map[package.Category].Add(new PackageMenuItem(keyMap[package], package, _store));
             }
 
             var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x =>
@@ -86,7 +85,7 @@ namespace Pahkat.UI.Main
                         map[bcp47] = new List<PackageMenuItem>();
                     }
 
-                    map[bcp47].Add(new PackageMenuItem(keyMap[package], package, _pkgServ, _store));
+                    map[bcp47].Add(new PackageMenuItem(keyMap[package], package, _store));
                 }
             }
 
@@ -175,11 +174,11 @@ namespace Pahkat.UI.Main
             {
                 string s;
 
-                if (packages.All(x => x.Value.Action == PackageActionType.Install))
+                if (packages.All(x => x.Value.Action == PackageAction.Install))
                 {
                     s = string.Format(Strings.InstallNPackages, packages.Count);
                 }
-                else if (packages.All(x => x.Value.Action == PackageActionType.Uninstall))
+                else if (packages.All(x => x.Value.Action == PackageAction.Uninstall))
                 {
                     s = string.Format(Strings.UninstallNPackages, packages.Count);
                 }
@@ -196,7 +195,7 @@ namespace Pahkat.UI.Main
             }
         }
 
-        private IDisposable BindPrimaryButtonLabel(IMainPageView view, IPackageStore store)
+        private IDisposable BindPrimaryButtonLabel(IMainPageView view, IUserPackageSelectionStore store)
         {
             // Can't use distinct until changed here because HashSet is never reset
             return store.State
@@ -204,16 +203,8 @@ namespace Pahkat.UI.Main
                 .Subscribe(GeneratePrimaryButtonLabel);
         }
 
-        //public void SetRepos(RepositoryIndex[] repos)
-        //{
-        //    _currentRepos = repos;
-        //    RefreshPackageList();
-        //}
-
-        public MainPagePresenter(IMainPageView view, IPackageService pkgServ, IPackageStore store)
+        public MainPagePresenter(IMainPageView view, UserPackageSelectionStore store)
         {
-            //_repoServ = repoServ;
-            _pkgServ = pkgServ;
             _view = view;
             _store = store;
 

@@ -22,22 +22,25 @@ namespace PahkatUpdater.UI
     {
         private ISelfUpdateView _view;
         
-        private PahkatClient _client;
+        private PackageStore _client;
         private RepositoryIndex _repo;
         private Package _package;
         private AbsolutePackageKey _key;
-        private PackageStatusResponse _status;
+        private PackageStatus _status;
+        private PackageTarget _target;
         
         private string _installDir;
         
-        public SelfUpdatePresenter(ISelfUpdateView view, PahkatClient client, string installDir)
+        public SelfUpdatePresenter(ISelfUpdateView view, PackageStore client, string installDir)
         {
             _view = view;
             _client = client;
-            _repo = client.Repos()[0];
+            _repo = client.RepoIndexes()[0];
             _package = _repo.Packages[Constants.PackageId];
             _key = _repo.AbsoluteKeyFor(_package);
-            _status = _repo.PackageStatus(_key);
+            var (status, target) = client.Status(_key);
+            _status = status;
+            _target = target;
             _installDir = installDir;
         }
 
@@ -48,7 +51,7 @@ namespace PahkatUpdater.UI
 
         private void Download(CompositeDisposable bag)
         {
-            bag.Add(_client.Download(_key, _status.Target)
+            bag.Add(_client.Download(_key, _target)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .ObserveOn(DispatcherScheduler.Current)
                 .Subscribe((progress) =>
@@ -96,8 +99,9 @@ namespace PahkatUpdater.UI
             //app.StartPahkat();
             //app.Shutdown();
 
-            var tx = new TransactionAction(PackageActionType.Install, _key, InstallerTarget.System);
-            bag.Add(_client.Transaction(new[] {tx}).Process()
+            var action = TransactionAction.Install(_key, PackageTarget.System);
+            var tx = Transaction.New(_client, new List<TransactionAction> { action });
+            bag.Add(tx.Process()
                 .SubscribeOn(DispatcherScheduler.Current)
                 .ObserveOn(DispatcherScheduler.Current)
                 .Subscribe((evt =>

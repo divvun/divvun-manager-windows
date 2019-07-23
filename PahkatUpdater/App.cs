@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
@@ -20,7 +21,7 @@ namespace PahkatUpdater
     {
         public void ShowError(string message)
         {
-            MessageBox.Show(message);
+            MessageBox.Show($"An unhandled error was encountered:\n\n{message}");
             
             if (clientWriter != null)
             {
@@ -39,7 +40,7 @@ namespace PahkatUpdater
         }
 
         private string installDir;
-        public PahkatClient Client { private set; get; }
+        public PackageStore Client { private set; get; }
         public Window Window { private set; get; }
         
         NamedPipeClientStream clientStream;
@@ -52,7 +53,21 @@ namespace PahkatUpdater
             clientStream = null;
             clientWriter = null;
         }
-        
+
+        private bool TrySwitchChannel(PackageStore selfUpdateStore)
+        {
+            var appConfig = PackageStore.Default().Config();
+            var selfUpdateChannel = appConfig.GetUiValueRaw("selfUpdateChannel");
+            if (Enum.TryParse<RepositoryMeta.Channel>(selfUpdateChannel, true, out var channel))
+            {
+                var config = selfUpdateStore.Config();
+                config.SetRepos(new List<RepoRecord> { new RepoRecord(config.Repos().First().Url, channel) });
+                selfUpdateStore.ForceRefreshRepos();
+                return true;
+            }
+            return false;
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             try
@@ -88,12 +103,12 @@ namespace PahkatUpdater
 
             try
             {
-                Client = new PahkatClient(selfUpdateConfig, false);
+                Client = PackageStore.NewForSelfUpdate(selfUpdateConfig);
 
                 // determine if the user has overridden the the update
                 // channel to use for self updates. If so we need to
                 // reconfigure the pahkat client to use that channel instead
-                Client.TrySwitchChannel(Client.Config.GetUiSetting("selfUpdateChannel"));
+                TrySwitchChannel(Client);
 
             } catch (Exception ex) {
                 ShowError(ex.Message);
