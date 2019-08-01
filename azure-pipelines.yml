@@ -1,6 +1,14 @@
 trigger:
 - master
 
+schedules:
+- cron: "50 13 * * *"
+  displayName: Nightly build
+  branches:
+    include:
+      - master
+  always: true
+
 jobs:
 - job: 'Windows'
   pool:
