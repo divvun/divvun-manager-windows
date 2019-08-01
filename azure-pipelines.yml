@@ -56,9 +56,10 @@ jobs:
       artifactName: windows
     displayName: 'Publish artifact'
   - powershell: |
+      $Date = Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
       $Env:PATH += ";$(System.DefaultWorkingDirectory)"
       . .\divvun-ci-config\repo\scripts\PahkatDeploySvn.ps1
-      PahkatDeploySvn -SvnUrl https://pahkat.uit.no/repo/divvun-installer -Artifact "$(System.DefaultWorkingDirectory)\divvun-installer.exe" -Package divvun-installer-windows -Version $(GitAssemblyInformationalVersion)
+      PahkatDeploySvn -SvnUrl https://pahkat.uit.no/repo/divvun-installer -Artifact "$(System.DefaultWorkingDirectory)\divvun-installer.exe" -Package divvun-installer-windows -Version $Date
     displayName: 'Deploy to nightly channel'
     env:
       DEPLOY_SVN_USER: $(svnUser)
