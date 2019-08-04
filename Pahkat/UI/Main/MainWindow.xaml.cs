@@ -21,6 +21,11 @@ namespace Pahkat.UI.Main
             ShowPage(new MainPage());
         }
 
+        public void ShowLandingPage()
+        {
+            ShowPage(new LandingPage());
+        }
+
         public void ShowPage(IPageView pageView)
         {
             FrmContainer.Navigate(pageView);

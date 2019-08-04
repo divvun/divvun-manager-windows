@@ -312,11 +312,12 @@ namespace Pahkat
 
         public PackageStore CheckForSelfUpdate()
         {
-//            SessionEnding += (sender, args) =>
-//            {
-//                UpdaterService.Dispose();
-//                UpdaterService = null;
-//            };
+            //            SessionEnding += (sender, args) =>
+            //            {
+            //                UpdaterService.Dispose();
+            //                UpdaterService = null;
+            //            };
+            return null;
             
             var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var selfUpdateJsonPath = Path.Combine(basePath, "selfupdate.json");
