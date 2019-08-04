@@ -8,11 +8,11 @@ namespace Pahkat.Sdk
 {
     public class TransactionAction
     {
-        [JsonProperty("id")]
+        [JsonProperty("id", Required = Required.Always)]
         public AbsolutePackageKey Id { get; internal set; }
-        [JsonProperty("action")]
+        [JsonProperty("action", Required = Required.Always)]
         public PackageAction Action { get; internal set; }
-        [JsonProperty("target")]
+        [JsonProperty("target", Required = Required.Always)]
         public PackageTarget Target { get; internal set; }
 
         public static TransactionAction Install(AbsolutePackageKey key, PackageTarget target)
@@ -31,6 +31,16 @@ namespace Pahkat.Sdk
             {
                 Id = key,
                 Action = PackageAction.Uninstall,
+                Target = target
+            };
+        }
+
+        public static TransactionAction New(PackageAction action, AbsolutePackageKey key, PackageTarget target)
+        {
+            return new TransactionAction
+            {
+                Id = key,
+                Action = action,
                 Target = target
             };
         }

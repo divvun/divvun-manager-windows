@@ -16,10 +16,9 @@ namespace Pahkat.UI.Main
         {
             _mainWindow.ShowPage(pageView);
         }
-        
         public void Start()
         {
-            _mainWindow.ShowMainPage();
+            _mainWindow.ShowLandingPage();
         }
     }
 }
