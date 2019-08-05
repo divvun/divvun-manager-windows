@@ -34,11 +34,17 @@ namespace Pahkat.UI.Main
         public object[] Args;
     }
 
+    class WebViewChannel
+    {
+
+    }
+
+
     class Bridge
     {
-        private WebViewCompatible webView;
+        private WebView webView;
 
-        internal Bridge(WebViewCompatible webView)
+        internal Bridge(WebView webView)
         {
             this.webView = webView;
         }
@@ -46,7 +52,17 @@ namespace Pahkat.UI.Main
         private void SendResponse(uint id, object message)
         {
             var payload = JsonConvert.SerializeObject(message);
-            webView.InvokeScript($"window.pahkatResponders[\"callback-{id}\"]({payload});");
+            try
+            {
+                var script = $"window.pahkatResponders[\"callback-{id}\"]({payload})";
+                Console.WriteLine($"Running script: {script}");
+                //webView.InvokeScript(script);
+                webView.Navigate($"http://localhost:5000/#{script}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         private void SendError(uint id, string error)
@@ -63,18 +79,6 @@ namespace Pahkat.UI.Main
                 SendError(request.Id, "Invalid number of arguments");
                 return false;
             }
-
-            //var hasValidTypes = request.Args.Zip(expectedTypes, (a, b) => (a, b)).All(tuple =>
-            //{
-            //    var (arg, type) = tuple;
-            //    return arg.GetType() == type;
-            //});
-
-            //if (!hasValidTypes)
-            //{
-            //    SendError(request.Id, "Invalid type for one of the arguments");
-            //    return false;
-            //}
 
             return true;
         }
@@ -94,24 +98,73 @@ namespace Pahkat.UI.Main
             // TODO: prompt user for permission to do actions.
         }
 
+        private string Repos()
+        {
+            var app = ((PahkatApp)Application.Current);
+            var repos = JsonConvert.SerializeObject(app.PackageStore.RepoIndexes());
+            return repos;
+        }
+
         public void HandleRequest(RpcRequest request)
         {
             try
             {
+                string response = null;
+
                 switch (request.Method)
                 {
                     case "requestTransaction":
                         RequestTransaction(request.Args);
                         break;
+                    case "repos":
+                        response = Repos();
+                        break;
                     default:
                         break;
+                }
+
+                if (response != null)
+                {
+                    SendResponse(request.Id, response);
                 }
             }
             catch (Exception e)
             {
-                this.SendError(request.Id, e.Message);
+                SendError(request.Id, e.Message);
             }
             
+        }
+    }
+
+    internal class WebViewPolyfill
+    {
+        private Bridge bridge;
+
+        internal WebViewPolyfill(Bridge bridge)
+        {
+            this.bridge = bridge;
+        }
+
+        void notify(string value)
+        {
+            var request = JsonConvert.DeserializeObject<RpcRequest>(value);
+            this.bridge.HandleRequest(request);
+        }
+    }
+
+    public class LegacyLandingPage : Page, IPageView
+    {
+        private WebBrowser webView;
+        private Bridge bridge;
+
+        LegacyLandingPage()
+        {
+            //InitializeComponent();
+            webView = new WebBrowser();
+            //grid.Children.Add(webView);
+            bridge = new Bridge(webView);
+
+            webView.ObjectForScripting = new WebViewPolyfill(bridge)
         }
     }
 
@@ -120,7 +173,7 @@ namespace Pahkat.UI.Main
     /// </summary>
     public partial class LandingPage : Page, IPageView
     {
-        private WebViewCompatible webView;
+        private WebView webView;
         private Bridge bridge;
 
         private void ProcessRequest(string rawRequest)
@@ -132,38 +185,49 @@ namespace Pahkat.UI.Main
         public LandingPage()
         {
             InitializeComponent();
-            webView = new WebViewCompatible();
+            webView = new WebView();
             grid.Children.Add(webView);
             bridge = new Bridge(webView);
 
-            this.Loaded += (sender, e) =>
-            {
-                var payload = "%7B%22method%22%3A%22requestTransaction%22%2C%22args%22%3A%5B%5B%7B%22action%22%3A%22install%22%2C%22target%22%3A%22system%22%2C%22package%22%3A%22https%3A%2F%2Fderp.tld%2Fsomething%2Fpackages%2Fahaha2%22%7D%5D%5D%2C%22id%22%3A42%7D";
-                webView.NavigateToString($"<a href=\"about:pahkat:{payload}\">Install packages</a>");
-            };
+            webView.IsScriptNotifyAllowed = true;
 
-            webView.NavigationStarting += (sender, args) =>
+            webView.ScriptNotify += (sender, args) =>
             {
-                if (args.Uri == null)
-                {
-                    return;
-                }
+                // Check args.Uri for something we want to actually act upon, for security.
+            }
 
-                if (args.Uri.Scheme == "about")
-                {
-                    if (Uri.TryCreate(args.Uri.AbsolutePath, UriKind.Absolute, out var pahkatUri) && pahkatUri.Scheme == "pahkat")
-                    {
-                        args.Cancel = true;
-                        DispatcherScheduler.Current.Dispatcher.InvokeAsync(() =>
-                        {
-                            var payload = Uri.UnescapeDataString(pahkatUri.AbsolutePath);
-                            ProcessRequest(payload);
-                        });
-                    }
-                }
-            };
+            //this.Loaded += (sender, e) =>
+            //{
+            //    var payload = "%7B%22method%22:%22requestTransaction%22,%22args%22:%5B%5B%7B%22action%22:%22install%22,%22target%22:%22system%22,%22package%22:%22https://derp.tld/something/packages/ahaha2%22%7D%5D%5D,%22id%22:42%7D";
+            //    //webView.NavigateToString($"<a href=\"about:pahkat:{payload}\">Install packages</a>");
+            //    webView.Navigate("http://127.0.0.1:5000/#whatsup");
+            //};
+
+            //webView.NavigationCompleted += (sender, args) =>
+            //{
+            //    return;
+            //};
+
+            //webView.NavigationStarting += (sender, args) =>
+            //{
+            //    if (args.Uri == null)
+            //    {
+            //        return;
+            //    }
+
+            //    if (args.Uri.Scheme == "about")
+            //    {
+            //        if (Uri.TryCreate(args.Uri.AbsolutePath, UriKind.Absolute, out var pahkatUri) && pahkatUri.Scheme == "pahkat")
+            //        {
+            //            args.Cancel = true;
+            //            DispatcherScheduler.Current.Dispatcher.InvokeAsync(() =>
+            //            {
+            //                var payload = Uri.UnescapeDataString(pahkatUri.AbsolutePath);
+            //                ProcessRequest(payload);
+            //            });
+            //        }
+            //    }
+            //};
         }
-
-        
     }
 }
