@@ -12,7 +12,7 @@ schedules:
 jobs:
 - job: 'Windows'
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
   steps:
   - task: DownloadPipelineArtifact@1
     inputs:
