@@ -162,9 +162,9 @@ namespace Pahkat.UI.Main
             //InitializeComponent();
             webView = new WebBrowser();
             //grid.Children.Add(webView);
-            bridge = new Bridge(webView);
+            //bridge = new Bridge(webView);
 
-            webView.ObjectForScripting = new WebViewPolyfill(bridge)
+            webView.ObjectForScripting = new WebViewPolyfill(bridge);
         }
     }
 
@@ -194,7 +194,7 @@ namespace Pahkat.UI.Main
             webView.ScriptNotify += (sender, args) =>
             {
                 // Check args.Uri for something we want to actually act upon, for security.
-            }
+            };
 
             //this.Loaded += (sender, e) =>
             //{

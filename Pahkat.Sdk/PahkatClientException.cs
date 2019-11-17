@@ -5,21 +5,22 @@ namespace Pahkat.Sdk
 {
     public class PahkatClientException : Exception
     {
-        private PahkatClientException(string message) : base(message) { }
+        static internal string lastError = null;
 
-        private static PahkatClientException Create(IntPtr exceptionPtr)
+        static internal pahkat_client.ErrCallback Callback = (ptr) =>
         {
-            string str = MarshalUtf8.PtrToStringUtf8(exceptionPtr);
-            pahkat_client.pahkat_exception_release(exceptionPtr);
-            return new PahkatClientException(str);
-        }
-
-        internal static void Try(IntPtr exceptionPtr)
+            lastError = MarshalUtf8.PtrToStringUtf8(ptr);
+        };
+        static internal void AssertNoError()
         {
-            if (exceptionPtr != IntPtr.Zero)
+            if (lastError != null)
             {
-                throw Create(exceptionPtr);
+                var err = lastError;
+                lastError = null;
+                throw new PahkatClientException(err);
             }
         }
+
+        private PahkatClientException(string message) : base(message) { }
     }
 }

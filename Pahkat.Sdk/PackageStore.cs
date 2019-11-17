@@ -17,16 +17,16 @@ namespace Pahkat.Sdk
         public static PackageStore New(string path)
         {
             var fullPath = Path.GetFullPath(path);
-            var store = pahkat_client.pahkat_windows_package_store_new(fullPath, out var exception);
-            Try(exception);
+            var store = pahkat_client.pahkat_windows_package_store_new(fullPath, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return store;
         }
 
         public static PackageStore Load(string path)
         {
             var fullPath = Path.GetFullPath(path);
-            var store = pahkat_client.pahkat_windows_package_store_load(fullPath, out var exception);
-            Try(exception);
+            var store = pahkat_client.pahkat_windows_package_store_load(fullPath, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return store;
         }
 
@@ -40,8 +40,8 @@ namespace Pahkat.Sdk
 
         public StoreConfig Config()
         {
-            var result = pahkat_client.pahkat_windows_package_store_config(this, out var exception);
-            Try(exception);
+            var result = pahkat_client.pahkat_windows_package_store_config(this, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return result;
         }
 
@@ -54,54 +54,54 @@ namespace Pahkat.Sdk
 
         public void RefreshRepos()
         {
-            pahkat_client.pahkat_windows_package_store_refresh_repos(this, out var exception);
-            Try(exception);
+            pahkat_client.pahkat_windows_package_store_refresh_repos(this, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
         }
 
         public void ClearCache()
         {
-            pahkat_client.pahkat_windows_package_store_clear_cache(this, out var exception);
-            Try(exception);
+            pahkat_client.pahkat_windows_package_store_clear_cache(this, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
         }
 
         public void ForceRefreshRepos()
         {
-            pahkat_client.pahkat_windows_package_store_force_refresh_repos(this, out var exception);
-            Try(exception);
+            pahkat_client.pahkat_windows_package_store_force_refresh_repos(this, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
         }
 
         public bool RemoveRepo(string url, string channel)
         {
-            var result = pahkat_client.pahkat_windows_package_store_remove_repo(this, url, channel, out var exception);
-            Try(exception);
+            var result = pahkat_client.pahkat_windows_package_store_remove_repo(this, url, channel, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return result;
         }
 
         public bool AddRepo(string url, string channel)
         {
-            var result = pahkat_client.pahkat_windows_package_store_add_repo(this, url, channel, out var exception);
-            Try(exception);
+            var result = pahkat_client.pahkat_windows_package_store_add_repo(this, url, channel, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return result;
         }
 
         public bool UpdateRepo(uint index, string url, string channel)
         {
-            var result = pahkat_client.pahkat_windows_package_store_update_repo(this, index, url, channel, out var exception);
-            Try(exception);
+            var result = pahkat_client.pahkat_windows_package_store_update_repo(this, index, url, channel, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return result;
         }
 
         public RepositoryIndex[] RepoIndexes()
         {
-            var result = pahkat_client.pahkat_windows_package_store_repo_indexes(this, out var exception);
-            Try(exception);
+            var result = pahkat_client.pahkat_windows_package_store_repo_indexes(this, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return result;
         }
 
         public Package ResolvePackage(PackageKey key)
         {
-            var result = pahkat_client.pahkat_windows_package_store_resolve_package(this, key, out var exception);
-            Try(exception);
+            var result = pahkat_client.pahkat_windows_package_store_resolve_package(this, key, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return result;
         }
 
@@ -130,10 +130,10 @@ namespace Pahkat.Sdk
 
                     unsafe
                     {
-                        var ret = pahkat_client.pahkat_windows_package_store_download(this, key, Callback, out var exception);
+                        var ret = pahkat_client.pahkat_windows_package_store_download(this, key, Callback, PahkatClientException.Callback);
                         try
                         {
-                            Try(exception);
+                            PahkatClientException.AssertNoError();
                             observer.OnCompleted();
                         }
                         catch (PahkatClientException e)

@@ -197,7 +197,7 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Extensions\Extensions.cs" />
-    <Compile Include="Extensions\AbsolutePackageKeyExt.cs" />
+    <Compile Include="Extensions\PackageKeyExt.cs" />
     <Compile Include="Models\AppConfig.cs" />
     <Compile Include="Extensions\PeriodIntervalExt.cs" />
     <Compile Include="Models\SelectionEvent.cs" />

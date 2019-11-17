@@ -9,7 +9,7 @@ namespace Pahkat.Sdk
     {
         public static void EnableLogging()
         {
-            pahkat_client.pahkat_windows_enable_logging();
+            pahkat_client.pahkat_enable_logging();
         }
     }
 }

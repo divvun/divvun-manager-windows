@@ -98,11 +98,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbsolutePackageKey.cs" />
+    <Compile Include="PackageKey.cs" />
     <Compile Include="ClientTypes.cs" />
     <Compile Include="DownloadProgress.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="Native\AbsolutePackageKeyMarshaler.cs" />
+    <Compile Include="Native\PackageKeyMarshaler.cs" />
     <Compile Include="Native\ActionListMarshaler.cs" />
     <Compile Include="Native\Arced.cs" />
     <Compile Include="Native\ArcMarshaler.cs" />
