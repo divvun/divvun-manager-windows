@@ -37,7 +37,7 @@ namespace PahkatUpdater.UI
             _client = client;
             _repo = client.RepoIndexes()[0];
             _package = _repo.Packages[Constants.PackageId];
-            _key = _repo.AbsoluteKeyFor(_package);
+            _key = _repo.PackageKeyFor(_package);
             var (status, target) = client.Status(_key);
             _status = status;
             _target = target;

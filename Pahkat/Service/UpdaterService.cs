@@ -56,7 +56,7 @@ namespace Pahkat.Service
             {
                 return repo.Packages.Values.Any((p) =>
                 {
-                    return app.PackageStore.Status(repo.AbsoluteKeyFor(p)).Item1 == PackageStatus.RequiresUpdate;
+                    return app.PackageStore.Status(repo.PackageKeyFor(p)).Item1 == PackageStatus.RequiresUpdate;
                 });
             });
         }

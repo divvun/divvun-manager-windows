@@ -41,7 +41,7 @@ namespace Pahkat.Sdk
 
                 unsafe
                 {
-                    pahkat_client.pahkat_windows_transaction_process(this, Callback, 0, PahkatClientException.Callback);
+                    pahkat_client.pahkat_windows_transaction_process(this, 0, Callback, PahkatClientException.Callback);
 
                     try
                     {

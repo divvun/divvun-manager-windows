@@ -43,5 +43,10 @@ namespace Pahkat.Models
         }
 
         internal struct ResetSelection : ISelectionEvent { }
+
+        internal struct SetPackages : ISelectionEvent
+        {
+            public Transaction Transaction;
+        }
     }
 }

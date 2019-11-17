@@ -355,7 +355,7 @@ namespace Pahkat
                 return null;
             }
 
-            var key = repo.AbsoluteKeyFor(package);
+            var key = repo.PackageKeyFor(package);
             var status = selfUpdateStore.Status(key).Item1;
             switch (status)
             {
