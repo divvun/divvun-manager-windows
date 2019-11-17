@@ -30,8 +30,8 @@ namespace Pahkat.Sdk.Native
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StoreConfigMarshaler))]
             [In] StoreConfig handle,
 
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(AbsolutePackageKeyMarshaler))]
-            [In] AbsolutePackageKey key,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+            [In] PackageKey key,
 
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8CStrMarshaler))]
             [In] string value,
@@ -44,8 +44,8 @@ namespace Pahkat.Sdk.Native
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(StoreConfigMarshaler))]
             [In] StoreConfig handle,
 
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(AbsolutePackageKeyMarshaler))]
-            [In] AbsolutePackageKey key,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+            [In] PackageKey key,
 
             [Out] out IntPtr exception);
 
@@ -116,16 +116,16 @@ namespace Pahkat.Sdk.Native
         [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
         internal static extern TransactionAction pahkat_windows_action_new_install(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(AbsolutePackageKeyMarshaler))]
-            [In] AbsolutePackageKey key,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+            [In] PackageKey key,
             bool targetIsSystem,
             [Out] out IntPtr exception);
 
         [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
         internal static extern TransactionAction pahkat_windows_action_new_uninstall(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(AbsolutePackageKeyMarshaler))]
-            [In] AbsolutePackageKey key,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+            [In] PackageKey key,
             bool targetIsSystem,
             [Out] out IntPtr exception);
 
@@ -192,8 +192,8 @@ namespace Pahkat.Sdk.Native
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageStoreMarshaler))]
             [In] PackageStore handle,
 
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(AbsolutePackageKeyMarshaler))]
-            [In] AbsolutePackageKey key,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+            [In] PackageKey key,
 
             [In] DownloadProgressCallback callback,
 
@@ -211,8 +211,8 @@ namespace Pahkat.Sdk.Native
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageStoreMarshaler))]
             [In] PackageStore handle,
 
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(AbsolutePackageKeyMarshaler))]
-            [In] AbsolutePackageKey key,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+            [In] PackageKey key,
 
             [Out] out bool isSystem);
 
@@ -272,8 +272,8 @@ namespace Pahkat.Sdk.Native
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageStoreMarshaler))]
             [In] PackageStore store,
 
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(AbsolutePackageKeyMarshaler))]
-            [In] AbsolutePackageKey key,
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+            [In] PackageKey key,
 
             [Out] out IntPtr exception);
     }

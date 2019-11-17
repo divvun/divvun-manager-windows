@@ -62,13 +62,13 @@ namespace Pahkat.UI.Main
             var actions = _transaction.Actions();
             _view.SetTotalPackages(actions.Count);
 
-            var keys = new HashSet<AbsolutePackageKey>(actions.Select((x) => x.Id));
-            var packages = new Dictionary<AbsolutePackageKey, Package>();
+            var keys = new HashSet<PackageKey>(actions.Select((x) => x.Id));
+            var packages = new Dictionary<PackageKey, Package>();
             
             // Cache the packages in advance
             foreach (var repo in app.PackageStore.RepoIndexes())
             {
-                var copiedKeys = new HashSet<AbsolutePackageKey>(keys);
+                var copiedKeys = new HashSet<PackageKey>(keys);
                 foreach (var key in copiedKeys)
                 {
                     var package = repo.Package(key);

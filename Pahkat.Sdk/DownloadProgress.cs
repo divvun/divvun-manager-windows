@@ -2,13 +2,13 @@
 {
     public struct DownloadProgress
     {
-        public AbsolutePackageKey PackageId;
+        public PackageKey PackageId;
         public PackageDownloadStatus Status;
         public ulong Downloaded;
         public ulong Total;
         public string ErrorMessage;
 
-        public static DownloadProgress Progress(AbsolutePackageKey packageId, ulong cur, ulong max)
+        public static DownloadProgress Progress(PackageKey packageId, ulong cur, ulong max)
         {
             return new DownloadProgress
             {
@@ -19,7 +19,7 @@
             };
         }
 
-        public static DownloadProgress Completed(AbsolutePackageKey packageId)
+        public static DownloadProgress Completed(PackageKey packageId)
         {
             return new DownloadProgress
             {
@@ -28,7 +28,7 @@
             };
         }
 
-        public static DownloadProgress NotStarted(AbsolutePackageKey packageId)
+        public static DownloadProgress NotStarted(PackageKey packageId)
         {
             return new DownloadProgress
             {
@@ -37,7 +37,7 @@
             };
         }
 
-        public static DownloadProgress Error(AbsolutePackageKey packageId, string error)
+        public static DownloadProgress Error(PackageKey packageId, string error)
         {
             return new DownloadProgress
             {
@@ -47,7 +47,7 @@
             };
         }
 
-        public static DownloadProgress Starting(AbsolutePackageKey packageId)
+        public static DownloadProgress Starting(PackageKey packageId)
         {
             return new DownloadProgress
             {

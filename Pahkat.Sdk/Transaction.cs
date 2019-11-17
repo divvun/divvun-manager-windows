@@ -34,7 +34,7 @@ namespace Pahkat.Sdk
             {
                 void Callback(uint tag, IntPtr rawPackageKey, uint eventCode)
                 {
-                    var packageKey = AbsolutePackageKey.FromPtr(rawPackageKey);
+                    var packageKey = PackageKey.FromPtr(rawPackageKey);
                     var evt = PackageEvent.FromCode(packageKey, eventCode);
                     observer.OnNext(evt);
                 }

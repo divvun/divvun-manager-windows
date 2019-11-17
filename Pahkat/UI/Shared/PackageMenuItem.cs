@@ -15,7 +15,7 @@ namespace Pahkat.UI.Shared
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public AbsolutePackageKey Key { get; private set; }
+        public PackageKey Key { get; private set; }
         public Package Model { get; private set; }
         private UserPackageSelectionStore _store;
 
@@ -25,7 +25,7 @@ namespace Pahkat.UI.Shared
         private PackageStatus _status => ((PahkatApp)Application.Current).PackageStore.Status(Key).Item1;
         private PackageActionInfo _actionInfo;
 
-        public PackageMenuItem(AbsolutePackageKey key, Package model, UserPackageSelectionStore store)
+        public PackageMenuItem(PackageKey key, Package model, UserPackageSelectionStore store)
         {
             Key = key;
             Model = model;

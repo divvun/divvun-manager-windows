@@ -5,31 +5,31 @@ using Pahkat.Models;
 
 namespace Pahkat.Extensions
 {
-    static class AbsolutePackageKeyExt
+    static class PackageKeyExt
     {
-        static private PackageStatus InstallStatus(AbsolutePackageKey packageKey)
+        static private PackageStatus InstallStatus(PackageKey packageKey)
         {
             var app = (PahkatApp)Application.Current;
             return app.PackageStore.Status(packageKey).Item1;
         }
 
-        static internal (PackageStatus, PackageTarget) Status(AbsolutePackageKey packageKey)
+        static internal (PackageStatus, PackageTarget) Status(PackageKey packageKey)
         {
             var app = (PahkatApp)Application.Current;
             return app.PackageStore.Status(packageKey);
         }
 
-        public static bool RequiresUpdate(this AbsolutePackageKey package)
+        public static bool RequiresUpdate(this PackageKey package)
         {
             return InstallStatus(package) == PackageStatus.RequiresUpdate;
         }
 
-        public static bool IsUpToDate(this AbsolutePackageKey package)
+        public static bool IsUpToDate(this PackageKey package)
         {
             return InstallStatus(package) == PackageStatus.UpToDate;
         }
 
-        public static bool IsError(this AbsolutePackageKey package)
+        public static bool IsError(this PackageKey package)
         {
             switch (InstallStatus(package))
             {
@@ -41,7 +41,7 @@ namespace Pahkat.Extensions
             }
         }
 
-        public static bool IsUninstallable(this AbsolutePackageKey package)
+        public static bool IsUninstallable(this PackageKey package)
         {
             switch (InstallStatus(package))
             {
@@ -54,7 +54,7 @@ namespace Pahkat.Extensions
             }
         }
 
-        public static bool IsInstallable(this AbsolutePackageKey package)
+        public static bool IsInstallable(this PackageKey package)
         {
             switch (InstallStatus(package))
             {
@@ -67,7 +67,7 @@ namespace Pahkat.Extensions
             }
         }
 
-        public static bool IsValidAction(this AbsolutePackageKey package, PackageAction action)
+        public static bool IsValidAction(this PackageKey package, PackageAction action)
         {
             switch (action)
             {
@@ -80,7 +80,7 @@ namespace Pahkat.Extensions
             throw new ArgumentException("PackageAction switch exhausted unexpectedly.");
         }
 
-        public static PackageAction DefaultPackageAction(this AbsolutePackageKey package)
+        public static PackageAction DefaultPackageAction(this PackageKey package)
         {
             return package.IsUpToDate()
                 ? PackageAction.Uninstall

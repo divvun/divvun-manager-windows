@@ -25,7 +25,7 @@ namespace PahkatUpdater.UI
         private PackageStore _client;
         private RepositoryIndex _repo;
         private Package _package;
-        private AbsolutePackageKey _key;
+        private PackageKey _key;
         private PackageStatus _status;
         private PackageTarget _target;
         
