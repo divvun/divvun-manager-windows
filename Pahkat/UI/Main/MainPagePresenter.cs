@@ -141,7 +141,7 @@ namespace Pahkat.UI.Main
 
                     var keyMap = new Dictionary<Package, PackageKey>();
                     foreach (var pkg in repo.Packages.Values.Where((pkg) => IsFoundBySearchQuery(query, pkg))) {
-                        keyMap[pkg] = repo.AbsoluteKeyFor(pkg);
+                        keyMap[pkg] = repo.PackageKeyFor(pkg);
                     };
     
                     switch (repo.Meta.PrimaryFilter)

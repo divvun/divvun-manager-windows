@@ -105,8 +105,8 @@ namespace Pahkat.Sdk.Native
         internal static extern void pahkat_windows_transaction_process(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionMarshaler))]
             [In] Transaction transaction,
-            [In] TransactionProcessCallback callback,
             uint tag,
+            [In] TransactionProcessCallback callback,
             [In] ErrCallback exception);
 
         [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
@@ -116,35 +116,35 @@ namespace Pahkat.Sdk.Native
             [In] Transaction transaction,
             [In] ErrCallback exception);
 
-        [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
-        internal static extern TransactionAction pahkat_windows_action_new_install(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
-            [In] PackageKey key,
-            bool targetIsSystem,
-            [In] ErrCallback exception);
+        //[DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        //[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
+        //internal static extern TransactionAction pahkat_windows_action_new_install(
+        //    [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+        //    [In] PackageKey key,
+        //    bool targetIsSystem,
+        //    [In] ErrCallback exception);
 
-        [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
-        internal static extern TransactionAction pahkat_windows_action_new_uninstall(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
-            [In] PackageKey key,
-            bool targetIsSystem,
-            [In] ErrCallback exception);
+        //[DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        //[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
+        //internal static extern TransactionAction pahkat_windows_action_new_uninstall(
+        //    [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
+        //    [In] PackageKey key,
+        //    bool targetIsSystem,
+        //    [In] ErrCallback exception);
 
-        [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8CStrMarshaler))]
-        internal static extern string pahkat_windows_action_to_json(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
-            [In] TransactionAction action,
-            [In] ErrCallback exception);
+        //[DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        //[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8CStrMarshaler))]
+        //internal static extern string pahkat_windows_action_to_json(
+        //    [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
+        //    [In] TransactionAction action,
+        //    [In] ErrCallback exception);
 
-        [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
-        internal static extern TransactionAction pahkat_windows_action_from_json(
-            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8CStrMarshaler))]
-            [In] string actionString,
-            [In] ErrCallback exception);
+        //[DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        //[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(TransactionActionMarshaler))]
+        //internal static extern TransactionAction pahkat_windows_action_from_json(
+        //    [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8CStrMarshaler))]
+        //    [In] string actionString,
+        //    [In] ErrCallback exception);
     }
 
     /// <summary>

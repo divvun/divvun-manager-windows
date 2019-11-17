@@ -30,6 +30,15 @@ namespace Pahkat.Models
             {
                 case null:
                     return state;
+                case SetPackages p:
+                    var actions = p.Transaction.Actions();
+                    state.SelectedPackages.Clear();
+
+                    foreach (var action in actions)
+                    {
+                        state.SelectedPackages[action.Id] = new PackageActionInfo(action.Id, action.Action);
+                    }
+                    break;
                 case ResetSelection v:
                     state.SelectedPackages.Clear();
                     break;

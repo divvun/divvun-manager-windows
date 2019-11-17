@@ -32,7 +32,7 @@ namespace Pahkat.UI.Updater
             foreach (var repo in repos)
             {
                 var it = repo.Packages.Values
-                    .Select(repo.AbsoluteKeyFor)
+                    .Select(repo.PackageKeyFor)
                     .Where(x => x.RequiresUpdate())
                     .Select(x => new PackageMenuItem(x, repo.Package(x), _store))
                     .ToArray();

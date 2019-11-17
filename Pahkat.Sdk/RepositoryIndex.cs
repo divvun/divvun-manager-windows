@@ -37,7 +37,7 @@ namespace Pahkat.Sdk
             return Packages[key.Id];
         }
 
-        public PackageKey AbsoluteKeyFor(Package package)
+        public PackageKey PackageKeyFor(Package package)
         {
             var builder = new UriBuilder(Meta.Base);
             builder.Path += $"packages/{package.Id}";

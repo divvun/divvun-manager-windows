@@ -1,12 +1,14 @@
 ﻿using Microsoft.Toolkit.Wpf.UI.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Pahkat.Extensions;
 using Pahkat.Sdk;
 using Pahkat.UI.Shared;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Net;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,10 +45,12 @@ namespace Pahkat.UI.Main
     class Bridge
     {
         private WebView webView;
+        private Page pageView;
 
-        internal Bridge(WebView webView)
+        internal Bridge(WebView webView, Page pageView)
         {
             this.webView = webView;
+            this.pageView = pageView;
         }
 
         private void SendResponse(uint id, object message)
@@ -56,8 +60,8 @@ namespace Pahkat.UI.Main
             {
                 var script = $"window.pahkatResponders[\"callback-{id}\"]({payload})";
                 Console.WriteLine($"Running script: {script}");
-                //webView.InvokeScript(script);
-                webView.Navigate($"http://localhost:5000/#{script}");
+                webView.InvokeScript(script);
+                //webView.Navigate($"http://localhost:5000/#{script}");
             }
             catch (Exception e)
             {
@@ -83,41 +87,155 @@ namespace Pahkat.UI.Main
             return true;
         }
 
-        private void RequestTransaction(object[] args)
+        private struct LanguageResponse
         {
-            var app = ((PahkatApp)Application.Current);
+            [JsonProperty("languageName", Required = Required.Default)]
+            public string LanguageName;
 
-            JArray actionsJson = args[0] as JArray;
-            var actions = actionsJson.Select((actionJson) =>
-            {
-                return actionJson.ToObject<TransactionAction>();
-            }).ToList();
-
-            var transaction = Transaction.New(app.PackageStore, actions);
-
-            // TODO: prompt user for permission to do actions.
+            [JsonProperty("packages", Required = Required.Default)]
+            public Dictionary<PackageKey, Package> Packages;
         }
 
-        private string Repos()
+        private Dictionary<string, LanguageResponse> SearchByLanguage(object[] args)
         {
+            var query = args.First().ToString();
             var app = ((PahkatApp)Application.Current);
-            var repos = JsonConvert.SerializeObject(app.PackageStore.RepoIndexes());
-            return repos;
+            var indexes = app.PackageStore.RepoIndexes();
+
+            var results = new Dictionary<string, LanguageResponse>();
+
+            // TODO: this does the most naive possible search using only the language codes
+            foreach (var index in indexes)
+            {
+                var tuples = index.Packages.Values
+                    .Where(pkg => pkg.Languages.Any(lang => lang.StartsWith(query)))
+                    .Select(pkg => (pkg.Languages.First(l => l.StartsWith(query)), index.PackageKeyFor(pkg), pkg));
+
+                foreach (var t in tuples)
+                {
+                    var lang = t.Item1;
+                    var packageKey = t.Item2;
+                    var package = t.pkg;
+
+                    if (!results.ContainsKey(lang))
+                    {
+                        results[lang] = new LanguageResponse
+                        {
+                            LanguageName = lang, // TODO
+                            Packages = new Dictionary<PackageKey, Package>()
+                        };
+                    }
+
+                    results[lang].Packages.Add(packageKey, package);
+                }
+            }
+
+            return results;
+        }
+
+        private PackageKey[] PackageKeyArgs(object[] args)
+        {
+            var packageKeys = args.Select(x =>
+            {
+                if (x is string s)
+                {
+                    return PackageKey.New(new Uri(s));
+                }
+                return null;
+            }).ToArray();
+
+
+            if (packageKeys.Any(x => x == null))
+            {
+                throw new Exception("Install arguments must all be of type PackageKey");
+            }
+
+            return packageKeys;
+        }
+
+        private void Install(object[] args)
+        {
+            var packageKeys = PackageKeyArgs(args);
+            var app = ((PahkatApp)Application.Current);
+
+            var actions = packageKeys.Select(k => TransactionAction.Install(k, PackageTarget.System));
+            var tx = Transaction.New(app.PackageStore, actions.ToList());
+
+            // TODO modal popup security request
+            app.UserSelection.Dispatch(new Models.SelectionEvent.SetPackages
+            {
+                Transaction = tx
+            });
+
+            pageView.ReplacePageWith(new DownloadPage(DownloadPagePresenter.Default));
+        }
+
+        private void Uninstall(object[] args)
+        {
+            var packageKeys = PackageKeyArgs(args);
+            var app = ((PahkatApp)Application.Current);
+
+            var actions = packageKeys.Select(k => TransactionAction.Install(k, PackageTarget.System));
+            var tx = Transaction.New(app.PackageStore, actions.ToList());
+
+            // TODO modal popup security request
+            app.UserSelection.Dispatch(new Models.SelectionEvent.SetPackages
+            {
+                Transaction = tx
+            });
+
+            pageView.ReplacePageWith(new DownloadPage(DownloadPagePresenter.Default));
+        }
+
+        private Dictionary<PackageKey, Package> Packages(object[] args)
+        {
+            var packageKeys = PackageKeyArgs(args);
+            var app = ((PahkatApp)Application.Current);
+            return packageKeys
+                .Select(k => (k, app.PackageStore.ResolvePackage(k)))
+                .ToDictionary(t => t.k, t => t.Item2);
+        }
+
+        private string String(object[] args)
+        {
+            if (args.Length == 0)
+            {
+                throw new Exception("Localised strings require a key argument");
+            }
+            var argsList = args.ToList();
+            var key = argsList[0] as string;
+
+            if (key == null)
+            {
+                throw new Exception("Localised strings require a key argument");
+            }
+            argsList.RemoveAt(0);
+
+            return Strings.ResourceManager.GetString(key, Strings.Culture);
         }
 
         public void HandleRequest(RpcRequest request)
         {
             try
             {
-                string response = null;
+                object response = null;
 
                 switch (request.Method)
                 {
-                    case "requestTransaction":
-                        RequestTransaction(request.Args);
+                    case "searchByLanguage":
+                        response = SearchByLanguage(request.Args);
                         break;
-                    case "repos":
-                        response = Repos();
+                    case "install":
+                        Install(request.Args);
+                        break;
+                    case "uninstall":
+                        Uninstall(request.Args);
+                        break;
+                    case "packages":
+                        response = Packages(request.Args);
+                        break;
+                    case "string":
+                        response = String(request.Args);
                         break;
                     default:
                         break;
@@ -187,7 +305,7 @@ namespace Pahkat.UI.Main
             InitializeComponent();
             webView = new WebView();
             grid.Children.Add(webView);
-            bridge = new Bridge(webView);
+            bridge = new Bridge(webView, this);
 
             webView.IsScriptNotifyAllowed = true;
 
@@ -196,38 +314,38 @@ namespace Pahkat.UI.Main
                 // Check args.Uri for something we want to actually act upon, for security.
             };
 
-            //this.Loaded += (sender, e) =>
-            //{
-            //    var payload = "%7B%22method%22:%22requestTransaction%22,%22args%22:%5B%5B%7B%22action%22:%22install%22,%22target%22:%22system%22,%22package%22:%22https://derp.tld/something/packages/ahaha2%22%7D%5D%5D,%22id%22:42%7D";
-            //    //webView.NavigateToString($"<a href=\"about:pahkat:{payload}\">Install packages</a>");
-            //    webView.Navigate("http://127.0.0.1:5000/#whatsup");
-            //};
+            this.Loaded += (sender, e) =>
+            {
+                var payload = Uri.EscapeUriString("{\"id\": 1, \"method\": \"searchByLanguage\", \"args\": [\"se\"]}");
+                webView.NavigateToString($"<a href=\"about:pahkat:{payload}\">Install packages</a>");
+                //webView.Navigate("http://127.0.0.1:5000/#whatsup");
+            };
 
-            //webView.NavigationCompleted += (sender, args) =>
-            //{
-            //    return;
-            //};
+            webView.NavigationCompleted += (sender, args) =>
+            {
+                return;
+            };
 
-            //webView.NavigationStarting += (sender, args) =>
-            //{
-            //    if (args.Uri == null)
-            //    {
-            //        return;
-            //    }
+            webView.NavigationStarting += (sender, args) =>
+            {
+                if (args.Uri == null)
+                {
+                    return;
+                }
 
-            //    if (args.Uri.Scheme == "about")
-            //    {
-            //        if (Uri.TryCreate(args.Uri.AbsolutePath, UriKind.Absolute, out var pahkatUri) && pahkatUri.Scheme == "pahkat")
-            //        {
-            //            args.Cancel = true;
-            //            DispatcherScheduler.Current.Dispatcher.InvokeAsync(() =>
-            //            {
-            //                var payload = Uri.UnescapeDataString(pahkatUri.AbsolutePath);
-            //                ProcessRequest(payload);
-            //            });
-            //        }
-            //    }
-            //};
+                if (args.Uri.Scheme == "about")
+                {
+                    if (Uri.TryCreate(args.Uri.AbsolutePath, UriKind.Absolute, out var pahkatUri) && pahkatUri.Scheme == "pahkat")
+                    {
+                        args.Cancel = true;
+                        DispatcherScheduler.Current.Dispatcher.InvokeAsync(() =>
+                        {
+                            var payload = Uri.UnescapeDataString(pahkatUri.AbsolutePath);
+                            ProcessRequest(payload);
+                        });
+                    }
+                }
+            };
         }
     }
 }
