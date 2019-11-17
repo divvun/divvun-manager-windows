@@ -6,14 +6,14 @@ using System.Linq;
 
 namespace Pahkat.Sdk
 {
-    internal class AbsolutePackageKeyJsonConverter : JsonConverter
+    internal class PackageKeyJsonConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType) => true;
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var str = (string)reader.Value;
-            return AbsolutePackageKey.New(str);
+            return PackageKey.New(str);
         }
             
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -22,8 +22,8 @@ namespace Pahkat.Sdk
         }
     }
 
-    [JsonConverter(typeof(AbsolutePackageKeyJsonConverter))]
-    public class AbsolutePackageKey
+    [JsonConverter(typeof(PackageKeyJsonConverter))]
+    public class PackageKey
     {
         public readonly string BaseUrl;
         public readonly string Id;
@@ -34,7 +34,7 @@ namespace Pahkat.Sdk
             return $"{BaseUrl}packages/{Id}#{Channel}";
         }
 
-        public static AbsolutePackageKey New(Uri url)
+        public static PackageKey New(Uri url)
         {
             var pathChunks = new Stack<string>(url.AbsolutePath.Split('/'));
             var id = pathChunks.Pop();
@@ -53,28 +53,28 @@ namespace Pahkat.Sdk
             builder.Fragment = string.Empty;
             builder.Query = string.Empty;
 
-            return new AbsolutePackageKey(builder.Uri.ToString(), id, channel);
+            return new PackageKey(builder.Uri.ToString(), id, channel);
         }
 
-        public static AbsolutePackageKey FromPtr(IntPtr ptr)
+        public static PackageKey FromPtr(IntPtr ptr)
         {
             var urlString = MarshalUtf8.PtrToStringUtf8(ptr);
             return New(urlString);
         }
         
-        internal static AbsolutePackageKey New(string url)
+        internal static PackageKey New(string url)
         {
             return New(new Uri(url));
         }
 
-        private AbsolutePackageKey(string uri, string id, string channel)
+        private PackageKey(string uri, string id, string channel)
         {
             BaseUrl = uri;
             Id = id;
             Channel = channel;
         }
 
-        protected bool Equals(AbsolutePackageKey other)
+        protected bool Equals(PackageKey other)
         {
             return string.Equals(BaseUrl, other.BaseUrl) && 
                 string.Equals(Id, other.Id) && 
@@ -86,7 +86,7 @@ namespace Pahkat.Sdk
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((AbsolutePackageKey)obj);
+            return Equals((PackageKey)obj);
         }
 
         public override int GetHashCode()

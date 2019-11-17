@@ -48,7 +48,7 @@ namespace Pahkat.UI.Main
                 .Subscribe(_ => view.ShowDownloadPage());
         }
 
-        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Dictionary<Package, AbsolutePackageKey> keyMap)
+        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Dictionary<Package, PackageKey> keyMap)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
 
@@ -72,7 +72,7 @@ namespace Pahkat.UI.Main
             return categories;
         }
 
-        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(Dictionary<Package, AbsolutePackageKey> keyMap)
+        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(Dictionary<Package, PackageKey> keyMap)
         {
             var map = new Dictionary<string, List<PackageMenuItem>>();
 
@@ -139,7 +139,7 @@ namespace Pahkat.UI.Main
                     IEnumerable<PackageCategoryTreeItem> items;
 
 
-                    var keyMap = new Dictionary<Package, AbsolutePackageKey>();
+                    var keyMap = new Dictionary<Package, PackageKey>();
                     foreach (var pkg in repo.Packages.Values.Where((pkg) => IsFoundBySearchQuery(query, pkg))) {
                         keyMap[pkg] = repo.AbsoluteKeyFor(pkg);
                     };
@@ -168,7 +168,7 @@ namespace Pahkat.UI.Main
             }, _view.HandleError);
         }
 
-        private void GeneratePrimaryButtonLabel(Dictionary<AbsolutePackageKey, PackageActionInfo> packages)
+        private void GeneratePrimaryButtonLabel(Dictionary<PackageKey, PackageActionInfo> packages)
         {
             if (packages.Count > 0)
             {

@@ -27,7 +27,7 @@ namespace Pahkat.Sdk
             return new Uri(PackagesMeta.Base, package.Id);
         }
         
-        public Package Package(AbsolutePackageKey key)
+        public Package Package(PackageKey key)
         {
             if (Meta.Base.ToString() != key.BaseUrl || Channel.Value() != key.Channel)
             {
@@ -37,12 +37,12 @@ namespace Pahkat.Sdk
             return Packages[key.Id];
         }
 
-        public AbsolutePackageKey AbsoluteKeyFor(Package package)
+        public PackageKey AbsoluteKeyFor(Package package)
         {
             var builder = new UriBuilder(Meta.Base);
             builder.Path += $"packages/{package.Id}";
             builder.Fragment = Channel.Value();
-            return AbsolutePackageKey.New(builder.Uri);
+            return PackageKey.New(builder.Uri);
         }
 
         public bool Equals(RepositoryIndex other)

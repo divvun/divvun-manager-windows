@@ -22,21 +22,21 @@ namespace Pahkat.Models
             return (SelectedPackages != null ? SelectedPackages.GetHashCode() : 0);
         }
 
-        public Dictionary<AbsolutePackageKey, PackageActionInfo> SelectedPackages { get; private set; }
+        public Dictionary<PackageKey, PackageActionInfo> SelectedPackages { get; private set; }
 
         public static PackageState Default()
         {
             return new PackageState
             {
-                SelectedPackages = new Dictionary<AbsolutePackageKey, PackageActionInfo>()
+                SelectedPackages = new Dictionary<PackageKey, PackageActionInfo>()
             };
         }
 
-        public static PackageState SelfUpdate(AbsolutePackageKey packageKey)
+        public static PackageState SelfUpdate(PackageKey packageKey)
         {
             return new PackageState
             {
-                SelectedPackages = new Dictionary<AbsolutePackageKey, PackageActionInfo>
+                SelectedPackages = new Dictionary<PackageKey, PackageActionInfo>
                 {
                     { packageKey, new PackageActionInfo(packageKey, PackageAction.Install) }
                 }

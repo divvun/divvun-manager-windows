@@ -37,11 +37,11 @@ namespace Pahkat.UI.Main
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        public readonly AbsolutePackageKey Key;
+        public readonly PackageKey Key;
         public readonly Package Model;
         private long _downloaded;
         
-        public DownloadListItem(AbsolutePackageKey key, Package package)
+        public DownloadListItem(PackageKey key, Package package)
         {
             Key = key;
             Model = package;

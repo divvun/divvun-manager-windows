@@ -5,7 +5,7 @@ namespace Pahkat.Models
 {
     public static class UserSelectionAction
     {
-        public static ISelectionEvent AddSelectedPackage(AbsolutePackageKey packageKey, PackageAction action)
+        public static ISelectionEvent AddSelectedPackage(PackageKey packageKey, PackageAction action)
         {
             return new AddSelectedPackage
             {
@@ -14,7 +14,7 @@ namespace Pahkat.Models
             };
         }
 
-        public static ISelectionEvent TogglePackage(AbsolutePackageKey packageKey, PackageAction action, bool value)
+        public static ISelectionEvent TogglePackage(PackageKey packageKey, PackageAction action, bool value)
         {
             return new TogglePackage
             {
@@ -24,7 +24,7 @@ namespace Pahkat.Models
             };
         }
 
-        public static ISelectionEvent TogglePackageWithDefaultAction(AbsolutePackageKey packageKey, bool value)
+        public static ISelectionEvent TogglePackageWithDefaultAction(PackageKey packageKey, bool value)
         {
             return new TogglePackageWithDefaultAction
             {
@@ -33,7 +33,7 @@ namespace Pahkat.Models
             };
         }
 
-        public static ISelectionEvent ToggleGroupWithDefaultAction(AbsolutePackageKey[] packageKeys, bool value)
+        public static ISelectionEvent ToggleGroupWithDefaultAction(PackageKey[] packageKeys, bool value)
         {
             return new ToggleGroupWithDefaultAction
             {
@@ -53,7 +53,7 @@ namespace Pahkat.Models
 
         public static ISelectionEvent ResetSelection => new ResetSelection();
 
-        public static ISelectionEvent RemoveSelectedPackage(AbsolutePackageKey packageKey)
+        public static ISelectionEvent RemoveSelectedPackage(PackageKey packageKey)
         {
             return new RemoveSelectedPackage
             {

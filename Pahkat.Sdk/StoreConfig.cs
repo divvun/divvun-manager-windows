@@ -64,13 +64,13 @@ namespace Pahkat.Sdk
             return result.ToList();
         }
 
-        public void AddSkippedVersion(AbsolutePackageKey key, string version)
+        public void AddSkippedVersion(PackageKey key, string version)
         {
             pahkat_client.pahkat_store_config_add_skipped_version(this, key, version, out var exception);
             Try(exception);
         }
 
-        public string SkippedVersion(AbsolutePackageKey key)
+        public string SkippedVersion(PackageKey key)
         {
             var result = pahkat_client.pahkat_store_config_skipped_version(this, key, out var exception);
             Try(exception);

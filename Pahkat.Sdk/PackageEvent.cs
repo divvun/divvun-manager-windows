@@ -2,16 +2,16 @@
 {
     public struct PackageEvent
     {
-        public readonly AbsolutePackageKey PackageKey;
+        public readonly PackageKey PackageKey;
         public readonly PackageEventType Event;
 
-        private PackageEvent(AbsolutePackageKey key, PackageEventType evt)
+        private PackageEvent(PackageKey key, PackageEventType evt)
         {
             PackageKey = key;
             Event = evt;
         }
 
-        public static PackageEvent FromCode(AbsolutePackageKey key, uint code)
+        public static PackageEvent FromCode(PackageKey key, uint code)
         {
             PackageEventType evt = PackageEventType.Error;
             switch (code)
@@ -36,8 +36,8 @@
             return new PackageEvent(key, evt);
         }
 
-        public static PackageEvent Completed(AbsolutePackageKey key) => FromCode(key, 3);
-        public static PackageEvent Error(AbsolutePackageKey key) => FromCode(key, 4);
+        public static PackageEvent Completed(PackageKey key) => FromCode(key, 3);
+        public static PackageEvent Error(PackageKey key) => FromCode(key, 4);
     }
 }
 

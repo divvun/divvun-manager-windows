@@ -45,7 +45,7 @@ namespace Pahkat.Sdk
             return result;
         }
 
-        public (PackageStatus, PackageTarget) Status(AbsolutePackageKey key)
+        public (PackageStatus, PackageTarget) Status(PackageKey key)
         {
             var result = pahkat_client.pahkat_windows_package_store_status(this, key, out var isSystem);
             var status = PackageStatusExt.FromInt(result);
@@ -98,14 +98,14 @@ namespace Pahkat.Sdk
             return result;
         }
 
-        public Package ResolvePackage(AbsolutePackageKey key)
+        public Package ResolvePackage(PackageKey key)
         {
             var result = pahkat_client.pahkat_windows_package_store_resolve_package(this, key, out var exception);
             Try(exception);
             return result;
         }
 
-        public IObservable<DownloadProgress> Download(AbsolutePackageKey key, PackageTarget target)
+        public IObservable<DownloadProgress> Download(PackageKey key, PackageTarget target)
         {
             return Observable.Create<DownloadProgress>((observer) =>
             {

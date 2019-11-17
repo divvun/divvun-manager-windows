@@ -6,16 +6,16 @@ namespace Pahkat.Models
 {
     public class PackageActionInfo : IEquatable<PackageActionInfo>
     {
-        public readonly AbsolutePackageKey PackageKey;
+        public readonly PackageKey PackageKey;
         public readonly PackageAction Action;
 
-        public PackageActionInfo(AbsolutePackageKey packageKey, PackageAction action)
+        public PackageActionInfo(PackageKey packageKey, PackageAction action)
         {
             PackageKey = packageKey;
             Action = action;
         }
 
-        public PackageActionInfo(AbsolutePackageKey packageKey)
+        public PackageActionInfo(PackageKey packageKey)
         {
             PackageKey = packageKey;
             Action = packageKey.DefaultPackageAction();

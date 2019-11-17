@@ -8,31 +8,31 @@ namespace Pahkat.Models
     {
         internal struct AddSelectedPackage : ISelectionEvent
         {
-            public AbsolutePackageKey PackageKey;
+            public PackageKey PackageKey;
             public PackageAction Action;
         }
 
         internal struct RemoveSelectedPackage : ISelectionEvent
         {
-            public AbsolutePackageKey PackageKey;
+            public PackageKey PackageKey;
         }
 
         internal struct TogglePackage : ISelectionEvent
         {
-            public AbsolutePackageKey PackageKey;
+            public PackageKey PackageKey;
             public PackageAction Action;
             public bool Value;
         }
 
         internal struct TogglePackageWithDefaultAction : ISelectionEvent
         {
-            public AbsolutePackageKey PackageKey;
+            public PackageKey PackageKey;
             public bool Value;
         }
 
         internal struct ToggleGroupWithDefaultAction : ISelectionEvent
         {
-            public AbsolutePackageKey[] PackageKeys;
+            public PackageKey[] PackageKeys;
             public bool Value;
         }
 

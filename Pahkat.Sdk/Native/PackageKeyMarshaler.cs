@@ -3,16 +3,16 @@ using System.Runtime.InteropServices;
 
 namespace Pahkat.Sdk.Native
 {
-    class AbsolutePackageKeyMarshaler : ICustomMarshaler
+    class PackageKeyMarshaler : ICustomMarshaler
     {
         private Utf8CStrMarshaler marshaler = new Utf8CStrMarshaler();
 
-        static ICustomMarshaler GetInstance(string cookie) => new AbsolutePackageKeyMarshaler();
+        static ICustomMarshaler GetInstance(string cookie) => new PackageKeyMarshaler();
 
         public object MarshalNativeToManaged(IntPtr ptr)
         {
             var rawString = (string)marshaler.MarshalNativeToManaged(ptr);
-            return AbsolutePackageKey.New(rawString);
+            return PackageKey.New(rawString);
         }
 
         public IntPtr MarshalManagedToNative(object obj)
