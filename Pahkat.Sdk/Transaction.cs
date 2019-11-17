@@ -16,15 +16,15 @@ namespace Pahkat.Sdk
 
         public static Transaction New(PackageStore store, List<TransactionAction> actions)
         {
-            var result = pahkat_client.pahkat_windows_transaction_new(store, actions.ToArray(), out var exception);
-            Try(exception);
+            var result = pahkat_client.pahkat_windows_transaction_new(store, actions.ToArray(), PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return result;
         }
 
         public List<TransactionAction> Actions()
         {
-            var results = pahkat_client.pahkat_windows_transaction_actions(this, out var exception);
-            Try(exception);
+            var results = pahkat_client.pahkat_windows_transaction_actions(this, PahkatClientException.Callback);
+            PahkatClientException.AssertNoError();
             return results.ToList();
         }
 
@@ -41,11 +41,11 @@ namespace Pahkat.Sdk
 
                 unsafe
                 {
-                    pahkat_client.pahkat_windows_transaction_process(this, Callback, 0, out var exception);
+                    pahkat_client.pahkat_windows_transaction_process(this, Callback, 0, PahkatClientException.Callback);
 
                     try
                     {
-                        Try(exception);
+                        PahkatClientException.AssertNoError();
                         observer.OnCompleted();
                     }
                     catch (PahkatClientException e)
