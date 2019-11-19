@@ -1,75 +1,77 @@
 trigger:
-- master
+  - master
+  - develop
 
 schedules:
-- cron: "0 0 * * *"
-  displayName: Nightly build
-  branches:
-    include:
-      - master
-  always: true
+  - cron: "0 0 * * *"
+    displayName: Nightly build
+    branches:
+      include:
+        - master
+    always: true
 
 jobs:
-- job: 'Windows'
-  pool:
-    vmImage: 'windows-2019'
-  steps:
-  - task: DownloadPipelineArtifact@1
-    inputs:
-      buildType: 'specific'
-      project: '2d442586-71f6-4212-8f0e-b684fcfa4e1a'
-      pipeline: '6'
-      specificBuildWithTriggering: false
-      buildVersionToDownload: 'latestFromBranch'
-      branchName: 'refs/heads/master'
-      artifactName: 'windows-dll'
-      targetPath: '$(System.ArtifactsDirectory)'
-    displayName: 'Download pahkat-client-core artifact'
-  - bash: |
-      set -e
-      curl -sLo pahkat.exe https://github.com/divvun/pahkat/releases/download/0.6.0/pahkat.exe
-      git clone https://github.com/divvun/divvun-ci-config.git
-      openssl aes-256-cbc -d -in ./divvun-ci-config/config.txz.enc -pass pass:$DIVVUN_KEY -out config.txz -md md5
-      7z e config.txz
-      tar xf config.tar
-      mv $SYSTEM_ARTIFACTSDIRECTORY/pahkat_client.dll Pahkat.Sdk
-    displayName: 'Install prerequisites'
-    env:
-      DIVVUN_KEY: $(divvunKey)
-  - task: NuGetCommand@2
-    inputs:
-      command: 'restore'
-      restoreSolution: 'Pahkat.sln'
-    displayName: 'Restore NuGet packages'
-  - task: VSBuild@1
-    inputs:
-      solution: Pahkat.sln
-      platform: x86
-      configuration: release
-    displayName: 'Build'
-  - script: |
-      set PATH="%PATH%;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool;$(System.DefaultWorkingDirectory)"
-      "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
-      "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
-      "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
-      "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
-      "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Qp /O.\output /S"signtool=C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% $f" /dMyAppVersion="$(GitAssemblyInformationalVersion)" setup.iss
-      copy output\install.exe "$(System.DefaultWorkingDirectory)\divvun-installer.exe"
-    displayName: 'Sign'
-    env:
-      PFX_PASSWORD: $(pfxPassword)
-  - task: PublishPipelineArtifact@0
-    inputs:
-      targetPath: '$(System.DefaultWorkingDirectory)/divvun-installer.exe'
-      artifactName: windows
-    displayName: 'Publish artifact'
-  - powershell: |
-      $Date = Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
-      $Env:PATH += ";$(System.DefaultWorkingDirectory)"
-      . .\divvun-ci-config\repo\scripts\PahkatDeploySvn.ps1
-      PahkatDeploySvn -SvnUrl https://pahkat.uit.no/repo/divvun-installer -Artifact "$(System.DefaultWorkingDirectory)\divvun-installer.exe" -Package divvun-installer-windows -Version $Date
-    displayName: 'Deploy to nightly channel'
-    env:
-      DEPLOY_SVN_USER: $(svnUser)
-      DEPLOY_SVN_PASSWORD: $(svnPassword)
-      DEPLOY_SVN_COMMIT: $(svnCommit)
+  - job: "Windows"
+    pool:
+      vmImage: "windows-2019"
+    steps:
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          buildType: "specific"
+          project: "2d442586-71f6-4212-8f0e-b684fcfa4e1a"
+          definition: 6
+          specificBuildWithTriggering: false
+          buildVersionToDownload: "latestFromBranch"
+          branchName: "$(Build.SourceBranch)"
+          artifactName: "windows-dll"
+          targetPath: "$(System.ArtifactsDirectory)"
+        displayName: "Download pahkat-client-core artifact"
+      - bash: |
+          set -e
+          curl -sLo pahkat.exe https://github.com/divvun/pahkat/releases/download/0.6.0/pahkat.exe
+          git clone https://github.com/divvun/divvun-ci-config.git
+          openssl aes-256-cbc -d -in ./divvun-ci-config/config.txz.enc -pass pass:$DIVVUN_KEY -out config.txz -md md5
+          7z e config.txz
+          tar xf config.tar
+          mv $SYSTEM_ARTIFACTSDIRECTORY/pahkat_client.dll Pahkat.Sdk
+        displayName: "Install prerequisites"
+        env:
+          DIVVUN_KEY: $(divvunKey)
+      - task: NuGetCommand@2
+        inputs:
+          command: "restore"
+          restoreSolution: "Pahkat.sln"
+        displayName: "Restore NuGet packages"
+      - task: VSBuild@1
+        inputs:
+          solution: Pahkat.sln
+          platform: x86
+          configuration: release
+        displayName: "Build"
+      - script: |
+          set PATH="%PATH%;C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool;$(System.DefaultWorkingDirectory)"
+          "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Updater" .\Pahkat\bin\x86\Release\updater.exe
+          "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\Pahkat.Sdk.dll
+          "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\pahkat_client.dll
+          "C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool" sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% /d "Divvun Installer" .\Pahkat\bin\x86\Release\DivvunInstaller.exe
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Qp /O.\output /S"signtool=C:\Program Files (x86)\Microsoft SDKs\ClickOnce\SignTool\signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "$(System.DefaultWorkingDirectory)\enc\creds\windows\divvun.pfx" /p %PFX_PASSWORD% $f" /dMyAppVersion="$(GitAssemblyInformationalVersion)" setup.iss
+          copy output\install.exe "$(System.DefaultWorkingDirectory)\divvun-installer.exe"
+        displayName: "Sign"
+        env:
+          PFX_PASSWORD: $(pfxPassword)
+      - task: PublishPipelineArtifact@0
+        inputs:
+          targetPath: "$(System.DefaultWorkingDirectory)/divvun-installer.exe"
+          artifactName: windows
+        displayName: "Publish artifact"
+      - powershell: |
+          $Date = Get-Date -UFormat '+%Y-%m-%dT%H:%M:%S.000Z'
+          $Env:PATH += ";$(System.DefaultWorkingDirectory)"
+          . .\divvun-ci-config\repo\scripts\PahkatDeploySvn.ps1
+          PahkatDeploySvn -SvnUrl https://pahkat.uit.no/repo/divvun-installer -Artifact "$(System.DefaultWorkingDirectory)\divvun-installer.exe" -Package divvun-installer-windows -Version $Date
+        displayName: "Deploy to nightly channel"
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        env:
+          DEPLOY_SVN_USER: $(svnUser)
+          DEPLOY_SVN_PASSWORD: $(svnPassword)
+          DEPLOY_SVN_COMMIT: $(svnCommit)
