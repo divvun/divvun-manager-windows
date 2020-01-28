@@ -12,6 +12,7 @@ using System.Net;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -34,6 +35,11 @@ namespace Pahkat.UI.Main
 
         [JsonProperty("args")]
         public object[] Args;
+
+        public override string ToString()
+        {
+            return $"Id: {Id}, Method: {Method}, Args: {string.Join(", ", Args.Select(x => x.ToString()).ToArray())}";
+        }
     }
 
     class WebViewChannel
@@ -55,12 +61,13 @@ namespace Pahkat.UI.Main
 
         private void SendResponse(uint id, object message)
         {
-            var payload = JsonConvert.SerializeObject(message);
+            string payload = HttpUtility.JavaScriptStringEncode(
+                JsonConvert.SerializeObject(message), true);
             try
             {
                 var script = $"window.pahkatResponders[\"callback-{id}\"]({payload})";
                 Console.WriteLine($"Running script: {script}");
-                webView.InvokeScript(script);
+                webView.InvokeScript("eval", new string[] { script });
                 //webView.Navigate($"http://localhost:5000/#{script}");
             }
             catch (Exception e)
@@ -69,10 +76,18 @@ namespace Pahkat.UI.Main
             }
         }
 
+        private struct RpcError
+        {
+            [JsonProperty("error", Required = Required.Default)]
+            public string Error;
+        }
+
         private void SendError(uint id, string error)
         {
-            dynamic errorPayload = new ExpandoObject();
-            errorPayload.error = error;
+            var errorPayload = new RpcError
+            {
+                Error = error
+            };
             SendResponse(id, errorPayload);
         }
 
@@ -87,18 +102,34 @@ namespace Pahkat.UI.Main
             return true;
         }
 
+        private struct PackageResponse
+        {
+            [JsonProperty("package", Required = Required.Default)]
+            public Package Package;
+
+            [JsonProperty("status", Required = Required.Default)]
+            public int Status;
+
+            [JsonProperty("target", Required = Required.Default)]
+            public PackageTarget Target;
+        }
+
         private struct LanguageResponse
         {
             [JsonProperty("languageName", Required = Required.Default)]
             public string LanguageName;
 
             [JsonProperty("packages", Required = Required.Default)]
-            public Dictionary<PackageKey, Package> Packages;
+            public Dictionary<PackageKey, PackageResponse> Packages;
         }
 
         private Dictionary<string, LanguageResponse> SearchByLanguage(object[] args)
         {
-            var query = args.First().ToString();
+            var query = args.First().ToString().Trim();
+            if (query == "")
+            {
+                return new Dictionary<string, LanguageResponse>();
+            }
             var app = ((PahkatApp)Application.Current);
             var indexes = app.PackageStore.RepoIndexes();
 
@@ -122,11 +153,17 @@ namespace Pahkat.UI.Main
                         results[lang] = new LanguageResponse
                         {
                             LanguageName = lang, // TODO
-                            Packages = new Dictionary<PackageKey, Package>()
+                            Packages = new Dictionary<PackageKey, PackageResponse>()
                         };
                     }
 
-                    results[lang].Packages.Add(packageKey, package);
+                    var (status, target) = app.PackageStore.Status(packageKey);
+                    results[lang].Packages.Add(packageKey, new PackageResponse
+                    {
+                        Package = package,
+                        Status = status.ToInt(),
+                        Target = target
+                    });
                 }
             }
 
@@ -216,6 +253,7 @@ namespace Pahkat.UI.Main
 
         public void HandleRequest(RpcRequest request)
         {
+            Console.WriteLine(request.ToString());
             try
             {
                 object response = null;
@@ -312,12 +350,17 @@ namespace Pahkat.UI.Main
             webView.ScriptNotify += (sender, args) =>
             {
                 // Check args.Uri for something we want to actually act upon, for security.
+                Console.WriteLine(args.Uri);
+                Console.WriteLine(args.Value);
+
+                ProcessRequest(args.Value);
             };
 
             this.Loaded += (sender, e) =>
             {
-                var payload = Uri.EscapeUriString("{\"id\": 1, \"method\": \"searchByLanguage\", \"args\": [\"se\"]}");
-                webView.NavigateToString($"<a href=\"about:pahkat:{payload}\">Install packages</a>");
+                webView.Navigate("http://localhost:5000");
+                //var payload = Uri.EscapeUriString("{\"id\": 1, \"method\": \"searchByLanguage\", \"args\": [\"se\"]}");
+                //webView.NavigateToString($"<a href=\"about:pahkat:{payload}\">Install packages</a>");
                 //webView.Navigate("http://127.0.0.1:5000/#whatsup");
             };
 

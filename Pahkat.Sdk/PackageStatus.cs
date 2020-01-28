@@ -44,5 +44,34 @@
                     return PackageStatus.Unknown;
             }
         }
+
+        public static int ToInt(this PackageStatus value)
+        {
+            switch (value)
+            {
+                case PackageStatus.NotInstalled:
+                    return 0;
+                case PackageStatus.UpToDate:
+                    return 1;
+                case PackageStatus.RequiresUpdate:
+                    return 2;
+                case PackageStatus.VersionSkipped:
+                    return 3;
+                case PackageStatus.ErrorNoPackage:
+                    return -1;
+                case PackageStatus.ErrorNoInstaller:
+                    return -2;
+                case PackageStatus.ErrorWrongInstallerType:
+                    return -3;
+                case PackageStatus.ErrorInvalidVersion:
+                    return -4;
+                case PackageStatus.ErrorInvalidInstallPath:
+                    return -5;
+                case PackageStatus.ErrorInvalidMetadata:
+                    return -6;
+                default:
+                    return -128;
+            }
+        }
     }
 }

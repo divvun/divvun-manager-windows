@@ -150,6 +150,7 @@ namespace Pahkat.Sdk
             }
         }
 
+        [JsonProperty("nativeName")]
         public string NativeName
         {
             get
@@ -362,6 +363,8 @@ namespace Pahkat.Sdk
                 return hashCode;
             }
         }
+
+        [JsonProperty("nativeName")]
         public string NativeName
         {
             get
@@ -371,6 +374,8 @@ namespace Pahkat.Sdk
             }
         }
 
+
+        [JsonIgnore]
         public WindowsInstaller WindowsInstaller => Installer as WindowsInstaller;
     }
 
