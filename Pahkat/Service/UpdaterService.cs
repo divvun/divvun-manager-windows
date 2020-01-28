@@ -20,7 +20,7 @@ namespace Pahkat.Service
             public void Execute(IJobExecutionContext context)
             {
                 var service = (UpdaterService)context.MergedJobDataMap["UpdaterService"];
-                service.CheckForUpdates(false);
+                Application.Current.Dispatcher.InvokeAsync(() => service.CheckForUpdates(false));
             }
         }
         

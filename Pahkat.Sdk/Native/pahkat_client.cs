@@ -161,7 +161,7 @@ namespace Pahkat.Sdk.Native
         //    [In] ErrCallback exception);
 
         [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern bool pahkat_enable_logging();
+        internal static extern void pahkat_enable_logging(byte level);
 
     }
 

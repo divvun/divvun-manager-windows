@@ -7,9 +7,19 @@ namespace Pahkat.Sdk
 {
     public static class Settings
     {
-        public static void EnableLogging()
+        public enum LogLevel : byte
         {
-            pahkat_client.pahkat_enable_logging();
+            Disabled = 0,
+            Error,
+            Warn,
+            Info,
+            Debug,
+            Trace
+        }
+
+        public static void EnableLogging(LogLevel level = LogLevel.Debug)
+        {
+            pahkat_client.pahkat_enable_logging((byte)level);
         }
     }
 }
