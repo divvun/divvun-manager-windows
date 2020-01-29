@@ -9,11 +9,11 @@ namespace Pahkat.Util
 {
     public class Iso639Data
     {
-        public string Tag1;
-        public string Tag3;
-        public string Name;
-        public string Autonym;
-        public string Source;
+        public string? Tag1;
+        public string? Tag3;
+        public string? Name;
+        public string? Autonym;
+        public string? Source;
     }
 
     public sealed class Iso639DataMap : ClassMap<Iso639Data>

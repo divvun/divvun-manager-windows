@@ -18,7 +18,7 @@ namespace Pahkat.UI.Main
         }
         public void Start()
         {
-            _mainWindow.ShowLandingPage();
+            _mainWindow.ShowMainPage();
         }
     }
 }

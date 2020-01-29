@@ -4,7 +4,7 @@ namespace Pahkat.Extensions
 {
     public static class PackageStatusExt
     {
-        public static string Description(this PackageStatus status)
+        public static string? Description(this PackageStatus status)
         {
             switch (status)
             {

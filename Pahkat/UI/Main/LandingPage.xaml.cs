@@ -256,7 +256,7 @@ namespace Pahkat.UI.Main
             Console.WriteLine(request.ToString());
             try
             {
-                object response = null;
+                object? response = null;
 
                 switch (request.Method)
                 {

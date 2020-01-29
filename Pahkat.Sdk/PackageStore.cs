@@ -1,5 +1,6 @@
 ﻿using Pahkat.Sdk.Native;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -47,9 +48,19 @@ namespace Pahkat.Sdk
 
         public (PackageStatus, PackageTarget) Status(PackageKey key)
         {
-            var result = pahkat_client.pahkat_windows_package_store_status(this, key, out var isSystem);
-            var status = PackageStatusExt.FromInt(result);
-            return (status, isSystem ? PackageTarget.System : PackageTarget.User);
+            // Try user, then system.
+
+            var userResult = pahkat_client.pahkat_windows_package_store_status(this, key, "user");
+            PahkatClientException.AssertNoError();
+
+            if (userResult > 0)
+            {
+                return (PackageStatusExt.FromInt(userResult), PackageTarget.User);
+            }
+
+            var sysResult = pahkat_client.pahkat_windows_package_store_status(this, key, "system");
+            PahkatClientException.AssertNoError();
+            return (PackageStatusExt.FromInt(sysResult), PackageTarget.System);
         }
 
         public void RefreshRepos()
@@ -91,10 +102,21 @@ namespace Pahkat.Sdk
             return result;
         }
 
-        public RepositoryIndex[] RepoIndexes()
+        //public Dictionary<PackageKey, PackageStatus> AllStatuses(RepoRecord repo, PackageTarget target)
+        //{
+
+        //}
+
+        public RepositoryIndex[] RepoIndexes(bool withStatuses = true)
         {
             var result = pahkat_client.pahkat_windows_package_store_repo_indexes(this, PahkatClientException.Callback);
             PahkatClientException.AssertNoError();
+
+            if (withStatuses)
+            {
+
+            }
+
             return result;
         }
 

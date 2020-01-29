@@ -90,19 +90,20 @@ namespace Pahkat.UI.Main
             {
                 var action = _transaction.Actions().First((x) => x.Id.Equals(evt.PackageKey));
                 var package = packages[evt.PackageKey];
+                var installer = package.WindowsInstaller;
                 
                 switch (evt.Event)
                 {
                     case PackageEventType.Installing:
                         _view.SetStarting(action.Action, package);
-                        if (package.WindowsInstaller.RequiresReboot)
+                        if (installer != null && installer.RequiresReboot)
                         {
                             requiresReboot = true;
                         }
                         break;
                     case PackageEventType.Uninstalling:
                         _view.SetStarting(action.Action, package);
-                        if (package.WindowsInstaller.RequiresUninstallReboot)
+                        if (installer != null && installer.RequiresUninstallReboot)
                         {
                             requiresReboot = true;
                         }
@@ -139,7 +140,7 @@ namespace Pahkat.UI.Main
                 {
                     File.Delete(resultsPath);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }

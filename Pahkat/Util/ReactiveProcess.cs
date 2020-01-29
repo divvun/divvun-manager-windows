@@ -5,6 +5,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using Serilog;
 
 namespace Pahkat.Util
 {
@@ -55,25 +56,25 @@ namespace Pahkat.Util
 
             Input = Observer.Create<string>(input =>
             {
-                Console.WriteLine($"[Process {_process.Id} I] '{input}'");
+                Log.Debug($"[Process {_process.Id} I] '{input}'");
                 _process.StandardInput.WriteLine(input);
             });
 
             Output = Observable.Create<string>(observer =>
             {
-                Console.WriteLine($"[Process {_process.Id}] OBSERVING STDOUT");
+                Log.Debug($"[Process {_process.Id}] OBSERVING STDOUT");
 
                 while (!_process.HasExited)
                 {
                     var str = _process.StandardOutput.ReadLine();
-                    Console.WriteLine($"[Process {_process.Id} O] '{str}'");
+                    Log.Debug($"[Process {_process.Id} O] '{str}'");
 
                     if (str == null)
                     {
                         continue;
                     }
 
-                    if (_process.StandardOutput.CurrentEncoding != Encoding.UTF8)
+                    if (!_process.StandardOutput.CurrentEncoding.Equals(Encoding.UTF8))
                     {
                         var raw = _process.StandardOutput.CurrentEncoding.GetBytes(str);
                         observer.OnNext(Encoding.UTF8.GetString(raw));
@@ -84,7 +85,7 @@ namespace Pahkat.Util
                     }
                 }
 
-                Console.WriteLine($"Process {_process.Id} done");
+                Log.Debug($"Process {_process.Id} done");
                 observer.OnCompleted();
 
                 return (IDisposable)observer;
@@ -92,12 +93,12 @@ namespace Pahkat.Util
 
             Error = Observable.Create<string>(observer =>
             {
-                Console.WriteLine($"[Process {_process.Id}] OBSERVING STDERR");
+                Log.Debug($"[Process {_process.Id}] OBSERVING STDERR");
 
                 while (!_process.HasExited)
                 {
                     var str = _process.StandardError.ReadLine();
-                    Console.WriteLine($"[Process {_process.Id} E] '{str}'");
+                    Log.Debug($"[Process {_process.Id} E] '{str}'");
                     observer.OnNext(str);
                 }
 
@@ -120,8 +121,8 @@ namespace Pahkat.Util
             
             _process.Start();
 
-            (Output as IConnectableObservable<string>).Connect();
-            (Error as IConnectableObservable<string>).Connect();
+            (Output as IConnectableObservable<string>)?.Connect();
+            (Error as IConnectableObservable<string>)?.Connect();
 
             return exit;
         }

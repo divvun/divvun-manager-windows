@@ -26,7 +26,7 @@ namespace Pahkat.UI.Main
         private readonly IDownloadPageView _view;
         private readonly IUserPackageSelectionStore _pkgStore;
         private readonly CancellationTokenSource _cancelSource;
-        private Transaction _downloadedTransaction;
+        private Transaction? _downloadedTransaction;
         private bool _waitingForCancelDialog;
 
         //private void UpdateProgress(PackageProgress package, uint cur, uint total)
@@ -101,7 +101,7 @@ namespace Pahkat.UI.Main
                     .Where(x => x.Action == PackageAction.Install)
                     .Select((action =>
                     {
-                        Package package = null;
+                        Package? package = null;
                         foreach (var repo in app.PackageStore.RepoIndexes())
                         {
                             package = repo.Package(action.Id);

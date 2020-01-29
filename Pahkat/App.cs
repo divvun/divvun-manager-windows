@@ -32,6 +32,9 @@ using Trustsoft.SingleInstanceApp;
 using Newtonsoft.Json;
 using Pahkat.Sdk;
 using Pahkat.UI.About;
+using Serilog;
+using Serilog.Events;
+using Serilog.Parsing;
 
 namespace Pahkat
 {
@@ -310,14 +313,14 @@ namespace Pahkat
             return false;
         }
 
-        public PackageStore CheckForSelfUpdate()
+        public PackageStore? CheckForSelfUpdate()
         {
             //            SessionEnding += (sender, args) =>
             //            {
             //                UpdaterService.Dispose();
             //                UpdaterService = null;
             //            };
-            return null;
+            return null; // TODO: DO NOT SHIP WITH THIS OMG
             
             var basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var selfUpdateJsonPath = Path.Combine(basePath, "selfupdate.json");
@@ -333,7 +336,7 @@ namespace Pahkat
                 // reconfigure the pahkat client to use that channel instead
                 overrideUpdateChannel = TrySwitchChannel(selfUpdateStore);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
@@ -389,6 +392,28 @@ namespace Pahkat
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
         public static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                   .MinimumLevel.Verbose()
+                   .WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
+                   .CreateLogger();
+
+            Pahkat.Sdk.Settings.SetLoggingCallback((level, message, module, path) =>
+            {
+                if (level == 0)
+                {
+                    // Zero means no logging
+                    return;
+                }
+
+                if (level > 5)
+                {
+                    level = 5;
+                }
+
+                var serilogLevel = 5 - level;
+                Log.Write((LogEventLevel)serilogLevel, "[{Module}] {Path} {Message}", module, path, message);
+            });
+
             var mode = args.Any((x) => x == ArgsInstall)
                 ? AppMode.Install
                 : AppMode.Default;
@@ -400,6 +425,8 @@ namespace Pahkat
 
                 if (!SingleInstance<PahkatApp>.InitializeAsFirstInstance(key))
                 {
+                    Log.Information("App already running; aborting.");
+                    Log.CloseAndFlush();
                     return;
                 }
             }
@@ -420,6 +447,8 @@ namespace Pahkat
             {
                 SingleInstance<PahkatApp>.Cleanup();
             }
+
+            Log.CloseAndFlush();
         }
 
         private bool AssertSuccessfulUpdate(string packageVersion)

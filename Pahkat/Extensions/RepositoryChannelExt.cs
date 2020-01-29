@@ -17,7 +17,7 @@ namespace Pahkat.Extensions
                 case RepositoryMeta.Channel.Nightly:
                     return Strings.Nightly;
                 default:
-                    return channel.Value();
+                    return channel.Value() ?? channel.ToString();
             }
         }
     }

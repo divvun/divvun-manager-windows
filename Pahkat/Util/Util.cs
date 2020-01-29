@@ -56,7 +56,7 @@ namespace Pahkat.Util
             }
             
             string langCode;
-            CultureInfo culture = null;
+            CultureInfo? culture = null;
             try
             {
                 culture = new CultureInfo(tag);

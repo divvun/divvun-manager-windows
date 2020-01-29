@@ -49,7 +49,7 @@ namespace Pahkat.UI.Main
 
         public string Title => Model.NativeName;
         public string Version => Model.Version;
-        public long FileSize => Model.WindowsInstaller.Size;
+        public long FileSize => Model.WindowsInstaller?.Size ?? -1;
         public long Downloaded
         {
             get => _downloaded;

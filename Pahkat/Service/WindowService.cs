@@ -20,7 +20,7 @@ namespace Pahkat.Service
     public class WindowConfig : IWindowConfig
     {   
         public Type WindowType { get; }
-        protected Window _instance;
+        protected Window? _instance;
         protected readonly Func<Window> _creator;
 
         public Window Instance => _instance ?? (_instance = _creator());

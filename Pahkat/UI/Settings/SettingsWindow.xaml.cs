@@ -76,10 +76,10 @@ namespace Pahkat.UI.Settings
 
     public class RepoDataGridItem
     {
-        public string Url { get; set; }
+        public string? Url { get; set; }
         public RepositoryMeta.Channel Channel { get; set; }
 
-        public RepoDataGridItem(String url, RepositoryMeta.Channel channel)
+        public RepoDataGridItem(string url, RepositoryMeta.Channel channel)
         {
             Url = url;
             Channel = channel;

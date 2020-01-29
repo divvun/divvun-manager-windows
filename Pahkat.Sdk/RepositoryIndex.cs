@@ -27,7 +27,7 @@ namespace Pahkat.Sdk
             return new Uri(PackagesMeta.Base, package.Id);
         }
         
-        public Package Package(PackageKey key)
+        public Package? Package(PackageKey key)
         {
             if (Meta.Base.ToString() != key.BaseUrl || Channel.Value() != key.Channel)
             {

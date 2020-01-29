@@ -34,7 +34,7 @@ namespace Pahkat.UI.Main
         private Subject<EventArgs> _resumeSubject = new Subject<EventArgs>();
         private Subject<EventArgs> _cancelDialogOpenSubject = new Subject<EventArgs>();
         private CompositeDisposable _bag = new CompositeDisposable();
-        private NavigationService _navigationService;
+        private NavigationService? _navigationService;
 
         public DownloadPage(Func<IDownloadPageView, DownloadPagePresenter> presenter)
         {
@@ -130,13 +130,21 @@ namespace Pahkat.UI.Main
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            _navigationService = this.NavigationService;
-            _navigationService.Navigating += NavigationService_Navigating;
+            var svc = this.NavigationService;
+            if (svc != null)
+            {
+                _navigationService = svc;
+                svc.Navigating += NavigationService_Navigating;
+            }
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)
         {
-            _navigationService.Navigating -= NavigationService_Navigating;
+            var svc = _navigationService;
+            if (svc != null)
+            {
+                svc.Navigating -= NavigationService_Navigating;
+            }
         }
 
         private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e)

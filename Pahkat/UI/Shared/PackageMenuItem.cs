@@ -54,7 +54,7 @@ namespace Pahkat.UI.Shared
                     case PackageAction.Uninstall:
                         return Strings.Uninstall;
                     default:
-                        return _status.Description();
+                        return _status.Description() ?? _status.ToString();
                 }
             }
         }

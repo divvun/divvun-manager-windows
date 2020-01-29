@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Runtime.InteropServices;
 
 namespace Pahkat.Sdk.Native
@@ -16,9 +17,11 @@ namespace Pahkat.Sdk.Native
 
         public IntPtr MarshalManagedToNative(object obj)
         {
+
             if (obj is Boxed ptrHolder)
             {
                 var handle = ptrHolder.handle;
+                Log.Verbose("[MARSHAL] BoxMarshaler {Type} -> {Ptr}", typeof(T).FullName, handle);
                 return handle;
             }
             return IntPtr.Zero;
@@ -31,6 +34,7 @@ namespace Pahkat.Sdk.Native
 
         public object MarshalNativeToManaged(IntPtr ptr)
         {
+            Log.Verbose("[MARSHAL] BoxMarshaler {Type} NativeToManaged <- {Ptr}", typeof(T).FullName, ptr);
             return Create(ptr);
         }
 

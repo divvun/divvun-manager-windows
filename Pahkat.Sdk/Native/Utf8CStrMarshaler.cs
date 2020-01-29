@@ -5,7 +5,7 @@ namespace Pahkat.Sdk.Native
 {
     class Utf8CStrMarshaler : ICustomMarshaler
     {
-        static ICustomMarshaler GetInstance(string cookie) => new Utf8CStrMarshaler();
+        internal static ICustomMarshaler GetInstance(string cookie) => new Utf8CStrMarshaler();
 
         public void CleanUpManagedData(object obj)
         {

@@ -6,6 +6,9 @@ using System.Runtime.InteropServices;
 
 namespace Pahkat.Sdk.Native
 {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public delegate void LoggingCallback(byte level, string message, string module, string path);
+
 #pragma warning disable IDE1006 // Naming Styles
     /// <summary>
     /// StoreConfig FFI functions
@@ -163,6 +166,8 @@ namespace Pahkat.Sdk.Native
         [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void pahkat_enable_logging(byte level);
 
+        [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void pahkat_set_logging_callback(LoggingCallback callback);
     }
 
     /// <summary>
@@ -215,9 +220,10 @@ namespace Pahkat.Sdk.Native
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageKeyMarshaler))]
             [In] PackageKey key,
 
-            [Out] out bool isSystem);
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8CStrMarshaler))]
+            [In] string target);
 
-        [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void pahkat_windows_package_store_refresh_repos(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageStoreMarshaler))]
             [In] PackageStore store,
@@ -240,6 +246,13 @@ namespace Pahkat.Sdk.Native
         internal static extern RepositoryIndex[] pahkat_windows_package_store_repo_indexes(
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageStoreMarshaler))]
             [In] PackageStore store,
+            [In] ErrCallback exception);
+
+        [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void pahkat_windows_package_store_all_statuses(
+            [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(PackageStoreMarshaler))]
+            [In] PackageStore store,
+            [In] RepoRecord record,
             [In] ErrCallback exception);
 
         [DllImport(nameof(pahkat_client), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
