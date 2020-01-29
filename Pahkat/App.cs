@@ -387,15 +387,23 @@ namespace Pahkat
                     return null;
             }
         }
-
+        
+        [DllImport( "kernel32.dll" )]
+        static extern bool AttachConsole(int dwProcessId);
+        private const int AttachParentProcess = -1;
+        
         [STAThread]
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.ControlAppDomain)]
         public static void Main(string[] args)
         {
+            AttachConsole(AttachParentProcess);
+            
+            Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
+
             Log.Logger = new LoggerConfiguration()
-                   .MinimumLevel.Verbose()
-                   .WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
-                   .CreateLogger();
+                .MinimumLevel.Verbose()
+                .WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
+                .CreateLogger();
 
             Pahkat.Sdk.Settings.SetLoggingCallback((level, message, module, path) =>
             {

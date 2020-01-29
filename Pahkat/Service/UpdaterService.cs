@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using Pahkat.Models;
 using Pahkat.Sdk;
@@ -17,23 +19,31 @@ namespace Pahkat.Service
         [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
         private class UpdateCheckJob : IJob
         {
-            public void Execute(IJobExecutionContext context)
+            Task IJob.Execute(IJobExecutionContext context)
             {
                 var service = (UpdaterService)context.MergedJobDataMap["UpdaterService"];
-                Application.Current.Dispatcher.InvokeAsync(() => service.CheckForUpdates(false));
+                var dispatcher = Application.Current.Dispatcher;
+                if (dispatcher != null)
+                {
+                    return dispatcher.InvokeAsync(() => service.CheckForUpdates(false)).Task;
+                }
+                else
+                {
+                    return Task.CompletedTask;
+                }
             }
         }
-        
-        private Quartz.IScheduler _jobScheduler = StdSchedulerFactory.GetDefaultScheduler();
+
+        private Quartz.IScheduler _jobScheduler = StdSchedulerFactory.GetDefaultScheduler().GetAwaiter().GetResult();
         private readonly TriggerKey _updateCheckKey = new TriggerKey("NextUpdateCheck");
 
         private void InitRepoRefresher(AppConfigStore configStore)
         {
             configStore.State.Select(x => x.NextUpdateCheck)
-                .Subscribe(date =>
+                .Select(date =>
                 {
                     _jobScheduler.UnscheduleJob(_updateCheckKey);
-                    
+
                     IDictionary<string, object> dict = new Dictionary<string, object>();
                     dict["UpdaterService"] = this;
 
@@ -45,8 +55,8 @@ namespace Pahkat.Service
 
                     var detail = JobBuilder.Create<UpdateCheckJob>().Build();
 
-                    _jobScheduler.ScheduleJob(detail, trigger);
-                });
+                    return Observable.FromAsync((token) => _jobScheduler.ScheduleJob(detail, trigger, token));
+                }).Switch().Subscribe();
         }
 
         public bool HasUpdates()
