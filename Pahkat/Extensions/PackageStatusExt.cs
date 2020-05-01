@@ -4,10 +4,8 @@ namespace Pahkat.Extensions
 {
     public static class PackageStatusExt
     {
-        public static string? Description(this PackageStatus status)
-        {
-            switch (status)
-            {
+        public static string? Description(this PackageStatus status) {
+            switch (status) {
                 case PackageStatus.ErrorNoInstaller:
                     return Strings.ErrorNoInstaller;
                 case PackageStatus.ErrorInvalidVersion:

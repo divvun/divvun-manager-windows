@@ -114,49 +114,22 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Native\PackageTargetMarshaler.cs" />
     <Compile Include="Native\TypedMarshaler.cs" />
     <Compile Include="PackageKey.cs" />
-    <Compile Include="ClientTypes.cs" />
     <Compile Include="DownloadProgress.cs" />
-    <Compile Include="Settings.cs" />
-    <Compile Include="Native\PackageKeyMarshaler.cs" />
-    <Compile Include="Native\ActionListMarshaler.cs" />
     <Compile Include="Native\Arced.cs" />
     <Compile Include="Native\ArcMarshaler.cs" />
     <Compile Include="Native\Boxed.cs" />
     <Compile Include="Native\BoxMarshaler.cs" />
     <Compile Include="Native\JsonMarshaler.cs" />
     <Compile Include="Native\MarshalUtf8.cs" />
-    <Compile Include="Native\PackageMarshaler.cs" />
-    <Compile Include="Native\pahkat_client.cs" />
-    <Compile Include="Native\PackageStoreMarshaler.cs" />
-    <Compile Include="Native\RepoRecordListMarshaler.cs" />
-    <Compile Include="Native\RepoRecordMarshaler.cs" />
-    <Compile Include="Native\RepositoryIndexListMarshaler.cs" />
-    <Compile Include="Native\StoreConfigMarshaler.cs" />
-    <Compile Include="Native\TransactionActionMarshaler.cs" />
-    <Compile Include="Native\TransactionMarshaler.cs" />
-    <Compile Include="Native\Utf8CStrMarshaler.cs" />
     <Compile Include="PackageAction.cs" />
     <Compile Include="PackageDownloadStatus.cs" />
     <Compile Include="PackageEvent.cs" />
     <Compile Include="PackageEventType.cs" />
     <Compile Include="PackageStatus.cs" />
-    <Compile Include="PackageStore.cs" />
     <Compile Include="PackageTarget.cs" />
-    <Compile Include="PahkatClientException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RepoRecord.cs" />
-    <Compile Include="RepositoryIndex.cs" />
-    <Compile Include="StoreConfig.cs" />
-    <Compile Include="Transaction.cs" />
-    <Compile Include="TransactionAction.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="pahkat_client.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

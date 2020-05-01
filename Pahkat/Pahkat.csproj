@@ -135,10 +135,6 @@
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="Quartz, Version=3.0.7.0, Culture=neutral, PublicKeyToken=f6b8c98a402cc8a4">
-      <HintPath>..\packages\Quartz.3.0.7\lib\net452\Quartz.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.2.9.0\lib\net46\Serilog.dll</HintPath>
     </Reference>
@@ -202,17 +198,14 @@
     <Compile Include="Extensions\Extensions.cs" />
     <Compile Include="Extensions\PackageKeyExt.cs" />
     <Compile Include="Models\AppConfig.cs" />
-    <Compile Include="Extensions\PeriodIntervalExt.cs" />
     <Compile Include="Models\SelectionEvent.cs" />
     <Compile Include="Models\PackageActionInfo.cs" />
     <Compile Include="Models\PackageState.cs" />
     <Compile Include="Extensions\PackageStatusExt.cs" />
+    <Compile Include="Models\TransactionState.cs" />
     <Compile Include="Models\UserSelectionAction.cs" />
-    <Compile Include="Extensions\RepositoryChannelExt.cs" />
-    <Compile Include="Extensions\TransactionExt.cs" />
     <Compile Include="Properties\Constants.cs" />
     <Compile Include="Models\UserPackageSelectionStore.cs" />
-    <Compile Include="Service\UpdaterService.cs" />
     <Compile Include="Service\WindowService.cs" />
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -252,15 +245,10 @@
     <Compile Include="UI\Shared\Interfaces.cs" />
     <Compile Include="UI\Shared\PackageCategoryTreeItem.cs" />
     <Compile Include="UI\Shared\PackageMenuItem.cs" />
-    <Compile Include="UI\Updater\UpdateWindowPresenter.cs" />
-    <Compile Include="UI\Updater\UpdateWindow.xaml.cs">
-      <DependentUpon>UpdateWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Main\MainPagePresenter.cs" />
     <Compile Include="Util\Iso639.cs" />
-    <Compile Include="Util\ReactiveProcess.cs" />
     <Compile Include="Util\RxFeedback.cs" />
     <Compile Include="Util\RxStore.cs" />
     <Compile Include="Util\Util.cs" />
@@ -306,10 +294,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\Settings\SettingsWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="UI\Updater\UpdateWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

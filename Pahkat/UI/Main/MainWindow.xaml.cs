@@ -9,25 +9,21 @@ namespace Pahkat.UI.Main
     /// </summary>
     public partial class MainWindow : Window, IMainWindowView
     {
-        public MainWindow()
-        {   
+        public MainWindow() {
             InitializeComponent();
             var presenter = new MainWindowPresenter(this, DispatcherScheduler.Current);
             presenter.Start();
         }
 
-        public void ShowMainPage()
-        {
+        public void ShowMainPage() {
             ShowPage(new MainPage());
         }
 
-        public void ShowLandingPage()
-        {
+        public void ShowLandingPage() {
             ShowPage(new LandingPage());
         }
 
-        public void ShowPage(IPageView pageView)
-        {
+        public void ShowPage(IPageView pageView) {
             FrmContainer.Navigate(pageView);
         }
     }

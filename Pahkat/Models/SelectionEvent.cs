@@ -2,7 +2,8 @@
 
 namespace Pahkat.Models
 {
-    public interface ISelectionEvent { }
+    public interface ISelectionEvent
+    { }
 
     namespace SelectionEvent
     {
@@ -42,7 +43,8 @@ namespace Pahkat.Models
             public bool Value;
         }
 
-        internal struct ResetSelection : ISelectionEvent { }
+        internal struct ResetSelection : ISelectionEvent
+        { }
 
         internal struct SetPackages : ISelectionEvent
         {

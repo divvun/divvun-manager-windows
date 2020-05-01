@@ -11,7 +11,8 @@ using System.Windows;
 
 namespace Pahkat.UI.Shared
 {
-    public class PackageMenuItem : INotifyPropertyChanged, IDisposable, IEquatable<PackageMenuItem>, IComparable<PackageMenuItem>
+    public class PackageMenuItem : INotifyPropertyChanged, IDisposable, IEquatable<PackageMenuItem>,
+        IComparable<PackageMenuItem>
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -22,11 +23,10 @@ namespace Pahkat.UI.Shared
         private CompositeDisposable _bag = new CompositeDisposable();
 
         // TODO: add a subscriber to the registry to stop this from firing so often
-        private PackageStatus _status => ((PahkatApp)Application.Current).PackageStore.Status(Key).Item1;
+        private PackageStatus _status => ((PahkatApp) Application.Current).PackageStore.Status(Key).Item1;
         private PackageActionInfo _actionInfo;
 
-        public PackageMenuItem(PackageKey key, Package model, UserPackageSelectionStore store)
-        {
+        public PackageMenuItem(PackageKey key, Package model, UserPackageSelectionStore store) {
             Key = key;
             Model = model;
             _store = store;
@@ -34,8 +34,7 @@ namespace Pahkat.UI.Shared
             _bag.Add(_store.State
                 .Select(x => x.SelectedPackages.Get(Key, null))
                 .DistinctUntilChanged()
-                .Subscribe(x =>
-                {
+                .Subscribe(x => {
                     _actionInfo = x;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
                 }));
@@ -43,12 +42,10 @@ namespace Pahkat.UI.Shared
 
         public string Title => Model.NativeName;
         public string Version => Model.Version;
-        public string Status
-        {
-            get
-            {
-                switch (_actionInfo?.Action)
-                {
+
+        public string Status {
+            get {
+                switch (_actionInfo?.Action) {
                     case PackageAction.Install:
                         return Strings.Install;
                     case PackageAction.Uninstall:
@@ -59,54 +56,45 @@ namespace Pahkat.UI.Shared
             }
         }
 
-        public string FileSize
-        {
-            get
-            {
-                if (Model.WindowsInstaller != null)
-                {
+        public string FileSize {
+            get {
+                if (Model.WindowsInstaller != null) {
                     return "(" + Util.Util.BytesToString(Model.WindowsInstaller.Size) + ")";
                 }
+
                 return Strings.NotApplicable;
             }
         }
 
-        public bool IsSelected
-        {
+        public bool IsSelected {
             get => _actionInfo != null;
             set => _store.Dispatch(UserSelectionAction.TogglePackageWithDefaultAction(Key, value));
         }
 
-        public void Dispose()
-        {
+        public void Dispose() {
             _bag.Dispose();
         }
 
-        public bool Equals(PackageMenuItem other)
-        {
+        public bool Equals(PackageMenuItem other) {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return Equals(Key, other.Key) && Equals(Model, other.Model);
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
             return Equals((PackageMenuItem) obj);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
+        public override int GetHashCode() {
+            unchecked {
                 return ((Key != null ? Key.GetHashCode() : 0) * 397) ^ (Model != null ? Model.GetHashCode() : 0);
             }
         }
 
-        public int CompareTo(PackageMenuItem other)
-        {
+        public int CompareTo(PackageMenuItem other) {
             return string.Compare(Model.NativeName, other.Model.NativeName, StringComparison.CurrentCulture);
         }
     }

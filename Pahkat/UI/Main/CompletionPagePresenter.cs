@@ -11,29 +11,16 @@ namespace Pahkat.UI.Main
         private readonly ICompletionPageView _view;
         private readonly bool _requiresReboot;
 
-        public CompletionPagePresenter(ICompletionPageView view, bool requiresReboot)
-        {
+        public CompletionPagePresenter(ICompletionPageView view, bool requiresReboot) {
             _view = view;
             _requiresReboot = requiresReboot;
         }
 
-//        private void ErrorCheck()
-//        {
-//            var errors = _results.Where(r => !r.IsSuccess).ToArray();
-//            
-//            if (errors.Length > 0)
-//            {
-//                _view.ShowErrors(errors);
-//            }
-//        }
-
-        private void RebootCheck()
-        {
+        private void RebootCheck() {
             _view.RequiresReboot(_requiresReboot);
         }
 
-        public IDisposable Start()
-        {
+        public IDisposable Start() {
             RebootCheck();
 
             return new CompositeDisposable(

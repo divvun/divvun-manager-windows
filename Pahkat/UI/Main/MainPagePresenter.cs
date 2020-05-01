@@ -16,12 +16,11 @@ namespace Pahkat.UI.Main
     {
         private ObservableCollection<RepoTreeItem> _tree =
             new ObservableCollection<RepoTreeItem>();
-        
+
         private IMainPageView _view;
         private UserPackageSelectionStore _store;
 
-        private IDisposable BindPackageToggled(IMainPageView view, IUserPackageSelectionStore store)
-        {
+        private IDisposable BindPackageToggled(IMainPageView view, IUserPackageSelectionStore store) {
             return view.OnPackageToggled()
                 .Select(item => UserSelectionAction.TogglePackage(
                     item.Key,
@@ -29,12 +28,10 @@ namespace Pahkat.UI.Main
                     !item.IsSelected))
                 .Subscribe(store.Dispatch);
         }
-        
-        private IDisposable BindGroupToggled(IMainPageView view, IUserPackageSelectionStore store)
-        {
+
+        private IDisposable BindGroupToggled(IMainPageView view, IUserPackageSelectionStore store) {
             return view.OnGroupToggled()
-                .Select(item =>
-                {
+                .Select(item => {
                     return UserSelectionAction.ToggleGroup(
                         item.Items.Select(x => new PackageActionInfo(x.Key)).ToArray(),
                         !item.IsGroupSelected);
@@ -42,28 +39,23 @@ namespace Pahkat.UI.Main
                 .Subscribe(store.Dispatch);
         }
 
-        private IDisposable BindPrimaryButton(IMainPageView view)
-        {
+        private IDisposable BindPrimaryButton(IMainPageView view) {
             return view.OnPrimaryButtonPressed()
                 .Subscribe(_ => view.ShowDownloadPage());
         }
 
-        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Dictionary<Package, PackageKey> keyMap)
-        {
+        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Dictionary<Package, PackageKey> keyMap) {
             var map = new Dictionary<string, List<PackageMenuItem>>();
 
-            foreach (var package in keyMap.Keys)
-            {
-                if (!map.ContainsKey(package.Category))
-                {
+            foreach (var package in keyMap.Keys) {
+                if (!map.ContainsKey(package.Category)) {
                     map[package.Category] = new List<PackageMenuItem>();
                 }
 
                 map[package.Category].Add(new PackageMenuItem(keyMap[package], package, _store));
             }
 
-            var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x =>
-            {
+            var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x => {
                 x.Value.Sort();
                 var items = new ObservableCollection<PackageMenuItem>(x.Value);
                 return new PackageCategoryTreeItem(_store, x.Key, items);
@@ -72,16 +64,12 @@ namespace Pahkat.UI.Main
             return categories;
         }
 
-        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(Dictionary<Package, PackageKey> keyMap)
-        {
+        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(Dictionary<Package, PackageKey> keyMap) {
             var map = new Dictionary<string, List<PackageMenuItem>>();
 
-            foreach (var package in keyMap.Keys)
-            {
-                foreach (var bcp47 in package.Languages)
-                {
-                    if (!map.ContainsKey(bcp47))
-                    {
+            foreach (var package in keyMap.Keys) {
+                foreach (var bcp47 in package.Languages) {
+                    if (!map.ContainsKey(bcp47)) {
                         map[bcp47] = new List<PackageMenuItem>();
                     }
 
@@ -89,8 +77,7 @@ namespace Pahkat.UI.Main
                 }
             }
 
-            var languages = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x =>
-            {
+            var languages = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x => {
                 x.Value.Sort();
                 var items = new ObservableCollection<PackageMenuItem>(x.Value);
                 return new PackageCategoryTreeItem(_store, Util.Util.GetCultureDisplayName(x.Key), items);
@@ -99,119 +86,101 @@ namespace Pahkat.UI.Main
             return languages;
         }
 
-        private bool IsFoundBySearchQuery(string query, Package package)
-        {
-            if (string.IsNullOrWhiteSpace(query))
-            {
+        private bool IsFoundBySearchQuery(string query, Package package) {
+            if (string.IsNullOrWhiteSpace(query)) {
                 return true;
             }
 
             const double matchCoefficient = 0.2;
 
             return package.NativeName
-                .Split(new[] { ' ' })
+                .Split(new[] {' '})
                 .Where(word => word.FuzzyMatch(query) >= matchCoefficient)
                 .Count() >= 1;
         }
 
-        private IDisposable BindNewRepositories(IMainPageView view)
-        {
-            return Observable.CombineLatest(_view.OnNewRepositories(), _view.OnSearchTextChanged(), (repos, query) =>
-            {
-                return new Tuple<RepositoryIndex[], string>(repos, query);
-            })
-            .Subscribe((t) =>
-            {
-                var repos = t.Item1;
-                var query = t.Item2;
+        private IDisposable BindNewRepositories(IMainPageView view) {
+            return Observable.CombineLatest(_view.OnNewRepositories(), _view.OnSearchTextChanged(),
+                    (repos, query) => { return new Tuple<RepositoryIndex[], string>(repos, query); })
+                .Subscribe((t) => {
+                    var repos = t.Item1;
+                    var query = t.Item2;
 
-                _tree.Clear();
+                    _tree.Clear();
 
-                if (repos == null)
-                {
-                    Console.WriteLine("Repository empty.");
-                    _view.UpdateTitle(Strings.AppName);
-                    return;
-                }
-
-                foreach (var repo in repos)
-                {
-                    IEnumerable<PackageCategoryTreeItem> items;
-
-
-                    var keyMap = new Dictionary<Package, PackageKey>();
-                    foreach (var pkg in repo.Packages.Values.Where((pkg) => IsFoundBySearchQuery(query, pkg))) {
-                        keyMap[pkg] = repo.PackageKeyFor(pkg);
-                    };
-    
-                    switch (repo.Meta.PrimaryFilter)
-                    {
-                        case RepositoryMeta.Filter.Language:
-                            items = FilterByLanguage(keyMap);
-                            break;
-                        case RepositoryMeta.Filter.Category:
-                        default:
-                            items = FilterByCategory(keyMap);
-                            break;
+                    if (repos == null) {
+                        Console.WriteLine("Repository empty.");
+                        _view.UpdateTitle(Strings.AppName);
+                        return;
                     }
 
-                    var item = new RepoTreeItem(
-                        repo.Meta.NativeName,
-                        new ObservableCollection<PackageCategoryTreeItem>(items)
-                    );
+                    foreach (var repo in repos) {
+                        IEnumerable<PackageCategoryTreeItem> items;
 
-                    _tree.Add(item);
-                    _view.UpdateTitle(Strings.AppName);
-                    Console.WriteLine("Added packages.");
-                }
 
-            }, _view.HandleError);
+                        var keyMap = new Dictionary<Package, PackageKey>();
+                        foreach (var pkg in repo.Packages.Values.Where((pkg) => IsFoundBySearchQuery(query, pkg))) {
+                            keyMap[pkg] = repo.PackageKeyFor(pkg);
+                        }
+
+                        ;
+
+                        switch (repo.Meta.PrimaryFilter) {
+                            case RepositoryMeta.Filter.Language:
+                                items = FilterByLanguage(keyMap);
+                                break;
+                            case RepositoryMeta.Filter.Category:
+                            default:
+                                items = FilterByCategory(keyMap);
+                                break;
+                        }
+
+                        var item = new RepoTreeItem(
+                            repo.Meta.NativeName,
+                            new ObservableCollection<PackageCategoryTreeItem>(items)
+                        );
+
+                        _tree.Add(item);
+                        _view.UpdateTitle(Strings.AppName);
+                        Console.WriteLine("Added packages.");
+                    }
+                }, _view.HandleError);
         }
 
-        private void GeneratePrimaryButtonLabel(Dictionary<PackageKey, PackageActionInfo> packages)
-        {
-            if (packages.Count > 0)
-            {
+        private void GeneratePrimaryButtonLabel(Dictionary<PackageKey, PackageActionInfo> packages) {
+            if (packages.Count > 0) {
                 string s;
 
-                if (packages.All(x => x.Value.Action == PackageAction.Install))
-                {
+                if (packages.All(x => x.Value.Action == PackageAction.Install)) {
                     s = string.Format(Strings.InstallNPackages, packages.Count);
                 }
-                else if (packages.All(x => x.Value.Action == PackageAction.Uninstall))
-                {
+                else if (packages.All(x => x.Value.Action == PackageAction.Uninstall)) {
                     s = string.Format(Strings.UninstallNPackages, packages.Count);
                 }
-                else
-                {
+                else {
                     s = string.Format(Strings.InstallUninstallNPackages, packages.Count);
                 }
 
                 _view.UpdatePrimaryButton(true, s);
             }
-            else
-            {
+            else {
                 _view.UpdatePrimaryButton(false, Strings.NoPackagesSelected);
             }
         }
 
-        private IDisposable BindPrimaryButtonLabel(IMainPageView view, IUserPackageSelectionStore store)
-        {
+        private IDisposable BindPrimaryButtonLabel(IMainPageView view, IUserPackageSelectionStore store) {
             // Can't use distinct until changed here because HashSet is never reset
             return store.State
                 .Select(state => state.SelectedPackages)
                 .Subscribe(GeneratePrimaryButtonLabel);
         }
 
-        public MainPagePresenter(IMainPageView view, UserPackageSelectionStore store)
-        {
+        public MainPagePresenter(IMainPageView view, UserPackageSelectionStore store) {
             _view = view;
             _store = store;
-
         }
 
-        public IDisposable Start()
-        {
+        public IDisposable Start() {
             _view.UpdateTitle($"{Strings.AppName} - {Strings.Loading}");
             _view.SetPackagesModel(_tree);
 

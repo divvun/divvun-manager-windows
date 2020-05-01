@@ -13,54 +13,49 @@ namespace Pahkat.UI.Main
 {
     public class DownloadListItem : INotifyPropertyChanged, IEquatable<DownloadListItem>
     {
-        public bool Equals(DownloadListItem other)
-        {
+        public bool Equals(DownloadListItem other) {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return Equals(Key, other.Key);
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
             return Equals((DownloadListItem) obj);
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
+        public override int GetHashCode() {
+            unchecked {
                 return ((Key != null ? Key.GetHashCode() : 0) * 397);
             }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
         public readonly PackageKey Key;
-        public readonly Package Model;
+        // public readonly string Name;
+        // public readonly string Version;
         private long _downloaded;
-        
-        public DownloadListItem(PackageKey key, Package package)
-        {
+
+        public DownloadListItem(PackageKey key, string name, string version) {
             Key = key;
-            Model = package;
+            Title = name;
+            Version = version;
         }
 
-        public string Title => Model.NativeName;
-        public string Version => Model.Version;
-        public long FileSize => Model.WindowsInstaller?.Size ?? -1;
-        public long Downloaded
-        {
+        public string Title { get; } = "-";
+        public string Version { get; } = "-";
+        public long FileSize { get; } = -1;
+
+        public long Downloaded {
             get => _downloaded;
-            set
-            {
+            set {
                 _downloaded = value;
-                
+
                 // Workaround for WPF bug where only one property change event can be
                 // fired per setter being used... :|
-                Dispatcher.CurrentDispatcher.Invoke(() =>
-                {
+                Dispatcher.CurrentDispatcher.Invoke(() => {
                     PropertyChanged?.Invoke(this,
                         new PropertyChangedEventArgs("Status"));
                     PropertyChanged?.Invoke(this,
@@ -69,22 +64,17 @@ namespace Pahkat.UI.Main
             }
         }
 
-        public string Status
-        {
-            get
-            {
-                if (_downloaded < 0)
-                {
+        public string Status {
+            get {
+                if (_downloaded < 0) {
                     return Strings.DownloadError;
                 }
-                
-                if (_downloaded == 0)
-                {
+
+                if (_downloaded == 0) {
                     return Strings.Downloading;
                 }
-                
-                if (_downloaded < FileSize)
-                {
+
+                if (_downloaded < FileSize) {
                     return Util.Util.BytesToString(Downloaded);
                 }
 

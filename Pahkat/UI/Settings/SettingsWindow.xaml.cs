@@ -49,10 +49,8 @@ namespace Pahkat.UI.Settings
         public string Name { get; set; }
         public PeriodInterval Value { get; set; }
 
-        internal static PeriodIntervalMenuItem Create(PeriodInterval period)
-        {
-            return new PeriodIntervalMenuItem()
-            {
+        internal static PeriodIntervalMenuItem Create(PeriodInterval period) {
+            return new PeriodIntervalMenuItem() {
                 Name = period.ToLocalisedName(),
                 Value = period
             };
@@ -64,10 +62,8 @@ namespace Pahkat.UI.Settings
         public string Name { get; set; }
         public RepositoryMeta.Channel Value { get; set; }
 
-        internal static ChannelMenuItem Create(RepositoryMeta.Channel channel)
-        {
-            return new ChannelMenuItem
-            {
+        internal static ChannelMenuItem Create(RepositoryMeta.Channel channel) {
+            return new ChannelMenuItem {
                 Name = channel.ToLocalisedName(),
                 Value = channel
             };
@@ -79,14 +75,12 @@ namespace Pahkat.UI.Settings
         public string? Url { get; set; }
         public RepositoryMeta.Channel Channel { get; set; }
 
-        public RepoDataGridItem(string url, RepositoryMeta.Channel channel)
-        {
+        public RepoDataGridItem(string url, RepositoryMeta.Channel channel) {
             Url = url;
             Channel = channel;
         }
 
-        public RepoRecord ToRepoConfig()
-        {
+        public RepoRecord ToRepoConfig() {
             return new RepoRecord(new Uri(Url), Channel);
         }
 
@@ -101,30 +95,26 @@ namespace Pahkat.UI.Settings
         private readonly SettingsWindowPresenter _presenter;
         private CompositeDisposable _bag = new CompositeDisposable();
 
-        private LanguageTag LanguageTag(string tag)
-        {
+        private LanguageTag LanguageTag(string tag) {
             var data = Iso639.GetTag(tag);
             var simplestTag = data.Tag1 ?? data.Tag3;
             var name = data.Autonym ?? data.Name;
-            return new LanguageTag { Name = name, Tag = simplestTag };
+            return new LanguageTag {Name = name, Tag = simplestTag};
         }
 
-        public SettingsWindow()
-        {
+        public SettingsWindow() {
             InitializeComponent();
 
-            DdlLanguage.ItemsSource = new ObservableCollection<LanguageTag>
-            {
-                new LanguageTag { Name = "System Default", Tag = null },
+            DdlLanguage.ItemsSource = new ObservableCollection<LanguageTag> {
+                new LanguageTag {Name = "System Default", Tag = null},
                 LanguageTag("en"),
                 LanguageTag("nb"),
                 LanguageTag("nn"),
-                new LanguageTag { Name = "ᚿᛦᚿᚮᚱᛌᚴ", Tag = "nn-Runr" },
+                new LanguageTag {Name = "ᚿᛦᚿᚮᚱᛌᚴ", Tag = "nn-Runr"},
                 LanguageTag("se")
             };
 
-            DdlUpdateFreq.ItemsSource = new ObservableCollection<PeriodIntervalMenuItem>
-            {
+            DdlUpdateFreq.ItemsSource = new ObservableCollection<PeriodIntervalMenuItem> {
                 PeriodIntervalMenuItem.Create(PeriodInterval.Daily),
                 PeriodIntervalMenuItem.Create(PeriodInterval.Weekly),
                 PeriodIntervalMenuItem.Create(PeriodInterval.Fortnightly),
@@ -132,8 +122,7 @@ namespace Pahkat.UI.Settings
                 PeriodIntervalMenuItem.Create(PeriodInterval.Never)
             };
 
-            DgComboBoxChannel.ItemsSource = new ObservableCollection<ChannelMenuItem>
-            {
+            DgComboBoxChannel.ItemsSource = new ObservableCollection<ChannelMenuItem> {
                 ChannelMenuItem.Create(RepositoryMeta.Channel.Stable),
                 ChannelMenuItem.Create(RepositoryMeta.Channel.Alpha),
                 ChannelMenuItem.Create(RepositoryMeta.Channel.Beta),
@@ -145,7 +134,7 @@ namespace Pahkat.UI.Settings
             DgRepos.CanUserReorderColumns = false;
             DgRepos.CanUserAddRows = true;
 
-            var app = (PahkatApp)Application.Current;
+            var app = (PahkatApp) Application.Current;
             _presenter = new SettingsWindowPresenter(this, app.ConfigStore);
 
             _presenter.Start().DisposedBy(_bag);
@@ -165,53 +154,42 @@ namespace Pahkat.UI.Settings
                 .Where(_ => DgRepos.SelectedIndex > -1)
                 .Select(_ => DgRepos.SelectedIndex);
 
-        public void SetRepoItemSource(ObservableCollection<RepoDataGridItem> repos)
-        {
+        public void SetRepoItemSource(ObservableCollection<RepoDataGridItem> repos) {
             DgRepos.ItemsSource = repos;
         }
 
-        public void SetInterfaceLanguage(string tag)
-        {
+        public void SetInterfaceLanguage(string tag) {
             DdlLanguage.SelectedValue = tag;
         }
 
-        public void SetUpdateFrequency(PeriodInterval period)
-        {
+        public void SetUpdateFrequency(PeriodInterval period) {
             DdlUpdateFreq.SelectedValue = period;
         }
 
-        public void SetUpdateFrequencyStatus(DateTimeOffset dateTime)
-        {
+        public void SetUpdateFrequencyStatus(DateTimeOffset dateTime) {
             LblUpdateStatus.Content = string.Format(Strings.NextUpdateDue, dateTime.ToString());
         }
 
-        public SettingsFormData SettingsFormData()
-        {
-            return new SettingsFormData
-            {
+        public SettingsFormData SettingsFormData() {
+            return new SettingsFormData {
                 InterfaceLanguage = (string) DdlLanguage.SelectedValue,
                 UpdateCheckInterval = (PeriodInterval) DdlUpdateFreq.SelectedValue
             };
         }
 
-        public void SetRepositoryStatus(string status)
-        {
-
+        public void SetRepositoryStatus(string status) {
             //LblRepoName.Content = status;
         }
 
-        public void HandleError(Exception error)
-        {
+        public void HandleError(Exception error) {
             MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        public void SelectRow(int index)
-        {
+        public void SelectRow(int index) {
             DgRepos.SelectedIndex = Math.Min(DgRepos.Items.Count - 1, index);
         }
 
-        public void SelectLastRow()
-        {
+        public void SelectLastRow() {
             DgRepos.SelectedIndex = DgRepos.Items.Count - 1;
         }
     }

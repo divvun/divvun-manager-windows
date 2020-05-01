@@ -6,39 +6,31 @@ namespace Pahkat.Models
 {
     public struct PackageState : IEquatable<PackageState>
     {
-        public bool Equals(PackageState other)
-        {
+        public bool Equals(PackageState other) {
             return Equals(SelectedPackages, other.SelectedPackages);
         }
 
-        public override bool Equals(object obj)
-        {
+        public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is PackageState && Equals((PackageState)obj);
+            return obj is PackageState && Equals((PackageState) obj);
         }
 
-        public override int GetHashCode()
-        {
+        public override int GetHashCode() {
             return (SelectedPackages != null ? SelectedPackages.GetHashCode() : 0);
         }
 
         public Dictionary<PackageKey, PackageActionInfo> SelectedPackages { get; private set; }
 
-        public static PackageState Default()
-        {
-            return new PackageState
-            {
+        public static PackageState Default() {
+            return new PackageState {
                 SelectedPackages = new Dictionary<PackageKey, PackageActionInfo>()
             };
         }
 
-        public static PackageState SelfUpdate(PackageKey packageKey)
-        {
-            return new PackageState
-            {
-                SelectedPackages = new Dictionary<PackageKey, PackageActionInfo>
-                {
-                    { packageKey, new PackageActionInfo(packageKey, PackageAction.Install) }
+        public static PackageState SelfUpdate(PackageKey packageKey) {
+            return new PackageState {
+                SelectedPackages = new Dictionary<PackageKey, PackageActionInfo> {
+                    {packageKey, new PackageActionInfo(packageKey, PackageAction.Install)}
                 }
             };
         }

@@ -6,45 +6,41 @@ using Pahkat.Extensions;
 
 namespace Pahkat.Models
 {
-    public interface IUserPackageSelectionStore : IStore<PackageState, ISelectionEvent> { }
+    public interface IUserPackageSelectionStore : IStore<PackageState, ISelectionEvent>
+    { }
 
     public class UserPackageSelectionStore : IUserPackageSelectionStore
     {
         private RxStore<PackageState, ISelectionEvent> _store;
 
-        public UserPackageSelectionStore()
-        {
+        public UserPackageSelectionStore() {
             _store = new RxStore<PackageState, ISelectionEvent>(PackageState.Default(), Reduce);
         }
 
         public IObservable<PackageState> State => _store.State;
 
-        public void Dispatch(ISelectionEvent e)
-        {
+        public void Dispatch(ISelectionEvent e) {
             _store.Dispatch(e);
         }
 
-        private PackageState Reduce(PackageState state, ISelectionEvent e)
-        {
-            switch (e)
-            {
+        private PackageState Reduce(PackageState state, ISelectionEvent e) {
+            switch (e) {
                 case null:
                     return state;
                 case SetPackages p:
                     var actions = p.Transaction.Actions();
                     state.SelectedPackages.Clear();
 
-                    foreach (var action in actions)
-                    {
+                    foreach (var action in actions) {
                         state.SelectedPackages[action.Id] = new PackageActionInfo(action.Id, action.Action);
                     }
+
                     break;
                 case ResetSelection v:
                     state.SelectedPackages.Clear();
                     break;
                 case AddSelectedPackage v:
-                    if (!v.PackageKey.IsValidAction(v.Action))
-                    {
+                    if (!v.PackageKey.IsValidAction(v.Action)) {
                         break;
                     }
 
@@ -59,21 +55,18 @@ namespace Pahkat.Models
                         .Select(pkg => new PackageActionInfo(pkg))
                         .ToArray(), v.Value));
                 case ToggleGroup v:
-                    if (v.Value)
-                    {
+                    if (v.Value) {
                         var filtered = v.PackageActions.Where((x) => x.PackageKey.IsValidAction(x.Action));
-                        foreach (var item in filtered)
-                        {
+                        foreach (var item in filtered) {
                             state.SelectedPackages[item.PackageKey] = item;
                         }
                     }
-                    else
-                    {
-                        foreach (var item in v.PackageActions)
-                        {
+                    else {
+                        foreach (var item in v.PackageActions) {
                             state.SelectedPackages.Remove(item.PackageKey);
                         }
                     }
+
                     break;
                 case TogglePackageWithDefaultAction v:
                     // Convert into an ordinary TogglePackage
@@ -81,19 +74,17 @@ namespace Pahkat.Models
                         v.PackageKey.DefaultPackageAction(),
                         v.Value));
                 case TogglePackage v:
-                    if (v.Value)
-                    {
-                        if (!v.PackageKey.IsValidAction(v.Action))
-                        {
+                    if (v.Value) {
+                        if (!v.PackageKey.IsValidAction(v.Action)) {
                             break;
                         }
 
                         state.SelectedPackages[v.PackageKey] = new PackageActionInfo(v.PackageKey, v.Action);
                     }
-                    else
-                    {
+                    else {
                         state.SelectedPackages.Remove(v.PackageKey);
                     }
+
                     break;
             }
 
