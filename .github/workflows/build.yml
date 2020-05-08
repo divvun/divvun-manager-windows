@@ -1,0 +1,49 @@
+on: push
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          repository: divvun/pahkat
+          ref: develop
+          path: pahkat
+
+      - name: Setup Divvun CI
+        uses: divvun/actions/setup@master
+        with:
+          key: ${{ secrets.DIVVUN_KEY }}
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          components: rustfmt
+      - name: Build Pahkat Daemon
+        run: |
+          cd pahkat\pahkat-rpc
+          cargo build --release --features windows --bin winsvc
+          # Copy into installer build dir
+          cp ..\target\release\winsvc "$GITHUB_WORKSPACE\divvun-installer\winsvc.exe"
+      - name: Build
+        shell: cmd
+        run: |
+          build-2019.bat
+      # - name: Upload installer
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: installer
+      #     path: "${{ steps.bundler.outputs.installer }}"
+      # - name: Deploy to Pahkat
+      #   uses: divvun/actions/deploy@master
+      #   with:
+      #     payload: "${{ steps.bundler.outputs.installer }}"
+      #     repository: "https://pahkat.uit.no/tools"
+      #     package: "windivvung"
+      #     platform: "windows"
+      #     version: "${{ env.DEPLOY_VERSION }}"
+
