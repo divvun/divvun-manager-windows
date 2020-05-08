@@ -169,7 +169,6 @@ namespace Divvun.Installer
                 .WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
                 .CreateLogger();
             
-
             if (!SingleInstance<PahkatApp>.InitializeAsFirstInstance(key)) {
                 Log.Information("App already running; aborting.");
                 Log.CloseAndFlush();
@@ -192,7 +191,12 @@ namespace Divvun.Installer
             });
             
             SentryClient = sentry;
-            PackageStore = new Mutex<IPahkatClient>(PahkatClient.Create());
+            try {
+                PackageStore = new Mutex<IPahkatClient>(PahkatClient.Create());
+            }
+            catch (Exception eee) {
+                MessageBox.Show(eee.Message, "Could not connect to Pahkat Client");
+            }
         }
 
         protected override void OnExit(ExitEventArgs e) {

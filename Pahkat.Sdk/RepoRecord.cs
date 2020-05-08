@@ -2,6 +2,6 @@
 {
     public class RepoRecord
     {
-        public string? Channel;
+        public string? Channel = "";
     }
 }

@@ -21,29 +21,35 @@
             <ComboBox Name="DdlLanguage"
                       ui:ControlHelper.Header="{x:Static pahkat:Strings.InterfaceLanguage}"
                       ui:ControlHelper.PlaceholderText="{x:Static pahkat:Strings.SystemLocale}"
+                      SelectionChanged="OnLanguageSelectionChanged"
                       Width="160" HorizontalAlignment="Left"
                       DisplayMemberPath="Name"
                       SelectedValuePath="Tag" />
             
             <Separator Margin="0,24,8,16"/>
             
-            <Grid HorizontalAlignment="Left" Width="350">
+            <Grid HorizontalAlignment="Left" Width="350" Height="32">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="auto"/>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="26"/>
+                    <ColumnDefinition Width="40" />
+                    <ColumnDefinition Width="40"/>
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" Content="{x:Static pahkat:Strings.Repositories}" Target="{Binding ElementName=TxtRepoUri}" />
-                <Button Grid.Column="1" Height="26" Width="26" HorizontalAlignment="Right"
+                <Label Grid.Column="0" FontWeight="SemiBold" 
+                       Content="{x:Static pahkat:Strings.Repositories}"
+                       Target="{Binding ElementName=TxtRepoUri}" />
+                <Button Grid.Column="1" Height="26" Width="26"
+                        HorizontalAlignment="Right"
                         Margin="0"
                         Padding="0"
+                        VerticalAlignment="Top"
                         HorizontalContentAlignment="Center"
-                        VerticalContentAlignment="Center"
+                        VerticalContentAlignment="Top"
                         FontSize="18"
                         Name="BtnRemoveRepo">-</Button>
                 <Button Grid.Column="2" Height="26" Width="26" HorizontalAlignment="Right"
                         Margin="0"
                         Padding="0"
+                        VerticalAlignment="Top"
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Top"
                         FontSize="18"
@@ -51,26 +57,36 @@
             </Grid>
             
             <ListView Name="RepoListView"
-                      IsHitTestVisible="False"
+                      Style="{StaticResource {x:Static GridView.GridViewStyleKey}}"
                       SelectionMode="Single"
                       ScrollViewer.CanContentScroll="True"
-                      ItemsSource="{Binding RepoList}">
-                <!-- <ListView.Resources> -->
-                <!--     <Style TargetType="GridViewColumnHeader"> -->
-                <!--         <Setter Property="Visibility" Value="Collapsed" /> -->
-                <!--     </Style> -->
-                <!-- </ListView.Resources> -->
+                      ItemsSource="{Binding}">
+                <ListView.Resources>
+                    <Style TargetType="GridViewColumnHeader">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                    </Style>
+                </ListView.Resources>
                 <ListView.View>
                     <GridView>
                         <GridView.Columns>
-                            <GridViewColumn DisplayMemberBinding="{Binding Name}" Width="Auto"/>
-                            <GridViewColumn>
+                            <!-- <GridViewColumn DisplayMemberBinding="{Binding Name}" Width="250"/> -->
+                            <GridViewColumn Width="230">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <ComboBox ItemsSource="{Binding Channels}"
+                                        <TextBlock VerticalAlignment="Center" Margin="0,22,0,0" Height="48" Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="109">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ComboBox Width="90" Margin="0,18,0,0"
+                                                  ItemsSource="{Binding Channels}"
                                                   DisplayMemberPath="Name"
                                                   SelectedValuePath="Value"
-                                                  SelectedValue="{Binding Channel}" />
+                                                  SelectedValue="{Binding Channel}"
+                                                  SelectionChanged="OnChannelSelectionChanged"
+                                                  />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -79,11 +95,11 @@
                 </ListView.View>
             </ListView>
         </StackPanel>
-        <Border Grid.Row="1" DockPanel.Dock="Bottom" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" BorderBrush="#FF828790" Padding="8,0,8,0">
-            <DockPanel Height="auto" Width="auto" LastChildFill="False">
-                <Button DockPanel.Dock="Right" IsCancel="True"  Name="BtnCancel" Content="{x:Static pahkat:Strings.Cancel}" MinWidth="60" Height="23" Padding="10,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                <Button DockPanel.Dock="Right" Name="BtnSave" Content="{x:Static pahkat:Strings.Save}" MinWidth="60" Height="23" Margin="0,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right" VerticalAlignment="Center" />
-            </DockPanel>
-        </Border>
+        <!-- <Border Grid.Row="1" DockPanel.Dock="Bottom" Background="{DynamicResource {x:Static SystemColors.MenuBarBrushKey}}" BorderBrush="#FF828790" Padding="8,0,8,0"> -->
+        <!--     <DockPanel Height="auto" Width="auto" LastChildFill="False"> -->
+        <!--         <Button DockPanel.Dock="Right" IsCancel="True"  Name="BtnCancel" Content="{x:Static pahkat:Strings.Cancel}" MinWidth="60" Height="23" Padding="10,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center"/> -->
+        <!--         <Button DockPanel.Dock="Right" Name="BtnSave" Content="{x:Static pahkat:Strings.Save}" MinWidth="60" Height="23" Margin="0,0,8,0" Padding="4,0,4,0" HorizontalAlignment="Right" VerticalAlignment="Center" /> -->
+        <!--     </DockPanel> -->
+        <!-- </Border> -->
     </Grid>
 </Window>

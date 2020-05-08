@@ -1,0 +1,21 @@
+﻿<ui:ContentDialog
+    x:Class="Divvun.Installer.UI.Main.Dialog.AddRepoDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.modernwpf.com/2019"
+    Title=""
+    PrimaryButtonText=""
+    CloseButtonText=""
+    DefaultButton="Primary">
+
+    <StackPanel Visibility="Visible" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MaxHeight="400" CanVerticallyScroll="True">
+        <TextBlock Name="PromptText" Text="" TextWrapping="Wrap" />
+        <TextBlock Name="BodyText" Text="" TextWrapping="Wrap" />
+        <TextBox Name="RepositoryUrl" 
+                 ui:ControlHelper.Header="Repository URL"
+                 ui:ControlHelper.PlaceholderText="https://…" />
+    </StackPanel>
+
+</ui:ContentDialog>
+
+

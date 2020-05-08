@@ -243,6 +243,9 @@
     <Compile Include="UI\Main\CompletionPage.xaml.cs">
       <DependentUpon>CompletionPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Main\Dialog\AddRepoDialog.xaml.cs">
+      <DependentUpon>AddRepoDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Main\Dialog\ConfirmationDialog.xaml.cs">
       <DependentUpon>ConfirmationDialog.xaml</DependentUpon>
     </Compile>
@@ -300,6 +303,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\Main\Dialog\AddRepoDialog.xaml" />
     <Page Include="UI\Main\Dialog\ConfirmationDialog.xaml" />
     <Page Include="UI\Main\DownloadPage.xaml">
       <SubType>Designer</SubType>

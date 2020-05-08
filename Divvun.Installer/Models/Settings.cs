@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.IO;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Text;
 using JetBrains.Annotations;
 using Pahkat.Sdk.Rpc;
@@ -35,7 +36,7 @@ namespace Divvun.Installer.Models
         }
 
         public void Save() {
-            var data = JsonConvert.SerializeObject(_state);
+            var data = JsonConvert.SerializeObject(_state, Json.Settings.Value);
             File.WriteAllText(FilePath, data, Encoding.UTF8);
         }
 
@@ -52,8 +53,8 @@ namespace Divvun.Installer.Models
 
     public class SettingsFile
     {
-        internal string? Language = null;
-        internal Uri? SelectedRepository = null;
+        public string? Language = null;
+        public Uri? SelectedRepository = null;
     }
     
     public class Settings : Config<SettingsFile>
@@ -74,5 +75,9 @@ namespace Divvun.Installer.Models
         public IObservable<Uri?> SelectedRepository => Observe()
             .Select(x => x.SelectedRepository)
             .DistinctUntilChanged();
+
+        public string? GetLanguage() {
+            return Language.Take(1).ToTask().GetAwaiter().GetResult();
+        }
     }
 }
