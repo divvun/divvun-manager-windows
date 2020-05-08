@@ -4,38 +4,29 @@ using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
-using Newtonsoft.Json;
 using Divvun.Installer.Extensions;
-using Divvun.Installer.Models;
-using Divvun.Installer.Sdk;
+using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.UI.Settings
 {
     public interface ISettingsWindowView : IWindowView
     {
-        IObservable<EventArgs> OnSaveClicked();
-        IObservable<EventArgs> OnCancelClicked();
-        IObservable<EventArgs> OnRepoAddClicked();
-        IObservable<int> OnRepoRemoveClicked();
-        void SetInterfaceLanguage(string tag);
-        void SetRepoItemSource(ObservableCollection<RepoDataGridItem> repos);
-        void SetUpdateFrequency(PeriodInterval period);
-        void SetUpdateFrequencyStatus(DateTimeOffset dateTime);
-        void SelectRow(int index);
-        void SelectLastRow();
-        SettingsFormData SettingsFormData();
-        void HandleError(Exception error);
-        void Close();
+        // IObservable<EventArgs> OnSaveClicked();
+        // IObservable<EventArgs> OnCancelClicked();
+        // IObservable<EventArgs> OnRepoAddClicked();
+        // IObservable<int> OnRepoRemoveClicked();
+        // void SelectLastRow();
+        // SettingsFormData SettingsFormData();
+        // void HandleError(Exception error);
+        // void Close();
     }
 
     public struct SettingsFormData
     {
         public string InterfaceLanguage;
-        public PeriodInterval UpdateCheckInterval;
-        public RepoRecord[] Repositories;
+        public LoadedRepository[] Repositories;
     }
 
     struct LanguageTag
@@ -44,47 +35,32 @@ namespace Divvun.Installer.UI.Settings
         public string Tag { get; set; }
     }
 
-    struct PeriodIntervalMenuItem
+    public struct ChannelMenuItem
     {
         public string Name { get; set; }
-        public PeriodInterval Value { get; set; }
+        public string Value { get; set; }
 
-        internal static PeriodIntervalMenuItem Create(PeriodInterval period) {
-            return new PeriodIntervalMenuItem() {
-                Name = period.ToLocalisedName(),
-                Value = period
-            };
-        }
-    }
-
-    struct ChannelMenuItem
-    {
-        public string Name { get; set; }
-        public RepositoryMeta.Channel Value { get; set; }
-
-        internal static ChannelMenuItem Create(RepositoryMeta.Channel channel) {
+        internal static ChannelMenuItem Create(string name, string value) {
             return new ChannelMenuItem {
-                Name = channel.ToLocalisedName(),
-                Value = channel
+                Name = name,
+                Value = value
             };
         }
     }
 
-    public class RepoDataGridItem
+    public class RepositoryListItem
     {
-        public string? Url { get; set; }
-        public RepositoryMeta.Channel Channel { get; set; }
-
-        public RepoDataGridItem(string url, RepositoryMeta.Channel channel) {
+        public Uri Url { get; set; }
+        public string Name { get; set; }
+        public string Channel { get; set; }
+        public List<ChannelMenuItem> Channels { get; set; }
+        
+        public RepositoryListItem(Uri url, string name, List<ChannelMenuItem> channels, string channel) {
             Url = url;
+            Name = name;
             Channel = channel;
+            Channels = channels;
         }
-
-        public RepoRecord ToRepoConfig() {
-            return new RepoRecord(new Uri(Url), Channel);
-        }
-
-        public static RepoDataGridItem Empty => new RepoDataGridItem(null, RepositoryMeta.Channel.Stable);
     }
 
     /// <summary>
@@ -92,8 +68,11 @@ namespace Divvun.Installer.UI.Settings
     /// </summary>
     public partial class SettingsWindow : Window, ISettingsWindowView
     {
-        private readonly SettingsWindowPresenter _presenter;
+        // private readonly SettingsWindowPresenter _presenter;
         private CompositeDisposable _bag = new CompositeDisposable();
+        
+        public ObservableCollection<RepositoryListItem> RepoList { get; set; }
+            = new ObservableCollection<RepositoryListItem>(new [] {new RepositoryListItem(new Uri("https://x.brendan.so/"), "Hello", new List<ChannelMenuItem>(), "")}); 
 
         private LanguageTag LanguageTag(string tag) {
             var data = Iso639.GetTag(tag);
@@ -106,38 +85,45 @@ namespace Divvun.Installer.UI.Settings
             InitializeComponent();
 
             DdlLanguage.ItemsSource = new ObservableCollection<LanguageTag> {
-                new LanguageTag {Name = "System Default", Tag = null},
+                new LanguageTag {Name = "System Default", Tag = ""},
                 LanguageTag("en"),
                 LanguageTag("nb"),
                 LanguageTag("nn"),
                 new LanguageTag {Name = "ᚿᛦᚿᚮᚱᛌᚴ", Tag = "nn-Runr"},
                 LanguageTag("se")
             };
+        }
 
-            DdlUpdateFreq.ItemsSource = new ObservableCollection<PeriodIntervalMenuItem> {
-                PeriodIntervalMenuItem.Create(PeriodInterval.Daily),
-                PeriodIntervalMenuItem.Create(PeriodInterval.Weekly),
-                PeriodIntervalMenuItem.Create(PeriodInterval.Fortnightly),
-                PeriodIntervalMenuItem.Create(PeriodInterval.Monthly),
-                PeriodIntervalMenuItem.Create(PeriodInterval.Never)
-            };
+        private void OnLoaded(object sender, RoutedEventArgs e) {
+            RefreshRepoTable();
+        }
 
-            DgComboBoxChannel.ItemsSource = new ObservableCollection<ChannelMenuItem> {
-                ChannelMenuItem.Create(RepositoryMeta.Channel.Stable),
-                ChannelMenuItem.Create(RepositoryMeta.Channel.Alpha),
-                ChannelMenuItem.Create(RepositoryMeta.Channel.Beta),
-                ChannelMenuItem.Create(RepositoryMeta.Channel.Nightly)
-            };
-
-            //DgRepos.CanUserResizeColumns = false;
-            DgRepos.CanUserResizeRows = false;
-            DgRepos.CanUserReorderColumns = false;
-            DgRepos.CanUserAddRows = true;
-
+        void RefreshRepoTable() {
             var app = (PahkatApp) Application.Current;
-            _presenter = new SettingsWindowPresenter(this, app.ConfigStore);
+            using var guard = app.PackageStore.Lock();
+            
+            var repos = guard.Value.RepoIndexes();
+            var repoRecords = guard.Value.GetRepoRecords();
+            // var strings = guard.Value.Strings(Strings.Culture.IetfLanguageTag);
+            
+            RepoList.Clear();
+            
+            foreach (var keyValuePair in repoRecords) {
+                var name = keyValuePair.Key.AbsoluteUri;
+                if (repos.TryGetValue(keyValuePair.Key, out var repo)) {
+                    var n = repo.Index.NativeName();
+                    if (n != null) {
+                        name = n;
+                    }
+                }
 
-            _presenter.Start().DisposedBy(_bag);
+                var channels = new List<ChannelMenuItem>();
+                channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
+                channels.Add(ChannelMenuItem.Create(Strings.Nightly, "nightly"));
+                var selectedChannel = keyValuePair.Value.Channel ?? "";
+
+                RepoList.Add(new RepositoryListItem(keyValuePair.Key, name, channels, selectedChannel));
+            }
         }
 
         public IObservable<EventArgs> OnSaveClicked() =>
@@ -149,48 +135,35 @@ namespace Divvun.Installer.UI.Settings
         public IObservable<EventArgs> OnRepoAddClicked() =>
             BtnAddRepo.ReactiveClick().Select(x => x.EventArgs);
 
-        public IObservable<int> OnRepoRemoveClicked() =>
-            BtnRemoveRepo.ReactiveClick()
-                .Where(_ => DgRepos.SelectedIndex > -1)
-                .Select(_ => DgRepos.SelectedIndex);
+        // public IObservable<int> OnRepoRemoveClicked() =>
+        //     BtnRemoveRepo.ReactiveClick()
+        //         .Where(_ => DgRepos.SelectedIndex > -1)
+        //         .Select(_ => DgRepos.SelectedIndex);
 
-        public void SetRepoItemSource(ObservableCollection<RepoDataGridItem> repos) {
-            DgRepos.ItemsSource = repos;
-        }
-
-        public void SetInterfaceLanguage(string tag) {
-            DdlLanguage.SelectedValue = tag;
-        }
-
-        public void SetUpdateFrequency(PeriodInterval period) {
-            DdlUpdateFreq.SelectedValue = period;
-        }
-
-        public void SetUpdateFrequencyStatus(DateTimeOffset dateTime) {
-            LblUpdateStatus.Content = string.Format(Strings.NextUpdateDue, dateTime.ToString());
-        }
-
-        public SettingsFormData SettingsFormData() {
-            return new SettingsFormData {
-                InterfaceLanguage = (string) DdlLanguage.SelectedValue,
-                UpdateCheckInterval = (PeriodInterval) DdlUpdateFreq.SelectedValue
-            };
-        }
-
-        public void SetRepositoryStatus(string status) {
-            //LblRepoName.Content = status;
-        }
-
+        // public void SetRepoItemSource(ObservableCollection<RepoDataGridItem> repos) {
+        //     
+        // }
+        //
+        // public void SetInterfaceLanguage(string tag) {
+        //     DdlLanguage.SelectedValue = tag;
+        // }
+        //
+        // public SettingsFormData SettingsFormData() {
+        //     return new SettingsFormData {
+        //         InterfaceLanguage = (string) DdlLanguage.SelectedValue,
+        //     };
+        // }
+        //
         public void HandleError(Exception error) {
             MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
         }
-
-        public void SelectRow(int index) {
-            DgRepos.SelectedIndex = Math.Min(DgRepos.Items.Count - 1, index);
-        }
-
-        public void SelectLastRow() {
-            DgRepos.SelectedIndex = DgRepos.Items.Count - 1;
-        }
+        //
+        // public void SelectRow(int index) {
+        //     // DgRepos.SelectedIndex = Math.Min(DgRepos.Items.Count - 1, index);
+        // }
+        //
+        // public void SelectLastRow() {
+        //     // DgRepos.SelectedIndex = DgRepos.Items.Count - 1;
+        // }
     }
 }

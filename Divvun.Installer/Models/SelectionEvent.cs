@@ -1,4 +1,5 @@
-﻿using Divvun.Installer.Sdk;
+﻿using Pahkat.Sdk;
+using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.Models
 {
@@ -39,7 +40,7 @@ namespace Divvun.Installer.Models
 
         internal struct ToggleGroup : ISelectionEvent
         {
-            public PackageActionInfo[] PackageActions;
+            public PackageAction[] PackageActions;
             public bool Value;
         }
 
@@ -48,7 +49,7 @@ namespace Divvun.Installer.Models
 
         internal struct SetPackages : ISelectionEvent
         {
-            public Transaction Transaction;
+            public PackageAction[] Actions;
         }
     }
 }

@@ -7,8 +7,79 @@
         mc:Ignorable="d"
         Title="{Binding ElementName=FrmContainer, Path=Content.Title}"
         MinHeight="350" MinWidth="550"
-        Height="400" Width="700">
+        Height="600" Width="900"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:system="clr-namespace:System;assembly=mscorlib"
+        Background="{DynamicResource SystemControlPageBackgroundChromeMediumLowBrush}"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        ui:TitleBar.ExtendViewIntoTitleBar="True"
+        ui:TitleBar.Style="{DynamicResource AppTitleBarStyle}"
+        ui:TitleBar.ButtonStyle="{DynamicResource AppTitleBarButtonStyle}"
+        ui:TitleBar.BackButtonStyle="{DynamicResource AppTitleBarBackButtonStyle}"
+        Loaded="MainWindow_OnLoaded"
+        >
+    
+    <Window.Resources>
+        <local:PixelsToGridLengthConverter x:Key="PixelsToGridLength" />
+        <Style x:Key="AppTitleBarStyle" TargetType="ui:TitleBarControl">
+            <Setter Property="ui:ThemeManager.RequestedTheme" Value="Light" />
+        </Style>
+        <Style x:Key="AppTitleBarButtonStyle" TargetType="ui:TitleBarButton">
+            <Setter Property="IsActive" Value="{Binding IsActive, ElementName=Window}" />
+        </Style>
+        <Style x:Key="AppTitleBarBackButtonStyle" TargetType="ui:TitleBarButton" BasedOn="{StaticResource TitleBarBackButtonStyle}">
+            <Setter Property="IsActive" Value="{Binding IsActive, ElementName=Window}" />
+        </Style>
+    </Window.Resources>
+    
+    
     <Grid>
-        <Frame x:Name="FrmContainer" NavigationUIVisibility="Hidden" />
+        <Grid.RowDefinitions>
+            <!-- <RowDefinition Height="auto" /> -->
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <!-- <Grid -->
+        <!--     x:Name="AppTitleBar" -->
+        <!--     MaxHeight="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}" -->
+        <!--     Height="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}"> -->
+        <!-- -->
+        <!--     <Grid.ColumnDefinitions> -->
+        <!--         <ColumnDefinition Width="Auto" /> -->
+        <!--         <ColumnDefinition Width="Auto" /> -->
+        <!--         <ColumnDefinition Width="Auto" /> -->
+        <!--         <ColumnDefinition Width="200" /> -->
+        <!--     </Grid.ColumnDefinitions> -->
+        <!-- -->
+        <!--     <ui:TitleBarButton -->
+        <!--         x:Name="HamburgerButton" -->
+        <!--         Grid.Column="0" -->
+        <!--         Style="{StaticResource AppTitleBarBackButtonStyle}" -->
+        <!--         Content="&#xE700;" -->
+        <!--         FontSize="14pt"/> -->
+        <!--      -->
+        <!--     <ui:TitleBarButton -->
+        <!--         x:Name="SearchButton" -->
+        <!--         Grid.Column="1" -->
+        <!--         Style="{StaticResource AppTitleBarBackButtonStyle}" -->
+        <!--         Content="&#xE721;" -->
+        <!--         FontSize="14pt"/> -->
+        <!--      -->
+        <!--     <ui:DropDownButton -->
+        <!--         Grid.Column="2" -->
+        <!--         WindowChrome.IsHitTestVisibleInChrome="True" -->
+        <!--         Content="Current Repository" -->
+        <!--         CornerRadius="0" -->
+        <!--         > -->
+        <!--         <ui:DropDownButton.Flyout> -->
+        <!--             <ui:MenuFlyout Placement="BottomEdgeAlignedLeft"> -->
+        <!--                 <MenuItem Header="First Enabled Repository" /> -->
+        <!--                 <MenuItem Header="Second Enabled Repository" /> -->
+        <!--                 <MenuItem Header="Third Enabled Repository" /> -->
+        <!--             </ui:MenuFlyout> -->
+        <!--         </ui:DropDownButton.Flyout> -->
+        <!--     </ui:DropDownButton> -->
+        <!-- </Grid> -->
+        <Frame Grid.Row="0" x:Name="FrmContainer" NavigationUIVisibility="Hidden" />
     </Grid>
 </Window>

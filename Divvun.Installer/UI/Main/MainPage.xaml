@@ -6,33 +6,120 @@
       xmlns:local="clr-namespace:Divvun.Installer.UI.Main" 
       xmlns:shared="clr-namespace:Divvun.Installer.UI.Shared"
       xmlns:pahkat="clr-namespace:Divvun.Installer"
+      xmlns:ui="http://schemas.modernwpf.com/2019"
       mc:Ignorable="d" 
       d:DesignHeight="480" d:DesignWidth="640"
       Title="{Binding Title}" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
+    
+    <Page.Resources>
+        <Style x:Key="AppTitleBarBackButtonStyle" TargetType="ui:TitleBarButton">
+            <Setter Property="Background" Value="{DynamicResource SystemAccentColorLight1}" />
+            <Setter Property="Foreground" Value="{DynamicResource AccentButtonForeground}" />
+            <Setter Property="HoverBackground" Value="{DynamicResource AccentButtonBackgroundPointerOver}" />
+            <Setter Property="HoverForeground" Value="{DynamicResource AccentButtonForegroundPointerOver}" />
+            <Setter Property="PressedBackground" Value="{DynamicResource AccentButtonBackgroundPressed}" />
+            <Setter Property="PressedForeground" Value="{DynamicResource AccentButtonForegroundPressed}" />
+        </Style>
+    </Page.Resources>
 
     <Grid>
-        <DockPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid
+            x:Name="TitleBar"
+            MaxHeight="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}"
+            Height="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}">
+        
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="200" />
+            </Grid.ColumnDefinitions>
+        
+            <ui:TitleBarButton
+                x:Name="BtnMenu"
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Grid.Column="0"
+                Content="&#xE700;"
+                FontSize="14pt"
+                Click="OnClickBtnMenu"
+                ContextMenuService.IsEnabled="True">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Click="OnClickAboutMenuItem" Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" />
+                        <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" />
+                        <Separator />
+                        <!-- <MenuItem Click="OnClickRefreshMenuItem" Name="BtnRefresh" Header="{x:Static pahkat:Strings.Refresh}" /> -->
+                        <!-- <MenuItem Click="OnClickCheckForPackageUpdatesMenuItem" Name="BtnCheckForPackageUpdates" Header="{x:Static pahkat:Strings.CheckForUpdates}" /> -->
+                        <!-- <Separator /> -->
+                        <MenuItem Click="OnClickExitMenuItem" Header="{x:Static pahkat:Strings.Exit}" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </ui:TitleBarButton>
+            
+            <TextBlock
+                Grid.Column="1"
+                FontSize="13"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Text="Divvun Installer" />
+        
+            <!-- <ui:DropDownButton -->
+            <!--     Grid.Column="1" -->
+            <!--     WindowChrome.IsHitTestVisibleInChrome="True" -->
+            <!--     Content="Current Repository" -->
+            <!--     CornerRadius="0" -->
+            <!-- > -->
+            <!--     <ui:DropDownButton.Flyout> -->
+            <!--         <ui:MenuFlyout Placement="BottomEdgeAlignedLeft"> -->
+            <!--             <MenuItem Header="First Enabled Repository" /> -->
+            <!--             <MenuItem Header="Second Enabled Repository" /> -->
+            <!--             <MenuItem Header="Third Enabled Repository" /> -->
+            <!--         </ui:MenuFlyout> -->
+            <!--     </ui:DropDownButton.Flyout> -->
+            <!-- </ui:DropDownButton> -->
+            
+            <Grid Grid.Column="2" />
+            
+            <!-- <ui:TitleBarButton Grid.Column="3" -->
+            <!--                    Style="{StaticResource AppTitleBarBackButtonStyle}" -->
+            <!--                    WindowChrome.IsHitTestVisibleInChrome="True" -->
+            <!--                    Name="BtnPrimary" -->
+            <!--                    IsEnabled="False" -->
+            <!--                    Content="No Packages Selected" -->
+            <!--                    FontFamily="{DynamicResource ContentControlThemeFontFamily}" -->
+            <!--                    FontSize="13" -->
+            <!--                    Width="NaN" -->
+            <!--                    Padding="16,0" -->
+            <!--                    /> -->
+          
+        </Grid>
+        <DockPanel Grid.Row="1">
             <DockPanel DockPanel.Dock="top" Height="32">
-                <Button Name="BtnMenu" Width="26" Height="24" Margin="4,0,0,0" Padding="0" 
-                        Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}"
-                        Click="OnClickBtnMenu" ContextMenuService.IsEnabled="false">
-                    <Image Source="icon-menu.png" Width="24" Height="24" Stretch="Fill"/>
-                    <Button.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Click="OnClickAboutMenuItem" Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" />
-                            <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" />
-                            <Separator />
-                            <MenuItem Click="OnClickRefreshMenuItem" Name="BtnRefresh" Header="{x:Static pahkat:Strings.Refresh}" />
-                            <MenuItem Click="OnClickCheckForPackageUpdatesMenuItem" Name="BtnCheckForPackageUpdates" Header="{x:Static pahkat:Strings.CheckForUpdates}" />
-                            <Separator />
-                            <MenuItem Click="OnClickExitMenuItem" Header="{x:Static pahkat:Strings.Exit}" />
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                </Button>
+                <!-- <Button Name="BtnMenu" Width="26" Height="24" Margin="4,0,0,0" Padding="0" -->
+                <!--         Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" -->
+                <!--         Click="OnClickBtnMenu" ContextMenuService.IsEnabled="false"> -->
+                <!--     <Image Source="icon-menu.png" Width="24" Height="24" Stretch="Fill"/> -->
+                <!--     <Button.ContextMenu> -->
+                <!--         <ContextMenu> -->
+                <!--             <MenuItem Click="OnClickAboutMenuItem" Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" /> -->
+                <!--             <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" /> -->
+                <!--             <Separator /> -->
+                <!--             ~1~ <MenuItem Click="OnClickRefreshMenuItem" Name="BtnRefresh" Header="{x:Static pahkat:Strings.Refresh}" /> @1@ -->
+                <!--             ~1~ <MenuItem Click="OnClickCheckForPackageUpdatesMenuItem" Name="BtnCheckForPackageUpdates" Header="{x:Static pahkat:Strings.CheckForUpdates}" /> @1@ -->
+                <!--             ~1~ <Separator /> @1@ -->
+                <!--             <MenuItem Click="OnClickExitMenuItem" Header="{x:Static pahkat:Strings.Exit}" /> -->
+                <!--         </ContextMenu> -->
+                <!--     </Button.ContextMenu> -->
+                <!-- </Button> -->
                 <!--TextBox Name="TxtSearch" Height="23" Margin="8,0,8,0" TextWrapping="Wrap" Text="Search" VerticalContentAlignment="Center" Width="160"/-->
                 <DockPanel HorizontalAlignment="Right">
                     <!--<Label Content="Search" Height="24" VerticalAlignment="Center"/>-->
-                    <TextBox x:Name="SearchTextBox" VerticalContentAlignment="Center" TextWrapping="NoWrap" Width="160" Text="{x:Static pahkat:Strings.Search}" HorizontalAlignment="Right" Margin="0,4,4,4" TextChanged="SearchTextBox_TextChanged" GotFocus="SearchTextBox_GotFocus" LostFocus="SearchTextBox_LostFocus"/>
                     <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" />
                 </DockPanel>
             </DockPanel>
@@ -52,28 +139,28 @@
                     <HierarchicalDataTemplate DataType="{x:Type shared:PackageCategoryTreeItem}" ItemsSource="{Binding Items}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="21"/>
+                                <ColumnDefinition Width="28"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox VerticalAlignment="Center" KeyboardNavigation.TabNavigation="None" Focusable="False" Grid.Column="0" IsChecked="{Binding IsGroupSelected}" />
-                            <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Name}" />
+                            <CheckBox KeyboardNavigation.TabNavigation="None" Focusable="False" Grid.Column="0" IsChecked="{Binding IsGroupSelected}" />
+                            <TextBlock VerticalAlignment="Center" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Name}" />
                         </Grid>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type shared:PackageMenuItem}">
                         <Grid MinWidth="461">
                             <Grid.ColumnDefinitions>
                                 <!-- Hardcoded because Windows isn't fair and relative sizing led to inconsistent widths -->
-                                <ColumnDefinition Width="21"/>
+                                <ColumnDefinition Width="28"/>
                                 <ColumnDefinition Width="208"/>
                                 <ColumnDefinition Width="92"/>
                                 <ColumnDefinition Width="92"/>
                                 <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Column="0" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
-                            <TextBlock Grid.Column="1" Text="{Binding Title}" Width="Auto"/>
-                            <TextBlock Grid.Column="2" Text="{Binding Version}" TextAlignment="Right" Margin="0,0,4,0"/>
-                            <TextBlock Grid.Column="3" Text="{Binding FileSize}" />
-                            <TextBlock Grid.Column="4" Text="{Binding Status}" />
+                            <CheckBox Grid.Column="0" KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Title}" Width="Auto"/>
+                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding Version}" TextAlignment="Right" Margin="0,0,4,0"/>
+                            <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="{Binding FileSize}" />
+                            <TextBlock Grid.Column="4" VerticalAlignment="Center" Text="{Binding Status}" />
                         </Grid>
                     </DataTemplate>
                 </TreeView.Resources>

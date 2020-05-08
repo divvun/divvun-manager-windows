@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using Divvun.Installer.Models.SelectionEvent;
 using Divvun.Installer.Util;
 using Divvun.Installer.Extensions;
@@ -19,6 +21,8 @@ namespace Divvun.Installer.Models
 
         public IObservable<PackageState> State => _store.State;
 
+        public PackageState Value => _store.State.Take(1).ToTask().GetAwaiter().GetResult();
+
         public void Dispatch(ISelectionEvent e) {
             _store.Dispatch(e);
         }
@@ -28,11 +32,11 @@ namespace Divvun.Installer.Models
                 case null:
                     return state;
                 case SetPackages p:
-                    var actions = p.Transaction.Actions();
+                    var actions = p.Actions;
                     state.SelectedPackages.Clear();
 
                     foreach (var action in actions) {
-                        state.SelectedPackages[action.Id] = new PackageActionInfo(action.Id, action.Action);
+                        state.SelectedPackages[action.PackageKey] = action;
                     }
 
                     break;
@@ -44,19 +48,20 @@ namespace Divvun.Installer.Models
                         break;
                     }
 
-                    state.SelectedPackages[v.PackageKey] = new PackageActionInfo(v.PackageKey, v.Action);
+                    state.SelectedPackages[v.PackageKey] = v.Action;
                     break;
                 case RemoveSelectedPackage v:
                     state.SelectedPackages.Remove(v.PackageKey);
                     break;
                 case ToggleGroupWithDefaultAction v:
                     // Convert into an ordinary ToggleGroup
-                    return Reduce(state, UserSelectionAction.ToggleGroup(v.PackageKeys
-                        .Select(pkg => new PackageActionInfo(pkg))
-                        .ToArray(), v.Value));
+                    var evt = UserSelectionAction.ToggleGroup(
+                        v.PackageKeys.Select(key => key.DefaultPackageAction()).ToArray(),
+                        v.Value);
+                    return Reduce(state, evt);
                 case ToggleGroup v:
                     if (v.Value) {
-                        var filtered = v.PackageActions.Where((x) => x.PackageKey.IsValidAction(x.Action));
+                        var filtered = v.PackageActions.Where((x) => x.PackageKey.IsValidAction(x));
                         foreach (var item in filtered) {
                             state.SelectedPackages[item.PackageKey] = item;
                         }
@@ -79,7 +84,7 @@ namespace Divvun.Installer.Models
                             break;
                         }
 
-                        state.SelectedPackages[v.PackageKey] = new PackageActionInfo(v.PackageKey, v.Action);
+                        state.SelectedPackages[v.PackageKey] = v.Action;
                     }
                     else {
                         state.SelectedPackages.Remove(v.PackageKey);

@@ -16,6 +16,6 @@
     public interface IMainWindowView : IWindowPageView
     {
         void ShowMainPage();
-        void ShowLandingPage();
+        // void ShowLandingPage();
     }
 }

@@ -12,16 +12,18 @@
     <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="34"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Center">
             <TextBlock Name="LblPrimary" FontSize="13" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.Starting}"/>
-            <ProgressBar Name="PrgBar" Height="23" Margin="32,8,32,8" IsIndeterminate="True" />
+            <ProgressBar Name="PrgBar" Height="23" Margin="128,32,128,8" IsIndeterminate="True" />
             <TextBlock Name="LblSecondary" FontSize="11" TextAlignment="Center" TextWrapping="Wrap"></TextBlock>
         </StackPanel>
-        <Border Grid.Row="1" DockPanel.Dock="Bottom" BorderBrush="#FF828790">
-            <DockPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
-                <Button Name="BtnCancel" IsCancel="True" Content="{x:Static pahkat:Strings.Cancel}" Height="23" Width="60" HorizontalAlignment="Right" Margin="0,0,8,0" />
+        <Border Grid.Row="1" DockPanel.Dock="Bottom" BorderBrush="#FF828790" Height="auto">
+            <DockPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Height="auto">
+                <Button Name="BtnCancel" IsCancel="True"
+                        Content="{x:Static pahkat:Strings.Cancel}" Width="60"
+                        HorizontalAlignment="Right" VerticalAlignment="Center" Margin="8,8,12,8" />
             </DockPanel>
         </Border>
     </Grid>

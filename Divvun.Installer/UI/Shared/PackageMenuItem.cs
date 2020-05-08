@@ -1,13 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Data.Odbc;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Divvun.Installer.Extensions;
-using Divvun.Installer.Service;
-using Divvun.Installer.Sdk;
 using System.Windows;
 using Divvun.Installer.Models;
+using Divvun.Installer.Util;
+using Pahkat.Sdk;
+using Pahkat.Sdk.Rpc;
+using Pahkat.Sdk.Rpc.Fbs;
 
 namespace Divvun.Installer.UI.Shared
 {
@@ -17,38 +18,51 @@ namespace Divvun.Installer.UI.Shared
         public event PropertyChangedEventHandler PropertyChanged;
 
         public PackageKey Key { get; private set; }
-        public Package Model { get; private set; }
+        public WindowsExecutable Payload { get; private set; }
+        public string Name { get; private set; }
+        public string Version { get; private set; }
+
         private UserPackageSelectionStore _store;
 
         private CompositeDisposable _bag = new CompositeDisposable();
 
-        // TODO: add a subscriber to the registry to stop this from firing so often
-        private PackageStatus _status => ((PahkatApp) Application.Current).PackageStore.Status(Key).Item1;
-        private PackageActionInfo _actionInfo;
-
-        public PackageMenuItem(PackageKey key, Package model, UserPackageSelectionStore store) {
-            Key = key;
-            Model = model;
-            _store = store;
-
-            _bag.Add(_store.State
-                .Select(x => x.SelectedPackages.Get(Key, null))
-                .DistinctUntilChanged()
-                .Subscribe(x => {
-                    _actionInfo = x;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
-                }));
+        private PackageStatus _status {
+            get {
+                using var x = ((PahkatApp) Application.Current).PackageStore.Lock();
+                return x.Value.Status(Key);
+            }
         }
 
-        public string Title => Model.NativeName;
-        public string Version => Model.Version;
+        private PackageAction? _actionInfo;
+
+        public PackageMenuItem(UserPackageSelectionStore store, PackageKey key, WindowsExecutable payload, string name, string version) {
+            _store = store;
+            
+            Key = key;
+            Name = name;
+            Version = version;
+            Payload = payload;
+            
+            _store.State
+                .Subscribe(state => {
+                    if (state.SelectedPackages.TryGetValue(key, out var value)) {
+                        _actionInfo = value;
+                    } else {
+                        _actionInfo = null;
+                    }
+                    
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
+                }).DisposedBy(_bag);
+        }
+
+        public string Title => Name;
 
         public string Status {
             get {
                 switch (_actionInfo?.Action) {
-                    case PackageAction.Install:
+                    case InstallAction.Install:
                         return Strings.Install;
-                    case PackageAction.Uninstall:
+                    case InstallAction.Uninstall:
                         return Strings.Uninstall;
                     default:
                         return _status.Description() ?? _status.ToString();
@@ -56,15 +70,7 @@ namespace Divvun.Installer.UI.Shared
             }
         }
 
-        public string FileSize {
-            get {
-                if (Model.WindowsInstaller != null) {
-                    return "(" + Util.Util.BytesToString(Model.WindowsInstaller.Size) + ")";
-                }
-
-                return Strings.NotApplicable;
-            }
-        }
+        public string FileSize => $"({Util.Util.BytesToString(Payload.Size)})";
 
         public bool IsSelected {
             get => _actionInfo != null;
@@ -75,27 +81,23 @@ namespace Divvun.Installer.UI.Shared
             _bag.Dispose();
         }
 
-        public bool Equals(PackageMenuItem other) {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(Key, other.Key) && Equals(Model, other.Model);
+        public int CompareTo(PackageMenuItem other) {
+            return string.Compare(Name, other.Name, StringComparison.CurrentCulture);
         }
 
-        public override bool Equals(object obj) {
+        public bool Equals(PackageMenuItem? other) {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return _store.Equals(other._store) && _bag.Equals(other._bag) &&
+                   Key.Equals(other.Key) && Payload.Equals(other.Payload) && Name == other.Name &&
+                   Version == other.Version;
+        }
+
+        public override bool Equals(object? obj) {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
             return Equals((PackageMenuItem) obj);
-        }
-
-        public override int GetHashCode() {
-            unchecked {
-                return ((Key != null ? Key.GetHashCode() : 0) * 397) ^ (Model != null ? Model.GetHashCode() : 0);
-            }
-        }
-
-        public int CompareTo(PackageMenuItem other) {
-            return string.Compare(Model.NativeName, other.Model.NativeName, StringComparison.CurrentCulture);
         }
     }
 }

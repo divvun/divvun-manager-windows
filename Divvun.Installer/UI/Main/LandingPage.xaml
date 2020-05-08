@@ -6,7 +6,8 @@
       xmlns:local="clr-namespace:Divvun.Installer.UI.Main"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
-      Title="LandingPage">
+      Title=""
+      Loaded="OnLoaded">
 
     <Grid x:Name="grid">
         

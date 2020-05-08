@@ -1,19 +1,19 @@
 ﻿using System;
-using Divvun.Installer.Sdk;
 using System.Windows;
-using Divvun.Installer.Models;
+using Pahkat.Sdk;
+using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.Extensions
 {
     static class PackageKeyExt
     {
         static private PackageStatus InstallStatus(PackageKey packageKey) {
-            throw new NotImplementedException();
-            // var app = (PahkatApp)Application.Current;
-            // return app.PackageStore.Status(packageKey).Item1;
+            // var app = (PahkatApp) Application.Current;
+            using var x = ((PahkatApp) Application.Current).PackageStore.Lock();
+            return x.Value.Status(packageKey);
         }
 
-        static internal (PackageStatus, PackageTarget) Status(PackageKey packageKey) {
+        static internal PackageStatus Status(PackageKey packageKey) {
             throw new NotImplementedException();
         }
 
@@ -29,7 +29,6 @@ namespace Divvun.Installer.Extensions
             switch (InstallStatus(package)) {
                 case PackageStatus.UpToDate:
                 case PackageStatus.RequiresUpdate:
-                case PackageStatus.VersionSkipped:
                     return true;
                 default:
                     return false;
@@ -40,7 +39,6 @@ namespace Divvun.Installer.Extensions
             switch (InstallStatus(package)) {
                 case PackageStatus.NotInstalled:
                 case PackageStatus.RequiresUpdate:
-                case PackageStatus.VersionSkipped:
                     return true;
                 default:
                     return false;
@@ -48,20 +46,22 @@ namespace Divvun.Installer.Extensions
         }
 
         public static bool IsValidAction(this PackageKey package, PackageAction action) {
-            switch (action) {
-                case PackageAction.Install:
+            switch (action.Action) {
+                case 0:
                     return IsInstallable(package);
-                case PackageAction.Uninstall:
+                default:
                     return IsUninstallable(package);
             }
-
-            throw new ArgumentException("PackageAction switch exhausted unexpectedly.");
         }
-
-        public static PackageAction DefaultPackageAction(this PackageKey package) {
+        
+        public static InstallAction DefaultInstallAction(this PackageKey package) {
             return package.IsUpToDate()
-                ? PackageAction.Uninstall
-                : PackageAction.Install;
+                ? InstallAction.Uninstall
+                : InstallAction.Install;
+        }
+        
+        public static PackageAction DefaultPackageAction(this PackageKey package) {
+            return new PackageAction(package, DefaultInstallAction(package));
         }
     }
 }

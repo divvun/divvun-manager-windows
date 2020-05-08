@@ -1,5 +1,6 @@
 ﻿using Divvun.Installer.Models.SelectionEvent;
-using Divvun.Installer.Sdk;
+using Pahkat.Sdk;
+using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.Models
 {
@@ -34,7 +35,7 @@ namespace Divvun.Installer.Models
             };
         }
 
-        public static ISelectionEvent ToggleGroup(PackageActionInfo[] packageActions, bool value) {
+        public static ISelectionEvent ToggleGroup(PackageAction[] packageActions, bool value) {
             return new ToggleGroup {
                 PackageActions = packageActions,
                 Value = value

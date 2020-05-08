@@ -92,6 +92,10 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <HintPath>..\packages\Castle.Core.4.3.1\lib\net45\Castle.Core.dll</HintPath>
@@ -108,14 +112,18 @@
     <Reference Include="DuoVia.FuzzyStrings, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FuzzyStrings.NetStandard.1.0.1\lib\net40\DuoVia.FuzzyStrings.dll</HintPath>
     </Reference>
+    <Reference Include="Flurl, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>C:\Users\Brendan\.nuget\packages\flurl\3.0.0-pre3\lib\netstandard2.0\Flurl.dll</HintPath>
+    </Reference>
     <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.8\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
     </Reference>
     <Reference Include="JetBrains.Annotations, Version=2019.1.3.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
       <HintPath>..\packages\JetBrains.Annotations.2019.1.3\lib\net20\JetBrains.Annotations.dll</HintPath>
     </Reference>
-    <Reference Include="JsonSubTypes, Version=1.6.0.0, Culture=neutral, PublicKeyToken=ee75fc290dbc1176, processorArchitecture=MSIL">
-      <HintPath>..\packages\JsonSubTypes.1.6.0\lib\net46\JsonSubTypes.dll</HintPath>
+    <Reference Include="JsonSubTypes, Version=1.7.0.0, Culture=neutral, PublicKeyToken=ee75fc290dbc1176">
+      <HintPath>..\packages\JsonSubTypes.1.7.0\lib\net46\JsonSubTypes.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Reactive.Testing, Version=3.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
@@ -124,14 +132,25 @@
     <Reference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView, Version=5.1.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Toolkit.Wpf.UI.Controls.WebView.5.1.1\lib\net462\Microsoft.Toolkit.Wpf.UI.Controls.WebView.dll</HintPath>
     </Reference>
-    <Reference Include="Moq, Version=4.10.0.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
-      <HintPath>..\packages\Moq.4.10.1\lib\net45\Moq.dll</HintPath>
+    <Reference Include="ModernWpf, Version=0.9.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ModernWpfUI.0.9.0-preview.200425.2\lib\net462\ModernWpf.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="ModernWpf.Controls, Version=0.9.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\ModernWpfUI.0.9.0-preview.200425.2\lib\net462\ModernWpf.Controls.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="OneOf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\OneOf.2.1.151\lib\net45\OneOf.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -180,6 +199,10 @@
     <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.3\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Windows" />
     <Reference Include="System.Windows.Forms" />
@@ -194,18 +217,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.cs" />
+    <Compile Include="App.xaml.cs" />
+    <Compile Include="Extensions\DescriptorExt.cs" />
     <Compile Include="Extensions\Extensions.cs" />
+    <Compile Include="Extensions\NativeNameExt.cs" />
     <Compile Include="Extensions\PackageKeyExt.cs" />
-    <Compile Include="Models\AppConfig.cs" />
+    <Compile Include="Models\Settings.cs" />
     <Compile Include="Models\SelectionEvent.cs" />
-    <Compile Include="Models\PackageActionInfo.cs" />
     <Compile Include="Models\PackageState.cs" />
     <Compile Include="Extensions\PackageStatusExt.cs" />
     <Compile Include="Models\TransactionState.cs" />
     <Compile Include="Models\UserSelectionAction.cs" />
     <Compile Include="Properties\Constants.cs" />
     <Compile Include="Models\UserPackageSelectionStore.cs" />
+    <Compile Include="Service\WebBridgeService.cs" />
     <Compile Include="Service\WindowService.cs" />
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -218,13 +243,13 @@
     <Compile Include="UI\Main\CompletionPage.xaml.cs">
       <DependentUpon>CompletionPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Main\CompletionPagePresenter.cs" />
+    <Compile Include="UI\Main\Dialog\ConfirmationDialog.xaml.cs">
+      <DependentUpon>ConfirmationDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Main\DownloadListItem.cs" />
-    <Compile Include="UI\Main\DownloadPagePresenter.cs" />
     <Compile Include="UI\Main\DownloadPage.xaml.cs">
       <DependentUpon>DownloadPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Main\InstallPagePresenter.cs" />
     <Compile Include="UI\Main\InstallPage.xaml.cs">
       <DependentUpon>InstallPage.xaml</DependentUpon>
     </Compile>
@@ -249,6 +274,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Main\MainPagePresenter.cs" />
     <Compile Include="Util\Iso639.cs" />
+    <Compile Include="Util\Mock.cs" />
+    <Compile Include="Util\Mutex.cs" />
     <Compile Include="Util\RxFeedback.cs" />
     <Compile Include="Util\RxStore.cs" />
     <Compile Include="Util\Util.cs" />
@@ -273,6 +300,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="UI\Main\Dialog\ConfirmationDialog.xaml" />
     <Page Include="UI\Main\DownloadPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -329,14 +357,26 @@
     <Resource Include="divvun-logo-512.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FlatBuffers\FlatBuffers.csproj">
+      <Project>{28c00774-1e73-4a75-ad8f-844cd21a064d}</Project>
+      <Name>FlatBuffers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Pahkat.Sdk.Rpc\Pahkat.Sdk.Rpc.csproj">
+      <Project>{5c78e2ec-ff0c-4aea-b146-ddca6291c025}</Project>
+      <Name>Pahkat.Sdk.Rpc</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Pahkat.Sdk\Pahkat.Sdk.csproj">
-      <Project>{d053df20-5814-46d6-97b6-c59d590aa7c9}</Project>
+      <Project>{20f56daf-5d1d-421d-8bb0-203f2f591074}</Project>
       <Name>Pahkat.Sdk</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PahkatUpdater\PahkatUpdater.csproj">
-      <Project>{6de19b31-c7a1-411e-9da4-40421067f580}</Project>
-      <Name>PahkatUpdater</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="pahkat_rpc.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Nerdbank.GitVersioning.2.3.183\build\Nerdbank.GitVersioning.targets" Condition="Exists('..\packages\Nerdbank.GitVersioning.2.3.183\build\Nerdbank.GitVersioning.targets')" />
@@ -345,7 +385,9 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Nerdbank.GitVersioning.2.3.183\build\Nerdbank.GitVersioning.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nerdbank.GitVersioning.2.3.183\build\Nerdbank.GitVersioning.targets'))" />
+    <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets'))" />
   </Target>
+  <Import Project="..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

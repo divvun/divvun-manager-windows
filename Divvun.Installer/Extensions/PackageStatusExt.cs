@@ -1,4 +1,4 @@
-﻿using Divvun.Installer.Sdk;
+﻿using Pahkat.Sdk;
 
 namespace Divvun.Installer.Extensions
 {
@@ -6,7 +6,7 @@ namespace Divvun.Installer.Extensions
     {
         public static string? Description(this PackageStatus status) {
             switch (status) {
-                case PackageStatus.ErrorNoInstaller:
+                case PackageStatus.ErrorNoPayload:
                     return Strings.ErrorNoInstaller;
                 case PackageStatus.ErrorInvalidVersion:
                     return Strings.ErrorInvalidVersion;
@@ -16,8 +16,6 @@ namespace Divvun.Installer.Extensions
                     return Strings.NotInstalled;
                 case PackageStatus.UpToDate:
                     return Strings.Installed;
-                case PackageStatus.VersionSkipped:
-                    return Strings.VersionSkipped;
             }
 
             return null;

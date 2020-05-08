@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -7,18 +6,15 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Threading;
 using Divvun.Installer.Extensions;
 using Divvun.Installer.Util;
-using Divvun.Installer.Sdk;
 using System.Windows.Navigation;
-using Divvun.Installer.Service;
-using System.Threading.Tasks;
 using System.Reactive.Subjects;
-using System.Reactive.Concurrency;
+using System.Windows.Threading;
 using Divvun.Installer.UI.About;
 using Divvun.Installer.UI.Settings;
 using Divvun.Installer.UI.Shared;
+using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -28,10 +24,10 @@ namespace Divvun.Installer.UI.Main
         IObservable<PackageMenuItem> OnPackageToggled();
         IObservable<PackageCategoryTreeItem> OnGroupToggled();
         IObservable<EventArgs> OnPrimaryButtonPressed();
-        IObservable<RepositoryIndex[]> OnNewRepositories();
+        IObservable<LoadedRepository[]> OnNewRepositories();
         void UpdateTitle(string title);
         void SetPackagesModel(ObservableCollection<RepoTreeItem> tree);
-        void ShowDownloadPage();
+        // void ShowDownloadPage();
         void UpdatePrimaryButton(bool isEnabled, string label);
         void HandleError(Exception error);
     }
@@ -42,22 +38,27 @@ namespace Divvun.Installer.UI.Main
     public partial class MainPage : Page, IMainPageView, IDisposable
     {
         private readonly MainPagePresenter _presenter;
-        private IObservable<PackageMenuItem?> _packageToggled;
-        private IObservable<PackageCategoryTreeItem> _groupToggled;
+        
         private CompositeDisposable _bag = new CompositeDisposable();
         private NavigationService _navigationService;
-        private ISubject<string> _searchTextChangedSubject = new BehaviorSubject<string>("");
-        private IObservable<RepositoryIndex[]> _onNewRepositories;
-        private ISubject<bool> _onForceRefreshClickedSubject = new Subject<bool>();
-
-        public IObservable<string> OnSearchTextChanged() => _searchTextChangedSubject.AsObservable();
-        public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
+        
+        // Package handling events
+        private IObservable<LoadedRepository[]> _onNewRepositories;
+        private IObservable<PackageCategoryTreeItem> _groupToggled;
+        private IObservable<PackageMenuItem> _packageToggled;
+        
+        // Package handling observables
         public IObservable<PackageCategoryTreeItem> OnGroupToggled() => _groupToggled;
-
+        public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
+        
+        // Package search events
+        private ISubject<string> _searchTextChangedSubject = new BehaviorSubject<string>("");
+        public IObservable<string> OnSearchTextChanged() => _searchTextChangedSubject.AsObservable();
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
+            .ObserveOn(Dispatcher.CurrentDispatcher)
+            .SubscribeOn(Dispatcher.CurrentDispatcher)
             .Select(e => e.EventArgs);
-
-        public IObservable<RepositoryIndex[]> OnNewRepositories() => _onNewRepositories;
+        public IObservable<LoadedRepository[]> OnNewRepositories() => _onNewRepositories;
 
         public MainPage() {
             InitializeComponent();
@@ -78,48 +79,48 @@ namespace Divvun.Installer.UI.Main
                         })
                         .Select(_ => Unit.Default))
                 .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
-                .NotNull();
+                .NotNull()!;
 
             _groupToggled =
                 TvPackages.ReactiveKeyDown()
                     .Where(x => x.EventArgs.Key == Key.Space)
                     .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
-                    .NotNull();
+                    .NotNull()!;
 
-            var onConfigChanged = app.ConfigStore.State
-                .Select(x => x.Repositories)
-                .Select(async configs => await RequestRepos())
-                .Switch()
-                .ObserveOn(Dispatcher.CurrentDispatcher);
+            // var onConfigChanged = app.ConfigStore.State
+            //     .Select(x => x.Repositories)
+            //     .Select(async configs => await RequestRepos())
+            //     .Switch()
+            //     .ObserveOn(Dispatcher.CurrentDispatcher);
 
-            var onForceRefreshClick = _onForceRefreshClickedSubject
-                .AsObservable()
-                .Select(async force => await ForceRequestRepos())
-                .Switch()
-                .ObserveOn(Dispatcher.CurrentDispatcher);
+            // var onForceRefreshClick = _onForceRefreshClickedSubject
+            //     .AsObservable()
+            //     .Select(async force => await ForceRequestRepos())
+            //     .Switch()
+            //     .ObserveOn(Dispatcher.CurrentDispatcher);
 
-            _onNewRepositories = Observable.Merge(onConfigChanged, onForceRefreshClick);
+            // _onNewRepositories = Observable.Merge(onConfigChanged, onForceRefreshClick);
 
             _presenter.Start().DisposedBy(_bag);
 
             TvPackages.Focus();
         }
 
-        private async Task<RepositoryIndex[]> RequestRepos() {
-            return await Task.Run(() => {
-                var app = (PahkatApp) Application.Current;
-                app.PackageStore.RefreshRepos();
-                return app.PackageStore.RepoIndexes();
-            });
-        }
-
-        private async Task<RepositoryIndex[]> ForceRequestRepos() {
-            return await Task.Run(() => {
-                var app = (PahkatApp) Application.Current;
-                app.PackageStore.ForceRefreshRepos();
-                return app.PackageStore.RepoIndexes();
-            });
-        }
+        // private async Task<LoadedRepository[]> RequestRepos() {
+        //     return await Task.Run(() => {
+        //         var app = (PahkatApp) Application.Current;
+        //         app.PackageStore.RefreshRepos();
+        //         return app.PackageStore.RepoIndexes();
+        //     });
+        // }
+        //
+        // private async Task<LoadedRepository[]> ForceRequestRepos() {
+        //     return await Task.Run(() => {
+        //         var app = (PahkatApp) Application.Current;
+        //         app.PackageStore.ForceRefreshRepos();
+        //         return app.PackageStore.RepoIndexes();
+        //     });
+        // }
 
         private void OnClickAboutMenuItem(object sender, RoutedEventArgs e) {
             var app = (PahkatApp) Application.Current;
@@ -129,10 +130,6 @@ namespace Divvun.Installer.UI.Main
         private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e) {
             var app = (PahkatApp) Application.Current;
             app.WindowService.Show<SettingsWindow>();
-        }
-
-        private void OnClickRefreshMenuItem(object sender, RoutedEventArgs e) {
-            _onForceRefreshClickedSubject.OnNext(true);
         }
 
         private void OnClickExitMenuItem(object sender, RoutedEventArgs e) {
@@ -154,9 +151,9 @@ namespace Divvun.Installer.UI.Main
             TvPackages.ItemsSource = tree;
         }
 
-        public void ShowDownloadPage() {
-            this.ReplacePageWith(new DownloadPage(DownloadPagePresenter.Default));
-        }
+        // public void ShowDownloadPage() {
+        //     this.ReplacePageWith(new DownloadPage(DownloadPagePresenter.Default));
+        // }
 
         public void UpdatePrimaryButton(bool isEnabled, string label) {
             BtnPrimary.Content = label;
@@ -190,23 +187,23 @@ namespace Divvun.Installer.UI.Main
             }
         }
 
-        private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e) {
-            // TODO: label goes on top, not this
-            if (SearchTextBox.Text != Strings.Search) {
-                _searchTextChangedSubject.OnNext(SearchTextBox.Text);
-            }
-        }
-
-        private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e) {
-            if (SearchTextBox.Text == Strings.Search) {
-                SearchTextBox.Text = string.Empty;
-            }
-        }
-
-        private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e) {
-            if (string.IsNullOrWhiteSpace(SearchTextBox.Text)) {
-                SearchTextBox.Text = Strings.Search;
-            }
-        }
+        // private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e) {
+        //     // TODO: label goes on top, not this
+        //     if (SearchTextBox.Text != Strings.Search) {
+        //         _searchTextChangedSubject.OnNext(SearchTextBox.Text);
+        //     }
+        // }
+        //
+        // private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e) {
+        //     if (SearchTextBox.Text == Strings.Search) {
+        //         SearchTextBox.Text = string.Empty;
+        //     }
+        // }
+        //
+        // private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e) {
+        //     if (string.IsNullOrWhiteSpace(SearchTextBox.Text)) {
+        //         SearchTextBox.Text = Strings.Search;
+        //     }
+        // }
     }
 }

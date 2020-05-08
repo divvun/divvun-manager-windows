@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using JetBrains.Annotations;
 
 namespace Divvun.Installer.Extensions
 {
@@ -130,63 +131,6 @@ namespace Divvun.Installer.Extensions
                 page.Loaded += (sender, args) => Handler();
             }
         }
-
-        public static string GetGuid(this Assembly assembly)
-        {
-            var guidAttr = (GuidAttribute) assembly.GetCustomAttributes(typeof(GuidAttribute), true)[0];
-            return guidAttr.Value;
-        }
-
-        public static void SafeStart(this ManagementEventWatcher watcher)
-        {
-            try
-            {
-                watcher.Start();
-            }
-            catch (COMException ex)
-            {
-                switch ((uint) ex.HResult)
-                {
-                    case 0x80042001: // WBEMESS_E_REGISTRATION_TOO_BROAD
-                        throw new ManagementException("Provider registration overlaps with the system event domain.",
-                            ex);
-                }
-
-                throw;
-            }
-        }
-        
-        public static void DisableCloseButton(this Window window)
-        {
-            var windowHandle = new WindowInteropHelper(window).Handle;
-            
-            var menuHandle = SysNative.GetSystemMenu(windowHandle, false);
-            if (menuHandle != IntPtr.Zero) {
-                SysNative.EnableMenuItem(menuHandle, SysNative.SC_CLOSE, SysNative.MF_GRAYED);
-                SysNative.DestroyMenu(menuHandle);
-            }
-        }
-  
-        public static void EnableCloseButton(this Window window) {
-            var windowHandle = new WindowInteropHelper(window).Handle;
-            
-            var menuHandle = SysNative.GetSystemMenu(windowHandle, false);
-            if (menuHandle != IntPtr.Zero)
-            {
-                SysNative.EnableMenuItem(menuHandle, SysNative.SC_CLOSE, 0);
-                SysNative.DestroyMenu(menuHandle);
-            }
-        }  
-        
-        public static T[] EmptyArray<T>()
-        {
-            return InternalEmptyArray<T>.Value;
-        }
-        
-        internal static class InternalEmptyArray<T>
-        {
-            public static readonly T[] Value = new T[0];
-        }
     }
     
     public static class DateTimeExtensions
@@ -209,12 +153,16 @@ namespace Divvun.Installer.Extensions
     {
         [DllImport("kernel32.dll", SetLastError=true)]
         public static extern int RegisterApplicationRestart([MarshalAs(UnmanagedType.LPWStr)] string commandLineArgs, int Flags);
+        
         [DllImport("winlangdb.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern int GetLanguageNames(string Language, StringBuilder Autonym, StringBuilder EnglishName, StringBuilder LocalName, StringBuilder ScriptName);
+        
         [DllImport("user32.dll")]
         internal static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+        
         [DllImport("user32.dll")]
         internal static extern bool EnableMenuItem(IntPtr hMenu, uint uIDEnableItem, uint uEnable);
+        
         [DllImport("user32.dll")]
         internal static extern IntPtr DestroyMenu(IntPtr hWnd);
   

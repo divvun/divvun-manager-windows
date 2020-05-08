@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -9,19 +11,15 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Extensions;
-using Divvun.Installer.Sdk;
+using Divvun.Installer.Util;
+using Pahkat.Sdk;
+using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.UI.Main
 {
     public interface IDownloadPageView : IPageView
     {
-        // void StartInstallation(Transaction transaction);
-        void InitProgressList(ObservableCollection<DownloadListItem> source);
-        IObservable<EventArgs> OnCancelDialogOpen();
-        IObservable<EventArgs> OnCancelClicked();
-        IObservable<EventArgs> OnResumeClicked();
         void DownloadCancelled();
-        void SetStatus(DownloadListItem item, DownloadProgress progress);
         void HandleError(Exception error);
     }
 
@@ -30,23 +28,34 @@ namespace Divvun.Installer.UI.Main
     /// </summary>
     public partial class DownloadPage : Page, IDownloadPageView, IDisposable
     {
-        private Subject<EventArgs> _cancelSubject = new Subject<EventArgs>();
-        private Subject<EventArgs> _resumeSubject = new Subject<EventArgs>();
-        private Subject<EventArgs> _cancelDialogOpenSubject = new Subject<EventArgs>();
         private CompositeDisposable _bag = new CompositeDisposable();
         private NavigationService? _navigationService;
 
-        public DownloadPage(Func<IDownloadPageView, DownloadPagePresenter> presenter) {
-            InitializeComponent();
-            _bag.Add(presenter(this).Start());
+        private void InitProgressList(ResolvedAction[] actions, Dictionary<PackageKey, (long, long)> progress) {
+            var x = actions
+                .Where(x => x.Action.Action == InstallAction.Install)
+                .Select(x => new DownloadListItem(x.Action.PackageKey, x.Name.Values.FirstOrDefault(), x.Version));
+            LvPrimary.ItemsSource = new ObservableCollection<DownloadListItem>(x);
         }
 
-        // public void StartInstallation() {
-        //     this.ReplacePageWith(new InstallPage(transaction));
-        // }
+        private void SetProgress(PackageKey packageKey, long current, long total) {
+            if (LvPrimary.ItemsSource == null) {
+                return;
+            }
+            
+            var source = (ObservableCollection<DownloadListItem>) LvPrimary.ItemsSource;
+            var item = source.First(x => x.Key.Equals(packageKey));
 
-        public void InitProgressList(ObservableCollection<DownloadListItem> source) {
-            LvPrimary.ItemsSource = source;
+            item.FileSize = total;
+            item.Downloaded = current;
+        }
+
+        private void SetProgress(TransactionResponseValue.DownloadProgress progress) {
+            SetProgress(progress.PackageKey, (long) progress.Current, (long) progress.Total);
+        }
+        
+        public DownloadPage() {
+            InitializeComponent();
         }
 
         public void DownloadCancelled() {
@@ -55,64 +64,27 @@ namespace Divvun.Installer.UI.Main
             this.ReplacePageWith(new MainPage());
         }
 
-        public void SetStatus(DownloadListItem candidate, DownloadProgress progress) {
-            if (LvPrimary.ItemsSource == null) {
-                return;
-            }
-
-            var source = (ObservableCollection<DownloadListItem>) LvPrimary.ItemsSource;
-            var item = source.First(candidate.Equals);
-
-            Console.WriteLine($"{progress.Status} {progress.Downloaded} {progress.Total} {progress.PackageId}");
-
-            switch (progress.Status) {
-                case PackageDownloadStatus.Progress:
-                    item.Downloaded = (long) progress.Downloaded;
-                    break;
-                case PackageDownloadStatus.Error:
-                    item.Downloaded = -1;
-                    break;
-            }
-        }
-
-        public IObservable<EventArgs> OnCancelDialogOpen() {
-            return _cancelDialogOpenSubject.AsObservable();
-        }
-
-        public IObservable<EventArgs> OnCancelClicked() {
-            return _cancelSubject.AsObservable();
-        }
-
-        public IObservable<EventArgs> OnResumeClicked() {
-            return _resumeSubject.AsObservable();
-        }
-
         public void HandleError(Exception error) {
             MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
-            DownloadCancelled();
+            // DownloadCancelled();
         }
 
-        private void BtnCancel_OnClick(object sender, RoutedEventArgs e) {
-            _cancelDialogOpenSubject.OnNext(e);
-
-            var res = MessageBox.Show(
-                Strings.CancelDownloadsBody,
-                Strings.CancelDownloadsTitle,
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (res != MessageBoxResult.Yes) {
-                _resumeSubject.OnNext(e);
-                return;
-            }
-
+        private void OnClickCancel(object sender, RoutedEventArgs e) {
+            //     var res = MessageBox.Show(
+            //         Strings.CancelDownloadsBody,
+            //         Strings.CancelDownloadsTitle,
+            //         MessageBoxButton.YesNo,
+            //         MessageBoxImage.Warning);
+            //
+            //     if (res != MessageBoxResult.Yes) {
+            //         // TODO: something
+            //         return;
+            //     }
+            //
             BtnCancel.IsEnabled = false;
-            _cancelSubject.OnNext(e);
         }
-
-        public void Dispose() {
-            _bag.Dispose();
-        }
+        
+        // Page hacks
 
         private void Page_Loaded(object sender, RoutedEventArgs e) {
             var svc = this.NavigationService;
@@ -120,6 +92,35 @@ namespace Divvun.Installer.UI.Main
                 _navigationService = svc;
                 svc.Navigating += NavigationService_Navigating;
             }
+            
+            var app = (PahkatApp) Application.Current;
+
+            if (app.CurrentTransaction.Value.IsT1 && app.CurrentTransaction.Value.AsT1.State.IsT0) {
+                var actions = app.CurrentTransaction.Value.AsT1.Actions;
+                var progress = app.CurrentTransaction.Value.AsT1.State.AsT0.Progress;
+                // Try to initialise the downloads with the information we have
+                InitProgressList(actions, progress);
+            }
+            else {
+                return;
+            }
+
+            // Control the state of the current view
+            app.CurrentTransaction.AsObservable()
+                // Resolve down the events to Download-related ones only
+                .Where(x => x.IsInProgressDownloading)
+                .Select(x => x.AsInProgress!.State.AsDownloadState!.Progress)
+                .ObserveOn(DispatcherScheduler.Current)
+                .SubscribeOn(DispatcherScheduler.Current)
+                .Subscribe(state => {
+                    var copy = new Dictionary<PackageKey, (long, long)>(state);
+                    foreach (var keyValuePair in copy) {
+                        SetProgress(keyValuePair.Key,
+                            keyValuePair.Value.Item1, 
+                            keyValuePair.Value.Item2);
+                    }
+                })
+                .DisposedBy(_bag);
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e) {
@@ -133,6 +134,12 @@ namespace Divvun.Installer.UI.Main
             if (e.NavigationMode == NavigationMode.Back) {
                 e.Cancel = true;
             }
+        }
+        
+        // Dispose
+
+        public void Dispose() {
+            _bag.Dispose();
         }
     }
 }

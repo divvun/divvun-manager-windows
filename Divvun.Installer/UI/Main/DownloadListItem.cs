@@ -1,13 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Windows.Input;
 using System.Windows.Threading;
-using Divvun.Installer.Models;
-using Divvun.Installer.Service;
-using Divvun.Installer.Sdk;
+using Pahkat.Sdk;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -28,7 +22,7 @@ namespace Divvun.Installer.UI.Main
 
         public override int GetHashCode() {
             unchecked {
-                return ((Key != null ? Key.GetHashCode() : 0) * 397);
+                return (Key.GetHashCode() * 397);
             }
         }
 
@@ -46,7 +40,7 @@ namespace Divvun.Installer.UI.Main
 
         public string Title { get; } = "-";
         public string Version { get; } = "-";
-        public long FileSize { get; } = -1;
+        public long FileSize { get; set; } = -1;
 
         public long Downloaded {
             get => _downloaded;

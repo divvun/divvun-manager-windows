@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <Nullable>enable</Nullable>
+        <Configurations>Debug;Release</Configurations>
+        <Platforms>AnyCPU;x64</Platforms>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FlatBuffers\FlatBuffers.csproj" />
+      <ProjectReference Include="..\Pahkat.Sdk\Pahkat.Sdk.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="JsonSubTypes" Version="1.7.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+      <PackageReference Include="OneOf" Version="2.1.151" />
+      <PackageReference Include="System.Reactive" Version="4.4.1" />
+    </ItemGroup>
+
+</Project>
