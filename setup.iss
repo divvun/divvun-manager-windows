@@ -2,14 +2,13 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Divvun Installer"
-#define MyAppPublisher "Universitetet i Tromsø - Norges arktiske universitet"
+#define MyAppPublisher "Universitetet i TromsÃ¸ - Norges arktiske universitet"
 #define MyAppURL "http://divvun.no"
-#define MyAppExeName "DivvunInstaller.exe"
+#define MyAppExeName "Divvun.Installer.exe"
+#define MyAppVersion "1.2.3"
+#define PahkatSvcExe "pahkat-service.exe"
 
 [Setup]
-; NOTE: The value of AppId uniquely identifies this application.
-; Do not use the same AppId value in installers for other applications.
-; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{4CF2F367-82A8-5E60-8334-34619CBA8347}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -22,7 +21,7 @@ DefaultDirName={pf}\Divvun Installer
 DisableProgramGroupPage=yes
 OutputBaseFilename=install
 Compression=lzma
-SolidCompression=yes                 
+SolidCompression=yes
 AppMutex=DivvunInstaller
 SignedUninstaller=yes
 SignTool=signtool
@@ -55,14 +54,31 @@ Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "noui"; Description: "Install without UI";  Flags: unchecked
 
 [Files]
-Source: ".\Pahkat\bin\x86\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs uninsrestartdelete
-
-[Icons]
-Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Parameters: "-s"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Source: ".\{#PahkatSvcExe}"; DestDir: "{app}"; Flags:
+Source: ".\Divvun.Installer\bin\x86\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs uninsrestartdelete; Tasks: not noui
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Parameters: "-n"; Flags: nowait postinstall
+Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service install"; StatusMsg: "Installing service.."
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Parameters: ""; Flags: nowait postinstall; Tasks: not noui
+
+[UninstallRun]
+Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service stop"; StatusMsg: "Stopping service.."
+Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service uninstall"; StatusMsg: "Uninstalling service.."
+
+; [Icons]
+; Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+; Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Parameters: "-s"
+; Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+
+[Code]
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  ResultCode: Integer;
+begin
+    // Stop the service
+    ExtractTemporaryFile('{#PahkatSvcExe}');
+    Exec(ExpandConstant('{tmp}\{#PahkatSvcExe}'), 'service stop', '', SW_SHOW, ewWaitUntilTerminated, ResultCode)
+end;

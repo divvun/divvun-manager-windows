@@ -5,13 +5,30 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          # Nerdbank.GitVersioning needs a full clone
+          fetch-depth: 0
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           repository: divvun/pahkat
           ref: develop
           path: pahkat
-
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: pahkat/target
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
       - name: Setup Divvun CI
         uses: divvun/actions/setup@master
         with:
@@ -23,21 +40,54 @@ jobs:
           profile: minimal
           override: true
           components: rustfmt
+      - name: Setup Nuget.exe
+        uses: warrenbuckley/Setup-Nuget@v1
       - name: Build Pahkat Daemon
         run: |
           cd pahkat\pahkat-rpc
+          $env:RUSTC_BOOTSTRAP=1
           cargo build --release --features windows --bin winsvc
           # Copy into installer build dir
-          cp ..\target\release\winsvc "$GITHUB_WORKSPACE\divvun-installer\winsvc.exe"
+          dir ..\target
+          dir ..\target\release
+          cp ..\target\release\winsvc.exe "$env:GITHUB_WORKSPACE\pahkat-service.exe"
       - name: Build
         shell: cmd
         run: |
-          build-2019.bat
-      # - name: Upload installer
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: installer
-      #     path: "${{ steps.bundler.outputs.installer }}"
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          nuget restore "Divvun.Installer.sln"
+          MSBuild.exe "Divvun.Installer.sln" /p:Configuration=Release /p:Platform=x86 /m  || exit /b !ERRORLEVEL!
+          dir Divvun.Installer
+          dir Divvun.Installer\bin
+          dir Divvun.Installer\bin\x86
+          dir Divvun.Installer\bin\x86\Release
+      - name: Set Env
+        id: bundler
+        shell: bash
+        run: |
+          source "$DIVVUN_CI_CONFIG/enc/env.sh"
+          echo "::set-env name=SIGN_PFX_PASSWORD::$SIGN_PFX_PASSWORD"
+          # echo "::set-env name=DEPLOY_VERSION::$VERSION"
+          # echo "::set-output name=installer::windivvun-$VERSION.exe"
+          set -ex
+      - name: Sign
+        shell: cmd
+        run: |
+          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat-service.exe || exit /b !ERRORLEVEL!
+          cd Divvun.Installer\bin\x86\Release\
+          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Divvun.Installer.exe || exit /b !ERRORLEVEL!
+          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Pahkat.Sdk.dll || exit /b !ERRORLEVEL!
+          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Pahkat.Sdk.Rpc.dll || exit /b !ERRORLEVEL!
+          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat_rpc.dll || exit /b !ERRORLEVEL!
+
+          cd %GITHUB_WORKSPACE%
+
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx /p %SIGN_PFX_PASSWORD% $f" setup.iss
+      - name: Upload installer
+        uses: actions/upload-artifact@v2
+        with:
+          name: installer
+          path: "output/install.exe"
       # - name: Deploy to Pahkat
       #   uses: divvun/actions/deploy@master
       #   with:
