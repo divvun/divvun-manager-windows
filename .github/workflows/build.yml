@@ -18,17 +18,23 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('pahkat/**/Cargo.lock') }}
+          restoreKeys:
+            ${{ runner.os }}-cargo-registry-
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('pahkat/**/Cargo.lock') }}
+          restoreKeys:
+            ${{ runner.os }}-cargo-index-
       - name: Cache cargo build
         uses: actions/cache@v1
         with:
           path: pahkat/target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('pahkat/**/Cargo.lock') }}
+          restoreKeys:
+            ${{ runner.os }}-cargo-build
       - name: Setup Divvun CI
         uses: divvun/actions/setup@master
         with:
@@ -57,20 +63,16 @@ jobs:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           nuget restore "Divvun.Installer.sln"
           MSBuild.exe "Divvun.Installer.sln" /p:Configuration=Release /p:Platform=x86 /m  || exit /b !ERRORLEVEL!
-          dir Divvun.Installer
-          dir Divvun.Installer\bin
-          dir Divvun.Installer\bin\x86
-          dir Divvun.Installer\bin\x86\Release
       - name: Set Env
         id: bundler
         shell: bash
         run: |
           source "$DIVVUN_CI_CONFIG/enc/env.sh"
           echo "::set-env name=SIGN_PFX_PASSWORD::$SIGN_PFX_PASSWORD"
-          # echo "::set-env name=DEPLOY_VERSION::$VERSION"
+          echo "::set-env name=DEPLOY_VERSION::$GitBuildVersionSimple"
           # echo "::set-output name=installer::windivvun-$VERSION.exe"
           set -ex
-      - name: Sign
+      - name: Bundle
         shell: cmd
         run: |
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat-service.exe || exit /b !ERRORLEVEL!
@@ -82,18 +84,18 @@ jobs:
 
           cd %GITHUB_WORKSPACE%
 
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx /p %SIGN_PFX_PASSWORD% $f" setup.iss
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx /p %SIGN_PFX_PASSWORD% $f" /DMyAppVersion=%DEPLOY_VERSION% setup.iss
       - name: Upload installer
         uses: actions/upload-artifact@v2
         with:
           name: installer
           path: "output/install.exe"
-      # - name: Deploy to Pahkat
-      #   uses: divvun/actions/deploy@master
-      #   with:
-      #     payload: "${{ steps.bundler.outputs.installer }}"
-      #     repository: "https://pahkat.uit.no/tools"
-      #     package: "windivvung"
-      #     platform: "windows"
-      #     version: "${{ env.DEPLOY_VERSION }}"
+      - name: Deploy to Pahkat
+        uses: divvun/actions/deploy@master
+        with:
+          payload: "output/install.exe"
+          repository: "https://pahkat.uit.no/tools"
+          package: "divvun-installer"
+          platform: "windows"
+          version: "${{ env.DEPLOY_VERSION }}"
 
