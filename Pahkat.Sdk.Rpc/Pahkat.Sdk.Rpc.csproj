@@ -4,7 +4,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Nullable>enable</Nullable>
         <Configurations>Debug;Release</Configurations>
-        <Platforms>AnyCPU;x64</Platforms>
+        <Platforms>AnyCPU;x64;x86</Platforms>
         <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 

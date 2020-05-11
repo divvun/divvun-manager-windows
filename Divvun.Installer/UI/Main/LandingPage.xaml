@@ -4,12 +4,91 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:Divvun.Installer.UI.Main"
+      xmlns:ui="http://schemas.modernwpf.com/2019"
+      xmlns:shared="clr-namespace:Divvun.Installer.UI.Shared"
+      xmlns:pahkat="clr-namespace:Divvun.Installer"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title=""
       Loaded="OnLoaded">
 
-    <Grid x:Name="grid">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid
+            Grid.Row="0"
+            x:Name="TitleBar"
+            MaxHeight="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}"
+            Height="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}">
         
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="200" />
+            </Grid.ColumnDefinitions>
+        
+            <ui:TitleBarButton
+                x:Name="BtnMenu"
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Grid.Column="0"
+                Content="&#xE700;"
+                FontSize="14pt"
+                ContextMenuService.IsEnabled="True">
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" />
+                        <MenuItem Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" />
+                        <Separator />
+                        <!-- <MenuItem Click="OnClickRefreshMenuItem" Name="BtnRefresh" Header="{x:Static pahkat:Strings.Refresh}" /> -->
+                        <!-- <MenuItem Click="OnClickCheckForPackageUpdatesMenuItem" Name="BtnCheckForPackageUpdates" Header="{x:Static pahkat:Strings.CheckForUpdates}" /> -->
+                        <!-- <Separator /> -->
+                        <MenuItem Header="{x:Static pahkat:Strings.Exit}" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+            </ui:TitleBarButton>
+            
+            <TextBlock
+                Grid.Column="1"
+                FontSize="13"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Center"
+                Text="Divvun Installer" />
+        
+            <!-- <ui:DropDownButton -->
+            <!--     Grid.Column="1" -->
+            <!--     WindowChrome.IsHitTestVisibleInChrome="True" -->
+            <!--     Content="Current Repository" -->
+            <!--     CornerRadius="0" -->
+            <!-- > -->
+            <!--     <ui:DropDownButton.Flyout> -->
+            <!--         <ui:MenuFlyout Placement="BottomEdgeAlignedLeft"> -->
+            <!--             <MenuItem Header="First Enabled Repository" /> -->
+            <!--             <MenuItem Header="Second Enabled Repository" /> -->
+            <!--             <MenuItem Header="Third Enabled Repository" /> -->
+            <!--         </ui:MenuFlyout> -->
+            <!--     </ui:DropDownButton.Flyout> -->
+            <!-- </ui:DropDownButton> -->
+            
+            <Grid Grid.Column="2" />
+            
+            <!-- <ui:TitleBarButton Grid.Column="3" -->
+            <!--                    Style="{StaticResource AppTitleBarBackButtonStyle}" -->
+            <!--                    WindowChrome.IsHitTestVisibleInChrome="True" -->
+            <!--                    Name="BtnPrimary" -->
+            <!--                    IsEnabled="False" -->
+            <!--                    Content="No Packages Selected" -->
+            <!--                    FontFamily="{DynamicResource ContentControlThemeFontFamily}" -->
+            <!--                    FontSize="13" -->
+            <!--                    Width="NaN" -->
+            <!--                    Padding="16,0" -->
+            <!--                    /> -->
+          
+        </Grid>
+        <Grid Grid.Row="1" Name="WebViewGrid"/>
     </Grid>
 </Page>

@@ -6,12 +6,15 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using Divvun.Installer.Service;
+using Divvun.Installer.UI.Main.Dialog;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
+using ModernWpf.Controls;
 using Newtonsoft.Json.Linq;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
@@ -43,7 +46,7 @@ namespace Divvun.Installer.UI.Main
         }
 
         internal void SetRepository(LoadedRepository repo) {
-            _functions = new WebBridgeService.Functions(repo);
+            _functions = new WebBridgeService.Functions(repo, webView);
         }
         
         private void SendResponse(uint id, object message) {
@@ -60,7 +63,7 @@ namespace Divvun.Installer.UI.Main
             }
         }
 
-        public async void HandleRequest(WebBridgeRequest request) {
+        public async Task HandleRequest(WebBridgeRequest request) {
             Console.WriteLine(request.ToString());
 
             if (_functions == null) {
@@ -148,6 +151,8 @@ namespace Divvun.Installer.UI.Main
 
         public LandingPage() {
             InitializeComponent();
+            _webView = new WebView();
+            WebViewGrid.Children.Add(_webView);
         }
 
         private void ShowNoLandingPage() {
@@ -180,24 +185,22 @@ namespace Divvun.Installer.UI.Main
             _webView.Dispose();
         }
         
-        private void ProcessRequest(string rawRequest) {
+        private async Task ProcessRequest(string rawRequest) {
             var rpcRequest = JsonConvert.DeserializeObject<WebBridgeRequest>(rawRequest);
-            _webBridge.HandleRequest(rpcRequest);
+            await _webBridge.HandleRequest(rpcRequest);
         }
         
         private void ConfigureWebView() {
-            _webView = new WebView();
-            grid.Children.Add(_webView);
             _webBridge = new WebBridge(_webView);
         
             _webView.IsScriptNotifyAllowed = true;
         
-            _webView.ScriptNotify += (sender, args) => {
+            _webView.ScriptNotify += async (sender, args) => {
                 // Check args.Uri for something we want to actually act upon, for security.
                 Console.WriteLine(args.Uri);
                 Console.WriteLine(args.Value);
         
-                ProcessRequest(args.Value);
+                await ProcessRequest(args.Value);
             };
         
             _webView.NavigationCompleted += (sender, args) => { return; };
@@ -211,16 +214,17 @@ namespace Divvun.Installer.UI.Main
                     if (Uri.TryCreate(args.Uri.AbsolutePath, UriKind.Absolute, out var pahkatUri) &&
                         pahkatUri.Scheme == "pahkat") {
                         args.Cancel = true;
-                        DispatcherScheduler.Current.Dispatcher.InvokeAsync(() => {
+                        DispatcherScheduler.Current.Dispatcher.InvokeAsync(async () => {
                             var payload = Uri.UnescapeDataString(pahkatUri.AbsolutePath);
-                            ProcessRequest(payload);
+                            await ProcessRequest(payload);
                         });
                     }
                 }
             };
         }
 
-        void OnLoaded(object sender, RoutedEventArgs e) {
+        async void OnLoaded(object sender, RoutedEventArgs e) {
+            
             ConfigureWebView();
             BindRepoDropdown();
         }

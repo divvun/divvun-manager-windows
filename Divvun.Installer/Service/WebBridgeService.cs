@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using Divvun.Installer.UI.Main;
 using Divvun.Installer.UI.Main.Dialog;
+using Microsoft.Toolkit.Wpf.UI.Controls;
 using ModernWpf.Controls;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
@@ -28,9 +30,11 @@ namespace Divvun.Installer.Service
         public class Functions
         {
             public LoadedRepository Repo;
+            public WebView WebView;
             
-            public Functions(LoadedRepository repo) {
+            public Functions(LoadedRepository repo, WebView webView) {
                 Repo = repo;
+                WebView = webView;
             }
 
             public async Task<object> Process(WebBridgeRequest request) {
@@ -144,18 +148,46 @@ namespace Divvun.Installer.Service
                     string.Join("\n", actions.Select(x => x.PackageKey.ToString())),
                     primaryButton);
 
-                var result = await dialog.ShowAsync();
+                try {
+                    WebView.Visibility = Visibility.Hidden;
+                    var result = await dialog.ShowAsync();
+                    WebView.Visibility = Visibility.Visible;
 
-                if (result == ContentDialogResult.Primary) {
-                    var app = (PahkatApp) Application.Current;
-                    app.StartTransaction(actions.ToArray());
-                    return true;
+                    if (result == ContentDialogResult.Primary) {
+                        var app = (PahkatApp) Application.Current;
+                        app.StartTransaction(actions.ToArray());
+                        return true;
+                    }
                 }
-
+                catch (Exception e) {
+                    Console.WriteLine(("wat"));
+                }
                 return false;
             }
 
             private object Packages(JArray args) {
+                if (args.Count > 0) {
+                    PackageQuery? query = null;
+                    
+                    try {
+                        query = JsonConvert.DeserializeObject<PackageQuery>(args[0].ToString(),
+                            Json.Settings.Value);
+                    }
+                    catch { }
+
+                    if (query.HasValue) {
+                        try {
+                            var app = (PahkatApp) Application.Current;
+                            using var guard = app.PackageStore.Lock();
+                            var s = guard.Value.ResolvePackageQuery(query.Value);
+                            return JObject.Parse(s);
+                        }
+                        catch {
+                            return JObject.Parse("[]");
+                        }
+                    }
+                    
+                }
                 var map = new Dictionary<PackageKey, Descriptor>();
                 
                 foreach (var keyValuePair in Repo.Packages.Packages()) {

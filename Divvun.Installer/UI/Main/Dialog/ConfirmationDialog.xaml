@@ -6,9 +6,9 @@
     Title=""
     PrimaryButtonText=""
     CloseButtonText=""
-    DefaultButton="Close">
+    DefaultButton="Primary">
 
-    <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MaxHeight="400" CanVerticallyScroll="True">
+    <StackPanel Visibility="Visible" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MaxHeight="400" CanVerticallyScroll="True">
         <TextBlock Name="PromptText" Text="" TextWrapping="Wrap" />
         <TextBlock Name="BodyText" Text="" TextWrapping="Wrap" />
     </StackPanel>

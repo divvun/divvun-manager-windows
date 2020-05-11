@@ -51,11 +51,11 @@ namespace Divvun.Installer.UI.Main
         }
 
         public void ShowMainPage() {
-            ShowPage(new MainPage());
+            // ShowPage(new MainPage());
             // }
             //
             // public void ShowLandingPage() {
-                // ShowPage(new LandingPage());
+                ShowPage(new LandingPage());
         }
 
         void ShowDownloadPage() {

@@ -56,7 +56,7 @@ namespace Pahkat.Sdk.Rpc
     
     public static class MarshalUtf8
     {
-        public static string PtrToStringUtf8(IntPtr utf8Ptr, ulong len) {
+        public static string PtrToStringUtf8(IntPtr utf8Ptr, long len) {
             var buffer = new byte[len];
             Marshal.Copy(utf8Ptr, buffer, 0, (int)len);
             return Encoding.UTF8.GetString(buffer);
@@ -76,7 +76,7 @@ namespace Pahkat.Sdk.Rpc
         private static string? _lastError;
 
         internal static pahkat_rpc.ErrCallback Callback = (ptr, len) => {
-            _lastError = MarshalUtf8.PtrToStringUtf8(ptr, len);
+            _lastError = MarshalUtf8.PtrToStringUtf8(ptr, (long) len);
         };
         
         internal static void AssertNoError() {
@@ -100,6 +100,7 @@ namespace Pahkat.Sdk.Rpc
         Dictionary<Uri, RepoRecord> RemoveRepo(Uri url);
         IObservable<Notification> Notifications();
         Dictionary<Uri, LocalizationStrings> Strings(string languageTag);
+        string ResolvePackageQuery(PackageQuery query);
     }
 
     public class PahkatClient : IPahkatClient, IDisposable
@@ -122,7 +123,7 @@ namespace Pahkat.Sdk.Rpc
             var slice = pahkat_rpc.Slice.From(stringActions);
 
             pahkat_rpc.TransactionResponseCallback cCallback = (s) => {
-                var str = MarshalUtf8.PtrToStringUtf8(s.Ptr, s.Length);
+                var str = MarshalUtf8.PtrToStringUtf8(s.Ptr, s.Length.ToInt64());
 
                 Console.WriteLine("Raw tx response: " + str);
                 
@@ -269,6 +270,18 @@ namespace Pahkat.Sdk.Rpc
                 });
             });
         }
+
+        public string ResolvePackageQuery(PackageQuery query) {
+            var cQuery = pahkat_rpc.Slice.From(JsonConvert.SerializeObject(query, Json.Settings.Value));
+            var slice = pahkat_rpc.pahkat_rpc_resolve_package_query(handle, cQuery, PahkatClientException.Callback);
+            pahkat_rpc.Slice.Free(cQuery);
+            PahkatClientException.AssertNoError();
+
+            var queryResponse = slice.AsString();
+            pahkat_rpc.pahkat_rpc_slice_free(slice);
+
+            return queryResponse;
+        }
         
         private void ReleaseUnmanagedResources() {
             pahkat_rpc.pahkat_rpc_free(handle);
@@ -291,7 +304,7 @@ namespace Pahkat.Sdk.Rpc
         public readonly struct Slice
         {
             public readonly IntPtr Ptr;
-            public readonly ulong Length;
+            public readonly IntPtr Length;
 
             public static Slice From(string str) {
                 return MarshalUtf8.StringToHGlobalUtf8(str);
@@ -302,12 +315,17 @@ namespace Pahkat.Sdk.Rpc
             }
             
             public string AsString() {
-                return MarshalUtf8.PtrToStringUtf8(Ptr, Length);
+                return MarshalUtf8.PtrToStringUtf8(Ptr, Length.ToInt64());
             }
 
             public Slice(IntPtr ptr, int length) {
                 Ptr = ptr;
-                Length = (ulong) length;
+                Length = new IntPtr(length);
+            }
+            
+            public Slice(IntPtr ptr, long length) {
+                Ptr = ptr;
+                Length = new IntPtr(length);
             }
 
             public static Slice Null => new Slice(IntPtr.Zero, 0);
@@ -358,6 +376,8 @@ namespace Pahkat.Sdk.Rpc
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void pahkat_rpc_notifications(IntPtr handle, NotificationCallback callback, [In] ErrCallback exception);
         
+        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern Slice pahkat_rpc_resolve_package_query(IntPtr handle, Slice packageQuery, [In] ErrCallback exception);
     }
 #pragma warning restore IDE1006 // Naming Styles
 }
