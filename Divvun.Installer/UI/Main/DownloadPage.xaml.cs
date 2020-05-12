@@ -31,7 +31,7 @@ namespace Divvun.Installer.UI.Main
         private CompositeDisposable _bag = new CompositeDisposable();
         private NavigationService? _navigationService;
 
-        private void InitProgressList(ResolvedAction[] actions, Dictionary<PackageKey, (long, long)> progress) {
+        private void InitProgressList(ResolvedAction[] actions) {
             var x = actions
                 .Where(x => x.Action.Action == InstallAction.Install)
                 .Select(x => new DownloadListItem(x.Action.PackageKey, x.Name.Values.FirstOrDefault(), x.Version));
@@ -50,9 +50,9 @@ namespace Divvun.Installer.UI.Main
             item.Downloaded = current;
         }
 
-        private void SetProgress(TransactionResponseValue.DownloadProgress progress) {
-            SetProgress(progress.PackageKey, (long) progress.Current, (long) progress.Total);
-        }
+        // private void SetProgress(TransactionResponseValue.DownloadProgress progress) {
+        //     SetProgress(progress.PackageKey, (long) progress.Current, (long) progress.Total);
+        // }
         
         public DownloadPage() {
             InitializeComponent();
@@ -97,9 +97,9 @@ namespace Divvun.Installer.UI.Main
 
             if (app.CurrentTransaction.Value.IsT1 && app.CurrentTransaction.Value.AsT1.State.IsT0) {
                 var actions = app.CurrentTransaction.Value.AsT1.Actions;
-                var progress = app.CurrentTransaction.Value.AsT1.State.AsT0.Progress;
+                
                 // Try to initialise the downloads with the information we have
-                InitProgressList(actions, progress);
+                InitProgressList(actions);
             }
             else {
                 return;
@@ -113,8 +113,8 @@ namespace Divvun.Installer.UI.Main
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .Subscribe(state => {
-                    var copy = new Dictionary<PackageKey, (long, long)>(state);
-                    foreach (var keyValuePair in copy) {
+                    using var guard = state.Lock();
+                    foreach (var keyValuePair in guard.Value) {
                         SetProgress(keyValuePair.Key,
                             keyValuePair.Value.Item1, 
                             keyValuePair.Value.Item2);

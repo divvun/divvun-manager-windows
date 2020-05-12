@@ -28,17 +28,20 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid
+            Grid.Row="0"
             x:Name="TitleBar"
             MaxHeight="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}"
             Height="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}">
         
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="300" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="48" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
         
             <ui:TitleBarButton
@@ -47,8 +50,8 @@
                 Grid.Column="0"
                 Content="&#xE700;"
                 FontSize="14pt"
-                Click="OnClickBtnMenu"
-                ContextMenuService.IsEnabled="True">
+                ContextMenuService.IsEnabled="True"
+                Click="OnClickBtnMenu">
                 <Button.ContextMenu>
                     <ContextMenu>
                         <MenuItem Click="OnClickAboutMenuItem" Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" />
@@ -68,61 +71,52 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Text="Divvun Installer" />
-        
-            <!-- <ui:DropDownButton -->
-            <!--     Grid.Column="1" -->
-            <!--     WindowChrome.IsHitTestVisibleInChrome="True" -->
-            <!--     Content="Current Repository" -->
-            <!--     CornerRadius="0" -->
-            <!-- > -->
-            <!--     <ui:DropDownButton.Flyout> -->
-            <!--         <ui:MenuFlyout Placement="BottomEdgeAlignedLeft"> -->
-            <!--             <MenuItem Header="First Enabled Repository" /> -->
-            <!--             <MenuItem Header="Second Enabled Repository" /> -->
-            <!--             <MenuItem Header="Third Enabled Repository" /> -->
-            <!--         </ui:MenuFlyout> -->
-            <!--     </ui:DropDownButton.Flyout> -->
-            <!-- </ui:DropDownButton> -->
             
             <Grid Grid.Column="2" />
+        
+            <ui:DropDownButton
+                Name="TitleBarReposButton"
+                Grid.Column="3"
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Content="All Repositories"
+                CornerRadius="0"
+            >
+                <ui:DropDownButton.Flyout>
+                    <ui:MenuFlyout Placement="BottomEdgeAlignedLeft" x:Name="TitleBarReposFlyout">
+                    </ui:MenuFlyout>
+                </ui:DropDownButton.Flyout>
+            </ui:DropDownButton>
             
-            <!-- <ui:TitleBarButton Grid.Column="3" -->
-            <!--                    Style="{StaticResource AppTitleBarBackButtonStyle}" -->
-            <!--                    WindowChrome.IsHitTestVisibleInChrome="True" -->
-            <!--                    Name="BtnPrimary" -->
-            <!--                    IsEnabled="False" -->
-            <!--                    Content="No Packages Selected" -->
-            <!--                    FontFamily="{DynamicResource ContentControlThemeFontFamily}" -->
-            <!--                    FontSize="13" -->
-            <!--                    Width="NaN" -->
-            <!--                    Padding="16,0" -->
-            <!--                    /> -->
+            <Grid Grid.Column="4" />
+            
+            <ui:DropDownButton
+                Name="TitleBarSortByButton"
+                Grid.Column="5"
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Content=""
+                CornerRadius="0"
+            >
+                <ui:DropDownButton.Flyout>
+                    <ui:MenuFlyout Placement="BottomEdgeAlignedLeft" x:Name="TitleBarSortByFlyout">
+                    </ui:MenuFlyout>
+                </ui:DropDownButton.Flyout>
+            </ui:DropDownButton>
+            
+            <Grid Grid.Column="6" />
+            
+            <Button
+                Name="BtnPrimary"
+                Grid.Column="7"
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Content="Install" />
           
         </Grid>
         <DockPanel Grid.Row="1">
-            <DockPanel DockPanel.Dock="top" Height="32">
-                <!-- <Button Name="BtnMenu" Width="26" Height="24" Margin="4,0,0,0" Padding="0" -->
-                <!--         Background="{x:Null}" BorderBrush="{x:Null}" Foreground="{x:Null}" -->
-                <!--         Click="OnClickBtnMenu" ContextMenuService.IsEnabled="false"> -->
-                <!--     <Image Source="icon-menu.png" Width="24" Height="24" Stretch="Fill"/> -->
-                <!--     <Button.ContextMenu> -->
-                <!--         <ContextMenu> -->
-                <!--             <MenuItem Click="OnClickAboutMenuItem" Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" /> -->
-                <!--             <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" /> -->
-                <!--             <Separator /> -->
-                <!--             ~1~ <MenuItem Click="OnClickRefreshMenuItem" Name="BtnRefresh" Header="{x:Static pahkat:Strings.Refresh}" /> @1@ -->
-                <!--             ~1~ <MenuItem Click="OnClickCheckForPackageUpdatesMenuItem" Name="BtnCheckForPackageUpdates" Header="{x:Static pahkat:Strings.CheckForUpdates}" /> @1@ -->
-                <!--             ~1~ <Separator /> @1@ -->
-                <!--             <MenuItem Click="OnClickExitMenuItem" Header="{x:Static pahkat:Strings.Exit}" /> -->
-                <!--         </ContextMenu> -->
-                <!--     </Button.ContextMenu> -->
-                <!-- </Button> -->
-                <!--TextBox Name="TxtSearch" Height="23" Margin="8,0,8,0" TextWrapping="Wrap" Text="Search" VerticalContentAlignment="Center" Width="160"/-->
-                <DockPanel HorizontalAlignment="Right">
-                    <!--<Label Content="Search" Height="24" VerticalAlignment="Center"/>-->
-                    <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" />
-                </DockPanel>
-            </DockPanel>
+            <!-- <DockPanel DockPanel.Dock="top" Height="32"> -->
+            <!--      <DockPanel HorizontalAlignment="Right"> -->
+            <!--         <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" /> -->
+            <!--     </DockPanel> -->
+            <!-- </DockPanel> -->
             <TreeView Name="TvPackages" HorizontalContentAlignment="Stretch" Width="auto">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">

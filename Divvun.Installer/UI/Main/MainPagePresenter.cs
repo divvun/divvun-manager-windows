@@ -6,7 +6,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
-using System.Windows.Threading;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Extensions;
@@ -45,146 +44,115 @@ namespace Divvun.Installer.UI.Main
         }
 
         private IDisposable BindPrimaryButton(IMainPageView view) {
-            // var app = (PahkatApp) Application.Current;
-            // var actions = _store.Value.SelectedPackages.Values.ToArray();
-
-            // return view.OnPrimaryButtonPressed().Subscribe(_ => {
-            //     app.PackageStore.ProcessTransaction(actions, value => {
-            //         Console.WriteLine("-- New event: " + value);
-            //         var newState = app.CurrentTransaction.Value.Reduce(value);
-            //         app.CurrentTransaction.OnNext(newState);
-            //     });
-            // });
-            //
-            // return Disposable.Empty;
             return view.OnPrimaryButtonPressed()
                 .ObserveOn(NewThreadScheduler.Default)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(_ => {
-                Console.WriteLine("Button pressed");
-                var app = (PahkatApp) Application.Current;
-                var actions = _store.Value.SelectedPackages.Values.ToArray();
-            
-                // var responses = Observable.Create<TransactionResponseValue>(emitter => {
-                //     using var x = ((PahkatApp) Application.Current).PackageStore.Lock();
-                //     
-                //     var token = x.Value.ProcessTransaction(actions, value => {
-                //         Console.WriteLine("New event: " + value);
-                //         emitter.OnNext(value);
-                //
-                //         if (value.IsCompletionState || value.IsErrorState) {
-                //             emitter.OnCompleted();
-                //         }
-                //     });
-                //
-                //     return new CancellationDisposable(token);
-                // });
-                // view.OnPrimaryButtonPressed().Subscribe(_ => {
+                    Console.WriteLine("Button pressed");
+                    var app = (PahkatApp) Application.Current;
+                    var actions = _store.Value.SelectedPackages.Values.ToArray();
+                    
                     using var guard = app.PackageStore.Lock();
                     guard.Value.ProcessTransaction(actions, value => {
                         Console.WriteLine("-- New event: " + value);
                         var newState = app.CurrentTransaction.Value.Reduce(value);
                         app.CurrentTransaction.OnNext(newState);
                     });
-                // });
-            
-                // var runningTransaction = Observable.CombineLatest(
-                //         app.CurrentTransaction,
-                //         responses.DistinctUntilChanged().NotNull(),
-                //         (state, value) => (State: state, Event: value))
-                //     .SubscribeOn(NewThreadScheduler.Default)
-                //     .Do(
-                //         next => { Console.WriteLine($"next: {next.State} {next.Event}"); }, 
-                //         () => Console.WriteLine("completed"))
-                //     .Subscribe(tuple => {
-                //         Console.WriteLine(tuple);
-                //         app.CurrentTransaction.OnNext(tuple.State.Reduce(tuple.Event));
-                //     });
-            
-                // var runningTransaction = Observable.CombineLatest(
-                //         app.CurrentTransaction,
-                //         responses,
-                //         (state, value) => (State: state, Event: value))
-                //     .ObserveOn(NewThreadScheduler.Default)
-                //     .SubscribeOn(NewThreadScheduler.Default)
-                //     .Select(x => x.State.Reduce(x.Event))
-                //     .DistinctUntilChanged()
-                //     .Subscribe(state => {
-                //         app.CurrentTransaction.OnNext(state);
-                //     });
-                //
-                // app.SetRunningTransaction(runningTransaction);
-            });
-
-            // return view.OnPrimaryButtonPressed()
-            //     .Subscribe(_ => view.ShowDownloadPage());
-            // throw new NotImplementedException();
-            // return Disposable.Empty;
+                });
         }
 
-        private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Dictionary<Descriptor, PackageKey> keyMap) {
-            // var map = new Dictionary<string, List<PackageMenuItem>>();
-            //
-            // foreach (var package in keyMap.Keys) {
-            //     foreach (var cat in package.Categories()) {
-            //         
-            //         if (!map.ContainsKey(cat)) {
-            //             map[cat] = new List<PackageMenuItem>();
-            //         }
-            //         
-            //         
-            //         map[cat].Add(new PackageMenuItem(keyMap[package], package, _store));
-            //     }
-            // }
-            //
-            // var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x => {
-            //     x.Value.Sort();
-            //     var items = new ObservableCollection<PackageMenuItem>(x.Value);
-            //     return new PackageCategoryTreeItem(_store, x.Key, items);
-            // }));
-            //
-            // return categories;
-            throw new NotImplementedException();
-        }
-
-        private IEnumerable<PackageCategoryTreeItem> FilterByLanguage(Dictionary<Package, PackageKey> keyMap) {
-            // var map = new Dictionary<string, List<PackageMenuItem>>();
-            //
-            // foreach (var package in keyMap.Keys) {
-            //     foreach (var bcp47 in package.Languages()) {
-            //         if (!map.ContainsKey(bcp47)) {
-            //             map[bcp47] = new List<PackageMenuItem>();
-            //         }
-            //
-            //         map[bcp47].Add(new PackageMenuItem(keyMap[package], package, _store));
-            //     }
-            // }
-            //
-            // var languages = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x => {
-            //     x.Value.Sort();
-            //     var items = new ObservableCollection<PackageMenuItem>(x.Value);
-            //     return new PackageCategoryTreeItem(_store, Util.Util.GetCultureDisplayName(x.Key), items);
-            // }));
-            //
-            // return languages;
-            
-            throw new NotImplementedException();
-        }
-
-        // private bool IsFoundBySearchQuery(string query, Package package) {
-        //     if (string.IsNullOrWhiteSpace(query)) {
-        //         return true;
+        // private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Dictionary<Descriptor, PackageKey> keyMap) {
+        //     var map = new Dictionary<string, List<PackageMenuItem>>();
+        //     
+        //     foreach (var package in keyMap.Keys) {
+        //         foreach (var cat in package.Categories()) {
+        //             
+        //             if (!map.ContainsKey(cat)) {
+        //                 map[cat] = new List<PackageMenuItem>();
+        //             }
+        //             
+        //             
+        //             map[cat].Add(new PackageMenuItem(keyMap[package], package, _store));
+        //         }
         //     }
-        //
-        //     const double matchCoefficient = 0.2;
-        //
-        //     return package.NativeName
-        //         .Split(new[] {' '})
-        //         .Where(word => word.FuzzyMatch(query) >= matchCoefficient)
-        //         .Count() >= 1;
+        //     
+        //     var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x => {
+        //         x.Value.Sort();
+        //         var items = new ObservableCollection<PackageMenuItem>(x.Value);
+        //         return new PackageCategoryTreeItem(_store, x.Key, items);
+        //     }));
+        //     
+        //     return categories;
         // }
 
-        private void BindNewRepositories(IMainPageView view) {
+        private RepoTreeItem FilterByTagPrefix(LoadedRepository repo, string prefix, Func<string, string> convertor) {
+            // var nodes = new ObservableCollection<PackageCategoryTreeItem>();
+
+            var map = new Dictionary<string, List<PackageMenuItem>>();
+
+            foreach (var package in repo.Packages.Packages()) {
+                if (!package.Value.HasValue) {
+                    continue;
+                }
+
+                Descriptor descriptor = package.Value.Value;
+
+                var pkgKey = PackageKey.Create(repo.Index.Url, descriptor.Id);
+                var release = repo.Release(pkgKey);
+                var payload = release?.WindowsTarget()?.WindowsExecutable();
+
+                if (!payload.HasValue || !release.HasValue) {
+                    continue;
+                }
+
+                var tags = descriptor.Tags().Where(x => x.StartsWith(prefix));
+
+                foreach (var tag in tags) {
+                    if (!map.ContainsKey(tag)) {
+                        map[tag] = new List<PackageMenuItem>();
+                    }
+
+                    map[tag].Add(new PackageMenuItem(_store,
+                        pkgKey, payload.Value, descriptor.NativeName() ?? "<>", release.Value.Version));
+                }
+            }
+
+            var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x => {
+                x.Value.Sort();
+                var items = new ObservableCollection<PackageMenuItem>(x.Value);
+                return new PackageCategoryTreeItem(_store, convertor(x.Key), items);
+            }));
+
+            return new RepoTreeItem(repo.Index.NativeName(), categories);
+        }
+
+        private RepoTreeItem FilterByLanguage(LoadedRepository repo) {
+            return FilterByTagPrefix(repo, "lang:", (tag) => {
+                var langTag = tag.Substring(5);
+                var r = Iso639.GetTag(langTag);
+                return r.Autonym ?? r.Name ?? langTag;
+            });
+        }
+        private RepoTreeItem FilterByCategory(LoadedRepository repo) {
+            var app = (PahkatApp) Application.Current;
+            Dictionary<Uri, LocalizationStrings> strings;
+            
+            using (var guard = app.PackageStore.Lock()) {
+                strings = guard.Value.Strings("en");
+            }
+            
+            return FilterByTagPrefix(repo, "cat:", (tag) => {
+                if (strings.TryGetValue(repo.Index.Url, out var s)) {
+                    if (s.Tags.TryGetValue(tag, out var t)) {
+                        return t;
+                    }
+                }
+
+                return tag;
+            });
+        }
+
+        internal void BindNewRepositories(SortBy sortBy) {
             var app = (PahkatApp) Application.Current;
             using var x = ((PahkatApp) Application.Current).PackageStore.Lock();
             var repos = x.Value.RepoIndexes().Values;
@@ -200,40 +168,15 @@ namespace Divvun.Installer.UI.Main
             foreach (var repo in repos) {
                 IEnumerable<PackageCategoryTreeItem> items;
 
+                switch (sortBy) {
+                    case SortBy.Category:
+                        _tree.Add(FilterByCategory(repo));
+                        break;
+                    case SortBy.Language:
+                        _tree.Add(FilterByLanguage(repo));
+                        break;
+                }
 
-
-                var packages = repo.Packages.Packages().Select(x => {
-                    Descriptor descriptor = x.Value.Value;
-                    var pkgKey = PackageKey.Create(repo.Index.Url, descriptor.Id);
-                    var release = repo.Release(pkgKey);
-                    var payload = release?.WindowsTarget()?.WindowsExecutable();
-
-                    if (payload.HasValue && release.HasValue) {
-                        return new PackageMenuItem(_store,
-                            pkgKey, payload.Value, descriptor.NativeName() ?? "<>", release.Value.Version);
-                    }
-
-                    return null;
-                }).Where(x => x != null).Select(x => x!);
-                
-                var categoryTree = new PackageCategoryTreeItem(_store, "Test", 
-                    new ObservableCollection<PackageMenuItem>(packages));
-                // switch (repo.Meta.PrimaryFilter) {
-                //     case RepositoryMeta.Filter.Language:
-                //         items = FilterByLanguage(keyMap);
-                //         break;
-                //     case RepositoryMeta.Filter.Category:
-                //     default:
-                //         items = FilterByCategory(keyMap);
-                //         break;
-                // }
-
-                var item = new RepoTreeItem(
-                    repo.Index.NativeName() ?? "Unknown repo name",
-                    new ObservableCollection<PackageCategoryTreeItem>(new [] { categoryTree })
-                );
-
-                _tree.Add(item);
                 _view.UpdateTitle(Strings.AppName);
                 Console.WriteLine("Added packages.");
             }
@@ -275,7 +218,6 @@ namespace Divvun.Installer.UI.Main
         public IDisposable Start() {
             _view.UpdateTitle($"{Strings.AppName} - {Strings.Loading}");
             _view.SetPackagesModel(_tree);
-            BindNewRepositories(_view);
 
             return new CompositeDisposable(
                 BindPrimaryButtonLabel(_view, _store),

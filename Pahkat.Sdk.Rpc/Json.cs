@@ -12,8 +12,7 @@ namespace Pahkat.Sdk.Rpc
                 ContractResolver = new DefaultContractResolver
                 {
                     NamingStrategy = new SnakeCaseNamingStrategy()
-                },
-                Formatting = Formatting.Indented
+                }
             };
             
             settings.Converters.Add(TransactionResponseValue.JsonConvertor());

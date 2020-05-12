@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Windows;
 using System.Windows.Controls;
+using Castle.Core.Internal;
+using Divvun.Installer.Extensions;
 using Divvun.Installer.Service;
 using Divvun.Installer.UI.Main.Dialog;
 using Divvun.Installer.UI.Shared;
@@ -119,30 +121,22 @@ namespace Divvun.Installer.UI.Main
     public partial class LandingPage : Page, IPageView, IDisposable
     {
         private CompositeDisposable _bag = new CompositeDisposable();
-        
-        private WebView _webView = null!;
+
+        private WebView _webView;
         private WebBridge _webBridge = null!;
 
-        IObservable<LoadedRepository?> OnRepoSelectionChanged {
-            get {
-                var app = (PahkatApp) Application.Current;
-                return app.Settings.SelectedRepository
-                    .Select(url => {
-                        using var guard = app.PackageStore.Lock();
-                        var repos = guard.Value.RepoIndexes();
-
-                        if (url == null) {
-                            return repos.Values.First();
-                        }
-
-                        var repo = repos.Values.First(x => x.Index.Url == url);
-                        return repo ?? repos.Values.First();
-                    });
-            }
-        }
+        // IObservable<LoadedRepository?> OnRepoSelectionChanged {
+        //     get {
+        //         var app = (PahkatApp) Application.Current;
+        //         return app.Settings.SelectedRepository
+        //             .Select(url => {
+        //             });
+        //     }
+        // }
 
         private void BindRepoDropdown() {
-            OnRepoSelectionChanged
+            var app = (PahkatApp) Application.Current;
+            app.Settings.SelectedRepository
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .Subscribe(SetRepository)
@@ -158,10 +152,34 @@ namespace Divvun.Installer.UI.Main
         private void ShowNoLandingPage() {
             Log.Warning("No landing page");
             
+            var app = (PahkatApp) Application.Current;
+            app.WindowService.Show<MainWindow>(new MainPage());
         }
 
-        private void SetRepository(LoadedRepository? repo) {
+        private void SetRepository(Uri? url) {
             var app = (PahkatApp) Application.Current;
+            using var guard = app.PackageStore.Lock();
+            
+            RefreshFlyoutItems();
+            
+            var repos = guard.Value.RepoIndexes();
+            LoadedRepository? repo = null;
+            if (url == null) {
+                if (repos.IsNullOrEmpty()) {
+                    ShowNoLandingPage();
+                    return;
+                }
+
+                repo = repos.Values.First();
+            } else if (url.Scheme == "divvun-installer") {
+                if (url.AbsolutePath == "detailed") {
+                    ShowNoLandingPage();
+                    return;
+                }
+            } else {
+                repo = repos.Values.First(x => x.Index.Url == url);
+                repo ??= repos.Values.First();
+            }
             
             if (repo == null) {
                 app.Settings.Mutate(file => {
@@ -176,6 +194,7 @@ namespace Divvun.Installer.UI.Main
                 return;
             }
 
+            TitleBarReposButton.Content = repo.Index.NativeName();
             _webBridge.SetRepository(repo);
             _webView.Navigate(repo.Index.LandingUrl);
         }
@@ -223,10 +242,36 @@ namespace Divvun.Installer.UI.Main
             };
         }
 
-        async void OnLoaded(object sender, RoutedEventArgs e) {
-            
+        private void RefreshFlyoutItems() {
+            TitleBarHandler.RefreshFlyoutItems(TitleBarReposFlyout);
+        }
+
+        void OnLoaded(object sender, RoutedEventArgs e) {
             ConfigureWebView();
             BindRepoDropdown();
+        }
+        
+        private void OnClickBtnMenu(object sender, RoutedEventArgs e) {
+            if (BtnMenu.ContextMenu.IsOpen) {
+                BtnMenu.ContextMenu.IsOpen = false;
+                return;
+            }
+
+            BtnMenu.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+            BtnMenu.ContextMenu.PlacementTarget = BtnMenu;
+            BtnMenu.ContextMenu.IsOpen = true;
+        }
+
+        private void OnClickAboutMenuItem(object sender, RoutedEventArgs e) {
+            TitleBarHandler.OnClickAboutMenuItem(sender, e);
+        }
+        
+        private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e) {
+            TitleBarHandler.OnClickSettingsMenuItem(sender, e);
+        }
+        
+        private void OnClickExitMenuItem(object sender, RoutedEventArgs e) {
+            TitleBarHandler.OnClickExitMenuItem(sender, e);
         }
     }
 }

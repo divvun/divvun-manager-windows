@@ -25,11 +25,13 @@
         
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="300" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="48" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
         
             <ui:TitleBarButton
@@ -38,16 +40,17 @@
                 Grid.Column="0"
                 Content="&#xE700;"
                 FontSize="14pt"
-                ContextMenuService.IsEnabled="True">
+                ContextMenuService.IsEnabled="True"
+                Click="OnClickBtnMenu">
                 <Button.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" />
-                        <MenuItem Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" />
+                        <MenuItem Click="OnClickAboutMenuItem" Name="BtnAbout" Header="{x:Static pahkat:Strings.AboutApp}" />
+                        <MenuItem Click="OnClickSettingsMenuItem" Name="BtnSettings" Header="{x:Static pahkat:Strings.Settings}" />
                         <Separator />
                         <!-- <MenuItem Click="OnClickRefreshMenuItem" Name="BtnRefresh" Header="{x:Static pahkat:Strings.Refresh}" /> -->
                         <!-- <MenuItem Click="OnClickCheckForPackageUpdatesMenuItem" Name="BtnCheckForPackageUpdates" Header="{x:Static pahkat:Strings.CheckForUpdates}" /> -->
                         <!-- <Separator /> -->
-                        <MenuItem Header="{x:Static pahkat:Strings.Exit}" />
+                        <MenuItem Click="OnClickExitMenuItem" Header="{x:Static pahkat:Strings.Exit}" />
                     </ContextMenu>
                 </Button.ContextMenu>
             </ui:TitleBarButton>
@@ -59,34 +62,24 @@
                 VerticalAlignment="Center"
                 Text="Divvun Installer" />
         
-            <!-- <ui:DropDownButton -->
-            <!--     Grid.Column="1" -->
-            <!--     WindowChrome.IsHitTestVisibleInChrome="True" -->
-            <!--     Content="Current Repository" -->
-            <!--     CornerRadius="0" -->
-            <!-- > -->
-            <!--     <ui:DropDownButton.Flyout> -->
-            <!--         <ui:MenuFlyout Placement="BottomEdgeAlignedLeft"> -->
-            <!--             <MenuItem Header="First Enabled Repository" /> -->
-            <!--             <MenuItem Header="Second Enabled Repository" /> -->
-            <!--             <MenuItem Header="Third Enabled Repository" /> -->
-            <!--         </ui:MenuFlyout> -->
-            <!--     </ui:DropDownButton.Flyout> -->
-            <!-- </ui:DropDownButton> -->
-            
             <Grid Grid.Column="2" />
             
-            <!-- <ui:TitleBarButton Grid.Column="3" -->
-            <!--                    Style="{StaticResource AppTitleBarBackButtonStyle}" -->
-            <!--                    WindowChrome.IsHitTestVisibleInChrome="True" -->
-            <!--                    Name="BtnPrimary" -->
-            <!--                    IsEnabled="False" -->
-            <!--                    Content="No Packages Selected" -->
-            <!--                    FontFamily="{DynamicResource ContentControlThemeFontFamily}" -->
-            <!--                    FontSize="13" -->
-            <!--                    Width="NaN" -->
-            <!--                    Padding="16,0" -->
-            <!--                    /> -->
+            <ui:DropDownButton
+                Name="TitleBarReposButton"
+                Grid.Column="3"
+                WindowChrome.IsHitTestVisibleInChrome="True"
+                Content="Current Repository"
+                CornerRadius="0"
+            >
+                <ui:DropDownButton.Flyout>
+                    <ui:MenuFlyout Placement="BottomEdgeAlignedLeft" x:Name="TitleBarReposFlyout">
+                        <MenuItem Header="First Enabled Repository" />
+                        <MenuItem Header="Second Enabled Repository" />
+                        <MenuItem Header="Third Enabled Repository" />
+                    </ui:MenuFlyout>
+                </ui:DropDownButton.Flyout>
+            </ui:DropDownButton>
+            
           
         </Grid>
         <Grid Grid.Row="1" Name="WebViewGrid"/>

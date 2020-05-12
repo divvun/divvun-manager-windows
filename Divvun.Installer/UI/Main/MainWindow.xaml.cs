@@ -28,10 +28,10 @@ namespace Divvun.Installer.UI.Main
         }
     }
 
-    enum Router
+    enum Route
     {
         Landing,
-        Detailed,
+        // Detailed,
         Download,
         Install,
         Completion,
@@ -47,15 +47,15 @@ namespace Divvun.Installer.UI.Main
         
         public MainWindow() {
             InitializeComponent();
-            
         }
-
-        public void ShowMainPage() {
-            // ShowPage(new MainPage());
-            // }
-            //
-            // public void ShowLandingPage() {
+        
+        void ShowLandingPage(Uri? url) {
+            if (url != null && url.Scheme == "divvun-installer") {
+                ShowPage(new MainPage());
+            }
+            else {
                 ShowPage(new LandingPage());
+            }
         }
 
         void ShowDownloadPage() {
@@ -85,41 +85,49 @@ namespace Divvun.Installer.UI.Main
             DispatcherScheduler.Current.Schedule(() => FrmContainer.Navigate(pageView));
         }
 
-        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e) {
+        private IObservable<Route> Router() {
             var app = (PahkatApp)Application.Current;
-
-            // var indexes = app.PackageStore.RepoIndexes();
-            // Console.WriteLine(indexes);
-            
-            app.CurrentTransaction.AsObservable()
+            return app.CurrentTransaction.AsObservable()
                 .DistinctUntilChanged()
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .Select(evt => evt.Match(
-                    notStarted => Router.Landing,
+                    notStarted => Route.Landing,
                     inProgress => inProgress.State.Match(
-                        downloading => Router.Download,
-                        installing => Router.Install,
-                        complete => Router.Completion),
-                    error => Router.Error)
-                )
-                .DistinctUntilChanged()
+                        downloading => Route.Download,
+                        installing => Route.Install,
+                        complete => Route.Completion),
+                    error => Route.Error)
+                ).DistinctUntilChanged();
+        }
+
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e) {
+            var app = (PahkatApp) Application.Current;
+
+            Router()
+                .CombineLatest(app.Settings.SelectedRepository, (a, b) => (a, b))
+                .Subscribe(tuple => {
+                    switch (tuple.a) {
+                        case Route.Landing:
+                            ShowLandingPage(tuple.b);
+                            break;
+                    }
+                }).DisposedBy(bag);
+            
+            Router()
                 .Subscribe(route => {
                     switch (route)
                     {
-                        case Router.Landing:
-                            ShowMainPage();
-                            return;
-                        case Router.Download:
+                        case Route.Download:
                             ShowDownloadPage();
                             return;
-                        case Router.Install:
+                        case Route.Install:
                             ShowInstallPage();
                             return;
-                        case Router.Completion:
+                        case Route.Completion:
                             ShowCompletionPage();
                             return;
-                        case Router.Error:
+                        case Route.Error:
                             ShowErrorPage();
                             return;
                     }

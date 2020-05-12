@@ -10,6 +10,7 @@ using Divvun.Installer.Extensions;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
+using SharpRaven.Data.Context;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -93,6 +94,8 @@ namespace Divvun.Installer.UI.Main
                 BtnFinish.IsEnabled = false;
                 RebootSystem();
             }).DisposedBy(_bag);
+            
+            app.UserSelection.Dispatch(UserSelectionAction.ResetSelection);
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e) {

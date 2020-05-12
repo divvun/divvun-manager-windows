@@ -20,16 +20,20 @@ namespace Divvun.Installer.UI.Main
 {
     public interface IMainPageView : IPageView
     {
-        IObservable<string> OnSearchTextChanged();
         IObservable<PackageMenuItem> OnPackageToggled();
         IObservable<PackageCategoryTreeItem> OnGroupToggled();
         IObservable<EventArgs> OnPrimaryButtonPressed();
-        IObservable<LoadedRepository[]> OnNewRepositories();
         void UpdateTitle(string title);
         void SetPackagesModel(ObservableCollection<RepoTreeItem> tree);
         // void ShowDownloadPage();
         void UpdatePrimaryButton(bool isEnabled, string label);
         void HandleError(Exception error);
+    }
+
+    enum SortBy
+    {
+        Language,
+        Category
     }
 
     /// <summary>
@@ -39,30 +43,55 @@ namespace Divvun.Installer.UI.Main
     {
         private readonly MainPagePresenter _presenter;
         
-        private CompositeDisposable _bag = new CompositeDisposable();
-        private NavigationService _navigationService;
+        private readonly CompositeDisposable _bag = new CompositeDisposable();
+        private NavigationService? _navigationService;
         
         // Package handling events
-        private IObservable<LoadedRepository[]> _onNewRepositories;
-        private IObservable<PackageCategoryTreeItem> _groupToggled;
-        private IObservable<PackageMenuItem> _packageToggled;
+        private readonly IObservable<PackageCategoryTreeItem> _groupToggled;
+        private readonly IObservable<PackageMenuItem> _packageToggled;
         
         // Package handling observables
         public IObservable<PackageCategoryTreeItem> OnGroupToggled() => _groupToggled;
         public IObservable<PackageMenuItem> OnPackageToggled() => _packageToggled;
         
         // Package search events
-        private ISubject<string> _searchTextChangedSubject = new BehaviorSubject<string>("");
-        public IObservable<string> OnSearchTextChanged() => _searchTextChangedSubject.AsObservable();
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
             .ObserveOn(Dispatcher.CurrentDispatcher)
             .SubscribeOn(Dispatcher.CurrentDispatcher)
             .Select(e => e.EventArgs);
-        public IObservable<LoadedRepository[]> OnNewRepositories() => _onNewRepositories;
+        
+        private BehaviorSubject<SortBy> _sortedBy = new BehaviorSubject<SortBy>(SortBy.Language);
 
+        private void ConfigureSortBy() {
+            var sortByLanguage = new MenuItem {Header = Strings.Language};
+            sortByLanguage.Click += (sender, args) => {
+                _sortedBy.OnNext(SortBy.Language);
+            };
+            
+            var sortByCategory = new MenuItem {Header = Strings.Category};
+            sortByCategory.Click += (sender, args) => {
+                _sortedBy.OnNext(SortBy.Category);
+            };
+
+            TitleBarSortByFlyout.Items.Add(sortByCategory);
+            TitleBarSortByFlyout.Items.Add(sortByLanguage);
+            
+            _sortedBy.Subscribe((value) => {
+                switch (value) {
+                    case SortBy.Language:
+                        TitleBarSortByButton.Content = $"{Strings.SortBy}: {Strings.Language}";
+                        break;
+                    case SortBy.Category:
+                        TitleBarSortByButton.Content = $"{Strings.SortBy}: {Strings.Category}";
+                        break;
+                }
+                _presenter.BindNewRepositories(value);
+            }).DisposedBy(_bag);
+        }
+        
         public MainPage() {
             InitializeComponent();
-
+            
             var app = (PahkatApp) Application.Current;
 
             _presenter = new MainPagePresenter(this,
@@ -87,53 +116,7 @@ namespace Divvun.Installer.UI.Main
                     .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
                     .NotNull()!;
 
-            // var onConfigChanged = app.ConfigStore.State
-            //     .Select(x => x.Repositories)
-            //     .Select(async configs => await RequestRepos())
-            //     .Switch()
-            //     .ObserveOn(Dispatcher.CurrentDispatcher);
-
-            // var onForceRefreshClick = _onForceRefreshClickedSubject
-            //     .AsObservable()
-            //     .Select(async force => await ForceRequestRepos())
-            //     .Switch()
-            //     .ObserveOn(Dispatcher.CurrentDispatcher);
-
-            // _onNewRepositories = Observable.Merge(onConfigChanged, onForceRefreshClick);
-
             _presenter.Start().DisposedBy(_bag);
-
-            TvPackages.Focus();
-        }
-
-        // private async Task<LoadedRepository[]> RequestRepos() {
-        //     return await Task.Run(() => {
-        //         var app = (PahkatApp) Application.Current;
-        //         app.PackageStore.RefreshRepos();
-        //         return app.PackageStore.RepoIndexes();
-        //     });
-        // }
-        //
-        // private async Task<LoadedRepository[]> ForceRequestRepos() {
-        //     return await Task.Run(() => {
-        //         var app = (PahkatApp) Application.Current;
-        //         app.PackageStore.ForceRefreshRepos();
-        //         return app.PackageStore.RepoIndexes();
-        //     });
-        // }
-
-        private void OnClickAboutMenuItem(object sender, RoutedEventArgs e) {
-            var app = (PahkatApp) Application.Current;
-            app.WindowService.Show<AboutWindow>();
-        }
-
-        private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e) {
-            var app = (PahkatApp) Application.Current;
-            app.WindowService.Show<SettingsWindow>();
-        }
-
-        private void OnClickExitMenuItem(object sender, RoutedEventArgs e) {
-            Application.Current.Shutdown();
         }
 
         private void OnClickBtnMenu(object sender, RoutedEventArgs e) {
@@ -150,10 +133,6 @@ namespace Divvun.Installer.UI.Main
         public void SetPackagesModel(ObservableCollection<RepoTreeItem> tree) {
             TvPackages.ItemsSource = tree;
         }
-
-        // public void ShowDownloadPage() {
-        //     this.ReplacePageWith(new DownloadPage(DownloadPagePresenter.Default));
-        // }
 
         public void UpdatePrimaryButton(bool isEnabled, string label) {
             BtnPrimary.Content = label;
@@ -175,10 +154,17 @@ namespace Divvun.Installer.UI.Main
         private void Page_Loaded(object sender, RoutedEventArgs e) {
             _navigationService = this.NavigationService;
             _navigationService.Navigating += NavigationService_Navigating;
+
+            TitleBarHandler.RefreshFlyoutItems(TitleBarReposFlyout);
+            ConfigureSortBy();
+
+            TvPackages.Focus();
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e) {
-            _navigationService.Navigating -= NavigationService_Navigating;
+            if (_navigationService != null) {
+                _navigationService.Navigating -= NavigationService_Navigating;
+            }
         }
 
         private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e) {
@@ -187,23 +173,16 @@ namespace Divvun.Installer.UI.Main
             }
         }
 
-        // private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e) {
-        //     // TODO: label goes on top, not this
-        //     if (SearchTextBox.Text != Strings.Search) {
-        //         _searchTextChangedSubject.OnNext(SearchTextBox.Text);
-        //     }
-        // }
-        //
-        // private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e) {
-        //     if (SearchTextBox.Text == Strings.Search) {
-        //         SearchTextBox.Text = string.Empty;
-        //     }
-        // }
-        //
-        // private void SearchTextBox_LostFocus(object sender, RoutedEventArgs e) {
-        //     if (string.IsNullOrWhiteSpace(SearchTextBox.Text)) {
-        //         SearchTextBox.Text = Strings.Search;
-        //     }
-        // }
+        private void OnClickAboutMenuItem(object sender, RoutedEventArgs e) {
+            TitleBarHandler.OnClickAboutMenuItem(sender, e);
+        }
+        
+        private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e) {
+            TitleBarHandler.OnClickSettingsMenuItem(sender, e);
+        }
+        
+        private void OnClickExitMenuItem(object sender, RoutedEventArgs e) {
+            TitleBarHandler.OnClickExitMenuItem(sender, e);
+        }
     }
 }

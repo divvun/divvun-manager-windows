@@ -79,5 +79,9 @@ namespace Divvun.Installer.Models
         public string? GetLanguage() {
             return Language.Take(1).ToTask().GetAwaiter().GetResult();
         }
+        
+        public Uri? GetSelectedRepository() {
+            return SelectedRepository.Take(1).ToTask().GetAwaiter().GetResult();
+        }
     }
 }

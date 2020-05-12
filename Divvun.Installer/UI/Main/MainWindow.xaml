@@ -34,52 +34,6 @@
     
     
     <Grid>
-        <Grid.RowDefinitions>
-            <!-- <RowDefinition Height="auto" /> -->
-            <RowDefinition />
-        </Grid.RowDefinitions>
-
-        <!-- <Grid -->
-        <!--     x:Name="AppTitleBar" -->
-        <!--     MaxHeight="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}" -->
-        <!--     Height="{Binding ElementName=Window, Path=(ui:TitleBar.Height)}"> -->
-        <!-- -->
-        <!--     <Grid.ColumnDefinitions> -->
-        <!--         <ColumnDefinition Width="Auto" /> -->
-        <!--         <ColumnDefinition Width="Auto" /> -->
-        <!--         <ColumnDefinition Width="Auto" /> -->
-        <!--         <ColumnDefinition Width="200" /> -->
-        <!--     </Grid.ColumnDefinitions> -->
-        <!-- -->
-        <!--     <ui:TitleBarButton -->
-        <!--         x:Name="HamburgerButton" -->
-        <!--         Grid.Column="0" -->
-        <!--         Style="{StaticResource AppTitleBarBackButtonStyle}" -->
-        <!--         Content="&#xE700;" -->
-        <!--         FontSize="14pt"/> -->
-        <!--      -->
-        <!--     <ui:TitleBarButton -->
-        <!--         x:Name="SearchButton" -->
-        <!--         Grid.Column="1" -->
-        <!--         Style="{StaticResource AppTitleBarBackButtonStyle}" -->
-        <!--         Content="&#xE721;" -->
-        <!--         FontSize="14pt"/> -->
-        <!--      -->
-        <!--     <ui:DropDownButton -->
-        <!--         Grid.Column="2" -->
-        <!--         WindowChrome.IsHitTestVisibleInChrome="True" -->
-        <!--         Content="Current Repository" -->
-        <!--         CornerRadius="0" -->
-        <!--         > -->
-        <!--         <ui:DropDownButton.Flyout> -->
-        <!--             <ui:MenuFlyout Placement="BottomEdgeAlignedLeft"> -->
-        <!--                 <MenuItem Header="First Enabled Repository" /> -->
-        <!--                 <MenuItem Header="Second Enabled Repository" /> -->
-        <!--                 <MenuItem Header="Third Enabled Repository" /> -->
-        <!--             </ui:MenuFlyout> -->
-        <!--         </ui:DropDownButton.Flyout> -->
-        <!--     </ui:DropDownButton> -->
-        <!-- </Grid> -->
         <Frame Grid.Row="0" x:Name="FrmContainer" NavigationUIVisibility="Hidden" />
     </Grid>
 </Window>

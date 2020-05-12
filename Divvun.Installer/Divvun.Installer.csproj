@@ -262,17 +262,17 @@
     <Compile Include="UI\Main\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Main\MainWindowPresenter.cs" />
     <Compile Include="UI\Main\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\Main\PackageCategoryTreeItem.cs" />
+    <Compile Include="UI\Main\PackageMenuItem.cs" />
+    <Compile Include="UI\Main\TitleBarHandler.cs" />
     <Compile Include="UI\Settings\SettingsWindowPresenter.cs" />
     <Compile Include="UI\Settings\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Shared\Interfaces.cs" />
-    <Compile Include="UI\Shared\PackageCategoryTreeItem.cs" />
-    <Compile Include="UI\Shared\PackageMenuItem.cs" />
     <Compile Include="UnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UI\Main\MainPagePresenter.cs" />

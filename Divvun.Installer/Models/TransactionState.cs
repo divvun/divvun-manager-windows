@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Divvun.Installer.Util;
 using OneOf;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
@@ -25,7 +26,7 @@ namespace Divvun.Installer.Models
             >, IEquatable<TransactionProcessState> {
                 public class DownloadState : TransactionProcessState
                 {
-                    public Dictionary<PackageKey, (long, long)> Progress;
+                    public Mutex<Dictionary<PackageKey, (long, long)>> Progress;
                 }
 
                 public class InstallState : TransactionProcessState
@@ -122,14 +123,21 @@ namespace Divvun.Installer.Models
                 downloadProgress => {
                     if (state.AsInProgress?.IsDownloading ?? false) {
                         var dl = state.AsInProgress!.State.AsDownloadState!;
-                        var copy = new Dictionary<PackageKey, (long, long)>(dl.Progress);
-                        copy[downloadProgress.PackageKey] = ((long) downloadProgress.Current, (long) downloadProgress.Total);
-                        dl.Progress = copy;
+                        using var guard = dl.Progress.Lock();
+                        guard.Value[downloadProgress.PackageKey] = ((long) downloadProgress.Current, (long) downloadProgress.Total);
                     }
 
                     return state;
                 },
-                downloadComplete => state,
+                downloadComplete => {
+                    if (state.AsInProgress?.IsDownloading ?? false) {
+                        var dl = state.AsInProgress!.State.AsDownloadState!;
+                        using var guard = dl.Progress.Lock();
+                        guard.Value[downloadComplete.PackageKey] = (Int64.MaxValue, Int64.MaxValue);
+                    }
+
+                    return state;
+                },
                 installStarted => {
                     if (EnsureInstallState(this, out var newState)) {
                         return newState.AsInProgress!.IntoInstall(installStarted.PackageKey);
@@ -151,8 +159,9 @@ namespace Divvun.Installer.Models
                 transactionStarted => new InProgress {
                     Actions = transactionStarted.Actions,
                     IsRebootRequired = transactionStarted.IsRebootRequired,
-                    State = new InProgress.TransactionProcessState.DownloadState() {
-                        Progress = new Dictionary<PackageKey, (long, long)>()
+                    State = new InProgress.TransactionProcessState.DownloadState {
+                        Progress = new Mutex<Dictionary<PackageKey, (long, long)>>(
+                            new Dictionary<PackageKey, (long, long)>())
                     }
                 },
                 transactionComplete => {
