@@ -195,7 +195,8 @@ namespace Divvun.Installer
                 PackageStore = new Mutex<IPahkatClient>(PahkatClient.Create());
             }
             catch (Exception eee) {
-                MessageBox.Show(eee.Message, "Could not connect to Pahkat Client");
+                MessageBox.Show("The RPC service was not found.", "Could not connect to Pahkat Client");
+                Current.Shutdown(1);
             }
         }
 

@@ -45,6 +45,7 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
+          target: i686-pc-windows-msvc
           components: rustfmt
       - name: Setup Nuget.exe
         uses: warrenbuckley/Setup-Nuget@v1
@@ -52,11 +53,12 @@ jobs:
         run: |
           cd pahkat\pahkat-rpc
           $env:RUSTC_BOOTSTRAP=1
-          cargo build --release --features windows --bin winsvc
+          cargo build --release --features windows --bin winsvc --target i686-pc-windows-msvc
           # Copy into installer build dir
           dir ..\target
-          dir ..\target\release
-          cp ..\target\release\winsvc.exe "$env:GITHUB_WORKSPACE\pahkat-service.exe"
+          dir ..\target\i686-pc-windows-msvc
+          dir ..\target\i686-pc-windows-msvc\release
+          cp ..\target\i686-pc-windows-msvc\release\winsvc.exe "$env:GITHUB_WORKSPACE\pahkat-service.exe"
       - name: Build
         shell: cmd
         run: |
@@ -70,7 +72,6 @@ jobs:
           source "$DIVVUN_CI_CONFIG/enc/env.sh"
           echo "::set-env name=SIGN_PFX_PASSWORD::$SIGN_PFX_PASSWORD"
           echo "::set-env name=DEPLOY_VERSION::$GitBuildVersionSimple"
-          # echo "::set-output name=installer::windivvun-$VERSION.exe"
           set -ex
       - name: Bundle
         shell: cmd
@@ -94,7 +95,7 @@ jobs:
         uses: divvun/actions/deploy@master
         with:
           payload: "output/install.exe"
-          repository: "https://pahkat.uit.no/tools"
+          repository: "https://pahkat.uit.no/divvun-installer"
           package: "divvun-installer"
           platform: "windows"
           version: "${{ env.DEPLOY_VERSION }}"
