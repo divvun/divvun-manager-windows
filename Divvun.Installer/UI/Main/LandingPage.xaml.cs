@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Wpf.UI.Controls;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -13,14 +12,11 @@ using System.Windows.Controls;
 using Castle.Core.Internal;
 using Divvun.Installer.Extensions;
 using Divvun.Installer.Service;
-using Divvun.Installer.UI.Main.Dialog;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
-using ModernWpf.Controls;
+using Flurl;
 using Newtonsoft.Json.Linq;
-using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
-using Pahkat.Sdk.Rpc.Fbs;
 using Serilog;
 
 namespace Divvun.Installer.UI.Main
@@ -125,18 +121,20 @@ namespace Divvun.Installer.UI.Main
         private WebView _webView;
         private WebBridge _webBridge = null!;
 
-        // IObservable<LoadedRepository?> OnRepoSelectionChanged {
-        //     get {
-        //         var app = (PahkatApp) Application.Current;
-        //         return app.Settings.SelectedRepository
-        //             .Select(url => {
-        //             });
-        //     }
-        // }
+        private IObservable<Notification> OnReposChanged() {
+            var app = (PahkatApp) Application.Current;
+            using var guard = app.PackageStore.Lock();
+            return guard.Value.Notifications()
+                .Where(x => x == Notification.RepositoriesChanged)
+                .ObserveOn(DispatcherScheduler.Current)
+                .SubscribeOn(DispatcherScheduler.Current)
+                .StartWith(Notification.RepositoriesChanged);
+        }
 
         private void BindRepoDropdown() {
             var app = (PahkatApp) Application.Current;
-            app.Settings.SelectedRepository
+            OnReposChanged()
+                .CombineLatest(app.Settings.SelectedRepository, (a, b) => b)
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .Subscribe(SetRepository)
@@ -196,7 +194,7 @@ namespace Divvun.Installer.UI.Main
 
             TitleBarReposButton.Content = repo.Index.NativeName();
             _webBridge.SetRepository(repo);
-            _webView.Navigate(repo.Index.LandingUrl);
+            _webView.Navigate(repo.Index.LandingUrl.SetQueryParam("ts", DateTimeOffset.UtcNow));
         }
 
         public void Dispose() {
@@ -247,8 +245,19 @@ namespace Divvun.Installer.UI.Main
         }
 
         void OnLoaded(object sender, RoutedEventArgs e) {
-            ConfigureWebView();
             BindRepoDropdown();
+            
+            var app = (PahkatApp) Application.Current;
+            using var guard = app.PackageStore.Lock();
+            guard.Value.Notifications()
+                .Where(x => x == Notification.RepositoriesChanged)
+                .ObserveOn(DispatcherScheduler.Current)
+                .SubscribeOn(DispatcherScheduler.Current)
+                .StartWith(Notification.RepositoriesChanged)
+                .Subscribe(x => {
+                    ConfigureWebView();
+                })
+                .DisposedBy(_bag);
         }
         
         private void OnClickBtnMenu(object sender, RoutedEventArgs e) {

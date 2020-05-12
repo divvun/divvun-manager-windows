@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
+using Pahkat.Sdk.Rpc;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
