@@ -93,12 +93,19 @@ jobs:
         with:
           name: installer
           path: "output/install.exe"
+      - name: Write payload matadata
+        shell: bash
+        run: |
+          set -ex
+          pahkat-repomgr payload windows-executable -k inno -r uninstall --installed-size 1 --size 1 --url "pahkat:payload" --product-code "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1" > payload.toml
+          cat payload.toml
       - name: Deploy to Pahkat
         uses: divvun/actions/deploy@master
         with:
           payload: "output/install.exe"
+          payloadMetadata: "payload.toml"
           repository: "https://pahkat.uit.no/divvun-installer"
           package: "divvun-installer"
           platform: "windows"
           version: "${{ env.DEPLOY_VERSION }}"
-
+          forceDeploy: true
