@@ -156,6 +156,7 @@ namespace Divvun.Installer.UI.Main
             var app = (PahkatApp) Application.Current;
             using var x = ((PahkatApp) Application.Current).PackageStore.Lock();
             var repos = x.Value.RepoIndexes().Values;
+            var records = x.Value.GetRepoRecords();
         
             _tree.Clear();
 
@@ -166,7 +167,9 @@ namespace Divvun.Installer.UI.Main
             }
 
             foreach (var repo in repos) {
-                IEnumerable<PackageCategoryTreeItem> items;
+                if (!records.ContainsKey(repo.Index.Url)) {
+                    continue;
+                }
 
                 switch (sortBy) {
                     case SortBy.Category:
@@ -176,10 +179,10 @@ namespace Divvun.Installer.UI.Main
                         _tree.Add(FilterByLanguage(repo));
                         break;
                 }
-
-                _view.UpdateTitle(Strings.AppName);
-                Console.WriteLine("Added packages.");
             }
+
+            _view.UpdateTitle(Strings.AppName);
+            Console.WriteLine("Added packages.");
         }
 
         private void GeneratePrimaryButtonLabel(Dictionary<PackageKey, PackageAction> packages) {

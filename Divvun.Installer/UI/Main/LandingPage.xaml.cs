@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Wpf.UI.Controls;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -16,6 +17,7 @@ using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
 using Flurl;
 using Newtonsoft.Json.Linq;
+using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Serilog;
 
@@ -121,26 +123,6 @@ namespace Divvun.Installer.UI.Main
         private WebView _webView;
         private WebBridge _webBridge = null!;
 
-        private IObservable<Notification> OnReposChanged() {
-            var app = (PahkatApp) Application.Current;
-            using var guard = app.PackageStore.Lock();
-            return guard.Value.Notifications()
-                .Where(x => x == Notification.RepositoriesChanged)
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
-                .StartWith(Notification.RepositoriesChanged);
-        }
-
-        private void BindRepoDropdown() {
-            var app = (PahkatApp) Application.Current;
-            OnReposChanged()
-                .CombineLatest(app.Settings.SelectedRepository, (a, b) => b)
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
-                .Subscribe(SetRepository)
-                .DisposedBy(_bag);
-        }
-
         public LandingPage() {
             InitializeComponent();
             _webView = new WebView();
@@ -156,27 +138,42 @@ namespace Divvun.Installer.UI.Main
 
         private void SetRepository(Uri? url) {
             var app = (PahkatApp) Application.Current;
-            using var guard = app.PackageStore.Lock();
+
+            Dictionary<Uri, LoadedRepository> repos;
+            Dictionary<Uri, RepoRecord> records;
+
+            using (var guard = app.PackageStore.Lock()) {
+                repos = guard.Value.RepoIndexes();
+                records = guard.Value.GetRepoRecords();
+            }
+
+            TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos.Values.ToArray(), records);
             
-            RefreshFlyoutItems();
-            
-            var repos = guard.Value.RepoIndexes();
             LoadedRepository? repo = null;
             if (url == null) {
-                if (repos.IsNullOrEmpty()) {
+                if (records.IsNullOrEmpty()) {
                     ShowNoLandingPage();
                     return;
                 }
 
-                repo = repos.Values.First();
+                repo = repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                if (repo == null) {
+                    ShowNoLandingPage();
+                    return;
+                }
             } else if (url.Scheme == "divvun-installer") {
                 if (url.AbsolutePath == "detailed") {
                     ShowNoLandingPage();
                     return;
                 }
             } else {
-                repo = repos.Values.First(x => x.Index.Url == url);
-                repo ??= repos.Values.First();
+                repo = repos.Values.First(r => r.Index.Url == url);
+                repo ??= repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                
+                if (repo == null) {
+                    ShowNoLandingPage();
+                    return;
+                }
             }
             
             if (repo == null) {
@@ -240,12 +237,9 @@ namespace Divvun.Installer.UI.Main
             };
         }
 
-        private void RefreshFlyoutItems() {
-            TitleBarHandler.RefreshFlyoutItems(TitleBarReposFlyout);
-        }
-
         void OnLoaded(object sender, RoutedEventArgs e) {
-            BindRepoDropdown();
+            _bag = new CompositeDisposable();
+            TitleBarHandler.BindRepoDropdown(_bag, SetRepository);
             
             var app = (PahkatApp) Application.Current;
             using var guard = app.PackageStore.Lock();
@@ -258,6 +252,10 @@ namespace Divvun.Installer.UI.Main
                     ConfigureWebView();
                 })
                 .DisposedBy(_bag);
+        }
+
+        void OnUnloaded(object sender, RoutedEventArgs e) {
+            _bag.Dispose();
         }
         
         private void OnClickBtnMenu(object sender, RoutedEventArgs e) {

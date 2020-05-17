@@ -76,7 +76,7 @@ namespace Pahkat.Sdk.Rpc
         private static string? _lastError;
 
         internal static pahkat_rpc.ErrCallback Callback = (ptr, len) => {
-            _lastError = MarshalUtf8.PtrToStringUtf8(ptr, (long) len);
+            _lastError = MarshalUtf8.PtrToStringUtf8(ptr, len.ToInt64());
         };
         
         internal static void AssertNoError() {
@@ -185,7 +185,7 @@ namespace Pahkat.Sdk.Rpc
         public struct RepoRecordResponse
         {
             public Dictionary<Uri, RepoRecord> Records;
-            public string? Error;
+            public Dictionary<Uri, string> Errors;
         }
 
         public Dictionary<Uri, RepoRecord> GetRepoRecords() {
@@ -332,7 +332,7 @@ namespace Pahkat.Sdk.Rpc
         }
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public delegate void ErrCallback(IntPtr bytes, ulong len);
+        public delegate void ErrCallback(IntPtr bytes, IntPtr len);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate void TransactionResponseCallback(Slice slice);

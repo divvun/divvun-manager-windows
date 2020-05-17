@@ -178,7 +178,13 @@ namespace Divvun.Installer
             // Set up Sentry exception capturing
             var sentry = new RavenClient(Constants.SentryDsn);
             AppDomain.CurrentDomain.UnhandledException += (sender, sargs) => {
+                Log.Fatal(sargs.ExceptionObject.ToString());
                 sentry.Capture(new SentryEvent((Exception) sargs.ExceptionObject));
+            };
+
+            Application.Current.DispatcherUnhandledException += (o, xargs) => {
+                Log.Fatal(xargs.Exception.Message);
+                sentry.Capture(new SentryEvent(xargs.Exception));
             };
 
             Settings = Settings.Create();
