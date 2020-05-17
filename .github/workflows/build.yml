@@ -19,21 +19,21 @@ jobs:
         with:
           path: ~/.cargo/registry
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('pahkat/**/Cargo.lock') }}
-          restoreKeys:
+          restore-keys:
             ${{ runner.os }}-cargo-registry-
       - name: Cache cargo index
         uses: actions/cache@v1
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('pahkat/**/Cargo.lock') }}
-          restoreKeys:
+          restore-keys:
             ${{ runner.os }}-cargo-index-
       - name: Cache cargo build
         uses: actions/cache@v1
         with:
           path: pahkat/target
           key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('pahkat/**/Cargo.lock') }}
-          restoreKeys:
+          restore-keys:
             ${{ runner.os }}-cargo-build
       - name: Setup Divvun CI
         uses: divvun/actions/setup@master
