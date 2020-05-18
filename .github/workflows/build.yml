@@ -72,8 +72,10 @@ jobs:
         shell: bash
         run: |
           source "$DIVVUN_CI_CONFIG/enc/env.sh"
+          echo "::add-mask::$SIGN_PFX_PASSWORD"
           echo "::set-env name=SIGN_PFX_PASSWORD::$SIGN_PFX_PASSWORD"
           VERSION="${GitBuildVersionSimple}-nightly.$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "$VERSION"
           echo "::set-env name=DEPLOY_VERSION::$VERSION"
           set -ex
       - name: Bundle
