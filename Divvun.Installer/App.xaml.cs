@@ -158,7 +158,7 @@ namespace Divvun.Installer
         private const int AttachParentProcess = -1;
 
         private void OnStartup(object sender, StartupEventArgs e) {
-            const string key = "Divvun.Installer";
+            const string key = "DivvunInstaller";
             
             AttachConsole(AttachParentProcess);
 

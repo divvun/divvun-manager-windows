@@ -1,8 +1,7 @@
 #define MyAppName "Divvun Installer"
-#define MyAppPublisher "Universitetet i TromsÃ¸ - Norges arktiske universitet"
+#define MyAppPublisher "Universitetet i Tromsø - Norges arktiske universitet"
 #define MyAppURL "http://divvun.no"
-#define MyAppExeName "Divvun.Installer.exe"
-; #define MyAppVersion "1.2.3"
+#define MyAppExeName "DivvunInstaller.exe"
 #define PahkatSvcExe "pahkat-service.exe"
 
 [Setup]
@@ -77,5 +76,5 @@ var
 begin
     // Stop the service
     ExtractTemporaryFile('{#PahkatSvcExe}');
-    Exec(ExpandConstant('{tmp}\{#PahkatSvcExe}'), 'service stop', '', SW_SHOW, ewWaitUntilTerminated, ResultCode)
+    Exec(ExpandConstant('{tmp}\{#PahkatSvcExe}'), 'service stop', '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
 end;
