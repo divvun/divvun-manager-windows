@@ -81,7 +81,7 @@ jobs:
         run: |
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat-service.exe || exit /b !ERRORLEVEL!
           cd Divvun.Installer\bin\x86\Release\
-          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Divvun.Installer.exe || exit /b !ERRORLEVEL!
+          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" DivvunInstaller.exe || exit /b !ERRORLEVEL!
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Pahkat.Sdk.dll || exit /b !ERRORLEVEL!
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Pahkat.Sdk.Rpc.dll || exit /b !ERRORLEVEL!
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat_rpc.dll || exit /b !ERRORLEVEL!
