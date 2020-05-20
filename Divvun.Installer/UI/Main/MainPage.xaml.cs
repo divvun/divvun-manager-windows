@@ -158,8 +158,8 @@ namespace Divvun.Installer.UI.Main
                     .NotNull()!;
 
             _presenter.Start().DisposedBy(_bag);
+            
             TitleBarHandler.BindRepoDropdown(_bag, x => {
-                
                 var app = (PahkatApp) Application.Current;
                 LoadedRepository[] repos;
                 Dictionary<Uri, RepoRecord> records;
@@ -170,6 +170,7 @@ namespace Divvun.Installer.UI.Main
                 }
                 
                 TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos, records);
+                _presenter.BindNewRepositories(_sortedBy.Value);
             });
 
             ConfigureSortBy();

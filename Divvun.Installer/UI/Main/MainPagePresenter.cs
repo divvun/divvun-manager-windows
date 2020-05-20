@@ -61,30 +61,6 @@ namespace Divvun.Installer.UI.Main
                 });
         }
 
-        // private IEnumerable<PackageCategoryTreeItem> FilterByCategory(Dictionary<Descriptor, PackageKey> keyMap) {
-        //     var map = new Dictionary<string, List<PackageMenuItem>>();
-        //     
-        //     foreach (var package in keyMap.Keys) {
-        //         foreach (var cat in package.Categories()) {
-        //             
-        //             if (!map.ContainsKey(cat)) {
-        //                 map[cat] = new List<PackageMenuItem>();
-        //             }
-        //             
-        //             
-        //             map[cat].Add(new PackageMenuItem(keyMap[package], package, _store));
-        //         }
-        //     }
-        //     
-        //     var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x => {
-        //         x.Value.Sort();
-        //         var items = new ObservableCollection<PackageMenuItem>(x.Value);
-        //         return new PackageCategoryTreeItem(_store, x.Key, items);
-        //     }));
-        //     
-        //     return categories;
-        // }
-
         private RepoTreeItem FilterByTagPrefix(LoadedRepository repo, string prefix, Func<string, string> convertor) {
             // var nodes = new ObservableCollection<PackageCategoryTreeItem>();
 
