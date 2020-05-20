@@ -102,6 +102,7 @@ namespace Pahkat.Sdk
                 .RemovePathSegment()
                 .RemoveFragment()
                 .RemoveQuery()
+                .AppendPathSegment("")
                 .ToUri();
 
             return new PackageKey() {
