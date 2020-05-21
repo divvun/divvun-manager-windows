@@ -9,6 +9,7 @@ using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using Castle.Core.Internal;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Extensions;
 using Divvun.Installer.Util;
@@ -44,6 +45,10 @@ namespace Divvun.Installer.UI.Main
             }
             
             var source = (ObservableCollection<DownloadListItem>) LvPrimary.ItemsSource;
+            if (source.IsNullOrEmpty()) {
+                return;
+            }
+            
             var item = source.First(x => x.Key.Equals(packageKey));
 
             item.FileSize = total;
