@@ -13,7 +13,7 @@
     Loaded="Page_Loaded"
     Unloaded="Page_Unloaded">
 
-    <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
@@ -32,11 +32,17 @@
             <ListView.View>
                 <GridView>
                     <GridView.Columns>
-                        <GridViewColumn DisplayMemberBinding="{Binding Title}" Width="Auto"/>
                         <GridViewColumn>
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Version}" TextAlignment="Right" />
+                                    <TextBlock Foreground="{DynamicResource Title}" Text="{Binding Title}" Width="Auto" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Foreground="{DynamicResource Text}" Text="{Binding Version}" TextAlignment="Right" />
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -52,13 +58,19 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn DisplayMemberBinding="{Binding Status}" />
+                        <GridViewColumn>
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Foreground="{DynamicResource Text}" Text="{Binding Status}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView.Columns>
                 </GridView>
             </ListView.View>
         </ListView>
         <Border Grid.Row="1" DockPanel.Dock="Bottom" BorderBrush="#FF828790" Height="auto">
-            <DockPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Height="auto">
+            <DockPanel Height="auto">
                 <Button Visibility="Hidden" Name="BtnCancel" IsCancel="True"
                         Content="{x:Static pahkat:Strings.Cancel}" Width="60"
                         HorizontalAlignment="Right" VerticalAlignment="Center" Margin="8,8,12,8" />

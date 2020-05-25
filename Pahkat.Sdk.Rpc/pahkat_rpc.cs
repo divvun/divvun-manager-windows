@@ -126,13 +126,21 @@ namespace Pahkat.Sdk.Rpc
                 var str = MarshalUtf8.PtrToStringUtf8(s.Ptr, s.Length.ToInt64());
 
                 Console.WriteLine("Raw tx response: " + str);
-                
-                var value = JsonConvert.DeserializeObject<TransactionResponseValue>(str, Json.Settings.Value);
-                Console.WriteLine("Tx respo: " + value);
-                if (value != null) {
-                    callback(value);
-                } else {
-                    Console.WriteLine("Warning: null transaction response");
+
+                try {
+                    var value = JsonConvert.DeserializeObject<TransactionResponseValue>(str, Json.Settings.Value);
+                    Console.WriteLine("Tx respo: " + value);
+                    if (value != null) {
+                        callback(value);
+                    }
+                    else {
+                        Console.WriteLine("Warning: null transaction response");
+                    }
+                }
+                catch (Exception e) {
+                    callback(new TransactionResponseValue.TransactionError() {
+                        Error = e.Message,
+                    });
                 }
             };
 

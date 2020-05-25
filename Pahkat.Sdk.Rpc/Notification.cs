@@ -3,6 +3,9 @@
     public enum Notification: int
     {
         RebootRequired = 0,
-        RepositoriesChanged
+        RepositoriesChanged,
+        RpcStopping,
+        TransactionLocked,
+        TransactionUnlocked,
     }
 }

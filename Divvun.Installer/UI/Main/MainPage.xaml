@@ -9,6 +9,7 @@
       xmlns:ui="http://schemas.modernwpf.com/2019"
       mc:Ignorable="d" 
       d:DesignHeight="480" d:DesignWidth="640"
+      Background="{DynamicResource AppContentBackgroundBrush}"
       Title="{Binding Title}" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
     
     <Page.Resources>
@@ -68,8 +69,10 @@
             <TextBlock
                 Grid.Column="1"
                 FontSize="13"
+                Margin="4,0,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
+                Foreground="{DynamicResource Text}"
                 Text="Divvun Installer" />
             
             <Grid Grid.Column="2" />
@@ -117,7 +120,8 @@
             <!--         <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" /> -->
             <!--     </DockPanel> -->
             <!-- </DockPanel> -->
-            <TreeView Name="TvPackages" HorizontalContentAlignment="Stretch" Width="auto">
+            <!--  -->
+            <TreeView Padding="8,8,8,8" Name="TvPackages" HorizontalContentAlignment="Stretch" Width="auto">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
                         <Setter Property="IsExpanded" Value="True"/>
@@ -128,33 +132,35 @@
                 </TreeView.ItemContainerStyle>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type shared:RepoTreeItem}" ItemsSource="{Binding Items}">
-                        <TextBlock Grid.Column="1" FontWeight="Bold" Text="{Binding Name}" />
+                        <TextBlock Margin="8,8,8,8" Foreground="{DynamicResource Text}" FontWeight="Bold" Text="{Binding Name}" />
                     </HierarchicalDataTemplate>
                     <HierarchicalDataTemplate DataType="{x:Type shared:PackageCategoryTreeItem}" ItemsSource="{Binding Items}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="36"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox KeyboardNavigation.TabNavigation="None" Focusable="False" Grid.Column="0" IsChecked="{Binding IsGroupSelected}" />
-                            <TextBlock VerticalAlignment="Center" Grid.Column="1" FontWeight="SemiBold" Text="{Binding Name}" />
+                            <CheckBox Margin="8,0,0,0" KeyboardNavigation.TabNavigation="None" 
+                                      Focusable="False" Grid.Column="0" IsChecked="{Binding IsGroupSelected}" />
+                            <TextBlock Foreground="{DynamicResource Text}" VerticalAlignment="Center" 
+                                       Grid.Column="1" FontWeight="SemiBold" Text="{Binding Name}" Margin="0,0,8,0" />
                         </Grid>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type shared:PackageMenuItem}">
                         <Grid MinWidth="461">
                             <Grid.ColumnDefinitions>
                                 <!-- Hardcoded because Windows isn't fair and relative sizing led to inconsistent widths -->
-                                <ColumnDefinition Width="28"/>
+                                <ColumnDefinition Width="36"/>
                                 <ColumnDefinition Width="208"/>
                                 <ColumnDefinition Width="92"/>
                                 <ColumnDefinition Width="92"/>
                                 <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Column="0" KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
-                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Title}" Width="Auto"/>
-                            <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding Version}" TextAlignment="Right" Margin="0,0,4,0"/>
-                            <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="{Binding FileSize}" />
-                            <TextBlock Grid.Column="4" VerticalAlignment="Center" Text="{Binding Status}" />
+                            <CheckBox Margin="8,0,0,0" Grid.Column="0" KeyboardNavigation.TabNavigation="None" Focusable="False" IsChecked="{Binding IsSelected}" />
+                            <TextBlock Foreground="{DynamicResource Text}" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Title}" Width="Auto"/>
+                            <TextBlock Foreground="{DynamicResource Text}" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Version}" TextAlignment="Right" Margin="0,0,4,0"/>
+                            <TextBlock Foreground="{DynamicResource Text}" Grid.Column="3" VerticalAlignment="Center" Text="{Binding FileSize}" />
+                            <TextBlock Foreground="{DynamicResource Text}" Grid.Column="4" VerticalAlignment="Center" Text="{Binding Status}" />
                         </Grid>
                     </DataTemplate>
                 </TreeView.Resources>

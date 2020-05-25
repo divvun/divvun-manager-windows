@@ -10,6 +10,11 @@
         ResizeMode="NoResize"
         Title="{x:Static pahkat:Strings.Settings}"
         Height="420" Width="400"
+        ui:WindowHelper.UseModernWindowStyle="True"
+        ui:TitleBar.ExtendViewIntoTitleBar="True"
+        ui:TitleBar.Style="{DynamicResource AppTitleBarStyle}"
+        ui:TitleBar.ButtonStyle="{DynamicResource AppTitleBarButtonStyle}"
+        ui:TitleBar.BackButtonStyle="{DynamicResource AppTitleBarBackButtonStyle}"
         Loaded="OnLoaded">
     <Grid>
         <Grid.RowDefinitions>

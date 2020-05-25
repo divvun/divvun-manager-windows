@@ -56,7 +56,6 @@ namespace Divvun.Installer.UI.Main
                 var script = $"window.pahkatResponders[\"callback-{id}\"]({payload})";
                 Console.WriteLine($"Running script: {script}");
                 webView.InvokeScript("eval", new string[] {script});
-                //webView.Navigate($"http://localhost:5000/#{script}");
             }
             catch (Exception e) {
                 Console.WriteLine(e);
@@ -83,35 +82,6 @@ namespace Divvun.Installer.UI.Main
             }
         }
     }
-
-    // internal class WebViewPolyfill
-    // {
-    //     private WebBridge _webBridge;
-    //
-    //     internal WebViewPolyfill(WebBridge webBridge) {
-    //         this._webBridge = webBridge;
-    //     }
-    //
-    //     void notify(string value) {
-    //         var request = JsonConvert.DeserializeObject<WebBridgeRequest>(value);
-    //         this._webBridge.HandleRequest(request);
-    //     }
-    // }
-
-    // public class LegacyLandingPage : Page, IPageView
-    // {
-    //     private WebBrowser webView;
-    //     private WebBridge _webBridge;
-    //
-    //     LegacyLandingPage() {
-    //         //InitializeComponent();
-    //         webView = new WebBrowser();
-    //         //grid.Children.Add(webView);
-    //         //bridge = new Bridge(webView);
-    //
-    //         webView.ObjectForScripting = new WebViewPolyfill(_webBridge);
-    //     }
-    // }
 
     /// <summary>
     /// Interaction logic for LandingPage.xaml
@@ -156,7 +126,10 @@ namespace Divvun.Installer.UI.Main
                     return;
                 }
 
-                repo = repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                if (!repos.Values.IsNullOrEmpty()) { 
+                    repo = repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                }
+
                 if (repo == null) {
                     ShowNoLandingPage();
                     return;
@@ -167,8 +140,10 @@ namespace Divvun.Installer.UI.Main
                     return;
                 }
             } else {
-                repo = repos.Values.First(r => r.Index.Url == url);
-                repo ??= repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                if (!repos.Values.IsNullOrEmpty()) {
+                    repo = repos.Values.First(r => r.Index.Url == url);
+                    repo ??= repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                }
                 
                 if (repo == null) {
                     ShowNoLandingPage();

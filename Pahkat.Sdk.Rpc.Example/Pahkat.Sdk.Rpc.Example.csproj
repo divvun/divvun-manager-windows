@@ -16,4 +16,8 @@
       <None Remove="libpahkat_rpc.dylib" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="OneOf.Extended" Version="2.1.151" />
+    </ItemGroup>
+
 </Project>

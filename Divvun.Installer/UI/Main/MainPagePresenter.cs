@@ -53,11 +53,16 @@ namespace Divvun.Installer.UI.Main
                     var actions = _store.Value.SelectedPackages.Values.ToArray();
                     
                     using var guard = app.PackageStore.Lock();
-                    guard.Value.ProcessTransaction(actions, value => {
-                        Console.WriteLine("-- New event: " + value);
-                        var newState = app.CurrentTransaction.Value.Reduce(value);
-                        app.CurrentTransaction.OnNext(newState);
-                    });
+                    try {
+                        guard.Value.ProcessTransaction(actions, value => {
+                            Console.WriteLine("-- New event: " + value);
+                            var newState = app.CurrentTransaction.Value.Reduce(value);
+                            app.CurrentTransaction.OnNext(newState);
+                        });
+                    }
+                    catch (Exception e) {
+                        this._view.HandleError(e);
+                    }
                 });
         }
 

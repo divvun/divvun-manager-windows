@@ -13,7 +13,8 @@ namespace Pahkat.Sdk.Rpc
         TransactionResponseValue.TransactionProgress,
         TransactionResponseValue.TransactionError,
         TransactionResponseValue.TransactionStarted,
-        TransactionResponseValue.TransactionComplete
+        TransactionResponseValue.TransactionComplete,
+        TransactionResponseValue.TransactionQueued
     >, IEquatable<TransactionResponseValue> {
         public static JsonConverter JsonConvertor() {
             return JsonSubtypesConverterBuilder.Of(typeof(TransactionResponseValue), "type")
@@ -25,6 +26,7 @@ namespace Pahkat.Sdk.Rpc
                 .RegisterSubtype(typeof(TransactionError), nameof(TransactionError))
                 .RegisterSubtype(typeof(TransactionStarted), nameof(TransactionStarted))
                 .RegisterSubtype(typeof(TransactionComplete), nameof(TransactionComplete))
+                .RegisterSubtype(typeof(TransactionQueued), nameof(TransactionQueued))
                 .Build();
         }
         
@@ -66,8 +68,8 @@ namespace Pahkat.Sdk.Rpc
         public class TransactionError : TransactionResponseValue
         {
             [JsonProperty(PropertyName = "package_id")]
-            public PackageKey PackageKey;
-            public string Error;
+            public string? PackageKey;
+            public string? Error;
         }
 
         public class TransactionStarted : TransactionResponseValue
@@ -78,11 +80,14 @@ namespace Pahkat.Sdk.Rpc
 
         public class TransactionComplete : TransactionResponseValue
         { }
+        
+        public class TransactionQueued : TransactionResponseValue
+        { }
 
         public bool IsDownloadState => IsT0 || IsT1;
         public bool IsInstallState => IsT2 || IsT3 || IsT4;
         public bool IsErrorState => IsT5;
-        public bool IsStartingState => IsT6;
+        public bool IsStartingState => IsT6 || IsT8;
         public bool IsCompletionState => IsT7;
 
         public enum SubstateType
@@ -112,6 +117,7 @@ namespace Pahkat.Sdk.Rpc
         public TransactionError? AsTransactionError => IsT5 ? AsT5 : null;
         public TransactionStarted? AsTransactionStarted => IsT6 ? AsT6 : null;
         public TransactionComplete? AsTransactionComplete => IsT7 ? AsT7 : null;
+        public TransactionQueued? AsTransactionQueued => IsT8 ? AsT8 : null;
         
         public bool Equals(TransactionResponseValue? other) {
             return false;
