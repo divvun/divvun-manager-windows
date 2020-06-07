@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
+using Divvun.Installer.Extensions;
 using Divvun.Installer.UI.Main;
 using Divvun.Installer.UI.Main.Dialog;
 using Microsoft.Toolkit.Wpf.UI.Controls;
@@ -142,10 +143,21 @@ namespace Divvun.Installer.Service
 
                 var primaryButton = string.Format(Strings.InstallUninstallNPackages, actions.Count);
                 
+                // Resolve the names for the package keys
+                var strings = actions.Select(x => {
+                    var package = Repo.Packages.Packages()[x.PackageKey.Id];
+                    var release = Repo.Release(x.PackageKey);
+                    if (!release.HasValue || !package.HasValue) {
+                        return null;
+                    }
+                    return $"{x.Action.NativeName()}: {package.Value.NativeName()} {release.Value.Version}";
+                });
+                
+                
                 var dialog = new ConfirmationDialog(
                     "Confirm Selection", 
                     "Do you wish to do the following actions:",
-                    string.Join("\n", actions.Select(x => x.PackageKey.ToString())),
+                    string.Join("\n", strings),
                     primaryButton);
 
                 try {

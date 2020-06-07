@@ -9,18 +9,18 @@
       d:DesignHeight="300" d:DesignWidth="300"
       Title="{Binding Title}" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
 
-    <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Center">
-            <TextBlock Name="LblPrimary" FontSize="13" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.Starting}"/>
+            <TextBlock Foreground="{DynamicResource Text}" Name="LblPrimary" FontSize="13" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.Starting}"/>
             <ProgressBar Name="PrgBar" Height="23" Margin="128,32,128,8" IsIndeterminate="True" />
-            <TextBlock Name="LblSecondary" FontSize="11" TextAlignment="Center" TextWrapping="Wrap"></TextBlock>
+            <TextBlock Foreground="{DynamicResource Text}" Name="LblSecondary" FontSize="11" TextAlignment="Center" TextWrapping="Wrap"></TextBlock>
         </StackPanel>
         <Border Grid.Row="1" DockPanel.Dock="Bottom" BorderBrush="#FF828790" Height="auto">
-            <DockPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Height="auto">
+            <DockPanel Height="auto">
                 <Button Visibility="Hidden" Name="BtnCancel" IsCancel="True"
                         Content="{x:Static pahkat:Strings.Cancel}" Width="60"
                         HorizontalAlignment="Right" VerticalAlignment="Center" Margin="8,8,12,8" />

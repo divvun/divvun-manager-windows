@@ -1,15 +1,13 @@
 #define MyAppName "Divvun Installer"
-#define MyAppPublisher "Universitetet i TromsÃ¸ - Norges arktiske universitet"
+#define MyAppPublisher "Universitetet i Tromsø - Norges arktiske universitet"
 #define MyAppURL "http://divvun.no"
-#define MyAppExeName "Divvun.Installer.exe"
-; #define MyAppVersion "1.2.3"
+#define MyAppExeName "DivvunInstaller.exe"
 #define PahkatSvcExe "pahkat-service.exe"
 
 [Setup]
 AppId={{4CF2F367-82A8-5E60-8334-34619CBA8347}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -49,26 +47,33 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "turkish"; MessagesFile: "compiler:Languages\Turkish.isl"
 Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 
+[Types]
+Name: "full"; Description: "Install Divvun Installer (Recommended)"
+Name: "noui"; Description: "Only install Pahkat Service (Recommended for sysadmins only)"
+
+[Components]
+Name: "divvuninst"; Description: "Divvun Installer"; Types: full
+Name: "pahkatd"; Description: "Pahkat Service"; Types: full noui; Flags: fixed
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "noui"; Description: "Install without UI";  Flags: unchecked
 
 [Files]
-Source: ".\{#PahkatSvcExe}"; DestDir: "{app}"; Flags:
-Source: ".\Divvun.Installer\bin\x86\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs uninsrestartdelete; Tasks: not noui
+Source: ".\{#PahkatSvcExe}"; DestDir: "{app}"; Components: pahkatd
+Source: ".\Divvun.Installer\bin\x86\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs uninsrestartdelete; Components: divvuninst
 
 [Run]
-Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service install"; StatusMsg: "Installing service.."
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Parameters: ""; Flags: nowait postinstall; Tasks: not noui
+Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service install"; StatusMsg: "Installing service..."; Flags: runhidden; Components: pahkatd
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall runasoriginaluser
 
 [UninstallRun]
-Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service stop"; StatusMsg: "Stopping service.."
-Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service uninstall"; StatusMsg: "Uninstalling service.."
+Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service stop"; Flags: runhidden; StatusMsg: "Stopping service..."; Components: pahkatd
+Filename: "{app}\{#PahkatSvcExe}"; Parameters: "service uninstall"; Flags: runhidden; StatusMsg: "Uninstalling service..."; Components: pahkatd
 
-; [Icons]
-; Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-; Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Parameters: "-s"
-; Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+[Icons]
+Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Components: divvuninst
+Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Parameters: "-s"; Components: divvuninst
+Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; Components: divvuninst
 
 [Code]
 function PrepareToInstall(var NeedsRestart: Boolean): String;
@@ -77,5 +82,5 @@ var
 begin
     // Stop the service
     ExtractTemporaryFile('{#PahkatSvcExe}');
-    Exec(ExpandConstant('{tmp}\{#PahkatSvcExe}'), 'service stop', '', SW_SHOW, ewWaitUntilTerminated, ResultCode)
+    Exec(ExpandConstant('{tmp}\{#PahkatSvcExe}'), 'service stop', '', SW_HIDE, ewWaitUntilTerminated, ResultCode)
 end;

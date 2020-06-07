@@ -10,7 +10,7 @@
 
     <StackPanel Visibility="Visible" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MaxHeight="400" CanVerticallyScroll="True">
         <TextBlock Name="PromptText" Text="" TextWrapping="Wrap" />
-        <TextBlock Name="BodyText" Text="" TextWrapping="Wrap" />
+        <TextBlock Name="BodyText" Margin="8,8,8,8" Text="" TextWrapping="Wrap" />
     </StackPanel>
 
 </ui:ContentDialog>

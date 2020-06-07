@@ -6,10 +6,13 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
+using Castle.Core.Internal;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
+using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
+using Serilog;
 using Application = System.Windows.Application;
 using MessageBox = System.Windows.MessageBox;
 
@@ -104,7 +107,18 @@ namespace Divvun.Installer.UI.Main
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e) {
             var app = (PahkatApp) Application.Current;
-
+            
+            // Ensure there's always at least one repository.
+            using (var guard = app.PackageStore.Lock()) {
+                guard.Value.Notifications().Subscribe(value => {
+                    Log.Debug($"Notification: {value}");
+                }).DisposedBy(bag);
+                
+                if (guard.Value.GetRepoRecords().IsNullOrEmpty()) {
+                    guard.Value.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
+                }
+            }
+            
             Router()
                 .CombineLatest(app.Settings.SelectedRepository, (a, b) => (a, b))
                 .Subscribe(tuple => {

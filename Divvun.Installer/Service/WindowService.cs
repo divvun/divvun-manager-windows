@@ -110,7 +110,8 @@ namespace Divvun.Installer.Service
         }
 
         public void Show<T>() where T : Window {
-            Get<T>().Instance.Show();
+            var instance = Get<T>().Instance;
+            instance.Show();
         }
 
 

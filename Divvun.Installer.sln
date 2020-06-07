@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pahkat.Sdk", "Pahkat.Sdk\Pa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pahkat.Sdk.Rpc", "Pahkat.Sdk.Rpc\Pahkat.Sdk.Rpc.csproj", "{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pahkat.Sdk.Rpc.Example", "Pahkat.Sdk.Rpc.Example\Pahkat.Sdk.Rpc.Example.csproj", "{CF6BC01A-9CBE-4712-8259-2C834679288B}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlatBuffers", "FlatBuffers\FlatBuffers.csproj", "{28C00774-1E73-4A75-AD8F-844CD21A064D}"
 EndProject
 Global
@@ -34,10 +32,6 @@ Global
 		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Release|x86.ActiveCfg = Release|x86
 		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Release|x86.Build.0 = Release|x86
 
-		{CF6BC01A-9CBE-4712-8259-2C834679288B}.Debug|x86.ActiveCfg = Debug|x86
-		{CF6BC01A-9CBE-4712-8259-2C834679288B}.Debug|x86.Build.0 = Debug|x86
-		{CF6BC01A-9CBE-4712-8259-2C834679288B}.Release|x86.ActiveCfg = Release|x86
-		{CF6BC01A-9CBE-4712-8259-2C834679288B}.Release|x86.Build.0 = Release|x86
 
 		{28C00774-1E73-4A75-AD8F-844CD21A064D}.Debug|x86.ActiveCfg = Debug|x86
 		{28C00774-1E73-4A75-AD8F-844CD21A064D}.Debug|x86.Build.0 = Debug|x86

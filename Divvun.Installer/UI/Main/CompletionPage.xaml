@@ -9,18 +9,20 @@
       d:DesignHeight="300" d:DesignWidth="300"
       Title="{Binding Title}" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
 
-    <Grid Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Center">
-            <TextBlock Name="LblPrimary" FontSize="14" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"  Text="{x:Static pahkat:Strings.RestartRequiredTitle}"/>
-            <TextBlock Name="LblSecondary" FontSize="11" Margin="32,16,32,0" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.RestartRequiredBody}"/>
+            <TextBlock 
+                Foreground="{DynamicResource Text}" Name="LblPrimary" FontSize="14" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"  Text="{x:Static pahkat:Strings.RestartRequiredTitle}"/>
+            <TextBlock 
+                Foreground="{DynamicResource Text}" Name="LblSecondary" FontSize="11" Margin="32,16,32,0" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.RestartRequiredBody}"/>
         </StackPanel>
         
         <Border Grid.Row="1" DockPanel.Dock="Bottom" BorderBrush="#FF828790" Height="auto">
-            <DockPanel Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Height="auto" LastChildFill="False">
+            <DockPanel Height="auto" LastChildFill="False">
                 <Button DockPanel.Dock="Right" Name="BtnRestart"
                         MinWidth="80"  Content="{x:Static pahkat:Strings.RestartNow}" Height="auto" 
                         HorizontalAlignment="Right" Margin="8,8,12,8" />

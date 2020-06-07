@@ -76,7 +76,7 @@ namespace Pahkat.Sdk.Rpc
         private static string? _lastError;
 
         internal static pahkat_rpc.ErrCallback Callback = (ptr, len) => {
-            _lastError = MarshalUtf8.PtrToStringUtf8(ptr, (long) len);
+            _lastError = MarshalUtf8.PtrToStringUtf8(ptr, len.ToInt64());
         };
         
         internal static void AssertNoError() {
@@ -126,13 +126,21 @@ namespace Pahkat.Sdk.Rpc
                 var str = MarshalUtf8.PtrToStringUtf8(s.Ptr, s.Length.ToInt64());
 
                 Console.WriteLine("Raw tx response: " + str);
-                
-                var value = JsonConvert.DeserializeObject<TransactionResponseValue>(str, Json.Settings.Value);
-                Console.WriteLine("Tx respo: " + value);
-                if (value != null) {
-                    callback(value);
-                } else {
-                    Console.WriteLine("Warning: null transaction response");
+
+                try {
+                    var value = JsonConvert.DeserializeObject<TransactionResponseValue>(str, Json.Settings.Value);
+                    Console.WriteLine("Tx respo: " + value);
+                    if (value != null) {
+                        callback(value);
+                    }
+                    else {
+                        Console.WriteLine("Warning: null transaction response");
+                    }
+                }
+                catch (Exception e) {
+                    callback(new TransactionResponseValue.TransactionError() {
+                        Error = e.Message,
+                    });
                 }
             };
 
@@ -185,7 +193,7 @@ namespace Pahkat.Sdk.Rpc
         public struct RepoRecordResponse
         {
             public Dictionary<Uri, RepoRecord> Records;
-            public string? Error;
+            public Dictionary<Uri, string> Errors;
         }
 
         public Dictionary<Uri, RepoRecord> GetRepoRecords() {
@@ -332,7 +340,7 @@ namespace Pahkat.Sdk.Rpc
         }
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public delegate void ErrCallback(IntPtr bytes, ulong len);
+        public delegate void ErrCallback(IntPtr bytes, IntPtr len);
         
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate void TransactionResponseCallback(Slice slice);

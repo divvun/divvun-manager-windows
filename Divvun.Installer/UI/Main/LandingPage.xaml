@@ -10,7 +10,8 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title=""
-      Loaded="OnLoaded">
+      Loaded="OnLoaded"
+      Unloaded="OnUnloaded">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -29,6 +30,7 @@
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="48" />
                 <ColumnDefinition Width="Auto" />
@@ -58,8 +60,10 @@
             <TextBlock
                 Grid.Column="1"
                 FontSize="13"
+                Margin="4,0,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
+                Foreground="{DynamicResource Text}" 
                 Text="Divvun Installer" />
         
             <Grid Grid.Column="2" />
@@ -68,7 +72,7 @@
                 Name="TitleBarReposButton"
                 Grid.Column="3"
                 WindowChrome.IsHitTestVisibleInChrome="True"
-                Content="Current Repository"
+                Content="Loading..."
                 CornerRadius="0"
             >
                 <ui:DropDownButton.Flyout>

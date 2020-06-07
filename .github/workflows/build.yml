@@ -14,29 +14,8 @@ jobs:
           repository: divvun/pahkat
           ref: develop
           path: pahkat
-      - name: Cache cargo registry
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('pahkat/**/Cargo.lock') }}
-          restoreKeys:
-            ${{ runner.os }}-cargo-registry-
-      - name: Cache cargo index
-        uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('pahkat/**/Cargo.lock') }}
-          restoreKeys:
-            ${{ runner.os }}-cargo-index-
-      - name: Cache cargo build
-        uses: actions/cache@v1
-        with:
-          path: pahkat/target
-          key: ${{ runner.os }}-cargo-build-target-${{ hashFiles('pahkat/**/Cargo.lock') }}
-          restoreKeys:
-            ${{ runner.os }}-cargo-build
       - name: Setup Divvun CI
-        uses: divvun/actions/setup@master
+        uses: divvun/actions/setup@divvun-installer
         with:
           key: ${{ secrets.DIVVUN_KEY }}
       - name: Install Rust toolchain
@@ -72,15 +51,18 @@ jobs:
         shell: bash
         run: |
           source "$DIVVUN_CI_CONFIG/enc/env.sh"
+          echo "::add-mask::$SIGN_PFX_PASSWORD"
           echo "::set-env name=SIGN_PFX_PASSWORD::$SIGN_PFX_PASSWORD"
-          echo "::set-env name=DEPLOY_VERSION::$GitBuildVersionSimple"
+          VERSION="${GitBuildVersionSimple}-nightly.$(date -u +%Y%m%dT%H%M%SZ)"
+          echo "$VERSION"
+          echo "::set-env name=DEPLOY_VERSION::$VERSION"
           set -ex
       - name: Bundle
         shell: cmd
         run: |
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat-service.exe || exit /b !ERRORLEVEL!
           cd Divvun.Installer\bin\x86\Release\
-          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Divvun.Installer.exe || exit /b !ERRORLEVEL!
+          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" DivvunInstaller.exe || exit /b !ERRORLEVEL!
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Pahkat.Sdk.dll || exit /b !ERRORLEVEL!
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Pahkat.Sdk.Rpc.dll || exit /b !ERRORLEVEL!
           signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat_rpc.dll || exit /b !ERRORLEVEL!
@@ -93,12 +75,19 @@ jobs:
         with:
           name: installer
           path: "output/install.exe"
+      - name: Write payload matadata
+        shell: bash
+        run: |
+          set -ex
+          pahkat-repomgr payload windows-executable -k inno -r uninstall --installed-size 1 --size 1 --url "pahkat:payload" --product-code "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1" > payload.toml
+          cat payload.toml
       - name: Deploy to Pahkat
-        uses: divvun/actions/deploy@master
+        uses: divvun/actions/deploy@divvun-installer
         with:
           payload: "output/install.exe"
+          payloadMetadata: "payload.toml"
           repository: "https://pahkat.uit.no/divvun-installer"
           package: "divvun-installer"
           platform: "windows"
           version: "${{ env.DEPLOY_VERSION }}"
-
+          forceDeploy: true

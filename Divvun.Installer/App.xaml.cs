@@ -158,7 +158,7 @@ namespace Divvun.Installer
         private const int AttachParentProcess = -1;
 
         private void OnStartup(object sender, StartupEventArgs e) {
-            const string key = "Divvun.Installer";
+            const string key = "DivvunInstaller";
             
             AttachConsole(AttachParentProcess);
 
@@ -176,9 +176,19 @@ namespace Divvun.Installer
             }
 
             // Set up Sentry exception capturing
-            var sentry = new RavenClient(Constants.SentryDsn);
+            var sentry = new RavenClient(Constants.SentryDsn) {
+                Release = ThisAssembly.AssemblyInformationalVersion
+            };
+
             AppDomain.CurrentDomain.UnhandledException += (sender, sargs) => {
+                Log.Fatal(sargs.ExceptionObject.ToString());
                 sentry.Capture(new SentryEvent((Exception) sargs.ExceptionObject));
+            };
+
+            Current.DispatcherUnhandledException += (o, xargs) => {
+                Log.Fatal(xargs.Exception.Message);
+                sentry.Capture(new SentryEvent(xargs.Exception));
+                MessageBox.Show(xargs.Exception.Message, "Error");
             };
 
             Settings = Settings.Create();

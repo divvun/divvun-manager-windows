@@ -4,6 +4,7 @@ using Divvun.Installer.Util;
 using OneOf;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
+using Serilog;
 
 namespace Divvun.Installer.Models
 {
@@ -170,6 +171,10 @@ namespace Divvun.Installer.Models
                         return newState.AsInProgress!.IntoComplete();
                     }
 
+                    return state;
+                },
+                transactionQueued => {
+                    Log.Information("Queued; waiting for transaction.");
                     return state;
                 }
             );

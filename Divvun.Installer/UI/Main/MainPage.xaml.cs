@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -14,6 +16,7 @@ using System.Windows.Threading;
 using Divvun.Installer.UI.About;
 using Divvun.Installer.UI.Settings;
 using Divvun.Installer.UI.Shared;
+using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.UI.Main
@@ -43,12 +46,12 @@ namespace Divvun.Installer.UI.Main
     {
         private readonly MainPagePresenter _presenter;
         
-        private readonly CompositeDisposable _bag = new CompositeDisposable();
+        private CompositeDisposable _bag = new CompositeDisposable();
         private NavigationService? _navigationService;
         
         // Package handling events
-        private readonly IObservable<PackageCategoryTreeItem> _groupToggled;
-        private readonly IObservable<PackageMenuItem> _packageToggled;
+        private IObservable<PackageCategoryTreeItem> _groupToggled;
+        private IObservable<PackageMenuItem> _packageToggled;
         
         // Package handling observables
         public IObservable<PackageCategoryTreeItem> OnGroupToggled() => _groupToggled;
@@ -96,27 +99,6 @@ namespace Divvun.Installer.UI.Main
 
             _presenter = new MainPagePresenter(this,
                 app.UserSelection);
-
-            _packageToggled = Observable.Merge(
-                    TvPackages.ReactiveKeyDown()
-                        .Where(x => x.EventArgs.Key == Key.Space)
-                        .Select(_ => Unit.Default),
-                    TvPackages.ReactiveDoubleClick()
-                        .Where(x => {
-                            var hitTest = TvPackages.InputHitTest(x.EventArgs.GetPosition((IInputElement) x.Sender));
-                            return !(hitTest is System.Windows.Shapes.Rectangle);
-                        })
-                        .Select(_ => Unit.Default))
-                .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
-                .NotNull()!;
-
-            _groupToggled =
-                TvPackages.ReactiveKeyDown()
-                    .Where(x => x.EventArgs.Key == Key.Space)
-                    .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
-                    .NotNull()!;
-
-            _presenter.Start().DisposedBy(_bag);
         }
 
         private void OnClickBtnMenu(object sender, RoutedEventArgs e) {
@@ -152,10 +134,45 @@ namespace Divvun.Installer.UI.Main
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e) {
+            _bag = new CompositeDisposable();
             _navigationService = this.NavigationService;
             _navigationService.Navigating += NavigationService_Navigating;
+            
+            _packageToggled = Observable.Merge(
+                    TvPackages.ReactiveKeyDown()
+                        .Where(x => x.EventArgs.Key == Key.Space)
+                        .Select(_ => Unit.Default),
+                    TvPackages.ReactiveDoubleClick()
+                        .Where(x => {
+                            var hitTest = TvPackages.InputHitTest(x.EventArgs.GetPosition((IInputElement) x.Sender));
+                            return !(hitTest is System.Windows.Shapes.Rectangle);
+                        })
+                        .Select(_ => Unit.Default))
+                .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
+                .NotNull()!;
 
-            TitleBarHandler.RefreshFlyoutItems(TitleBarReposFlyout);
+            _groupToggled =
+                TvPackages.ReactiveKeyDown()
+                    .Where(x => x.EventArgs.Key == Key.Space)
+                    .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
+                    .NotNull()!;
+
+            _presenter.Start().DisposedBy(_bag);
+            
+            TitleBarHandler.BindRepoDropdown(_bag, x => {
+                var app = (PahkatApp) Application.Current;
+                LoadedRepository[] repos;
+                Dictionary<Uri, RepoRecord> records;
+                
+                using (var guard = app.PackageStore.Lock()) {
+                    repos = guard.Value.RepoIndexes().Values.ToArray();
+                    records = guard.Value.GetRepoRecords();
+                }
+                
+                TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos, records);
+                _presenter.BindNewRepositories(_sortedBy.Value);
+            });
+
             ConfigureSortBy();
 
             TvPackages.Focus();
@@ -165,6 +182,8 @@ namespace Divvun.Installer.UI.Main
             if (_navigationService != null) {
                 _navigationService.Navigating -= NavigationService_Navigating;
             }
+            
+            _bag.Dispose();
         }
 
         private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e) {

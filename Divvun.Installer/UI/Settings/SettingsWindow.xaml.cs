@@ -123,9 +123,16 @@ namespace Divvun.Installer.UI.Settings
                         return;
                     }
                     
-                    var app = (PahkatApp) Application.Current;
-                    using var guard = app.PackageStore.Lock();
-                    guard.Value.SetRepo(url, new RepoRecord());
+                    using (var guard = app.PackageStore.Lock()) {
+                        try {
+                            guard.Value.SetRepo(url, new RepoRecord());
+                        } catch (Exception e) {
+                            MessageBox.Show(e.Message,
+                                Strings.Error,
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                        }
+                    }
 
                     RefreshRepoTable();
                 }
@@ -133,10 +140,11 @@ namespace Divvun.Installer.UI.Settings
 
             BtnRemoveRepo.Click += (o, args) => {
                 if (RepoListView.SelectedIndex >= 0) {
-                    var app = (PahkatApp) Application.Current;
-                    using var guard = app.PackageStore.Lock();
                     var item = (RepositoryListItem) RepoListView.SelectedItem;
-                    guard.Value.RemoveRepo(item.Url);
+                    
+                    using (var guard = app.PackageStore.Lock()) {
+                        guard.Value.RemoveRepo(item.Url);
+                    }
 
                     RefreshRepoTable();
                 }
@@ -163,7 +171,11 @@ namespace Divvun.Installer.UI.Settings
                         name = n;
                     }
                 }
+                else {
+                    name += " ⚠️";
+                }
 
+                // TODO: do not hardcode channel list
                 var channels = new List<ChannelMenuItem>();
                 channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
                 channels.Add(ChannelMenuItem.Create(Strings.Nightly, "nightly"));
