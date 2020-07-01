@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -47,7 +47,7 @@ namespace Divvun.Installer.Util
             {
                 var replaySubject = new ReplaySubject<TState>(1);
 
-                IObservable<TEvent> events = Observable.Merge(scheduledFeedback.Select(feedback =>
+                IObservable<TEvent> events = Observable.Merge(scheduledFeedback.Map(feedback =>
                 {
                     var state = new ObservableSchedulerContext<TState>()
                     {

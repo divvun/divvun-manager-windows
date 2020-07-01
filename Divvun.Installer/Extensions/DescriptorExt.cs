@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using Iterable;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
@@ -13,12 +13,12 @@ namespace Divvun.Installer.Extensions
         
         public static IEnumerable<string> Categories(this Descriptor descriptor) {
             return descriptor.Tags()
-                .Where(t => t.StartsWith(TagPrefixCategory));
+                .Filter(t => t.StartsWith(TagPrefixCategory));
         }
         
         public static IEnumerable<string> Languages(this Descriptor descriptor) {
             return descriptor.Tags()
-                .Where(t => t.StartsWith(TagPrefixLanguage));
+                .Filter(t => t.StartsWith(TagPrefixLanguage));
         }
     }
 
@@ -33,7 +33,7 @@ namespace Divvun.Installer.Extensions
                 return null;
             }
 
-            var release = descriptor.Value.Release().FirstOrDefault((r) => {
+            var release = descriptor.Value.Release().First((r) => {
                 // Check if version even has a Windows target
                 var target = r?.WindowsTarget();
 

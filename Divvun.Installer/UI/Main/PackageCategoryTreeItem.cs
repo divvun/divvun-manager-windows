@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
+using Iterable;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Divvun.Installer.Extensions;
 using Divvun.Installer.Models;
 
 namespace Divvun.Installer.UI.Shared
@@ -32,7 +34,8 @@ namespace Divvun.Installer.UI.Shared
         public bool IsGroupSelected {
             get => _isGroupSelected;
             set => _store.Dispatch(
-                UserSelectionAction.ToggleGroupWithDefaultAction(Items.Select(x => x.Key).ToArray(), value));
+                UserSelectionAction.ToggleGroupWithDefaultAction(
+                    Iterable.Iterable.ToArray(Items.Map(x => x.Key)), value));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -44,8 +47,8 @@ namespace Divvun.Installer.UI.Shared
             Items = items;
 
             _bag.Add(_store.State
-                .Select(x => x.SelectedPackages)
-                .Select(pkgs => Items.All(x => pkgs.ContainsKey(x.Key)))
+                .Map(x => x.SelectedPackages)
+                .Map(pkgs => Items.All(x => pkgs.ContainsKey(x.Key)))
                 .DistinctUntilChanged()
                 .Subscribe(x => {
                     _isGroupSelected = x;

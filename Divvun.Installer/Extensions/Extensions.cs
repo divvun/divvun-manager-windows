@@ -2,19 +2,17 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
+using Iterable;
 using System.Management;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interop;
-using JetBrains.Annotations;
 
 namespace Divvun.Installer.Extensions
 {
@@ -55,6 +53,16 @@ namespace Divvun.Installer.Extensions
                     thingDoer();
                 }
             });
+        }
+
+        public static IObservable<TResult> Map<T, TResult>(this IObservable<T> observable, Func<T, TResult> map)
+        {
+            return observable.Select(map);
+        }
+        
+        public static IObservable<T> Filter<T>(this IObservable<T> observable, Func<T, bool> map)
+        {
+            return observable.Where(map);
         }
 
         public static IObservable<EventPattern<RoutedEventArgs>>
@@ -367,15 +375,15 @@ namespace Divvun.Installer.Extensions
 
                     return !inQuotes && c == ' ';
                 })
-                .Select(arg => arg.Trim().TrimMatchingQuotes('\"'))
-                .Where(arg => !string.IsNullOrEmpty(arg));
+                .Map(arg => arg.Trim().TrimMatchingQuotes('\"'))
+                .Filter(arg => !string.IsNullOrEmpty(arg));
         }
 
         public static Tuple<string, string[]> ParseFileNameAndArgs(this string commandLine)
         {
-            var items = commandLine.ParseCommandLine().ToArray();
+            var items = Iterable.Iterable.ToArray(commandLine.ParseCommandLine());
             var fileName = items.Length == 0 ? null : items[0];
-            var args = items.Length < 2 ? null : items.Skip(1).ToArray();
+            var args = items.Length < 2 ? null : Iterable.Iterable.ToArray(items.Skip(1));
             return new Tuple<string, string[]>(fileName, args);
         }
         

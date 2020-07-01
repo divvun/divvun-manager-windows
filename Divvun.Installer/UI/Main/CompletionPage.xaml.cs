@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -36,10 +36,10 @@ namespace Divvun.Installer.UI.Main
         }
 
         public IObservable<EventArgs> OnRestartButtonClicked =>
-            BtnRestart.ReactiveClick().Select(x => x.EventArgs);
+            BtnRestart.ReactiveClick().Map(x => x.EventArgs);
 
         public IObservable<EventArgs> OnFinishButtonClicked =>
-            BtnFinish.ReactiveClick().Select(x => x.EventArgs);
+            BtnFinish.ReactiveClick().Map(x => x.EventArgs);
 
         public void RequiresReboot(bool requiresReboot) {
             if (requiresReboot) {

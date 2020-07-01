@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using Iterable;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows;
@@ -81,8 +81,8 @@ namespace Divvun.Installer.UI.Settings
 
         private LanguageTag LanguageTag(string tag) {
             var data = Iso639.GetTag(tag);
-            var simplestTag = data.Tag1 ?? data.Tag3;
-            var name = data.Autonym ?? data.Name;
+            var simplestTag = data?.Tag1 ?? data?.Tag3 ?? tag;
+            var name = data?.Autonym ?? data?.Name ?? tag;
             return new LanguageTag {Name = name, Tag = simplestTag};
         }
 
@@ -186,7 +186,7 @@ namespace Divvun.Installer.UI.Settings
         }
 
         public IObservable<EventArgs> OnRepoAddClicked() =>
-            BtnAddRepo.ReactiveClick().Select(x => x.EventArgs);
+            BtnAddRepo.ReactiveClick().Map(x => x.EventArgs);
 
         private void OnLanguageSelectionChanged(object sender, SelectionChangedEventArgs e) {
             if (e.AddedItems.Count > 0) {

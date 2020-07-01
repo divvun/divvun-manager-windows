@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Iterable;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -144,7 +144,7 @@ namespace Divvun.Installer.Service
                 var primaryButton = string.Format(Strings.InstallUninstallNPackages, actions.Count);
                 
                 // Resolve the names for the package keys
-                var strings = actions.Select(x => {
+                var strings = actions.Map(x => {
                     var package = Repo.Packages.Packages()[x.PackageKey.Id];
                     var release = Repo.Release(x.PackageKey);
                     if (!release.HasValue || !package.HasValue) {

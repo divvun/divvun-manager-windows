@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using Iterable;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using Divvun.Installer.Models.SelectionEvent;
@@ -56,12 +56,12 @@ namespace Divvun.Installer.Models
                 case ToggleGroupWithDefaultAction v:
                     // Convert into an ordinary ToggleGroup
                     var evt = UserSelectionAction.ToggleGroup(
-                        v.PackageKeys.Select(key => key.DefaultPackageAction()).ToArray(),
+                        v.PackageKeys.Map(key => key.DefaultPackageAction()).ToArray(),
                         v.Value);
                     return Reduce(state, evt);
                 case ToggleGroup v:
                     if (v.Value) {
-                        var filtered = v.PackageActions.Where((x) => x.PackageKey.IsValidAction(x));
+                        var filtered = v.PackageActions.Filter((x) => x.PackageKey.IsValidAction(x));
                         foreach (var item in filtered) {
                             state.SelectedPackages[item.PackageKey] = item;
                         }
@@ -94,8 +94,8 @@ namespace Divvun.Installer.Models
             }
 
             Console.WriteLine(string.Join(", ", state.SelectedPackages
-                .Select(x => x.Value)
-                .Select(x => $"{x.PackageKey.ToString()}:{x.Action}")));
+                .Map(x => x.Value)
+                .Map(x => $"{x.PackageKey.ToString()}:{x.Action}")));
 
             return state;
         }

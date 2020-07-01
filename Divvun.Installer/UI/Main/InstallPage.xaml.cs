@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -40,7 +40,7 @@ namespace Divvun.Installer.UI.Main
         }
 
         public IObservable<EventArgs> OnCancelClicked() =>
-            BtnCancel.ReactiveClick().Select(x => x.EventArgs);
+            BtnCancel.ReactiveClick().Map(x => x.EventArgs);
 
         private void SetRemaining() {
             var max = PrgBar.Maximum;
@@ -104,8 +104,8 @@ namespace Divvun.Installer.UI.Main
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
                 // Resolve down the events to Download-related ones only
-                .Where(x => x.IsInProgressInstalling)
-                .Select(x => x.AsT1.State.AsInstallState!.CurrentItem)
+                .Filter(x => x.IsInProgressInstalling)
+                .Map(x => x.AsT1.State.AsInstallState!.CurrentItem)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .Subscribe(item => {
                     SetCurrentItem(item);

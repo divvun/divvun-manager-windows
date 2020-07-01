@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
 using Castle.Core.Internal;
+using Divvun.Installer.Extensions;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
@@ -95,7 +96,7 @@ namespace Divvun.Installer.UI.Main
                 .DistinctUntilChanged()
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
-                .Select(evt => evt.Match(
+                .Map(evt => evt.Match(
                     notStarted => Route.Landing,
                     inProgress => inProgress.State.Match(
                         downloading => Route.Download,

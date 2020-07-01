@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Iterable;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Divvun.Installer.Models;

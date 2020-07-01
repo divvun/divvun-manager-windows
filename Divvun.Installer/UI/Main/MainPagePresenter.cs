@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Linq;
 using System.Windows;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
@@ -26,7 +27,7 @@ namespace Divvun.Installer.UI.Main
 
         private IDisposable BindPackageToggled(IMainPageView view, IUserPackageSelectionStore store) {
             return view.OnPackageToggled()
-                .Select(item => UserSelectionAction.TogglePackage(
+                .Map(item => UserSelectionAction.TogglePackage(
                     item.Key,
                     item.Key.DefaultPackageAction(),
                     !item.IsSelected))
@@ -35,9 +36,10 @@ namespace Divvun.Installer.UI.Main
 
         private IDisposable BindGroupToggled(IMainPageView view, IUserPackageSelectionStore store) {
             return view.OnGroupToggled()
-                .Select(item => {
+                .Map(item => {
                     return UserSelectionAction.ToggleGroup(
-                        item.Items.Select(x => x.Key.DefaultPackageAction()).ToArray(),
+                        Iterable.Iterable.ToArray(
+                            item.Items.Map(x => x.Key.DefaultPackageAction())),
                         !item.IsGroupSelected);
                 })
                 .Subscribe(store.Dispatch);
@@ -50,7 +52,7 @@ namespace Divvun.Installer.UI.Main
                 .Subscribe(_ => {
                     Console.WriteLine("Button pressed");
                     var app = (PahkatApp) Application.Current;
-                    var actions = _store.Value.SelectedPackages.Values.ToArray();
+                    var actions = Iterable.Iterable.ToArray(_store.Value.SelectedPackages.Values);
                     
                     using var guard = app.PackageStore.Lock();
                     try {
@@ -86,7 +88,7 @@ namespace Divvun.Installer.UI.Main
                     continue;
                 }
 
-                var tags = descriptor.Tags().Where(x => x.StartsWith(prefix));
+                var tags = descriptor.Tags().Filter(x => x.StartsWith(prefix));
 
                 foreach (var tag in tags) {
                     if (!map.ContainsKey(tag)) {
@@ -98,7 +100,7 @@ namespace Divvun.Installer.UI.Main
                 }
             }
 
-            var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Select(x => {
+            var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Map(x => {
                 x.Value.Sort();
                 var items = new ObservableCollection<PackageMenuItem>(x.Value);
                 return new PackageCategoryTreeItem(_store, convertor(x.Key), items);
@@ -111,7 +113,7 @@ namespace Divvun.Installer.UI.Main
             return FilterByTagPrefix(repo, "lang:", (tag) => {
                 var langTag = tag.Substring(5);
                 var r = Iso639.GetTag(langTag);
-                return r.Autonym ?? r.Name ?? langTag;
+                return r?.Autonym ?? r?.Name ?? langTag;
             });
         }
         private RepoTreeItem FilterByCategory(LoadedRepository repo) {
@@ -190,7 +192,7 @@ namespace Divvun.Installer.UI.Main
         private IDisposable BindPrimaryButtonLabel(IMainPageView view, IUserPackageSelectionStore store) {
             // Can't use distinct until changed here because HashSet is never reset
             return store.State
-                .Select(state => state.SelectedPackages)
+                .Map(state => state.SelectedPackages)
                 .Subscribe(GeneratePrimaryButtonLabel);
         }
 

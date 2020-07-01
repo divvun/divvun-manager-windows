@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -22,7 +22,7 @@ namespace Divvun.Installer.UI.Main
             var app = (PahkatApp) Application.Current;
             using var guard = app.PackageStore.Lock();
             return guard.Value.Notifications()
-                .Where(x => x == Notification.RepositoriesChanged)
+                .Filter(x => x == Notification.RepositoriesChanged)
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .StartWith(Notification.RepositoriesChanged);

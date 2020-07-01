@@ -18,7 +18,7 @@
 //         private IDisposable BindAddRepo() {
 //             return _view.OnRepoAddClicked().Subscribe(_ => {
 //                 _data.Add(RepoDataGridItem.Empty);
-//                 _view.SelectLastRow();
+//                 _view.MapLastRow();
 //             });
 //         }
 //
@@ -28,17 +28,17 @@
 //                 .SubscribeOn(DispatcherScheduler.Current)
 //                 .Subscribe(index => {
 //                     _data.RemoveAt(index);
-//                     _view.SelectRow(index);
+//                     _view.MapRow(index);
 //                 }, error => { throw error; });
 //         }
 //
 //         // private IDisposable BindSaveClicked() {
 //         //     return _view.OnSaveClicked()
-//         //         .Select(_ => _view.SettingsFormData())
+//         //         .Map(_ => _view.SettingsFormData())
 //         //         .Subscribe(data => {
 //         //             List<RepoRecord> repos;
 //         //             try {
-//         //                 repos = _data.Select(x => { return new RepoRecord(new Uri(x.Url), x.Channel); }).ToList();
+//         //                 repos = _data.Map(x => { return new RepoRecord(new Uri(x.Url), x.Channel); }).ToList();
 //         //             }
 //         //             catch (Exception e) {
 //         //                 _view.HandleError(e);
@@ -57,7 +57,7 @@
 //         //     return _config.State.Take(1).Subscribe(x => {
 //         //         _view.SetInterfaceLanguage(x.InterfaceLanguage);
 //         //         _data = new ObservableCollection<RepoDataGridItem>(
-//         //             x.Repositories.Select(r => new RepoDataGridItem(r.Url.AbsoluteUri, r.Channel)));
+//         //             x.Repositories.Map(r => new RepoDataGridItem(r.Url.AbsoluteUri, r.Channel)));
 //         //         _view.SetRepoItemSource(_data);
 //         //     });
 //         // }

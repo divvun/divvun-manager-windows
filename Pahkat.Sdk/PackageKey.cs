@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using Iterable;
 using Flurl;
 using Newtonsoft.Json;
 
@@ -96,7 +96,7 @@ namespace Pahkat.Sdk
                 pkParams = p;
             }
 
-            var id = url.PathSegments.Last();
+            var id = url.PathSegments[url.PathSegments.Count - 1];
             var repoUrl = url
                 .RemovePathSegment()
                 .RemovePathSegment()

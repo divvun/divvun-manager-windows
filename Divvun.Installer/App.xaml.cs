@@ -80,7 +80,7 @@ namespace Divvun.Installer
         }
 
         private void InitStrings() {
-            // ConfigStore.State.Select(x => x.InterfaceLanguage)
+            // ConfigStore.State.Map(x => x.InterfaceLanguage)
             //     .DistinctUntilChanged()
             //     .Subscribe(lang =>
             //     {
@@ -111,8 +111,8 @@ namespace Divvun.Installer
 
         // private void EnsureValidRepoConfig()
         // {
-        //     ConfigStore.State.Select((x) => x.Repositories)
-        //         .Where((x) => x.IsNullOrEmpty())
+        //     ConfigStore.State.Map((x) => x.Repositories)
+        //         .Filter((x) => x.IsNullOrEmpty())
         //         .Subscribe((_) =>
         //         {
         //             var repos = new List<RepoRecord>()

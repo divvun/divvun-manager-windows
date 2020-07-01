@@ -1,6 +1,6 @@
 ﻿//using System;
 //using System.Collections.Generic;
-//using System.Linq;
+//using Iterable;
 //using System.Reactive.Linq;
 //using System.Reactive.Subjects;
 //using System.Threading;
@@ -532,8 +532,8 @@
             
 ////            public IObservable<ProcessResult> Install(PackageInstallInfo[] packages, Subject<OnStartPackageInfo> onStart)
 ////            {
-////                return packages.Where(t => t.Package.Installer != null)
-////                    .Select(t =>
+////                return packages.Filter(t => t.Package.Installer != null)
+////                    .Map(t =>
 ////                    {
 ////                        var installer = t.Package.Installer;
 ////                        

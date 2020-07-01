@@ -69,7 +69,7 @@ namespace Divvun.Installer.Util
             }
 
             var data = Iso639.GetTag(langCode);
-            if (data.Autonym != null && data.Autonym != "")
+            if (data?.Autonym != null && data.Autonym != "")
             {
                 return data.Autonym;
             }
@@ -83,12 +83,12 @@ namespace Divvun.Installer.Util
                 return autonymBuilder.ToString();
             }
 
-            if (culture != null && culture.DisplayName != null && culture.DisplayName != "" && culture.DisplayName != culture.EnglishName)
+            if (culture?.DisplayName != null && culture.DisplayName != "" && culture.DisplayName != culture.EnglishName)
             {
                 return culture.DisplayName;
             }
 
-            if (data.Name != null && data.Name != "")
+            if (data?.Name != null && data.Name != "")
             {
                 return data.Name;
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Divvun.Installer.Util;
 using OneOf;
@@ -27,7 +28,8 @@ namespace Divvun.Installer.Models
             >, IEquatable<TransactionProcessState> {
                 public class DownloadState : TransactionProcessState
                 {
-                    public Mutex<Dictionary<PackageKey, (long, long)>> Progress;
+                    public ConcurrentDictionary<PackageKey, (long, long)> Progress
+                        = new ConcurrentDictionary<PackageKey, (long, long)>();
                 }
 
                 public class InstallState : TransactionProcessState
@@ -124,8 +126,7 @@ namespace Divvun.Installer.Models
                 downloadProgress => {
                     if (state.AsInProgress?.IsDownloading ?? false) {
                         var dl = state.AsInProgress!.State.AsDownloadState!;
-                        using var guard = dl.Progress.Lock();
-                        guard.Value[downloadProgress.PackageKey] = ((long) downloadProgress.Current, (long) downloadProgress.Total);
+                        dl.Progress[downloadProgress.PackageKey] = ((long) downloadProgress.Current, (long) downloadProgress.Total);
                     }
 
                     return state;
@@ -133,8 +134,7 @@ namespace Divvun.Installer.Models
                 downloadComplete => {
                     if (state.AsInProgress?.IsDownloading ?? false) {
                         var dl = state.AsInProgress!.State.AsDownloadState!;
-                        using var guard = dl.Progress.Lock();
-                        guard.Value[downloadComplete.PackageKey] = (Int64.MaxValue, Int64.MaxValue);
+                        dl.Progress[downloadComplete.PackageKey] = (Int64.MaxValue, Int64.MaxValue);
                     }
 
                     return state;
@@ -161,8 +161,7 @@ namespace Divvun.Installer.Models
                     Actions = transactionStarted.Actions,
                     IsRebootRequired = transactionStarted.IsRebootRequired,
                     State = new InProgress.TransactionProcessState.DownloadState {
-                        Progress = new Mutex<Dictionary<PackageKey, (long, long)>>(
-                            new Dictionary<PackageKey, (long, long)>())
+                        Progress = new ConcurrentDictionary<PackageKey, (long, long)>()
                     }
                 },
                 transactionComplete => {

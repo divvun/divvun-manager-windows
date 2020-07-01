@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using Iterable;
 
 namespace Pahkat.Sdk.Rpc.Fbs
 {
@@ -152,7 +152,7 @@ namespace Pahkat.Sdk.Rpc.Fbs
         }
 
         public static Target? WindowsTarget(this Release release) {
-            return release.Target().FirstOrDefault(x => x.HasValue && x.Value.Platform == "windows");
+            return release.Target().First(x => x.HasValue && x.Value.Platform == "windows");
         }
 
         public static RefMap<string, string> Dependencies(this Target target) {

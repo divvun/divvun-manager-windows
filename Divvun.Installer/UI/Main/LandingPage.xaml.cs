@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -32,7 +32,7 @@ namespace Divvun.Installer.UI.Main
         [JsonProperty("args")] public JArray Args;
 
         public override string ToString() {
-            return $"Id: {Id}, Method: {Method}, Args: {string.Join(", ", Args.Select(x => x.ToString()).ToArray())}";
+            return $"Id: {Id}, Method: {Method}, Args: {string.Join(", ", Args.Map(x => x.ToString()).ToArray())}";
         }
     }
 
@@ -219,7 +219,7 @@ namespace Divvun.Installer.UI.Main
             var app = (PahkatApp) Application.Current;
             using var guard = app.PackageStore.Lock();
             guard.Value.Notifications()
-                .Where(x => x == Notification.RepositoriesChanged)
+                .Filter(x => x == Notification.RepositoriesChanged)
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .StartWith(Notification.RepositoriesChanged)

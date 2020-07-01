@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using Iterable;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -61,7 +61,7 @@ namespace Divvun.Installer.UI.Main
         public IObservable<EventArgs> OnPrimaryButtonPressed() => BtnPrimary.ReactiveClick()
             .ObserveOn(Dispatcher.CurrentDispatcher)
             .SubscribeOn(Dispatcher.CurrentDispatcher)
-            .Select(e => e.EventArgs);
+            .Map(e => e.EventArgs);
         
         private BehaviorSubject<SortBy> _sortedBy = new BehaviorSubject<SortBy>(SortBy.Language);
 
@@ -140,21 +140,21 @@ namespace Divvun.Installer.UI.Main
             
             _packageToggled = Observable.Merge(
                     TvPackages.ReactiveKeyDown()
-                        .Where(x => x.EventArgs.Key == Key.Space)
-                        .Select(_ => Unit.Default),
+                        .Filter(x => x.EventArgs.Key == Key.Space)
+                        .Map(_ => Unit.Default),
                     TvPackages.ReactiveDoubleClick()
-                        .Where(x => {
+                        .Filter(x => {
                             var hitTest = TvPackages.InputHitTest(x.EventArgs.GetPosition((IInputElement) x.Sender));
                             return !(hitTest is System.Windows.Shapes.Rectangle);
                         })
-                        .Select(_ => Unit.Default))
-                .Select(_ => TvPackages.SelectedItem as PackageMenuItem)
+                        .Map(_ => Unit.Default))
+                .Map(_ => TvPackages.SelectedItem as PackageMenuItem)
                 .NotNull()!;
 
             _groupToggled =
                 TvPackages.ReactiveKeyDown()
-                    .Where(x => x.EventArgs.Key == Key.Space)
-                    .Select(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
+                    .Filter(x => x.EventArgs.Key == Key.Space)
+                    .Map(_ => TvPackages.SelectedItem as PackageCategoryTreeItem)
                     .NotNull()!;
 
             _presenter.Start().DisposedBy(_bag);

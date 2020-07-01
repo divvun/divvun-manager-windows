@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
+using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -34,8 +34,8 @@ namespace Divvun.Installer.UI.Main
 
         private void InitProgressList(ResolvedAction[] actions) {
             var x = actions
-                .Where(x => x.Action.Action == InstallAction.Install)
-                .Select(x => new DownloadListItem(x.Action.PackageKey, x.Name.Values.FirstOrDefault(), x.Version));
+                .Filter(x => x.Action.Action == InstallAction.Install)
+                .Map(x => new DownloadListItem(x.Action.PackageKey, x.Name.Values.First() ?? x.Action.PackageKey.Id, x.Version));
             LvPrimary.ItemsSource = new ObservableCollection<DownloadListItem>(x);
         }
 
@@ -51,8 +51,10 @@ namespace Divvun.Installer.UI.Main
             
             var item = source.First(x => x.Key.Equals(packageKey));
 
-            item.FileSize = total;
-            item.Downloaded = current;
+            if (item != null) {
+                item.FileSize = total;
+                item.Downloaded = current;
+            }
         }
 
         // private void SetProgress(TransactionResponseValue.DownloadProgress progress) {
@@ -113,13 +115,12 @@ namespace Divvun.Installer.UI.Main
             // Control the state of the current view
             app.CurrentTransaction.AsObservable()
                 // Resolve down the events to Download-related ones only
-                .Where(x => x.IsInProgressDownloading)
-                .Select(x => x.AsInProgress!.State.AsDownloadState!.Progress)
+                .Filter(x => x.IsInProgressDownloading)
+                .Map(x => x.AsInProgress!.State.AsDownloadState!.Progress)
                 .ObserveOn(DispatcherScheduler.Current)
                 .SubscribeOn(DispatcherScheduler.Current)
                 .Subscribe(state => {
-                    using var guard = state.Lock();
-                    foreach (var keyValuePair in guard.Value) {
+                    foreach (var keyValuePair in state) {
                         SetProgress(keyValuePair.Key,
                             keyValuePair.Value.Item1, 
                             keyValuePair.Value.Item2);
