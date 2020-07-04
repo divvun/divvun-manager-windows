@@ -1,4 +1,11 @@
-on: push
+name: divvun-installer (windows)
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+      - release
 
 jobs:
   build:
@@ -8,86 +15,77 @@ jobs:
         with:
           # Nerdbank.GitVersioning needs a full clone
           fetch-depth: 0
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          repository: divvun/pahkat
-          ref: develop
-          path: pahkat
       - name: Setup Divvun CI
         uses: divvun/actions/setup@divvun-installer
         with:
           key: ${{ secrets.DIVVUN_KEY }}
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.2
         with:
-          toolchain: stable
-          profile: minimal
-          override: true
-          target: i686-pc-windows-msvc
-          components: rustfmt
-      - name: Setup Nuget.exe
-        uses: warrenbuckley/Setup-Nuget@v1
-      - name: Build Pahkat Daemon
+          nuget-version: '5.x'
+      - name: Nerdbank.GitVersioning
+        uses: dotnet/nbgv@master
+        with:
+          setCommonVars: true
+      - name: Get version
+        id: version
+        uses: divvun/actions/version@develop
+        with:
+          csharp: true
+          nightly: master, develop
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install build dependencies
+        uses: divvun/actions/pahkat/init@develop
+        with:
+          repo: https://pahkat.uit.no/devtools/
+          channel: nightly
+          packages: pahkat-uploader, pahkat-windows-cli, libpahkat_rpc
+      - name: Move libpahkat_rpc to appropriate place
         run: |
-          cd pahkat\pahkat-rpc
-          $env:RUSTC_BOOTSTRAP=1
-          cargo build --release --features windows --lib --target i686-pc-windows-msvc
-          cargo build --release --features windows --bin winsvc --target i686-pc-windows-msvc
-          # Copy into installer build dir
-          dir ..\target
-          dir ..\target\i686-pc-windows-msvc
-          dir ..\target\i686-pc-windows-msvc\release
-          cp ..\target\i686-pc-windows-msvc\release\winsvc.exe "$env:GITHUB_WORKSPACE\pahkat-service.exe"
-          cp ..\target\i686-pc-windows-msvc\release\pahkat_rpc.dll "$env:GITHUB_WORKSPACE\Divvun.Installer\pahkat_rpc.dll"
+          cp $env:RUNNER_WORKSPACE\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer\
+      - name: Acquire Pahkat Service installer
+        run: |
+          mkdir ./pahkat-config
+          echo "[""https://pahkat.uit.no/divvun-installer/""]`nchannel = ""nightly""" > ./pahkat-config/repos.toml
+          pahkat-windows download https://pahkat.uit.no/divvun-installer/packages/pahkat-service --output ./pahkat-service -c ./pahkat-config
+          mv ./pahkat-service/* ./pahkat-service-setup.exe
       - name: Build
         shell: cmd
         run: |
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           nuget restore "Divvun.Installer.sln"
           MSBuild.exe "Divvun.Installer.sln" /p:Configuration=Release /p:Platform=x86 /m  || exit /b !ERRORLEVEL!
-      - name: Set Env
-        id: bundler
-        shell: bash
-        run: |
-          source "$DIVVUN_CI_CONFIG/enc/env.sh"
-          echo "::add-mask::$SIGN_PFX_PASSWORD"
-          echo "::set-env name=SIGN_PFX_PASSWORD::$SIGN_PFX_PASSWORD"
-          VERSION="${GitBuildVersionSimple}-nightly.$(date -u +%Y%m%dT%H%M%SZ)"
-          echo "$VERSION"
-          echo "::set-env name=DEPLOY_VERSION::$VERSION"
-          set -ex
-      - name: Bundle
-        shell: cmd
-        run: |
-          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat-service.exe || exit /b !ERRORLEVEL!
-          cd Divvun.Installer\bin\x86\Release\
-          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" DivvunInstaller.exe || exit /b !ERRORLEVEL!
-          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Pahkat.Sdk.dll || exit /b !ERRORLEVEL!
-          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" Pahkat.Sdk.Rpc.dll || exit /b !ERRORLEVEL!
-          signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f "%DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx" /p "%SIGN_PFX_PASSWORD%" pahkat_rpc.dll || exit /b !ERRORLEVEL!
-
-          cd %GITHUB_WORKSPACE%
-
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /Qp /O.\output /S"signtool=signtool.exe sign /t http://timestamp.verisign.com/scripts/timstamp.dll /f %DIVVUN_CI_CONFIG%\enc\creds\windows\divvun.pfx /p %SIGN_PFX_PASSWORD% $f" /DMyAppVersion=%DEPLOY_VERSION% setup.iss
-      - name: Upload installer
-        uses: actions/upload-artifact@v2
+      - name: Sign code (Divvun Installer exe)
+        uses: divvun/actions/codesign@develop
         with:
-          name: installer
-          path: "output/install.exe"
-      - name: Write payload matadata
-        shell: bash
-        run: |
-          set -ex
-          pahkat-repomgr payload windows-executable -k inno -r uninstall --installed-size 1 --size 1 --url "pahkat:payload" --product-code "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1" > payload.toml
-          cat payload.toml
-      - name: Deploy to Pahkat
-        uses: divvun/actions/deploy@divvun-installer
+          path: Divvun.Installer/bin/x86/Release/DivvunInstaller.exe
+      - name: Sign code (Pahkat SDK DLL)
+        uses: divvun/actions/codesign@develop
         with:
-          payload: "output/install.exe"
-          payloadMetadata: "payload.toml"
-          repository: "https://pahkat.uit.no/divvun-installer"
-          package: "divvun-installer"
-          platform: "windows"
-          version: "${{ env.DEPLOY_VERSION }}"
-          forceDeploy: true
+          path: Divvun.Installer/bin/x86/Release/Pahkat.Sdk.dll 
+      - name: Sign code (Pahkat SDK RPC DLL)
+        uses: divvun/actions/codesign@develop
+        with:
+          path: Divvun.Installer/bin/x86/Release/Pahkat.Sdk.Rpc.dll 
+      - name: Sign code (pahkat_rpc DLL)
+        uses: divvun/actions/codesign@develop
+        with:
+          path: Divvun.Installer/bin/x86/Release/pahkat_rpc.dll
+      - name: Create installer
+        id: installer
+        uses: divvun/actions/inno-setup@develop
+        with:
+          path: setup.iss
+          defines: Version=${{ steps.version.outputs.version }}
+      - name: Deploy (installer)
+        uses: divvun/actions/deploy@develop
+        with:
+          package-id: divvun-installer
+          platform: windows
+          version: ${{ steps.version.outputs.version }}
+          payload-path: ${{ steps.installer.outputs['installer-path'] }}
+          repo: https://pahkat.thetc.se/divvun-installer/
+          channel: ${{ steps.version.outputs.channel }}
+          windows-kind: inno
+          windows-product-code: "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
