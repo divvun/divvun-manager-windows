@@ -12,6 +12,7 @@ using FlatBuffers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Pahkat.Sdk.Rpc.Fbs;
+using Serilog;
 
 namespace Pahkat.Sdk.Rpc
 {
@@ -119,22 +120,22 @@ namespace Pahkat.Sdk.Rpc
 
         public CancellationTokenSource ProcessTransaction(PackageAction[] actions, Action<TransactionResponseValue> callback) {
             var stringActions = JsonConvert.SerializeObject(actions, Json.Settings.Value);
-            Console.WriteLine(stringActions);
+            Log.Debug(stringActions);
             var slice = pahkat_rpc.Slice.From(stringActions);
 
             pahkat_rpc.TransactionResponseCallback cCallback = (s) => {
                 var str = MarshalUtf8.PtrToStringUtf8(s.Ptr, s.Length.ToInt64());
 
-                Console.WriteLine("Raw tx response: " + str);
+                Log.Debug("Raw tx response: " + str);
 
                 try {
                     var value = JsonConvert.DeserializeObject<TransactionResponseValue>(str, Json.Settings.Value);
-                    Console.WriteLine("Tx respo: " + value);
+                    Log.Debug("Tx respo: " + value);
                     if (value != null) {
                         callback(value);
                     }
                     else {
-                        Console.WriteLine("Warning: null transaction response");
+                        Log.Debug("Warning: null transaction response");
                     }
                 }
                 catch (Exception e) {
@@ -176,7 +177,7 @@ namespace Pahkat.Sdk.Rpc
             var indexes = pahkat_rpc.pahkat_rpc_repo_indexes(handle, PahkatClientException.Callback);
             PahkatClientException.AssertNoError();
             var str = indexes.AsString();
-            // Console.WriteLine(str);
+            // Log.Debug(str);
 
             var list = JsonConvert.DeserializeObject<RepoIndexesResponse>(str, Json.Settings.Value);
             pahkat_rpc.pahkat_rpc_slice_free(indexes);

@@ -14,6 +14,7 @@ using Divvun.Installer.Util;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
+using Serilog;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -50,14 +51,14 @@ namespace Divvun.Installer.UI.Main
                 .ObserveOn(NewThreadScheduler.Default)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(_ => {
-                    Console.WriteLine("Button pressed");
+                    Log.Debug("Button pressed");
                     var app = (PahkatApp) Application.Current;
                     var actions = Iterable.Iterable.ToArray(_store.Value.SelectedPackages.Values);
                     
                     using var guard = app.PackageStore.Lock();
                     try {
                         guard.Value.ProcessTransaction(actions, value => {
-                            Console.WriteLine("-- New event: " + value);
+                            Log.Debug("-- New event: " + value);
                             var newState = app.CurrentTransaction.Value.Reduce(value);
                             app.CurrentTransaction.OnNext(newState);
                         });
@@ -144,7 +145,7 @@ namespace Divvun.Installer.UI.Main
             _tree.Clear();
 
             if (repos == null) {
-                Console.WriteLine("Repository empty.");
+                Log.Debug("Repository empty.");
                 _view.UpdateTitle(Strings.AppName);
                 return;
             }
@@ -165,7 +166,7 @@ namespace Divvun.Installer.UI.Main
             }
 
             _view.UpdateTitle(Strings.AppName);
-            Console.WriteLine("Added packages.");
+            Log.Debug("Added packages.");
         }
 
         private void GeneratePrimaryButtonLabel(Dictionary<PackageKey, PackageAction> packages) {

@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
+using Serilog;
 
 namespace Divvun.Installer.Service
 {
@@ -172,7 +173,7 @@ namespace Divvun.Installer.Service
                     }
                 }
                 catch (Exception e) {
-                    Console.WriteLine(("wat"));
+                    Log.Debug(e, "wat");
                 }
                 return false;
             }

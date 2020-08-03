@@ -112,7 +112,7 @@ namespace Divvun.Installer.UI.Main
             // Ensure there's always at least one repository.
             using (var guard = app.PackageStore.Lock()) {
                 guard.Value.Notifications().Subscribe(value => {
-                    Log.Debug($"Notification: {value}");
+                    Log.Debug("Notification: {value}", value);
                 }).DisposedBy(bag);
                 
                 if (guard.Value.GetRepoRecords().IsNullOrEmpty()) {

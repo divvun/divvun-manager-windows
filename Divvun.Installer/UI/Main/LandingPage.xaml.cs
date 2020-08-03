@@ -54,16 +54,16 @@ namespace Divvun.Installer.UI.Main
                 JsonConvert.SerializeObject(message, Json.Settings.Value), true);
             try {
                 var script = $"window.pahkatResponders[\"callback-{id}\"]({payload})";
-                Console.WriteLine($"Running script: {script}");
+                Log.Debug($"Running script: {script}");
                 webView.InvokeScript("eval", new string[] {script});
             }
             catch (Exception e) {
-                Console.WriteLine(e);
+                Log.Debug(e, "error sending response");
             }
         }
 
         public async Task HandleRequest(WebBridgeRequest request) {
-            Console.WriteLine(request.ToString());
+            Log.Debug(request.ToString());
 
             if (_functions == null) {
                 Log.Error("No functions defined for WebBridge");
@@ -186,8 +186,8 @@ namespace Divvun.Installer.UI.Main
         
             _webView.ScriptNotify += async (sender, args) => {
                 // Check args.Uri for something we want to actually act upon, for security.
-                Console.WriteLine(args.Uri);
-                Console.WriteLine(args.Value);
+                Log.Debug("{uri}", args.Uri);
+                Log.Debug(args.Value);
         
                 await ProcessRequest(args.Value);
             };

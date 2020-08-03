@@ -5,6 +5,7 @@ using System.Reactive.Threading.Tasks;
 using Divvun.Installer.Models.SelectionEvent;
 using Divvun.Installer.Util;
 using Divvun.Installer.Extensions;
+using Serilog;
 
 namespace Divvun.Installer.Models
 {
@@ -93,9 +94,9 @@ namespace Divvun.Installer.Models
                     break;
             }
 
-            Console.WriteLine(string.Join(", ", state.SelectedPackages
-                .Map(x => x.Value)
-                .Map(x => $"{x.PackageKey.ToString()}:{x.Action}")));
+            Log.Debug(string.Join(", ", state.SelectedPackages
+                .Select(x => x.Value)
+                .Select(x => $"{x.PackageKey.ToString()}:{x.Action}")));
 
             return state;
         }

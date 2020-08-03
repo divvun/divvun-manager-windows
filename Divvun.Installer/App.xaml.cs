@@ -48,7 +48,7 @@ namespace Divvun.Installer
             _runningTransaction?.Cancel();
             
             _runningTransaction = guard.Value.ProcessTransaction(actions, value => {
-                Console.WriteLine("-- New event: " + value);
+                Log.Debug("-- New event: " + value);
                 var newState = CurrentTransaction.Value.Reduce(value);
                 CurrentTransaction.OnNext(newState);
             });
@@ -79,18 +79,12 @@ namespace Divvun.Installer
             _icon.ContextMenu = menu;
             _icon.TrayMouseDoubleClick += (sender, args) => WindowService.Show<MainWindow>();
         }
-
-        public string CurrentVersion => ThisAssembly.AssemblyInformationalVersion;
-
+        
         protected override void OnStartup(StartupEventArgs e) {
             UserSelection = new UserPackageSelectionStore();
-
             var args = Environment.GetCommandLineArgs();
-
             CreateNotifyIcon();
-
             base.OnStartup(e);
-
             OnActivate(args);
         }
 

@@ -19,7 +19,7 @@ namespace Divvun.Installer.Util
             }
             
             public void Dispose() {
-                // Console.WriteLine("[Mutex] Dropping");
+                // Log.Debug("[Mutex] Dropping");
                 _mutex._mutex.ReleaseMutex();
             }
         }
@@ -28,10 +28,10 @@ namespace Divvun.Installer.Util
         private Mutex _mutex;
 
         public Guard Lock() {
-            // Console.WriteLine("[Mutex] Locking");
+            // Log.Debug("[Mutex] Locking");
             _mutex.WaitOne();
             
-            // Console.WriteLine("[Mutex] Got lock");
+            // Log.Debug("[Mutex] Got lock");
             return new Guard(this);
         }
 
