@@ -19,6 +19,7 @@ using Flurl;
 using Newtonsoft.Json.Linq;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
+using Pahkat.Sdk.Rpc.Models;
 using Serilog;
 
 namespace Divvun.Installer.UI.Main
@@ -45,7 +46,7 @@ namespace Divvun.Installer.UI.Main
             this.webView = webView;
         }
 
-        internal void SetRepository(LoadedRepository repo) {
+        internal void SetRepository(ILoadedRepository repo) {
             _functions = new WebBridgeService.Functions(repo, webView);
         }
         
@@ -109,7 +110,7 @@ namespace Divvun.Installer.UI.Main
         private void SetRepository(Uri? url) {
             var app = (PahkatApp) Application.Current;
 
-            Dictionary<Uri, LoadedRepository> repos;
+            Dictionary<Uri, ILoadedRepository> repos;
             Dictionary<Uri, RepoRecord> records;
 
             using (var guard = app.PackageStore.Lock()) {
@@ -119,7 +120,7 @@ namespace Divvun.Installer.UI.Main
 
             TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos.Values.ToArray(), records);
             
-            LoadedRepository? repo = null;
+            ILoadedRepository? repo = null;
             if (url == null) {
                 if (records.IsNullOrEmpty()) {
                     ShowNoLandingPage();

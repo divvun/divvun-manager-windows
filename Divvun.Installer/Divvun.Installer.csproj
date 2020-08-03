@@ -230,6 +230,7 @@
     <Compile Include="Models\UserSelectionAction.cs" />
     <Compile Include="Properties\Constants.cs" />
     <Compile Include="Models\UserPackageSelectionStore.cs" />
+    <Compile Include="Service\MockPahkatClient.cs" />
     <Compile Include="Service\WebBridgeService.cs" />
     <Compile Include="Service\WindowService.cs" />
     <Compile Include="Strings.Designer.cs">

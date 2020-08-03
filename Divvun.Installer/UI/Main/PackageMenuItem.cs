@@ -9,6 +9,7 @@ using Divvun.Installer.Util;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
+using Pahkat.Sdk.Rpc.Models;
 
 namespace Divvun.Installer.UI.Shared
 {
@@ -18,7 +19,7 @@ namespace Divvun.Installer.UI.Shared
         public event PropertyChangedEventHandler PropertyChanged;
 
         public PackageKey Key { get; private set; }
-        public WindowsExecutable Payload { get; private set; }
+        public IWindowsExecutable Payload { get; private set; }
         public string Name { get; private set; }
         public string Version { get; private set; }
 
@@ -35,7 +36,7 @@ namespace Divvun.Installer.UI.Shared
 
         private PackageAction? _actionInfo;
 
-        public PackageMenuItem(UserPackageSelectionStore store, PackageKey key, WindowsExecutable payload, string name, string version) {
+        public PackageMenuItem(UserPackageSelectionStore store, PackageKey key, IWindowsExecutable payload, string name, string version) {
             _store = store;
             
             Key = key;

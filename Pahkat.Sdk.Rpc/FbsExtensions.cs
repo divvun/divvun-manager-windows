@@ -114,60 +114,60 @@ namespace Pahkat.Sdk.Rpc.Fbs
     
     public static class FbsExtensions
     {
-        public static RefMap<string, Descriptor?> Packages(this Packages packages) {
-            return new RefMap<string, Descriptor?>(
-                packages.PackagesValuesLength,
-                packages.PackagesValues,
-                packages.PackagesKeys);
-        }
-
-        public static RefMap<string, string> Name(this Descriptor descriptor) {
-            return new RefMap<string, string>(
-                descriptor.NameValuesLength, 
-                descriptor.NameValues, 
-                descriptor.NameKeys);
-        }
-        
-        public static RefMap<string, string> Description(this Descriptor descriptor) {
-            return new RefMap<string, string>(
-                descriptor.DescriptionValuesLength, 
-                descriptor.DescriptionValues, 
-                descriptor.DescriptionKeys);
-        }
-
-        public static RefList<string> Tags(this Descriptor descriptor) {
-            return new RefList<string>(descriptor.TagsLength, descriptor.Tags);
-        }
-
-        public static RefList<Release?> Release(this Descriptor descriptor) {
-            return new RefList<Release?>(descriptor.ReleaseLength, descriptor.Release);
-        }
-
-        public static RefList<string> Authors(this Release release) {
-            return new RefList<string>(release.AuthorsLength, release.Authors);
-        }
-
-        public static RefList<Target?> Target(this Release release) {
-            return new RefList<Target?>(release.TargetLength, release.Target);
-        }
-
-        public static Target? WindowsTarget(this Release release) {
-            return release.Target().First(x => x.HasValue && x.Value.Platform == "windows");
-        }
-
-        public static RefMap<string, string> Dependencies(this Target target) {
-            return new RefMap<string, string>(
-                target.DependenciesValuesLength,
-                target.DependenciesValues,
-                target.DependenciesKeys);
-        }
-
-        public static WindowsExecutable? WindowsExecutable(this Target target) {
-            if (target.PayloadType == Payload.WindowsExecutable) {
-                return target.Payload<WindowsExecutable>();
-            }
-
-            return null;
-        }
+        // public static RefMap<string, Descriptor?> Packages(this Packages packages) {
+        //     return new RefMap<string, Descriptor?>(
+        //         packages.PackagesValuesLength,
+        //         packages.PackagesValues,
+        //         packages.PackagesKeys);
+        // }
+        //
+        // public static RefMap<string, string> Name(this Descriptor descriptor) {
+        //     return new RefMap<string, string>(
+        //         descriptor.NameValuesLength, 
+        //         descriptor.NameValues, 
+        //         descriptor.NameKeys);
+        // }
+        //
+        // public static RefMap<string, string> Description(this Descriptor descriptor) {
+        //     return new RefMap<string, string>(
+        //         descriptor.DescriptionValuesLength, 
+        //         descriptor.DescriptionValues, 
+        //         descriptor.DescriptionKeys);
+        // }
+        //
+        // public static RefList<string> Tags(this Descriptor descriptor) {
+        //     return new RefList<string>(descriptor.TagsLength, descriptor.Tags);
+        // }
+        //
+        // public static RefList<Release?> Release(this Descriptor descriptor) {
+        //     return new RefList<Release?>(descriptor.ReleaseLength, descriptor.Release);
+        // }
+        //
+        // public static RefList<string> Authors(this Release release) {
+        //     return new RefList<string>(release.AuthorsLength, release.Authors);
+        // }
+        //
+        // public static RefList<Target?> Target(this Release release) {
+        //     return new RefList<Target?>(release.TargetLength, release.Target);
+        // }
+        //
+        // public static Target? WindowsTarget(this Release release) {
+        //     return release.Target().FirstOrDefault(x => x.HasValue && x.Value.Platform == "windows");
+        // }
+        //
+        // public static RefMap<string, string> Dependencies(this Target target) {
+        //     return new RefMap<string, string>(
+        //         target.DependenciesValuesLength,
+        //         target.DependenciesValues,
+        //         target.DependenciesKeys);
+        // }
+        //
+        // public static WindowsExecutable? WindowsExecutable(this Target target) {
+        //     if (target.PayloadType == Payload.WindowsExecutable) {
+        //         return target.Payload<WindowsExecutable>();
+        //     }
+        //
+        //     return null;
+        // }
     }
 }

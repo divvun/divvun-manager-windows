@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
+using Pahkat.Sdk.Rpc.Models;
 
 namespace Divvun.Installer.Extensions
 {
@@ -11,9 +12,9 @@ namespace Divvun.Installer.Extensions
             return (action.Name.ContainsKey(tag) ? action.Name[tag] : action.Name["en"]) ?? action.Action.PackageKey.Id;
         }
 
-        public static string NativeName(this Descriptor descriptor) {
+        public static string NativeName(this IDescriptor descriptor) {
             var tag = CultureInfo.CurrentCulture.IetfLanguageTag;
-            var map = descriptor.Name();
+            var map = descriptor.Name;
             var name = (map.ContainsKey(tag) ? map[tag] : map["en"]) ?? descriptor.Id;
             return name;
         }

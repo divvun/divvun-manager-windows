@@ -12,11 +12,12 @@ using FlatBuffers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Pahkat.Sdk.Rpc.Fbs;
+using Pahkat.Sdk.Rpc.Models;
 using Serilog;
 
 namespace Pahkat.Sdk.Rpc
 {
-    public class LoadedRepository
+    public class LoadedRepository : ILoadedRepository
     {
         public class IndexValue
         {
@@ -46,11 +47,11 @@ namespace Pahkat.Sdk.Rpc
         
         public byte[] PackagesFbs { get; set; }
 
-        public IndexValue Index;
-        public MetaValue Meta;
-        public Packages Packages => Packages.GetRootAsPackages(new ByteBuffer(PackagesFbs));
-        
-        public PackageKey PackageKey(Descriptor descriptor) {
+        public IndexValue Index { get; }
+        public MetaValue Meta { get; }
+        public IPackages Packages => Fbs.Packages.GetRootAsPackages(new ByteBuffer(PackagesFbs));
+
+        public PackageKey PackageKey(IDescriptor descriptor) {
             return Sdk.PackageKey.Create(Index.Url, descriptor.Id);
         }
     }
@@ -95,7 +96,7 @@ namespace Pahkat.Sdk.Rpc
     {
         CancellationTokenSource ProcessTransaction(PackageAction[] actions, Action<TransactionResponseValue> callback);
         PackageStatus Status(PackageKey packageKey);
-        Dictionary<Uri, LoadedRepository> RepoIndexes();
+        Dictionary<Uri, ILoadedRepository> RepoIndexes();
         Dictionary<Uri, RepoRecord> GetRepoRecords();
         Dictionary<Uri, RepoRecord> SetRepo(Uri url, RepoRecord record);
         Dictionary<Uri, RepoRecord> RemoveRepo(Uri url);
@@ -173,7 +174,7 @@ namespace Pahkat.Sdk.Rpc
             public LoadedRepository[] Repositories { get; set; }
         }
 
-        public Dictionary<Uri, LoadedRepository> RepoIndexes() {
+        public Dictionary<Uri, ILoadedRepository> RepoIndexes() {
             var indexes = pahkat_rpc.pahkat_rpc_repo_indexes(handle, PahkatClientException.Callback);
             PahkatClientException.AssertNoError();
             var str = indexes.AsString();
@@ -182,7 +183,7 @@ namespace Pahkat.Sdk.Rpc
             var list = JsonConvert.DeserializeObject<RepoIndexesResponse>(str, Json.Settings.Value);
             pahkat_rpc.pahkat_rpc_slice_free(indexes);
 
-            var map = new Dictionary<Uri, LoadedRepository>();
+            var map = new Dictionary<Uri, ILoadedRepository>();
             
             foreach (var loadedRepository in list.Repositories) {
                 map.Add(loadedRepository.Index.Url, loadedRepository);

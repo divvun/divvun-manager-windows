@@ -146,19 +146,23 @@ namespace Divvun.Installer
                 return;
             }
 
-            SentrySdk.Init(options => {
-                options.Release = ThisAssembly.AssemblyInformationalVersion;
-                options.Dsn = new Dsn(Constants.SentryDsn);
-                options.SendDefaultPii = true;
-            });
-            
-            Current.DispatcherUnhandledException += (o, args) => {
-                Log.Fatal(args.Exception, "Unhandled exception in dispatcher");
-                SentrySdk.CaptureException(args.Exception);
-                PreExit();
-                MessageBox.Show(args.Exception.Message, "Error");
-                Current.Shutdown(1);
-            };
+            if (!Debugger.IsAttached) {
+                SentrySdk.Init(options => {
+                    options.Release = ThisAssembly.AssemblyInformationalVersion;
+                    options.Dsn = new Dsn(Constants.SentryDsn);
+                    options.SendDefaultPii = true;
+                });
+
+                Current.DispatcherUnhandledException += (o, args) => {
+                    Log.Fatal(args.Exception, "Unhandled exception in dispatcher");
+                    SentrySdk.CaptureException(args.Exception);
+                    PreExit();
+                    MessageBox.Show(args.Exception.Message, "Error");
+                    Current.Shutdown(1);
+                };
+            } else {
+                Log.Warning("RUNNING WITH DEBUGGER -- No Sentry and no uncaught exception handling.");
+            }
 
             Settings = Settings.Create();
             
@@ -171,8 +175,7 @@ namespace Divvun.Installer
             
             try {
                 PackageStore = new Mutex<IPahkatClient>(PahkatClient.Create());
-            }
-            catch (Exception _) {
+            } catch (Exception _) {
                 MessageBox.Show(
                     "The RPC service was not found. If problems persist, try rebooting your computer.",
                     "Could not connect to Pahkat Client"

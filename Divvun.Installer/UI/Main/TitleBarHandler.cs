@@ -13,6 +13,7 @@ using Divvun.Installer.Util;
 using ModernWpf.Controls;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
+using Pahkat.Sdk.Rpc.Models;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -54,7 +55,7 @@ namespace Divvun.Installer.UI.Main
         
         public static void RefreshFlyoutItems(DropDownButton titleBarReposButton,
             MenuFlyout titleBarReposFlyout,
-            LoadedRepository[] repos,
+            ILoadedRepository[] repos,
             Dictionary<Uri, RepoRecord> records)
         {
             var app = (PahkatApp) Application.Current;

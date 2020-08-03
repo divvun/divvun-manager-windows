@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
+using Pahkat.Sdk.Rpc.Models;
 using Serilog;
 
 namespace Divvun.Installer.Service
@@ -31,10 +32,10 @@ namespace Divvun.Installer.Service
     {
         public class Functions
         {
-            public LoadedRepository Repo;
+            public ILoadedRepository Repo;
             public WebView WebView;
             
-            public Functions(LoadedRepository repo, WebView webView) {
+            public Functions(ILoadedRepository repo, WebView webView) {
                 Repo = repo;
                 WebView = webView;
             }
@@ -145,13 +146,13 @@ namespace Divvun.Installer.Service
                 var primaryButton = string.Format(Strings.InstallUninstallNPackages, actions.Count);
                 
                 // Resolve the names for the package keys
-                var strings = actions.Map(x => {
-                    var package = Repo.Packages.Packages()[x.PackageKey.Id];
+                var strings = actions.Select(x => {
+                    var package = Repo.Packages.Packages[x.PackageKey.Id];
                     var release = Repo.Release(x.PackageKey);
-                    if (!release.HasValue || !package.HasValue) {
+                    if (release == null || package == null) {
                         return null;
                     }
-                    return $"{x.Action.NativeName()}: {package.Value.NativeName()} {release.Value.Version}";
+                    return $"{x.Action.NativeName()}: {package.NativeName()} {release.Version}";
                 });
                 
                 
@@ -186,7 +187,9 @@ namespace Divvun.Installer.Service
                         query = JsonConvert.DeserializeObject<PackageQuery>(args[0].ToString(),
                             Json.Settings.Value);
                     }
-                    catch { }
+                    catch {
+                        // ignored
+                    }
 
                     if (query.HasValue) {
                         try {
@@ -201,13 +204,13 @@ namespace Divvun.Installer.Service
                     }
                     
                 }
-                var map = new Dictionary<PackageKey, Descriptor>();
+                var map = new Dictionary<PackageKey, IDescriptor>();
                 
-                foreach (var keyValuePair in Repo.Packages.Packages()) {
+                foreach (var keyValuePair in Repo.Packages.Packages) {
                     var value = keyValuePair.Value!;
-                    if (value.HasValue) {
-                        var key = Repo.PackageKey(value.Value);
-                        map.Add(key, value.Value);
+                    if (value != null) {
+                        var key = Repo.PackageKey(value);
+                        map.Add(key, value);
                     }
                     
                 }

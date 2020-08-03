@@ -3,6 +3,7 @@ using Iterable;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
+using Pahkat.Sdk.Rpc.Models;
 
 namespace Divvun.Installer.Extensions
 {
@@ -11,41 +12,41 @@ namespace Divvun.Installer.Extensions
         private const string TagPrefixCategory = "cat:";
         private const string TagPrefixLanguage = "lang:";
         
-        public static IEnumerable<string> Categories(this Descriptor descriptor) {
-            return descriptor.Tags()
-                .Filter(t => t.StartsWith(TagPrefixCategory));
+        public static IEnumerable<string> Categories(this IDescriptor descriptor) {
+            return descriptor.Tags
+                .Where(t => t.StartsWith(TagPrefixCategory));
         }
         
-        public static IEnumerable<string> Languages(this Descriptor descriptor) {
-            return descriptor.Tags()
-                .Filter(t => t.StartsWith(TagPrefixLanguage));
+        public static IEnumerable<string> Languages(this IDescriptor descriptor) {
+            return descriptor.Tags
+                .Where(t => t.StartsWith(TagPrefixLanguage));
         }
     }
 
     public static class LoadedRepositoryExt
     {
-        public static Release? Release(this LoadedRepository repo, PackageKey packageKey) {
+        public static IRelease? Release(this ILoadedRepository repo, PackageKey packageKey) {
             if (packageKey.RepositoryUrl != repo.Index.Url) {
                 return null;
             }
             
-            if (!repo.Packages.Packages().TryGetValue(packageKey.Id, out var descriptor) || descriptor == null) {
+            if (!repo.Packages.Packages.TryGetValue(packageKey.Id, out var descriptor) || descriptor == null) {
                 return null;
             }
 
-            var release = descriptor.Value.Release().First((r) => {
+            var release = descriptor.Release.FirstOrDefault((r) => {
                 // Check if version even has a Windows target
-                var target = r?.WindowsTarget();
+                var target = r?.WindowsTarget;
 
                 if (target == null) {
                     return false;
                 }
 
                 // Check the channel is valid
-                var channel = r.Value.Channel == "" ? null : r.Value.Channel;
+                var channel = r?.Channel == "" ? null : r?.Channel;
                 if (repo.Meta.Channel != null) {
                     // If a defined repo channel, find a package with no channel or this channel 
-                    return channel == null || repo.Meta.Channel == r.Value.Channel;
+                    return channel == null || repo.Meta.Channel == r?.Channel;
                 }
 
                 // Free pass, no channels on either side :D
@@ -55,8 +56,8 @@ namespace Divvun.Installer.Extensions
             return release;
         }
 
-        public static WindowsExecutable? Payload(this LoadedRepository repo, PackageKey packageKey) {
-            return repo.Release(packageKey)?.WindowsTarget()?.WindowsExecutable();
+        public static IWindowsExecutable? Payload(this ILoadedRepository repo, PackageKey packageKey) {
+            return repo.Release(packageKey)?.WindowsExecutable;
         }
     }
 }

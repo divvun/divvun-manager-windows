@@ -18,6 +18,7 @@ using Divvun.Installer.UI.Settings;
 using Divvun.Installer.UI.Shared;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
+using Pahkat.Sdk.Rpc.Models;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -47,7 +48,6 @@ namespace Divvun.Installer.UI.Main
         private readonly MainPagePresenter _presenter;
         
         private CompositeDisposable _bag = new CompositeDisposable();
-        private NavigationService? _navigationService;
         
         // Package handling events
         private IObservable<PackageCategoryTreeItem> _groupToggled;
@@ -96,9 +96,7 @@ namespace Divvun.Installer.UI.Main
             InitializeComponent();
             
             var app = (PahkatApp) Application.Current;
-
-            _presenter = new MainPagePresenter(this,
-                app.UserSelection);
+            _presenter = new MainPagePresenter(this, app.UserSelection);
         }
 
         private void OnClickBtnMenu(object sender, RoutedEventArgs e) {
@@ -135,8 +133,7 @@ namespace Divvun.Installer.UI.Main
 
         private void Page_Loaded(object sender, RoutedEventArgs e) {
             _bag = new CompositeDisposable();
-            _navigationService = this.NavigationService;
-            _navigationService.Navigating += NavigationService_Navigating;
+            NavigationService.Navigating += NavigationService_Navigating;
             
             _packageToggled = Observable.Merge(
                     TvPackages.ReactiveKeyDown()
@@ -161,7 +158,7 @@ namespace Divvun.Installer.UI.Main
             
             TitleBarHandler.BindRepoDropdown(_bag, x => {
                 var app = (PahkatApp) Application.Current;
-                LoadedRepository[] repos;
+                ILoadedRepository[] repos;
                 Dictionary<Uri, RepoRecord> records;
                 
                 using (var guard = app.PackageStore.Lock()) {
@@ -170,7 +167,7 @@ namespace Divvun.Installer.UI.Main
                 }
                 
                 TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos, records);
-                _presenter.BindNewRepositories(_sortedBy.Value);
+                // _presenter.BindNewRepositories(_sortedBy.Value);
             });
 
             ConfigureSortBy();
@@ -179,8 +176,8 @@ namespace Divvun.Installer.UI.Main
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e) {
-            if (_navigationService != null) {
-                _navigationService.Navigating -= NavigationService_Navigating;
+            if (NavigationService != null) {
+                NavigationService.Navigating -= NavigationService_Navigating;
             }
             
             _bag.Dispose();

@@ -14,6 +14,7 @@ using Divvun.Installer.Util;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
+using Pahkat.Sdk.Rpc.Models;
 using Serilog;
 
 namespace Divvun.Installer.UI.Main
@@ -69,27 +70,27 @@ namespace Divvun.Installer.UI.Main
                 });
         }
 
-        private RepoTreeItem FilterByTagPrefix(LoadedRepository repo, string prefix, Func<string, string> convertor) {
+        private RepoTreeItem FilterByTagPrefix(ILoadedRepository repo, string prefix, Func<string, string> convertor) {
             // var nodes = new ObservableCollection<PackageCategoryTreeItem>();
 
             var map = new Dictionary<string, List<PackageMenuItem>>();
 
-            foreach (var package in repo.Packages.Packages()) {
-                if (!package.Value.HasValue) {
+            foreach (var package in repo.Packages.Packages) {
+                if (package.Value == null) {
                     continue;
                 }
 
-                Descriptor descriptor = package.Value.Value;
+                IDescriptor descriptor = package.Value!;
 
                 var pkgKey = PackageKey.Create(repo.Index.Url, descriptor.Id);
                 var release = repo.Release(pkgKey);
-                var payload = release?.WindowsTarget()?.WindowsExecutable();
+                var payload = release?.WindowsExecutable;
 
-                if (!payload.HasValue || !release.HasValue) {
+                if (release == null || payload == null) {
                     continue;
                 }
 
-                var tags = descriptor.Tags().Filter(x => x.StartsWith(prefix));
+                var tags = descriptor.Tags.Where(x => x.StartsWith(prefix));
 
                 foreach (var tag in tags) {
                     if (!map.ContainsKey(tag)) {
@@ -97,7 +98,7 @@ namespace Divvun.Installer.UI.Main
                     }
 
                     map[tag].Add(new PackageMenuItem(_store,
-                        pkgKey, payload.Value, descriptor.NativeName() ?? "<>", release.Value.Version));
+                        pkgKey, payload, descriptor.NativeName() ?? "<>", release.Version));
                 }
             }
 
@@ -110,14 +111,14 @@ namespace Divvun.Installer.UI.Main
             return new RepoTreeItem(repo.Index.NativeName(), categories);
         }
 
-        private RepoTreeItem FilterByLanguage(LoadedRepository repo) {
+        private RepoTreeItem FilterByLanguage(ILoadedRepository repo) {
             return FilterByTagPrefix(repo, "lang:", (tag) => {
                 var langTag = tag.Substring(5);
                 var r = Iso639.GetTag(langTag);
                 return r?.Autonym ?? r?.Name ?? langTag;
             });
         }
-        private RepoTreeItem FilterByCategory(LoadedRepository repo) {
+        private RepoTreeItem FilterByCategory(ILoadedRepository repo) {
             var app = (PahkatApp) Application.Current;
             Dictionary<Uri, LocalizationStrings> strings;
             
