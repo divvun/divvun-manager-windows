@@ -13,6 +13,7 @@ using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
+using Sentry;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -81,7 +82,7 @@ namespace Divvun.Installer.UI.Main
 
         public void HandleError(Exception error) {
             var app = (PahkatApp) Application.Current;
-            app.SentryClient.CaptureException(error);
+            SentrySdk.CaptureException(error);
             MessageBox.Show(error.Message,
                 Strings.Error,
                 MessageBoxButton.OK,

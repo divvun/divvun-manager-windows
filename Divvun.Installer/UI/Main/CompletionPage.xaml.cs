@@ -10,7 +10,6 @@ using Divvun.Installer.Extensions;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Util;
-using SharpRaven.Data.Context;
 
 namespace Divvun.Installer.UI.Main
 {
