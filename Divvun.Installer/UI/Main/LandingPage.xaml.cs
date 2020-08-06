@@ -22,6 +22,8 @@ using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Models;
 using Serilog;
 
+using Iter = Iterable.Iterable;
+
 namespace Divvun.Installer.UI.Main
 {
     public struct WebBridgeRequest
@@ -33,7 +35,9 @@ namespace Divvun.Installer.UI.Main
         [JsonProperty("args")] public JArray Args;
 
         public override string ToString() {
-            return $"Id: {Id}, Method: {Method}, Args: {string.Join(", ", Args.Map(x => x.ToString()).ToArray())}";
+            var args = Iter.ToArray(
+                string.Join(", ", Args.Map(x => x.ToString())));
+            return $"Id: {Id}, Method: {Method}, Args: {args}";
         }
     }
 
@@ -116,10 +120,10 @@ namespace Divvun.Installer.UI.Main
             using (var guard = app.PackageStore.Lock()) {
                 repos = guard.Value.RepoIndexes();
                 records = guard.Value.GetRepoRecords();
+                TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, 
+                    Iter.ToArray(repos.Values), records);
             }
 
-            TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos.Values.ToArray(), records);
-            
             ILoadedRepository? repo = null;
             if (url == null) {
                 if (records.IsNullOrEmpty()) {
@@ -127,8 +131,8 @@ namespace Divvun.Installer.UI.Main
                     return;
                 }
 
-                if (!repos.Values.IsNullOrEmpty()) { 
-                    repo = repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                if (!repos.Values.IsNullOrEmpty()) {
+                    repo = Iter.First(repos.Values, r => records.ContainsKey(r.Index.Url));
                 }
 
                 if (repo == null) {
@@ -142,8 +146,8 @@ namespace Divvun.Installer.UI.Main
                 }
             } else {
                 if (!repos.Values.IsNullOrEmpty()) {
-                    repo = repos.Values.First(r => r.Index.Url == url);
-                    repo ??= repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                    repo = Iter.First(repos.Values, r => r.Index.Url == url);
+                    repo ??= Iter.First(repos.Values, r => records.ContainsKey(r.Index.Url));
                 }
                 
                 if (repo == null) {

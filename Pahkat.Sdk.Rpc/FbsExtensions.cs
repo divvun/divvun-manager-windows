@@ -1,7 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Iterable;
+using System.Linq;
+using Pahkat.Sdk.Rpc.Models;
 
 namespace Pahkat.Sdk.Rpc.Fbs
 {
@@ -151,9 +152,6 @@ namespace Pahkat.Sdk.Rpc.Fbs
         //     return new RefList<Target?>(release.TargetLength, release.Target);
         // }
         //
-        // public static Target? WindowsTarget(this Release release) {
-        //     return release.Target().FirstOrDefault(x => x.HasValue && x.Value.Platform == "windows");
-        // }
         //
         // public static RefMap<string, string> Dependencies(this Target target) {
         //     return new RefMap<string, string>(
@@ -162,12 +160,5 @@ namespace Pahkat.Sdk.Rpc.Fbs
         //         target.DependenciesKeys);
         // }
         //
-        // public static WindowsExecutable? WindowsExecutable(this Target target) {
-        //     if (target.PayloadType == Payload.WindowsExecutable) {
-        //         return target.Payload<WindowsExecutable>();
-        //     }
-        //
-        //     return null;
-        // }
     }
 }

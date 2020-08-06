@@ -53,7 +53,7 @@ public enum Package : byte
   Redirect = 3,
 };
 
-public struct WindowsExecutable : IFlatbufferObject
+public partial struct WindowsExecutable : IFlatbufferObject
 {
   private Table __p;
   public ByteBuffer ByteBuffer { get { return __p.bb; } }

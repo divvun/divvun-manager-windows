@@ -14,6 +14,7 @@ using Divvun.Installer.Util;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Sentry;
+using Serilog;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -116,6 +117,8 @@ namespace Divvun.Installer.UI.Main
 
         private void Page_Unloaded(object sender, RoutedEventArgs e) {
             _navigationService.Navigating -= NavigationService_Navigating;
+            
+            Dispose();
         }
 
         private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e) {

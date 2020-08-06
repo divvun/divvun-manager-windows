@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
+using System.Windows.Navigation;
 using Castle.Core.Internal;
 using Divvun.Installer.Extensions;
 using Divvun.Installer.Models;
@@ -87,7 +88,16 @@ namespace Divvun.Installer.UI.Main
         }
         
         public void ShowPage(IPageView pageView) {
-            DispatcherScheduler.Current.Schedule(() => FrmContainer.Navigate(pageView));
+            DispatcherScheduler.Current.Schedule(() => {
+                FrmContainer.Navigate(pageView);
+
+                JournalEntry page;
+                while ((page = FrmContainer.RemoveBackEntry()) != null) {
+                    // page.
+                    Log.Verbose("Murdered a view. {page}", page);
+                    // Clean up everything
+                }
+            });
         }
 
         private IObservable<Route> Router() {

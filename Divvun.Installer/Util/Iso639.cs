@@ -33,8 +33,7 @@ namespace Divvun.Installer.Util
         private static Iso639Data[] _data;
 
         public static Iso639Data? GetTag(string tag) {
-            if (_data == null)
-            {
+            if (_data == null) {
                 var uri = new Uri("pack://application:,,,/Util/iso639-3_native.tsv");
                 var reader = new StreamReader(Application.GetResourceStream(uri)?.Stream ?? throw new NullReferenceException());
                 var csv = new CsvHelper.CsvReader(reader);
@@ -43,8 +42,7 @@ namespace Divvun.Installer.Util
                 _data = csv.GetRecords<Iso639Data>().ToArray();
             }
 
-            return _data.First(x => x.Tag1 == tag)
-                   ?? _data.First(y => y.Tag3 == tag);
+            return _data.First(x => x.Tag1 == tag) ?? _data.First(y => y.Tag3 == tag);
         }
     }
 }

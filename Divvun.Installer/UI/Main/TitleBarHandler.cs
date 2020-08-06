@@ -20,7 +20,7 @@ namespace Divvun.Installer.UI.Main
     public static class TitleBarHandler
     {
         private static IObservable<Notification> OnReposChanged() {
-            var app = (PahkatApp) Application.Current;
+            var app = PahkatApp.Current;
             using var guard = app.PackageStore.Lock();
             return guard.Value.Notifications()
                 .Filter(x => x == Notification.RepositoriesChanged)
@@ -30,7 +30,7 @@ namespace Divvun.Installer.UI.Main
         }
 
         internal static void BindRepoDropdown(CompositeDisposable bag, Action<Uri?> setRepository) {
-            var app = (PahkatApp) Application.Current;
+            var app = PahkatApp.Current;
             OnReposChanged()
                 .CombineLatest(app.Settings.SelectedRepository, (a, b) => b)
                 .ObserveOn(DispatcherScheduler.Current)
@@ -40,12 +40,12 @@ namespace Divvun.Installer.UI.Main
         }
         
         public static void OnClickAboutMenuItem(object sender, RoutedEventArgs e) {
-            var app = (PahkatApp) Application.Current;
+            var app = PahkatApp.Current;
             app.WindowService.Show<AboutWindow>();
         }
 
         public static void OnClickSettingsMenuItem(object sender, RoutedEventArgs e) {
-            var app = (PahkatApp) Application.Current;
+            var app = PahkatApp.Current;
             app.WindowService.Show<SettingsWindow>();
         }
 
@@ -58,12 +58,16 @@ namespace Divvun.Installer.UI.Main
             ILoadedRepository[] repos,
             Dictionary<Uri, RepoRecord> records)
         {
-            var app = (PahkatApp) Application.Current;
+            var app = PahkatApp.Current;
 
             titleBarReposFlyout.Items.Clear();
             
             foreach (var repo in repos) {
                 if (!records.ContainsKey(repo.Index.Url)) {
+                    continue;
+                }
+
+                if (repo.Index.LandingUrl == null) {
                     continue;
                 }
                 

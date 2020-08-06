@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Center">
             <TextBlock 
-                Foreground="{DynamicResource Text}" Name="LblPrimary" FontSize="14" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"  Text="{x:Static pahkat:Strings.RestartRequiredTitle}"/>
+                Foreground="{DynamicResource Text}" Name="LblPrimary" FontSize="21" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap"  Text="{x:Static pahkat:Strings.RestartRequiredTitle}"/>
             <TextBlock 
                 Foreground="{DynamicResource Text}" Name="LblSecondary" FontSize="11" Margin="32,16,32,0" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.RestartRequiredBody}"/>
         </StackPanel>

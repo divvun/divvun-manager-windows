@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Iterable;
+using System.Diagnostics;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -124,6 +125,9 @@ namespace Divvun.Installer.UI.Main
         }
 
         public void HandleError(Exception error) {
+            if (Debugger.IsAttached) {
+                throw error;
+            }
             MessageBox.Show(error.Message, Strings.Error, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 

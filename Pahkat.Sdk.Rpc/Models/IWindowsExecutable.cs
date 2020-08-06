@@ -12,7 +12,6 @@ namespace Pahkat.Sdk.Rpc.Models
         IPackages Packages { get; }
 
         PackageKey PackageKey(IDescriptor descriptor);
-        
     }
     
     public interface IWindowsExecutable
@@ -22,6 +21,8 @@ namespace Pahkat.Sdk.Rpc.Models
 
     public interface ITarget
     {
+        string Platform { get; }
+        Payload PayloadType { get; }
         
     }
 
@@ -45,8 +46,8 @@ namespace Pahkat.Sdk.Rpc.Models
         string? Version { get; }
         IReadOnlyList<string> Authors { get; }
         IReadOnlyList<ITarget?> Target { get; }
-        ITarget? WindowsTarget { get; }
-        IWindowsExecutable? WindowsExecutable { get; }
+        // ITarget? WindowsTarget { get; }
+        // IWindowsExecutable? WindowsExecutable { get; }
     }
 }
 
@@ -96,12 +97,14 @@ namespace Pahkat.Sdk.Rpc.Fbs
                 return new RefList<ITarget?>(TargetLength, i => self.Target(i) as ITarget);
             }
         }
-
-        public ITarget? WindowsTarget { get; }
-        public IWindowsExecutable? WindowsExecutable { get; }
     }
     
     public partial struct Target : ITarget
+    {
+        
+    }
+
+    public partial struct WindowsExecutable : IWindowsExecutable
     {
         
     }

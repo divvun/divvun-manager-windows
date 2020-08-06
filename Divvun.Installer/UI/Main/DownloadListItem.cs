@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Threading;
 using Pahkat.Sdk;
+using Serilog;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -40,7 +41,16 @@ namespace Divvun.Installer.UI.Main
 
         public string Title { get; } = "-";
         public string Version { get; } = "-";
-        public long FileSize { get; set; } = -1;
+
+        private long _fileSize = -1;
+        public long FileSize {
+            get => _fileSize;
+            set {
+                _fileSize = value;
+                PropertyChanged?.Invoke(this,
+                    new PropertyChangedEventArgs("FileSize"));
+            }
+        }
 
         public long Downloaded {
             get => _downloaded;
@@ -50,6 +60,7 @@ namespace Divvun.Installer.UI.Main
                 // Workaround for WPF bug where only one property change event can be
                 // fired per setter being used... :|
                 Dispatcher.CurrentDispatcher.Invoke(() => {
+                    Log.Verbose("Dispatching Status and Downloaded events");
                     PropertyChanged?.Invoke(this,
                         new PropertyChangedEventArgs("Status"));
                     PropertyChanged?.Invoke(this,

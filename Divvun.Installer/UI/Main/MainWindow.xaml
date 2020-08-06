@@ -34,6 +34,6 @@
     
     
     <Grid>
-        <Frame Grid.Row="0" x:Name="FrmContainer" NavigationUIVisibility="Hidden" />
+        <Frame Grid.Row="0" x:Name="FrmContainer" NavigationUIVisibility="Hidden" JournalOwnership="OwnsJournal"/>
     </Grid>
 </Window>

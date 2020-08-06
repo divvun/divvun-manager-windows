@@ -15,6 +15,8 @@ using Divvun.Installer.Extensions;
 using Divvun.Installer.Util;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
+using Serilog;
+using Iter = Iterable.Iterable;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -35,7 +37,7 @@ namespace Divvun.Installer.UI.Main
         private void InitProgressList(ResolvedAction[] actions) {
             var x = actions
                 .Filter(x => x.Action.Action == InstallAction.Install)
-                .Map(x => new DownloadListItem(x.Action.PackageKey, x.Name.Values.First() ?? x.Action.PackageKey.Id, x.Version));
+                .Map(x => new DownloadListItem(x.Action.PackageKey, x.NativeName(), x.Version));
             LvPrimary.ItemsSource = new ObservableCollection<DownloadListItem>(x);
         }
 
@@ -49,9 +51,10 @@ namespace Divvun.Installer.UI.Main
                 return;
             }
             
-            var item = source.First(x => x.Key.Equals(packageKey));
+            var item = Iter.First(source, x => x.Key.Equals(packageKey));
 
             if (item != null) {
+                Log.Verbose("{hash}: Setting progress for {package}: {current}/{total}", this.GetHashCode(), packageKey.ToString(), current, total);
                 item.FileSize = total;
                 item.Downloaded = current;
             }
@@ -134,6 +137,7 @@ namespace Divvun.Installer.UI.Main
             if (svc != null) {
                 svc.Navigating -= NavigationService_Navigating;
             }
+            _bag.Dispose();
         }
 
         private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e) {
@@ -143,8 +147,9 @@ namespace Divvun.Installer.UI.Main
         }
         
         // Dispose
-
+        
         public void Dispose() {
+            Log.Verbose("Dispose called");
             _bag.Dispose();
         }
     }

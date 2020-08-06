@@ -1,4 +1,7 @@
-﻿namespace Divvun.Installer.UI.Shared
+﻿using System;
+using System.Windows.Navigation;
+
+namespace Divvun.Installer.UI.Shared
 {
     public interface IPageView
     { }

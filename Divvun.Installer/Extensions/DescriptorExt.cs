@@ -1,9 +1,14 @@
 ﻿using System.Collections.Generic;
+<<<<<<< HEAD
 using Iterable;
+=======
+using Divvun.Installer.Service;
+>>>>>>> Add testing, fix memory leaks and UI functionality
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
 using Pahkat.Sdk.Rpc.Models;
+using Iterable;
 
 namespace Divvun.Installer.Extensions
 {
@@ -14,12 +19,12 @@ namespace Divvun.Installer.Extensions
         
         public static IEnumerable<string> Categories(this IDescriptor descriptor) {
             return descriptor.Tags
-                .Where(t => t.StartsWith(TagPrefixCategory));
+                .Filter(t => t.StartsWith(TagPrefixCategory));
         }
         
         public static IEnumerable<string> Languages(this IDescriptor descriptor) {
             return descriptor.Tags
-                .Where(t => t.StartsWith(TagPrefixLanguage));
+                .Filter(t => t.StartsWith(TagPrefixLanguage));
         }
     }
 
@@ -34,9 +39,11 @@ namespace Divvun.Installer.Extensions
                 return null;
             }
 
-            var release = descriptor.Release.FirstOrDefault((r) => {
+            var releases = descriptor.Release;
+
+            var release = descriptor.Release.First((r) => {
                 // Check if version even has a Windows target
-                var target = r?.WindowsTarget;
+                var target = r?.WindowsTarget();
 
                 if (target == null) {
                     return false;
@@ -57,7 +64,33 @@ namespace Divvun.Installer.Extensions
         }
 
         public static IWindowsExecutable? Payload(this ILoadedRepository repo, PackageKey packageKey) {
-            return repo.Release(packageKey)?.WindowsExecutable;
+            return repo.Release(packageKey)?.WindowsExecutable();
+        }
+    }
+
+    public static class FbsExt
+    {
+        public static ITarget? WindowsTarget(this IRelease release) {
+            return Iterable.Iterable.First(release.Target, x => x?.Platform == "windows");
+        }
+
+        public static IWindowsExecutable? WindowsExecutable(this IRelease release) {
+            return release.WindowsTarget()?.WindowsExecutable();
+        }
+
+        public static IWindowsExecutable? WindowsExecutable(this ITarget target) {
+            if (target is Target t) {
+                
+                if (target.PayloadType == Payload.WindowsExecutable) {
+                    return t.Payload<WindowsExecutable>();
+                }
+            }
+
+            if (target is MockTarget t2) {
+                return t2.Payload;
+            }
+        
+            return null;
         }
     }
 }

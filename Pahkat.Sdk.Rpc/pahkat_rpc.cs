@@ -31,8 +31,8 @@ namespace Pahkat.Sdk.Rpc
             public Uri Url;
             public string[] Channels;
             public string? DefaultChannel;
-            public Dictionary<string, string> Name;
-            public Dictionary<string, string> Description;
+            public IReadOnlyDictionary<string, string> Name;
+            public IReadOnlyDictionary<string, string> Description;
             public AgentValue Agent;
             public Uri? LandingUrl;
 

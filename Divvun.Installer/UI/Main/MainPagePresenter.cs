@@ -7,6 +7,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Linq;
 using System.Windows;
+using Castle.Core.Internal;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Extensions;
@@ -52,7 +53,7 @@ namespace Divvun.Installer.UI.Main
                 .ObserveOn(NewThreadScheduler.Default)
                 .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(_ => {
-                    Log.Debug("Button pressed");
+                    Log.Verbose("Primary button pressed");
                     var app = (PahkatApp) Application.Current;
                     var actions = Iterable.Iterable.ToArray(_store.Value.SelectedPackages.Values);
                     
@@ -84,13 +85,17 @@ namespace Divvun.Installer.UI.Main
 
                 var pkgKey = PackageKey.Create(repo.Index.Url, descriptor.Id);
                 var release = repo.Release(pkgKey);
-                var payload = release?.WindowsExecutable;
+                var payload = release?.WindowsExecutable();
 
                 if (release == null || payload == null) {
                     continue;
                 }
 
-                var tags = descriptor.Tags.Where(x => x.StartsWith(prefix));
+                var tags = descriptor.Tags.Where(x => x.StartsWith(prefix)).ToArray();
+
+                if (tags.IsNullOrEmpty()) {
+                    tags = new[] {prefix};
+                }
 
                 foreach (var tag in tags) {
                     if (!map.ContainsKey(tag)) {
@@ -115,7 +120,8 @@ namespace Divvun.Installer.UI.Main
             return FilterByTagPrefix(repo, "lang:", (tag) => {
                 var langTag = tag.Substring(5);
                 var r = Iso639.GetTag(langTag);
-                return r?.Autonym ?? r?.Name ?? langTag;
+                return Util.Util.GetCultureDisplayName(langTag);
+                // return r?.Autonym ?? r?.Name ?? langTag;
             });
         }
         private RepoTreeItem FilterByCategory(ILoadedRepository repo) {
@@ -127,6 +133,9 @@ namespace Divvun.Installer.UI.Main
             }
             
             return FilterByTagPrefix(repo, "cat:", (tag) => {
+                if (tag == "cat:") {
+                    return "Uncategorized";
+                }
                 if (strings.TryGetValue(repo.Index.Url, out var s)) {
                     if (s.Tags.TryGetValue(tag, out var t)) {
                         return t;
@@ -204,7 +213,6 @@ namespace Divvun.Installer.UI.Main
         }
 
         public IDisposable Start() {
-            _view.UpdateTitle($"{Strings.AppName} - {Strings.Loading}");
             _view.SetPackagesModel(_tree);
 
             return new CompositeDisposable(

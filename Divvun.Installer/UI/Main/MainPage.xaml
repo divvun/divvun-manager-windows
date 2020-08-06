@@ -73,6 +73,7 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
                 Foreground="{DynamicResource Text}"
+                FontWeight="SemiBold"
                 Text="Divvun Installer" />
             
             <Grid Grid.Column="2" />

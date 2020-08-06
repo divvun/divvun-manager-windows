@@ -15,7 +15,7 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Center">
-            <TextBlock Foreground="{DynamicResource Text}" Name="LblPrimary" FontSize="13" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.Starting}"/>
+            <TextBlock Foreground="{DynamicResource Text}" Name="LblPrimary" FontSize="21" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.Starting}"/>
             <ProgressBar Name="PrgBar" Height="23" Margin="128,32,128,8" IsIndeterminate="True" />
             <TextBlock Foreground="{DynamicResource Text}" Name="LblSecondary" FontSize="11" TextAlignment="Center" TextWrapping="Wrap"></TextBlock>
         </StackPanel>

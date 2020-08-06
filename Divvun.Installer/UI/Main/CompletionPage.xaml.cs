@@ -101,6 +101,8 @@ namespace Divvun.Installer.UI.Main
             if (_navigationService != null) {
                 _navigationService.Navigating -= NavigationService_Navigating;
             }
+
+            Dispose();
         }
 
         private void NavigationService_Navigating(object sender, NavigatingCancelEventArgs e) {

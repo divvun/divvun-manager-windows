@@ -28,9 +28,10 @@ using Serilog.Sinks.File.GZip;
 
 namespace Divvun.Installer
 {
-    
     public partial class PahkatApp : ISingleInstanceApp
     {
+        public new static PahkatApp Current => (PahkatApp)Application.Current;
+        
         public const string ArgsSilent = "-s";
 
         public IWindowService WindowService { get; protected set; } = Service.WindowService.Create(
@@ -107,8 +108,13 @@ namespace Divvun.Installer
             
             Log.Logger = new LoggerConfiguration()
                 .Enrich.WithExceptionDetails()
+                .Enrich.WithThreadId()
+                .Enrich.WithThreadName()
                 .MinimumLevel.Verbose()
-                .WriteTo.Console(theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code)
+                .WriteTo.Console(
+                    theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme.Code,
+                    outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Level:u3} {ThreadName}:{ThreadId}] {Message:lj} {NewLine}{Exception}"
+                )
                 .WriteTo.File(Path.Combine(logPath, "app.log.gz"),
                     buffered: true,
                     fileSizeLimitBytes: 1024 * 1024 * 20,

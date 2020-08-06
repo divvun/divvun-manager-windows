@@ -50,7 +50,7 @@ namespace Divvun.Installer.Util
 
         public static string GetCultureDisplayName(string tag)
         {
-            if (tag == "zxx")
+            if (tag == "zxx" || tag == "")
             {
                 return "---";
             }
