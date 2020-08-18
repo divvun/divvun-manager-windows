@@ -47,8 +47,8 @@ namespace Pahkat.Sdk.Rpc
         
         public byte[] PackagesFbs { get; set; }
 
-        public IndexValue Index { get; }
-        public MetaValue Meta { get; }
+        public IndexValue Index { get; set; }
+        public MetaValue Meta { get; set; }
         public IPackages Packages => Fbs.Packages.GetRootAsPackages(new ByteBuffer(PackagesFbs));
 
         public PackageKey PackageKey(IDescriptor descriptor) {
