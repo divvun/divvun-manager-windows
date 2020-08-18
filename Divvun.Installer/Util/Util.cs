@@ -74,16 +74,7 @@ namespace Divvun.Installer.Util
                 return data.Autonym;
             }
 
-            // This undocumented API is weird; if a language isn't an OS language, _any_ script flag must be specified. Trust me.
-            var autonymBuilder = new StringBuilder();
-            SysNative.GetLanguageNames(langCode + "-Latn", autonymBuilder, new StringBuilder(), new StringBuilder(), new StringBuilder());
-
-            if (autonymBuilder.ToString() != "")
-            {
-                return autonymBuilder.ToString();
-            }
-
-            if (culture?.DisplayName != null && culture.DisplayName != "" && culture.DisplayName != culture.EnglishName)
+            if (culture != null && culture.DisplayName != "" && culture.DisplayName != culture.EnglishName)
             {
                 return culture.DisplayName;
             }
