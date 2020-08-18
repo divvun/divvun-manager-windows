@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Divvun.Installer.UI.Main"
         mc:Ignorable="d"
         Title="{Binding ElementName=FrmContainer, Path=Content.Title}"
-        MinHeight="350" MinWidth="550"
+        MinHeight="350" MinWidth="800"
         Height="600" Width="900"
         xmlns:ui="http://schemas.modernwpf.com/2019"
         xmlns:system="clr-namespace:System;assembly=mscorlib"

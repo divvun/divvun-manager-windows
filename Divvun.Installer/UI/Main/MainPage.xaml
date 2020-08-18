@@ -153,7 +153,7 @@
                                 <!-- Hardcoded because Windows isn't fair and relative sizing led to inconsistent widths -->
                                 <ColumnDefinition Width="36"/>
                                 <ColumnDefinition Width="208"/>
-                                <ColumnDefinition Width="92"/>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="92"/>
                                 <ColumnDefinition Width="120"/>
                             </Grid.ColumnDefinitions>

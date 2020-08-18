@@ -1,9 +1,5 @@
 ﻿using System.Collections.Generic;
-<<<<<<< HEAD
-using Iterable;
-=======
 using Divvun.Installer.Service;
->>>>>>> Add testing, fix memory leaks and UI functionality
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;

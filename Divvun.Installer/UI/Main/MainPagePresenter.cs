@@ -18,6 +18,8 @@ using Pahkat.Sdk.Rpc.Fbs;
 using Pahkat.Sdk.Rpc.Models;
 using Serilog;
 
+using Iter = Iterable.Iterable;
+
 namespace Divvun.Installer.UI.Main
 {
     public class MainPagePresenter
@@ -91,7 +93,7 @@ namespace Divvun.Installer.UI.Main
                     continue;
                 }
 
-                var tags = descriptor.Tags.Where(x => x.StartsWith(prefix)).ToArray();
+                var tags = Iter.ToArray(descriptor.Tags.Where(x => x.StartsWith(prefix)));
 
                 if (tags.IsNullOrEmpty()) {
                     tags = new[] {prefix};

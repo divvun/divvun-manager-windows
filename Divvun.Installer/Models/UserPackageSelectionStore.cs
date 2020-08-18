@@ -95,8 +95,8 @@ namespace Divvun.Installer.Models
             }
 
             Log.Debug(string.Join(", ", state.SelectedPackages
-                .Select(x => x.Value)
-                .Select(x => $"{x.PackageKey.ToString()}:{x.Action}")));
+                .Map(x => x.Value)
+                .Map(x => $"{x.PackageKey.ToString()}:{x.Action}")));
 
             return state;
         }
