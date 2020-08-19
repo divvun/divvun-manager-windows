@@ -9,7 +9,7 @@
       d:DesignHeight="300" d:DesignWidth="300"
       Title="{Binding Title}" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
 
-    <Grid>
+    <Grid Name="MainGrid" Visibility="Hidden">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>

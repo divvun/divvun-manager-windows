@@ -57,6 +57,8 @@ namespace Divvun.Installer.UI.Main
                 DockPanel.SetDock(BtnFinish, Dock.Right);
                 BtnFinish.Content = Strings.Finish;
             }
+            
+            MainGrid.Visibility = Visibility.Visible;
         }
 
         public void RebootSystem() {
