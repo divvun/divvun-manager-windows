@@ -43,10 +43,18 @@ jobs:
       - name: Move libpahkat_rpc to appropriate place
         run: |
           cp $env:RUNNER_WORKSPACE\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer\
-      - name: Acquire Pahkat Service installer
+      - name: Acquire Pahkat Service installer (nightly)
+        if: ${{ steps.version.outputs.channel == 'nightly' }}
         run: |
           mkdir ./pahkat-config
           echo "[""https://pahkat.uit.no/divvun-installer/""]`nchannel = ""nightly""" > ./pahkat-config/repos.toml
+          pahkat-windows download https://pahkat.uit.no/divvun-installer/packages/pahkat-service --output ./pahkat-service -c ./pahkat-config
+          mv ./pahkat-service/* ./pahkat-service-setup.exe
+      - name: Acquire Pahkat Service installer (stable)
+        if: ${{ steps.version.outputs.channel != 'nightly' }}
+        run: |
+          mkdir ./pahkat-config
+          echo "[""https://pahkat.uit.no/divvun-installer/""]`n" > ./pahkat-config/repos.toml
           pahkat-windows download https://pahkat.uit.no/divvun-installer/packages/pahkat-service --output ./pahkat-service -c ./pahkat-config
           mv ./pahkat-service/* ./pahkat-service-setup.exe
       - name: Build
