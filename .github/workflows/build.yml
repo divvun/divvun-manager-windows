@@ -24,12 +24,12 @@ jobs:
           setCommonVars: true
       - name: Get version
         id: version
-        uses: divvun/actions/version@develop
+        uses: divvun/actions/version@master
         with:
           csharp: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install build dependencies
-        uses: divvun/actions/pahkat/init@develop
+        uses: divvun/actions/pahkat/init@master
         with:
           repo: https://pahkat.uit.no/devtools/
           channel: nightly
@@ -59,33 +59,33 @@ jobs:
           nuget restore "Divvun.Installer.sln"
           MSBuild.exe "Divvun.Installer.sln" /p:Configuration=Release /p:Platform=x86 /m  || exit /b !ERRORLEVEL!
       - name: Sign code (Divvun Installer exe)
-        uses: divvun/actions/codesign@develop
+        uses: divvun/actions/codesign@master
         with:
           path: Divvun.Installer/bin/x86/Release/DivvunInstaller.exe
       - name: Sign code (Divvun Installer OneClick exe)
-        uses: divvun/actions/codesign@develop
+        uses: divvun/actions/codesign@master
         with:
           path: Divvun.Installer.OneClick/bin/Release/Divvun.Installer.OneClick.exe
       - name: Sign code (Pahkat SDK DLL)
-        uses: divvun/actions/codesign@develop
+        uses: divvun/actions/codesign@master
         with:
           path: Divvun.Installer/bin/x86/Release/Pahkat.Sdk.dll 
       - name: Sign code (Pahkat SDK RPC DLL)
-        uses: divvun/actions/codesign@develop
+        uses: divvun/actions/codesign@master
         with:
           path: Divvun.Installer/bin/x86/Release/Pahkat.Sdk.Rpc.dll 
       - name: Sign code (pahkat_rpc DLL)
-        uses: divvun/actions/codesign@develop
+        uses: divvun/actions/codesign@master
         with:
           path: Divvun.Installer/bin/x86/Release/pahkat_rpc.dll
       - name: Create installer
         id: installer
-        uses: divvun/actions/inno-setup@develop
+        uses: divvun/actions/inno-setup@master
         with:
           path: setup.iss
           defines: Version=${{ steps.version.outputs.version }}
       - name: Deploy (installer)
-        uses: divvun/actions/deploy@develop
+        uses: divvun/actions/deploy@master
         with:
           package-id: divvun-installer
           platform: windows
@@ -97,7 +97,7 @@ jobs:
           windows-product-code: "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy (OneClick)
-        uses: divvun/actions/deploy@develop
+        uses: divvun/actions/deploy@master
         with:
           package-id: divvun-installer-oneclick
           platform: windows
