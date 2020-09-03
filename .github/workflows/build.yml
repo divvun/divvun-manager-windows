@@ -65,7 +65,7 @@ jobs:
       - name: Sign code (Divvun Installer OneClick exe)
         uses: divvun/actions/codesign@develop
         with:
-          path: Divvun.Installer.OneClick/bin/x86/Release/Divvun.Installer.OneClick.exe
+          path: Divvun.Installer.OneClick/bin/Release/Divvun.Installer.OneClick.exe
       - name: Sign code (Pahkat SDK DLL)
         uses: divvun/actions/codesign@develop
         with:
@@ -103,7 +103,7 @@ jobs:
           platform: windows
           arch: i686
           version: ${{ steps.version.outputs.version }}
-          payload-path: Divvun.Installer.OneClick/bin/x86/Release/Divvun.Installer.OneClick.exe
+          payload-path: Divvun.Installer.OneClick/bin/Release/Divvun.Installer.OneClick.exe
           repo: https://pahkat.thetc.se/divvun-installer/
           channel: ${{ steps.version.outputs.channel }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
