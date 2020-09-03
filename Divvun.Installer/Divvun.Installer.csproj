@@ -52,7 +52,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Castle.Core.4.3.1\lib\net45\Castle.Core.dll</HintPath>
+      <HintPath>..\packages\Castle.Core.4.4.1\lib\net45\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="Common.Logging, Version=3.4.1.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
       <HintPath>..\packages\Common.Logging.3.4.1\lib\net40\Common.Logging.dll</HintPath>
@@ -66,9 +66,8 @@
     <Reference Include="DuoVia.FuzzyStrings, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\FuzzyStrings.NetStandard.1.0.1\lib\net40\DuoVia.FuzzyStrings.dll</HintPath>
     </Reference>
-    <Reference Include="Flurl, Version=3.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\Flurl.3.0.0-pre3\lib\net40\Flurl.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Flurl, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Flurl.3.0.0-pre4\lib\net40\Flurl.dll</HintPath>
     </Reference>
     <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.8\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
@@ -91,13 +90,11 @@
     <Reference Include="Microsoft.Toolkit.Wpf.UI.Controls.WebView, Version=5.1.0.0, Culture=neutral, PublicKeyToken=4aff67a105548ee2, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Toolkit.Wpf.UI.Controls.WebView.5.1.1\lib\net462\Microsoft.Toolkit.Wpf.UI.Controls.WebView.dll</HintPath>
     </Reference>
-    <Reference Include="ModernWpf, Version=0.9.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\ModernWpfUI.0.9.2-preview.200803.0\lib\net462\ModernWpf.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="ModernWpf, Version=0.9.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ModernWpfUI.0.9.2-preview.200831.1\lib\net462\ModernWpf.dll</HintPath>
     </Reference>
-    <Reference Include="ModernWpf.Controls, Version=0.9.2.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\ModernWpfUI.0.9.2-preview.200803.0\lib\net462\ModernWpf.Controls.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="ModernWpf.Controls, Version=0.9.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ModernWpfUI.0.9.2-preview.200831.1\lib\net462\ModernWpf.Controls.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
@@ -107,31 +104,26 @@
     <Reference Include="nunit.framework, Version=3.9.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="OneOf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\OneOf.2.1.151\lib\net45\OneOf.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="OneOf, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OneOf.2.1.155\lib\net45\OneOf.dll</HintPath>
     </Reference>
-    <Reference Include="OneOf.Extended, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\packages\OneOf.Extended.2.1.151\lib\net451\OneOf.Extended.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="OneOf.Extended, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OneOf.Extended.2.1.155\lib\net451\OneOf.Extended.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="Sentry, Version=2.1.5.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
-      <HintPath>..\packages\Sentry.2.1.5\lib\net461\Sentry.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Sentry, Version=2.1.6.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sentry.2.1.6\lib\net461\Sentry.dll</HintPath>
     </Reference>
     <Reference Include="Sentry.PlatformAbstractions, Version=1.1.1.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
       <HintPath>..\packages\Sentry.PlatformAbstractions.1.1.1\lib\net45\Sentry.PlatformAbstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Sentry.Protocol, Version=2.1.5.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
-      <HintPath>..\packages\Sentry.Protocol.2.1.5\lib\net46\Sentry.Protocol.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Sentry.Protocol, Version=2.1.6.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sentry.Protocol.2.1.6\lib\net46\Sentry.Protocol.dll</HintPath>
     </Reference>
-    <Reference Include="Sentry.Serilog, Version=2.1.5.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0">
-      <HintPath>..\packages\Sentry.Serilog.2.1.5\lib\net461\Sentry.Serilog.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Sentry.Serilog, Version=2.1.6.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sentry.Serilog.2.1.6\lib\net461\Sentry.Serilog.dll</HintPath>
     </Reference>
     <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
       <HintPath>..\packages\Serilog.2.9.0\lib\net46\Serilog.dll</HintPath>
@@ -393,10 +385,10 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets'))" />
-    <Error Condition="!Exists('..\packages\Nerdbank.GitVersioning.3.1.91\build\Nerdbank.GitVersioning.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nerdbank.GitVersioning.3.1.91\build\Nerdbank.GitVersioning.targets'))" />
+    <Error Condition="!Exists('..\packages\Nerdbank.GitVersioning.3.2.31\build\Nerdbank.GitVersioning.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Nerdbank.GitVersioning.3.2.31\build\Nerdbank.GitVersioning.targets'))" />
   </Target>
   <Import Project="..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets" Condition="Exists('..\packages\System.Runtime.WindowsRuntime.4.7.0\build\net461\System.Runtime.WindowsRuntime.targets')" />
-  <Import Project="..\packages\Nerdbank.GitVersioning.3.1.91\build\Nerdbank.GitVersioning.targets" Condition="Exists('..\packages\Nerdbank.GitVersioning.3.1.91\build\Nerdbank.GitVersioning.targets')" />
+  <Import Project="..\packages\Nerdbank.GitVersioning.3.2.31\build\Nerdbank.GitVersioning.targets" Condition="Exists('..\packages\Nerdbank.GitVersioning.3.2.31\build\Nerdbank.GitVersioning.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

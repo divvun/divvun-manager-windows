@@ -1,11 +1,6 @@
 name: divvun-installer (windows)
 
-on:
-  push:
-    branches:
-      - master
-      - develop
-      - release
+on: push
 
 jobs:
   build:
@@ -32,7 +27,6 @@ jobs:
         uses: divvun/actions/version@develop
         with:
           csharp: true
-          nightly: master, develop
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install build dependencies
         uses: divvun/actions/pahkat/init@develop
@@ -43,6 +37,7 @@ jobs:
       - name: Move libpahkat_rpc to appropriate place
         run: |
           cp $env:RUNNER_WORKSPACE\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer\
+          cp $env:RUNNER_WORKSPACE\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer.OneClick\Costura32\
       - name: Acquire Pahkat Service installer (nightly)
         if: ${{ steps.version.outputs.channel == 'nightly' }}
         run: |
@@ -67,6 +62,10 @@ jobs:
         uses: divvun/actions/codesign@develop
         with:
           path: Divvun.Installer/bin/x86/Release/DivvunInstaller.exe
+      - name: Sign code (Divvun Installer OneClick exe)
+        uses: divvun/actions/codesign@develop
+        with:
+          path: Divvun.Installer.OneClick/bin/x86/Release/Divvun.Installer.OneClick.exe
       - name: Sign code (Pahkat SDK DLL)
         uses: divvun/actions/codesign@develop
         with:
@@ -96,4 +95,15 @@ jobs:
           channel: ${{ steps.version.outputs.channel }}
           windows-kind: inno
           windows-product-code: "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy (OneClick)
+        uses: divvun/actions/deploy@develop
+        with:
+          package-id: divvun-installer-oneclick
+          platform: windows
+          arch: i686
+          version: ${{ steps.version.outputs.version }}
+          payload-path: Divvun.Installer.OneClick/bin/x86/Release/Divvun.Installer.OneClick.exe
+          repo: https://pahkat.thetc.se/divvun-installer/
+          channel: ${{ steps.version.outputs.channel }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

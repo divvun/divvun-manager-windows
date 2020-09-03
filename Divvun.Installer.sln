@@ -11,32 +11,50 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pahkat.Sdk.Rpc", "Pahkat.Sd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlatBuffers", "FlatBuffers\FlatBuffers.csproj", "{28C00774-1E73-4A75-AD8F-844CD21A064D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Divvun.Installer.OneClick", "Divvun.Installer.OneClick\Divvun.Installer.OneClick.csproj", "{AF926146-450C-4945-81AC-48427E8DE612}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Debug|x86.ActiveCfg = Debug|x86
 		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Debug|x86.Build.0 = Debug|x86
+		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Release|Any CPU.ActiveCfg = Release|x86
 		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Release|x86.ActiveCfg = Release|x86
 		{B876899E-C40F-4D5A-84DE-8BF1B0064A28}.Release|x86.Build.0 = Release|x86
-
+		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Debug|x86.ActiveCfg = Debug|x86
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Debug|x86.Build.0 = Debug|x86
+		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Release|Any CPU.ActiveCfg = Release|x86
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Release|x86.ActiveCfg = Release|x86
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Release|x86.Build.0 = Release|x86
-
+		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Debug|x86.ActiveCfg = Debug|x86
 		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Debug|x86.Build.0 = Debug|x86
+		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Release|x86.ActiveCfg = Release|x86
 		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Release|x86.Build.0 = Release|x86
-
-
+		{28C00774-1E73-4A75-AD8F-844CD21A064D}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{28C00774-1E73-4A75-AD8F-844CD21A064D}.Debug|x86.ActiveCfg = Debug|x86
 		{28C00774-1E73-4A75-AD8F-844CD21A064D}.Debug|x86.Build.0 = Debug|x86
+		{28C00774-1E73-4A75-AD8F-844CD21A064D}.Release|Any CPU.ActiveCfg = Release|x86
 		{28C00774-1E73-4A75-AD8F-844CD21A064D}.Release|x86.ActiveCfg = Release|x86
 		{28C00774-1E73-4A75-AD8F-844CD21A064D}.Release|x86.Build.0 = Release|x86
+		{AF926146-450C-4945-81AC-48427E8DE612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF926146-450C-4945-81AC-48427E8DE612}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF926146-450C-4945-81AC-48427E8DE612}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AF926146-450C-4945-81AC-48427E8DE612}.Debug|x86.Build.0 = Debug|Any CPU
+		{AF926146-450C-4945-81AC-48427E8DE612}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF926146-450C-4945-81AC-48427E8DE612}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF926146-450C-4945-81AC-48427E8DE612}.Release|x86.ActiveCfg = Release|Any CPU
+		{AF926146-450C-4945-81AC-48427E8DE612}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
