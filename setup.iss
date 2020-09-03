@@ -57,8 +57,7 @@ Source: "Divvun.Installer\bin\x86\Release\*"; DestDir: "{app}"; Flags: ignorever
 Source: "pahkat-service-setup.exe"; DestDir: "{app}"; Flags: deleteafterinstall dontcopy
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall runasoriginaluser
-
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall runasoriginaluser skipifsilent
 
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}";
