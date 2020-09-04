@@ -75,8 +75,8 @@ namespace Divvun.Installer.UI.Main
 
             // Control the state of the current view
             app.CurrentTransaction.AsObservable()
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
+                .ObserveOn(app.Dispatcher)
+                .SubscribeOn(app.Dispatcher)
                 .Subscribe(item => {
                     var x = item.AsInProgress?.IsRebootRequired ?? false;
                     RequiresReboot(x);
@@ -95,8 +95,8 @@ namespace Divvun.Installer.UI.Main
                 BtnFinish.IsEnabled = false;
                 RebootSystem();
             }).DisposedBy(_bag);
-            
-            app.UserSelection.Dispatch(UserSelectionAction.ResetSelection);
+
+            app.UserSelection.ResetSelection();
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e) {

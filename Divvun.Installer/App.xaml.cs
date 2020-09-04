@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -10,6 +11,7 @@ using System.Windows.Media.Imaging;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Divvun.Installer.Models;
 using Divvun.Installer.Properties;
 using Divvun.Installer.Service;
@@ -31,6 +33,7 @@ namespace Divvun.Installer
     public partial class PahkatApp : ISingleInstanceApp
     {
         public new static PahkatApp Current => (PahkatApp)Application.Current;
+        // public static DispatcherScheduler Scheduler;
         
         public const string ArgsSilent = "-s";
 
@@ -44,18 +47,17 @@ namespace Divvun.Installer
         public BehaviorSubject<TransactionState> CurrentTransaction
             = new BehaviorSubject<TransactionState>(new TransactionState.NotStarted());
 
-        public void StartTransaction(PackageAction[] actions) {
-            using var guard = PackageStore.Lock();
+        public async Task StartTransaction(PackageAction[] actions) {
             _runningTransaction?.Cancel();
             
-            _runningTransaction = guard.Value.ProcessTransaction(actions, value => {
+            _runningTransaction = await PackageStore.ProcessTransaction(actions, value => {
                 Log.Debug("-- New event: " + value);
                 var newState = CurrentTransaction.Value.Reduce(value);
                 CurrentTransaction.OnNext(newState);
             });
         }
         
-        public Mutex<IPahkatClient> PackageStore { get; protected set; }
+        public IPahkatClient PackageStore { get; protected set; }
         public UserPackageSelectionStore UserSelection { get; protected set; }
         public Settings Settings { get; protected set;  }
 
@@ -139,7 +141,7 @@ namespace Divvun.Installer
         private void OnStartup(object sender, StartupEventArgs e) {
             const string key = "DivvunInstaller";
             AttachConsole(AttachParentProcess);
-
+            
             Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
             ConfigureLogging();
             
@@ -180,11 +182,11 @@ namespace Divvun.Installer
             });
             
             try {
-                PackageStore = new Mutex<IPahkatClient>(PahkatClient.Create());
+                PackageStore = PahkatClient.Create();
             } catch (Exception _) {
                 MessageBox.Show(
-                    "The RPC service was not found. If problems persist, try rebooting your computer.",
-                    "Could not connect to Pahkat Client"
+                    "The service responsible for managing installations was not found. It may be currently updating, or has crashed. If problems persist, try rebooting your computer.",
+                    "Could not connect to Pahkat Service"
                 );
                 Current.Shutdown(1);
             }

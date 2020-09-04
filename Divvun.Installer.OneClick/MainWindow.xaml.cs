@@ -214,10 +214,10 @@ namespace Divvun.Installer.OneClick
 
         private Task<List<PackageKey>> ResolvePackageActions(PahkatClient pahkat, LanguageItem selectedLanguage)
         {
-            return Task.Run(() =>
+            return Task.Run(async () =>
             {
-                pahkat.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
-                var result = pahkat.ResolvePackageQuery(new PackageQuery()
+                await pahkat.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
+                var result = await pahkat.ResolvePackageQuery(new PackageQuery()
                 {
                     Tags = new[] {$"lang:{selectedLanguage.Tag}"}
                 });

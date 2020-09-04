@@ -1,13 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using Divvun.Installer.Extensions;
 
 namespace Divvun.Installer.Util
 {
     public static class Util
     {
+        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static async IAsyncEnumerable<U> Map<T, U>(IEnumerable<T> enumerable, Func<T, Task<U>> selector) {
+            foreach (var element in enumerable) {
+                yield return await selector(element);
+            }
+        }
+
+        public static async IAsyncEnumerable<T> Filter<T>(IEnumerable<T> enumerable, Func<T, Task<bool>> selector) {
+            foreach (var element in enumerable) {
+                if (await selector(element)) {
+                    yield return element;
+                }
+            }
+        }
         public static bool IsAdministrator()
         {
             WindowsIdentity identity = WindowsIdentity.GetCurrent();

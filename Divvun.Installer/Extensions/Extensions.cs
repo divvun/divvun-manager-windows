@@ -10,16 +10,34 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace Divvun.Installer.Extensions
 {
+    internal static class ObservableExtensions
+    {
+        internal static IObservable<T> DoOnSubscribe<T>(this IObservable<T> source, Action action)
+        {
+            return Observable.Defer(() =>
+            {
+                action();
+                return source;
+            });
+        }
+
+        internal static void DisposedBy(this IDisposable disposable, CompositeDisposable bag)
+        {
+            bag.Add(disposable);
+        }
+    }
+     
     public static class Extensions
     {
         public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key)
-           where TValue : new()
+            where TValue : new()
         {
             if (!dict.ContainsKey(key))
             {
@@ -225,9 +243,9 @@ namespace Divvun.Installer.Extensions
     
                 // reboot
                 if (!ExitWindowsEx(ExitWindows.Reboot,
-                        ShutdownReason.MajorApplication | 
-                ShutdownReason.MinorInstallation | 
-                ShutdownReason.FlagPlanned))
+                    ShutdownReason.MajorApplication | 
+                    ShutdownReason.MinorInstallation | 
+                    ShutdownReason.FlagPlanned))
                 {
                     throw new Win32Exception(Marshal.GetLastWin32Error(),
                         "Failed to reboot system");

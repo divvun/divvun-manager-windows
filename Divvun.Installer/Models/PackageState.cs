@@ -7,29 +7,27 @@ namespace Divvun.Installer.Models
 {
     public class PackageState : IEquatable<PackageState>
     {
-        public Dictionary<PackageKey, PackageAction> SelectedPackages { get; private set; }
-            = new Dictionary<PackageKey, PackageAction>();
+        public PackageState() {
+            SelectedPackages = new Dictionary<PackageKey, PackageAction>();
+        }
+        
+        public Dictionary<PackageKey, PackageAction> SelectedPackages { get; internal set; }
 
-        public bool Equals(PackageState other) {
-            return Equals(SelectedPackages, other.SelectedPackages);
+        public bool Equals(PackageState? other) {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return SelectedPackages.Equals(other.SelectedPackages);
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object? obj) {
             if (ReferenceEquals(null, obj)) return false;
-            return obj is PackageState && Equals((PackageState) obj);
-        }
-        public static PackageState Default() {
-            return new PackageState {
-                SelectedPackages = new Dictionary<PackageKey, PackageAction>()
-            };
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((PackageState) obj);
         }
 
-        public static PackageState SelfUpdate(PackageKey packageKey) {
-            return new PackageState {
-                SelectedPackages = new Dictionary<PackageKey, PackageAction> {
-                    {packageKey, new PackageAction(packageKey, InstallAction.Install)}
-                }
-            };
+        public override int GetHashCode() {
+            return SelectedPackages.GetHashCode();
         }
     }
 }

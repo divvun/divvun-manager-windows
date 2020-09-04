@@ -90,8 +90,7 @@
                                                   DisplayMemberPath="Name"
                                                   SelectedValuePath="Value"
                                                   SelectedValue="{Binding Channel}"
-                                                  SelectionChanged="OnChannelSelectionChanged"
-                                                  />
+                                                  SelectionChanged="OnChannelSelectionChanged" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

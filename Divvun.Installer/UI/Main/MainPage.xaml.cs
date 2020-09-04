@@ -13,6 +13,7 @@ using Divvun.Installer.Extensions;
 using Divvun.Installer.Util;
 using System.Windows.Navigation;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 using Divvun.Installer.UI.About;
 using Divvun.Installer.UI.Settings;
@@ -89,7 +90,8 @@ namespace Divvun.Installer.UI.Main
                         TitleBarSortByButton.Content = $"{Strings.SortBy}: {Strings.Category}";
                         break;
                 }
-                _presenter.BindNewRepositories(value);
+
+                PahkatApp.Current.Dispatcher.InvokeAsync(async () => await _presenter.BindNewRepositories(value));
             }).DisposedBy(_bag);
         }
         
@@ -135,7 +137,7 @@ namespace Divvun.Installer.UI.Main
             _bag.Dispose();
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e) {
+        private async void Page_Loaded(object sender, RoutedEventArgs e) {
             _bag = new CompositeDisposable();
             NavigationService.Navigating += NavigationService_Navigating;
             
@@ -160,15 +162,10 @@ namespace Divvun.Installer.UI.Main
 
             _presenter.Start().DisposedBy(_bag);
             
-            TitleBarHandler.BindRepoDropdown(_bag, x => {
+            TitleBarHandler.BindRepoDropdown(_bag, async x => {
                 var app = (PahkatApp) Application.Current;
-                ILoadedRepository[] repos;
-                Dictionary<Uri, RepoRecord> records;
-                
-                using (var guard = app.PackageStore.Lock()) {
-                    repos = guard.Value.RepoIndexes().Values.ToArray();
-                    records = guard.Value.GetRepoRecords();
-                }
+                var repos = (await app.PackageStore.RepoIndexes()).Values.ToArray();
+                var records = await app.PackageStore.GetRepoRecords();
                 
                 TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos, records);
                 // _presenter.BindNewRepositories(_sortedBy.Value);

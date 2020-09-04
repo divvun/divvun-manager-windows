@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -74,17 +75,25 @@ namespace Divvun.Installer.UI.Main
                 Log.Error("No functions defined for WebBridge");
                 return;
             }
-            
-            try {
-                var response = await _functions.Process(request);
-                SendResponse(request.Id, response);
-            }
-            catch (WebBridgeException e) {
-                SendResponse(request.Id, e);
-            }
-            catch (Exception e) {
-                SendResponse(request.Id, new WebBridgeException("Internal error"));
-            }
+
+            await PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
+                try {
+                    var response = await _functions.Process(request);
+                    SendResponse(request.Id, response);
+                }
+                catch (WebBridgeException e) {
+                    if (Debugger.IsAttached) {
+                        throw;
+                    }
+                    SendResponse(request.Id, e);
+                }
+                catch (Exception e) {
+                    if (Debugger.IsAttached) {
+                        throw;
+                    }
+                    SendResponse(request.Id, new WebBridgeException("Internal error"));
+                }
+            });
         }
     }
 
@@ -111,67 +120,67 @@ namespace Divvun.Installer.UI.Main
             app.WindowService.Show<MainWindow>(new MainPage());
         }
 
-        private void SetRepository(Uri? url) {
+        private async void SetRepository(Uri? url) {
             var app = (PahkatApp) Application.Current;
 
-            Dictionary<Uri, ILoadedRepository> repos;
-            Dictionary<Uri, RepoRecord> records;
+            var pahkat = app.PackageStore;
+            var repos = await pahkat.RepoIndexes();
+            var records = await pahkat.GetRepoRecords();
 
-            using (var guard = app.PackageStore.Lock()) {
-                repos = guard.Value.RepoIndexes();
-                records = guard.Value.GetRepoRecords();
-                TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, 
-                    Iter.ToArray(repos.Values), records);
-            }
+            TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, 
+                Iter.ToArray(repos.Values), records);
 
-            ILoadedRepository? repo = null;
-            if (url == null) {
-                if (records.IsNullOrEmpty()) {
-                    ShowNoLandingPage();
-                    return;
-                }
 
-                if (!repos.Values.IsNullOrEmpty()) {
-                    repo = Iter.First(repos.Values, r => records.ContainsKey(r.Index.Url));
-                }
+            await app.Dispatcher.InvokeAsync(() => {
+                ILoadedRepository? repo = null;
+                if (url == null) {
+                    if (records.IsNullOrEmpty()) {
+                        ShowNoLandingPage();
+                        return;
+                    }
 
-                if (repo == null) {
-                    ShowNoLandingPage();
-                    return;
-                }
-            } else if (url.Scheme == "divvun-installer") {
-                if (url.AbsolutePath == "detailed") {
-                    ShowNoLandingPage();
-                    return;
-                }
-            } else {
-                if (!repos.Values.IsNullOrEmpty()) {
-                    repo = Iter.First(repos.Values, r => r.Index.Url == url);
-                    repo ??= Iter.First(repos.Values, r => records.ContainsKey(r.Index.Url));
+                    if (!repos.Values.IsNullOrEmpty()) {
+                        repo = Iter.First(repos.Values, r => records.ContainsKey(r.Index.Url));
+                    }
+
+                    if (repo == null) {
+                        ShowNoLandingPage();
+                        return;
+                    }
+                } else if (url.Scheme == "divvun-installer") {
+                    if (url.AbsolutePath == "detailed") {
+                        ShowNoLandingPage();
+                        return;
+                    }
+                } else {
+                    if (!repos.Values.IsNullOrEmpty()) {
+                        repo = Iter.First(repos.Values, r => r.Index.Url == url);
+                        repo ??= Iter.First(repos.Values, r => records.ContainsKey(r.Index.Url));
+                    }
+                    
+                    if (repo == null) {
+                        ShowNoLandingPage();
+                        return;
+                    }
                 }
                 
                 if (repo == null) {
+                    app.Settings.Mutate(file => {
+                        Log.Warning("No repository found, setting selected repo to null");
+                        file.SelectedRepository = null;
+                    });
+                    return;
+                }
+
+                if (repo.Index.LandingUrl == null) {
                     ShowNoLandingPage();
                     return;
                 }
-            }
-            
-            if (repo == null) {
-                app.Settings.Mutate(file => {
-                    Log.Warning("No repository found, setting selected repo to null");
-                    file.SelectedRepository = null;
-                });
-                return;
-            }
 
-            if (repo.Index.LandingUrl == null) {
-                ShowNoLandingPage();
-                return;
-            }
-
-            TitleBarReposButton.Content = repo.Index.NativeName();
-            _webBridge.SetRepository(repo);
-            _webView.Navigate(repo.Index.LandingUrl.SetQueryParam("ts", DateTimeOffset.UtcNow));
+                TitleBarReposButton.Content = repo.Index.NativeName();
+                _webBridge.SetRepository(repo);
+                _webView.Navigate(repo.Index.LandingUrl.SetQueryParam("ts", DateTimeOffset.UtcNow));
+            });
         }
 
         public void Dispose() {
@@ -208,7 +217,7 @@ namespace Divvun.Installer.UI.Main
                     if (Uri.TryCreate(args.Uri.AbsolutePath, UriKind.Absolute, out var pahkatUri) &&
                         pahkatUri.Scheme == "pahkat") {
                         args.Cancel = true;
-                        DispatcherScheduler.Current.Dispatcher.InvokeAsync(async () => {
+                        PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
                             var payload = Uri.UnescapeDataString(pahkatUri.AbsolutePath);
                             await ProcessRequest(payload);
                         });
@@ -222,11 +231,10 @@ namespace Divvun.Installer.UI.Main
             TitleBarHandler.BindRepoDropdown(_bag, SetRepository);
             
             var app = (PahkatApp) Application.Current;
-            using var guard = app.PackageStore.Lock();
-            guard.Value.Notifications()
+            app.PackageStore.Notifications()
                 .Filter(x => x == Notification.RepositoriesChanged)
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
+                .ObserveOn(app.Dispatcher)
+                .SubscribeOn(app.Dispatcher)
                 .StartWith(Notification.RepositoriesChanged)
                 .Subscribe(x => {
                     ConfigureWebView();

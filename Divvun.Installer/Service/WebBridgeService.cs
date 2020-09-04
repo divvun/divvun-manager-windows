@@ -41,21 +41,23 @@ namespace Divvun.Installer.Service
             }
 
             public async Task<object> Process(WebBridgeRequest request) {
-                switch (request.Method)
-                {
-                case "env":
-                    return Env(request.Args);
-                case "string":
-                    return String(request.Args);
-                case "packages":
-                    return Packages(request.Args);
-                case "status":
-                    return Status(request.Args);
-                case "transaction":
-                    return await Transaction(request.Args);
-                }
-                
-                throw new WebBridgeException($"Unhandled method: {request.Method}");
+                return await Task.Run(async () => {
+                    Log.Verbose("Request {request}", request);
+                    switch (request.Method) {
+                        case "env":
+                            return Env(request.Args);
+                        case "string":
+                            return String(request.Args);
+                        case "packages":
+                            return await Packages(request.Args);
+                        case "status":
+                            return await Status(request.Args);
+                        case "transaction":
+                            return await Transaction(request.Args);
+                    }
+
+                    throw new WebBridgeException($"Unhandled method: {request.Method}");
+                });
             }
 
             private object Env(JArray args) {
@@ -87,7 +89,7 @@ namespace Divvun.Installer.Service
                 throw new WebBridgeException($"No string for the identifier");
             }
 
-            private object Status(JArray args) {
+            private async Task<object> Status(JArray args) {
                 var app = (PahkatApp) Application.Current;
                 var keys = new List<PackageKey>();
                 
@@ -103,15 +105,14 @@ namespace Divvun.Installer.Service
                 }
 
                 var map = new JObject();
+                var pahkat = app.PackageStore;
 
-                using (var guard = app.PackageStore.Lock()) {
-                    foreach (var packageKey in keys) {
-                        var status = guard.Value.Status(packageKey);
-                        var obj = new JObject();
-                        obj["status"] = (int) status;
-                        obj["target"] = "system";
-                        map[packageKey.ToString()] = obj;
-                    }
+                foreach (var packageKey in keys) {
+                    var status = await pahkat.Status(packageKey);
+                    var obj = new JObject();
+                    obj["status"] = (int) status;
+                    obj["target"] = "system";
+                    map[packageKey.ToString()] = obj;
                 }
 
                 return map;
@@ -154,32 +155,33 @@ namespace Divvun.Installer.Service
                     }
                     return $"{x.Action.NativeName()}: {package.NativeName()} {release.Version}";
                 });
-                
-                
-                var dialog = new ConfirmationDialog(
-                    "Confirm Selection", 
-                    "Do you wish to do the following actions:",
-                    string.Join("\n", strings),
-                    primaryButton);
 
-                try {
-                    WebView.Visibility = Visibility.Hidden;
-                    var result = await dialog.ShowAsync();
-                    WebView.Visibility = Visibility.Visible;
+                return await await PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
+                    var dialog = new ConfirmationDialog(
+                        "Confirm Selection", 
+                        "Do you wish to do the following actions:",
+                        string.Join("\n", strings),
+                        primaryButton);
 
-                    if (result == ContentDialogResult.Primary) {
-                        var app = (PahkatApp) Application.Current;
-                        app.StartTransaction(actions.ToArray());
-                        return true;
+                    try {
+                        WebView.Visibility = Visibility.Hidden;
+                        var result = await dialog.ShowAsync();
+                        WebView.Visibility = Visibility.Visible;
+
+                        if (result == ContentDialogResult.Primary) {
+                            var app = (PahkatApp) Application.Current;
+                            await app.StartTransaction(actions.ToArray());
+                            return true;
+                        }
                     }
-                }
-                catch (Exception e) {
-                    Log.Debug(e, "wat");
-                }
-                return false;
+                    catch (Exception e) {
+                        Log.Debug(e, "wat");
+                    }
+                    return false;
+                });
             }
 
-            private object Packages(JArray args) {
+            private async Task<object> Packages(JArray args) {
                 if (args.Count > 0) {
                     PackageQuery? query = null;
                     
@@ -192,10 +194,10 @@ namespace Divvun.Installer.Service
                     }
 
                     if (query.HasValue) {
-                        try {
-                            var app = (PahkatApp) Application.Current;
-                            using var guard = app.PackageStore.Lock();
-                            var s = guard.Value.ResolvePackageQuery(query.Value);
+                        try
+                        {
+                            var app = PahkatApp.Current;
+                            var s = await app.PackageStore.ResolvePackageQuery(query.Value);
                             return JObject.Parse(s);
                         }
                         catch {
@@ -204,6 +206,7 @@ namespace Divvun.Installer.Service
                     }
                     
                 }
+                
                 var map = new Dictionary<PackageKey, IDescriptor>();
                 
                 foreach (var keyValuePair in Repo.Packages.Packages) {

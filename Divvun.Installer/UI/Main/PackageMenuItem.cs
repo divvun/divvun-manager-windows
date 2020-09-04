@@ -3,12 +3,9 @@ using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Divvun.Installer.Extensions;
-using System.Windows;
 using Divvun.Installer.Models;
-using Divvun.Installer.Util;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
-using Pahkat.Sdk.Rpc.Fbs;
 using Pahkat.Sdk.Rpc.Models;
 
 namespace Divvun.Installer.UI.Shared
@@ -27,13 +24,7 @@ namespace Divvun.Installer.UI.Shared
 
         private CompositeDisposable _bag = new CompositeDisposable();
 
-        private PackageStatus _status {
-            get {
-                using var x = ((PahkatApp) Application.Current).PackageStore.Lock();
-                return x.Value.Status(Key);
-            }
-        }
-
+        private PackageStatus _status = PackageStatus.Unknown;
         private PackageAction? _actionInfo;
 
         public PackageMenuItem(UserPackageSelectionStore store, PackageKey key, IWindowsExecutable payload, string name, string version) {
@@ -44,16 +35,23 @@ namespace Divvun.Installer.UI.Shared
             Version = version;
             Payload = payload;
             
-            _store.State
+            _store.Observe()
+                .SubscribeOn(PahkatApp.Current.Dispatcher)
                 .Subscribe(state => {
-                    if (state.SelectedPackages.TryGetValue(key, out var value)) {
-                        _actionInfo = value;
-                    } else {
-                        _actionInfo = null;
-                    }
-                    
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Status"));
+                    PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
+                        var lastActionInfo = _actionInfo;
+                        
+                        if (state.SelectedPackages.TryGetValue(key, out var value)) {
+                            _actionInfo = value;
+                        } else {
+                            _actionInfo = null;
+                        }
+                        
+                        // Log.Verbose("Updating item state");
+                        _status = await PahkatApp.Current.PackageStore.Status(Key);
+                        PropertyChanged.Invoke(this, new PropertyChangedEventArgs("Status"));
+                        PropertyChanged.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
+                    });
                 }).DisposedBy(_bag);
         }
 
@@ -76,7 +74,15 @@ namespace Divvun.Installer.UI.Shared
 
         public bool IsSelected {
             get => _actionInfo != null;
-            set => _store.Dispatch(UserSelectionAction.TogglePackageWithDefaultAction(Key, value));
+            set {
+                PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
+                    // Log.Verbose("CLICKEROO");
+                    await _store.TogglePackageWithDefaultAction(Key, value);
+                    _status = await PahkatApp.Current.PackageStore.Status(Key);
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Status"));
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
+                });
+            }
         }
 
         public void Dispose() {

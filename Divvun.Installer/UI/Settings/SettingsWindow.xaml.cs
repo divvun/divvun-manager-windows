@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using Iterable;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Divvun.Installer.UI.Shared;
@@ -123,53 +124,45 @@ namespace Divvun.Installer.UI.Settings
                         return;
                     }
                     
-                    using (var guard = app.PackageStore.Lock()) {
-                        try {
-                            guard.Value.SetRepo(url, new RepoRecord());
-                        } catch (Exception e) {
-                            MessageBox.Show(e.Message,
-                                Strings.Error,
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-                        }
+                    try {
+                        await app.PackageStore.SetRepo(url, new RepoRecord());
+                    } catch (Exception e) {
+                        MessageBox.Show(e.Message,
+                            Strings.Error,
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
                     }
 
-                    RefreshRepoTable();
+                    await RefreshRepoTable();
                 }
             };
 
-            BtnRemoveRepo.Click += (o, args) => {
+            BtnRemoveRepo.Click += async (o, args) => {
                 if (RepoListView.SelectedIndex >= 0) {
                     var item = (RepositoryListItem) RepoListView.SelectedItem;
-                    
-                    using (var guard = app.PackageStore.Lock()) {
-                        guard.Value.RemoveRepo(item.Url);
-                    }
-
-                    RefreshRepoTable();
+                    await app.PackageStore.RemoveRepo(item.Url);
+                    await RefreshRepoTable();
                 }
             };
 
+#pragma warning disable 4014
             RefreshRepoTable();
+#pragma warning restore 4014
         }
 
-        void RefreshRepoTable() {
+        async Task RefreshRepoTable() {
             var app = (PahkatApp) Application.Current;
-            using var guard = app.PackageStore.Lock();
             
-            var repos = guard.Value.RepoIndexes();
-            var repoRecords = guard.Value.GetRepoRecords();
-            var strings = guard.Value.Strings(app.Settings.GetLanguage() ?? "en");
+            var repos = await app.PackageStore.RepoIndexes();
+            var repoRecords = await app.PackageStore.GetRepoRecords();
+            var strings = await app.PackageStore.Strings(app.Settings.GetLanguage() ?? "en");
             
             RepoList.Clear();
             
             foreach (var keyValuePair in repoRecords) {
                 var name = keyValuePair.Key.AbsoluteUri;
                 if (repos.TryGetValue(keyValuePair.Key, out var repo)) {
-                    var n = repo.Index.NativeName();
-                    if (n != null) {
-                        name = n;
-                    }
+                    name = repo.Index.NativeName();
                 }
                 else {
                     name += " ⚠️";
@@ -190,8 +183,7 @@ namespace Divvun.Installer.UI.Settings
 
         private void OnLanguageSelectionChanged(object sender, SelectionChangedEventArgs e) {
             if (e.AddedItems.Count > 0) {
-                var app = (PahkatApp) Application.Current;
-                using var guard = app.PackageStore.Lock();
+                var app = PahkatApp.Current;
                 var item = (LanguageTag) e.AddedItems[0];
                 app.Settings.Mutate(x => {
                     if (item.Tag == "") {
@@ -207,30 +199,31 @@ namespace Divvun.Installer.UI.Settings
         private void OnChannelSelectionChanged(object sender, SelectionChangedEventArgs e) {
             var combo = (ComboBox) sender;
             var item = (RepositoryListItem) RepoListView.SelectedItem;
-            
-            var app = (PahkatApp) Application.Current;
-            using var guard = app.PackageStore.Lock();
-            var repoRecords = guard.Value.GetRepoRecords();
-            var newRepoRecords = new Dictionary<Uri, RepoRecord>();
-            
-            foreach (var repositoryListItem in RepoList) {
-                var url = repositoryListItem.Url;
-                var channel = repositoryListItem.Channel;
 
-                newRepoRecords[url] = new RepoRecord() {
-                    Channel = channel == "" ? null : channel
-                };
-            }
-            
-            foreach (var key in newRepoRecords.Keys) {
-                if (newRepoRecords[key] != repoRecords[key]) {
-                    var value = newRepoRecords[key];
-                    // Work around protobuf null hatred
-                    value.Channel ??= "";
-                    
-                    guard.Value.SetRepo(key, newRepoRecords[key]);
+            Task.Run(async () => {
+                var app = PahkatApp.Current;
+                var repoRecords = await app.PackageStore.GetRepoRecords();
+                var newRepoRecords = new Dictionary<Uri, RepoRecord>();
+
+                foreach (var repositoryListItem in RepoList) {
+                    var url = repositoryListItem.Url;
+                    var channel = repositoryListItem.Channel;
+
+                    newRepoRecords[url] = new RepoRecord() {
+                        Channel = channel == "" ? null : channel
+                    };
                 }
-            }
+
+                foreach (var key in newRepoRecords.Keys) {
+                    if (newRepoRecords[key] != repoRecords[key]) {
+                        var value = newRepoRecords[key];
+                        // Work around protobuf null hatred
+                        value.Channel ??= "";
+
+                        await app.PackageStore.SetRepo(key, newRepoRecords[key]);
+                    }
+                }
+            });
         }
     }
 }

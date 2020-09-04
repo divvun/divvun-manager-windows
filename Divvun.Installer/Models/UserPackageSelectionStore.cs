@@ -1,104 +1,73 @@
 ﻿using System;
-using Iterable;
+using System.Collections.Generic;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
-using Divvun.Installer.Models.SelectionEvent;
-using Divvun.Installer.Util;
+using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using Divvun.Installer.Extensions;
-using Serilog;
+using Pahkat.Sdk;
+using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.Models
 {
-    public interface IUserPackageSelectionStore : IStore<PackageState, ISelectionEvent>
-    { }
-
-    public class UserPackageSelectionStore : IUserPackageSelectionStore
+    
+    public class UserPackageSelectionStore : IDisposable
     {
-        private RxStore<PackageState, ISelectionEvent> _store;
+        private BehaviorSubject<PackageState> _state = new BehaviorSubject<PackageState>(new PackageState());
+        public PackageState State => _state.Value;
+        public IObservable<PackageState> Observe() => _state.AsObservable();
+        public IObservable<Dictionary<PackageKey, PackageAction>> SelectedPackages() => Observe().Map(state => state.SelectedPackages);
 
-        public UserPackageSelectionStore() {
-            _store = new RxStore<PackageState, ISelectionEvent>(PackageState.Default(), Reduce);
-        }
-
-        public IObservable<PackageState> State => _store.State;
-
-        public PackageState Value => _store.State.Take(1).ToTask().GetAwaiter().GetResult();
-
-        public void Dispatch(ISelectionEvent e) {
-            _store.Dispatch(e);
-        }
-
-        private PackageState Reduce(PackageState state, ISelectionEvent e) {
-            switch (e) {
-                case null:
-                    return state;
-                case SetPackages p:
-                    var actions = p.Actions;
-                    state.SelectedPackages.Clear();
-
-                    foreach (var action in actions) {
-                        state.SelectedPackages[action.PackageKey] = action;
-                    }
-
-                    break;
-                case ResetSelection v:
-                    state.SelectedPackages.Clear();
-                    break;
-                case AddSelectedPackage v:
-                    if (!v.PackageKey.IsValidAction(v.Action)) {
-                        break;
-                    }
-
-                    state.SelectedPackages[v.PackageKey] = v.Action;
-                    break;
-                case RemoveSelectedPackage v:
-                    state.SelectedPackages.Remove(v.PackageKey);
-                    break;
-                case ToggleGroupWithDefaultAction v:
-                    // Convert into an ordinary ToggleGroup
-                    var evt = UserSelectionAction.ToggleGroup(
-                        v.PackageKeys.Map(key => key.DefaultPackageAction()).ToArray(),
-                        v.Value);
-                    return Reduce(state, evt);
-                case ToggleGroup v:
-                    if (v.Value) {
-                        var filtered = v.PackageActions.Filter((x) => x.PackageKey.IsValidAction(x));
-                        foreach (var item in filtered) {
-                            state.SelectedPackages[item.PackageKey] = item;
-                        }
-                    }
-                    else {
-                        foreach (var item in v.PackageActions) {
-                            state.SelectedPackages.Remove(item.PackageKey);
-                        }
-                    }
-
-                    break;
-                case TogglePackageWithDefaultAction v:
-                    // Convert into an ordinary TogglePackage
-                    return Reduce(state, UserSelectionAction.TogglePackage(v.PackageKey,
-                        v.PackageKey.DefaultPackageAction(),
-                        v.Value));
-                case TogglePackage v:
-                    if (v.Value) {
-                        if (!v.PackageKey.IsValidAction(v.Action)) {
-                            break;
-                        }
-
-                        state.SelectedPackages[v.PackageKey] = v.Action;
-                    }
-                    else {
-                        state.SelectedPackages.Remove(v.PackageKey);
-                    }
-
-                    break;
+        public async Task ToggleGroupWithDefaultAction(PackageKey[] keys, bool value) {
+            var actions = new List<PackageAction>();
+            foreach (var key in keys) {
+                actions.Add(await key.DefaultPackageAction());
             }
 
-            Log.Debug(string.Join(", ", state.SelectedPackages
-                .Map(x => x.Value)
-                .Map(x => $"{x.PackageKey.ToString()}:{x.Action}")));
+            var selectedPackages = State.SelectedPackages;
 
-            return state;
+            if (value) {
+                foreach (var action in actions) {
+                    if (await action.PackageKey.IsValidAction(action)) {
+                        selectedPackages[action.PackageKey] = action;
+                    }
+                }
+            } else {
+                foreach (var action in actions) {
+                    selectedPackages.Remove(action.PackageKey);
+                }
+            }
+
+            var state = State;
+            state.SelectedPackages = selectedPackages;
+            _state.OnNext(state);
+        }
+
+        public async Task TogglePackageWithDefaultAction(PackageKey key, bool value) {
+            var action = await key.DefaultPackageAction();
+
+            var selectedPackages = State.SelectedPackages;
+
+            if (value) {
+                if (await action.PackageKey.IsValidAction(action)) {
+                    selectedPackages[action.PackageKey] = action;
+                }
+            } else {
+                selectedPackages.Remove(action.PackageKey);
+            }
+
+            var state = State;
+            state.SelectedPackages = selectedPackages;
+            _state.OnNext(state);
+        }
+        
+        public void ResetSelection() {
+            var state = State;
+            state.SelectedPackages.Clear();
+            _state.OnNext(state);
+        }
+
+        public void Dispose() {
+            _state.Dispose();
         }
     }
 }

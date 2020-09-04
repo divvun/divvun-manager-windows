@@ -24,8 +24,8 @@
 //
 //         private IDisposable BindRemoveRepo() {
 //             return _view.OnRepoRemoveClicked()
-//                 .ObserveOn(DispatcherScheduler.Current)
-//                 .SubscribeOn(DispatcherScheduler.Current)
+//                 .ObserveOn(app.Dispatcher)
+//                 .SubscribeOn(app.Dispatcher)
 //                 .Subscribe(index => {
 //                     _data.RemoveAt(index);
 //                     _view.MapRow(index);

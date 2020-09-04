@@ -14,20 +14,17 @@ using Newtonsoft.Json.Linq;
 using Pahkat.Sdk.Rpc.Fbs;
 using Pahkat.Sdk.Rpc.Models;
 using Serilog;
+using System.Threading.Tasks;
 
-namespace Pahkat.Sdk.Rpc
-{
-    public class LoadedRepository : ILoadedRepository
-    {
-        public class IndexValue
-        {
-            public class AgentValue
-            {
+namespace Pahkat.Sdk.Rpc {
+    public class LoadedRepository : ILoadedRepository {
+        public class IndexValue {
+            public class AgentValue {
                 public string Name;
                 public string Version;
                 public Uri? Url;
             }
-            
+
             public Uri Url;
             public string[] Channels;
             public string? DefaultChannel;
@@ -40,11 +37,10 @@ namespace Pahkat.Sdk.Rpc
             string[] AcceptedRepositories;
         }
 
-        public class MetaValue
-        {
+        public class MetaValue {
             public string? Channel;
         }
-        
+
         public byte[] PackagesFbs { get; set; }
 
         public IndexValue Index { get; set; }
@@ -55,12 +51,11 @@ namespace Pahkat.Sdk.Rpc
             return Sdk.PackageKey.Create(Index.Url, descriptor.Id);
         }
     }
-    
-    public static class MarshalUtf8
-    {
+
+    public static class MarshalUtf8 {
         public static string PtrToStringUtf8(IntPtr utf8Ptr, long len) {
             var buffer = new byte[len];
-            Marshal.Copy(utf8Ptr, buffer, 0, (int)len);
+            Marshal.Copy(utf8Ptr, buffer, 0, (int) len);
             return Encoding.UTF8.GetString(buffer);
         }
 
@@ -72,15 +67,14 @@ namespace Pahkat.Sdk.Rpc
             return new pahkat_rpc.Slice(ptr, buffer.Length);
         }
     }
-    
-    public class PahkatClientException : Exception
-    {
+
+    public class PahkatClientException : Exception {
         private static string? _lastError;
 
         internal static pahkat_rpc.ErrCallback Callback = (ptr, len) => {
             _lastError = MarshalUtf8.PtrToStringUtf8(ptr, len.ToInt64());
         };
-        
+
         internal static void AssertNoError() {
             if (_lastError != null) {
                 var err = _lastError;
@@ -89,24 +83,23 @@ namespace Pahkat.Sdk.Rpc
             }
         }
 
-        private PahkatClientException(string message) : base(message) { }
+        private PahkatClientException(string message) : base(message) {
+        }
     }
 
-    public interface IPahkatClient
-    {
-        CancellationTokenSource ProcessTransaction(PackageAction[] actions, Action<TransactionResponseValue> callback);
-        PackageStatus Status(PackageKey packageKey);
-        Dictionary<Uri, ILoadedRepository> RepoIndexes();
-        Dictionary<Uri, RepoRecord> GetRepoRecords();
-        Dictionary<Uri, RepoRecord> SetRepo(Uri url, RepoRecord record);
-        Dictionary<Uri, RepoRecord> RemoveRepo(Uri url);
+    public interface IPahkatClient {
+        Task<CancellationTokenSource> ProcessTransaction(PackageAction[] actions, Action<TransactionResponseValue> callback);
+        Task<PackageStatus> Status(PackageKey packageKey);
+        Task<Dictionary<Uri, ILoadedRepository>> RepoIndexes();
+        Task<Dictionary<Uri, RepoRecord>> GetRepoRecords();
+        Task<Dictionary<Uri, RepoRecord>> SetRepo(Uri url, RepoRecord record);
+        Task<Dictionary<Uri, RepoRecord>> RemoveRepo(Uri url);
         IObservable<Notification> Notifications();
-        Dictionary<Uri, LocalizationStrings> Strings(string languageTag);
-        string ResolvePackageQuery(PackageQuery query);
+        Task<Dictionary<Uri, LocalizationStrings>> Strings(string languageTag);
+        Task<string> ResolvePackageQuery(PackageQuery query);
     }
 
-    public class PahkatClient : IPahkatClient, IDisposable
-    {
+    public class PahkatClient : IPahkatClient, IDisposable {
         public static PahkatClient Create() {
             var ptr = pahkat_rpc.pahkat_rpc_new(PahkatClientException.Callback);
             PahkatClientException.AssertNoError();
@@ -114,164 +107,195 @@ namespace Pahkat.Sdk.Rpc
         }
 
         private readonly IntPtr handle;
+        private Mutex mutex = new Mutex();
 
         private PahkatClient(IntPtr handle) {
             this.handle = handle;
         }
 
-        public CancellationTokenSource ProcessTransaction(PackageAction[] actions, Action<TransactionResponseValue> callback) {
-            var stringActions = JsonConvert.SerializeObject(actions, Json.Settings.Value);
-            Log.Debug(stringActions);
-            var slice = pahkat_rpc.Slice.From(stringActions);
+        public Task<CancellationTokenSource> ProcessTransaction(PackageAction[] actions,
+            Action<TransactionResponseValue> callback) {
+            return Task.Run(() => {
+                var stringActions = JsonConvert.SerializeObject(actions, Json.Settings.Value);
+                Log.Debug(stringActions);
+                var slice = pahkat_rpc.Slice.From(stringActions);
 
-            pahkat_rpc.TransactionResponseCallback cCallback = (s) => {
-                var str = MarshalUtf8.PtrToStringUtf8(s.Ptr, s.Length.ToInt64());
+                pahkat_rpc.TransactionResponseCallback cCallback = (s) => {
+                    var str = MarshalUtf8.PtrToStringUtf8(s.Ptr, s.Length.ToInt64());
 
-                Log.Debug("Raw tx response: " + str);
+                    Log.Debug("Raw tx response: " + str);
 
-                try {
-                    var value = JsonConvert.DeserializeObject<TransactionResponseValue>(str, Json.Settings.Value);
-                    Log.Debug("Tx respo: " + value);
-                    if (value != null) {
-                        callback(value);
+                    try {
+                        var value = JsonConvert.DeserializeObject<TransactionResponseValue>(str, Json.Settings.Value);
+                        Log.Debug("Tx respo: " + value);
+                        if (value != null) {
+                            callback(value);
+                        }
+                        else {
+                            Log.Debug("Warning: null transaction response");
+                        }
                     }
-                    else {
-                        Log.Debug("Warning: null transaction response");
+                    catch (Exception e) {
+                        callback(new TransactionResponseValue.TransactionError() {
+                            Error = e.Message,
+                        });
                     }
-                }
-                catch (Exception e) {
-                    callback(new TransactionResponseValue.TransactionError() {
-                        Error = e.Message,
-                    });
-                }
-            };
+                };
 
-            var gch = GCHandle.Alloc(cCallback);
-            
-            pahkat_rpc.pahkat_rpc_process_transaction(handle, slice, (pahkat_rpc.TransactionResponseCallback)gch.Target, PahkatClientException.Callback);
-            pahkat_rpc.Slice.Free(slice);
-            
-            PahkatClientException.AssertNoError();
+                var gch = GCHandle.Alloc(cCallback);
 
-            var source = new CancellationTokenSource();
-            source.Token.Register(() => {
-                gch.Free();
-                // cancelCallback();
+                using (mutex) {
+                    pahkat_rpc.pahkat_rpc_process_transaction(handle, slice,
+                        (pahkat_rpc.TransactionResponseCallback) gch.Target, PahkatClientException.Callback);
+                }
+
+                pahkat_rpc.Slice.Free(slice);
+
+                PahkatClientException.AssertNoError();
+
+                var source = new CancellationTokenSource();
+                source.Token.Register(() => {
+                    gch.Free();
+                    // cancelCallback();
+                });
+                return source;
             });
-            return source;
         }
 
-        public PackageStatus Status(PackageKey packageKey) {
-            var slice = pahkat_rpc.Slice.From(packageKey.ToString());
-            var status = pahkat_rpc.pahkat_rpc_status(handle, slice, 0, PahkatClientException.Callback);
-            pahkat_rpc.Slice.Free(slice);
-            PahkatClientException.AssertNoError();
-            return PackageStatusExt.FromInt(status);
+        public Task<PackageStatus> Status(PackageKey packageKey) {
+            return Task.Run(() => {
+                var slice = pahkat_rpc.Slice.From(packageKey.ToString());
+                int status;
+                using (mutex) {
+                    status = pahkat_rpc.pahkat_rpc_status(handle, slice, 0, PahkatClientException.Callback);
+                }
+
+                pahkat_rpc.Slice.Free(slice);
+                PahkatClientException.AssertNoError();
+                return PackageStatusExt.FromInt(status);
+            });
         }
 
-        public struct RepoIndexesResponse
-        {
+        public struct RepoIndexesResponse {
             public LoadedRepository[] Repositories { get; set; }
         }
 
-        public Dictionary<Uri, ILoadedRepository> RepoIndexes() {
-            var indexes = pahkat_rpc.pahkat_rpc_repo_indexes(handle, PahkatClientException.Callback);
-            PahkatClientException.AssertNoError();
-            var str = indexes.AsString();
-            // Log.Debug(str);
+        public Task<Dictionary<Uri, ILoadedRepository>> RepoIndexes() {
+            return Task.Run(() => {
+                pahkat_rpc.Slice indexes;
+                using (mutex) {
+                    indexes = pahkat_rpc.pahkat_rpc_repo_indexes(handle, PahkatClientException.Callback);
+                }
+                PahkatClientException.AssertNoError();
+                var str = indexes.AsString();
+                // Log.Debug(str);
 
-            var list = JsonConvert.DeserializeObject<RepoIndexesResponse>(str, Json.Settings.Value);
-            pahkat_rpc.pahkat_rpc_slice_free(indexes);
+                var list = JsonConvert.DeserializeObject<RepoIndexesResponse>(str, Json.Settings.Value);
+                pahkat_rpc.pahkat_rpc_slice_free(indexes);
 
-            var map = new Dictionary<Uri, ILoadedRepository>();
-            
-            foreach (var loadedRepository in list.Repositories) {
-                map.Add(loadedRepository.Index.Url, loadedRepository);
-            }
-            
-            return map;
+                var map = new Dictionary<Uri, ILoadedRepository>();
+
+                foreach (var loadedRepository in list.Repositories) {
+                    map.Add(loadedRepository.Index.Url, loadedRepository);
+                }
+
+                return map;
+            });
         }
 
-        public struct RepoRecordResponse
-        {
+        public struct RepoRecordResponse {
             public Dictionary<Uri, RepoRecord> Records;
             public Dictionary<Uri, string> Errors;
         }
 
-        public Dictionary<Uri, RepoRecord> GetRepoRecords() {
-            pahkat_rpc.Slice recordSlice = pahkat_rpc.pahkat_rpc_get_repo_records(handle, PahkatClientException.Callback);
-            PahkatClientException.AssertNoError();
+        public Task<Dictionary<Uri, RepoRecord>> GetRepoRecords() {
+            return Task.Run(() => {
+                pahkat_rpc.Slice recordSlice;
+                using (mutex) {
+                    recordSlice = pahkat_rpc.pahkat_rpc_get_repo_records(handle, PahkatClientException.Callback);
+                }
 
-            var recordString = recordSlice.AsString();
-            var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
-            pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
-
-            return records.Records;
-        }
-
-        public Dictionary<Uri, RepoRecord> SetRepo(Uri url, RepoRecord record) {
-            pahkat_rpc.Slice recordSlice;
-
-            {
-                var cUrl = pahkat_rpc.Slice.From(url.ToString());
-                var cRecord = pahkat_rpc.Slice.From(JsonConvert.SerializeObject(record, Json.Settings.Value));
-                recordSlice = pahkat_rpc.pahkat_rpc_set_repo(handle, cUrl, cRecord, PahkatClientException.Callback);
-                pahkat_rpc.Slice.Free(cUrl);
-                pahkat_rpc.Slice.Free(cRecord);
                 PahkatClientException.AssertNoError();
-            }
 
-            var recordString = recordSlice.AsString();
-            var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
-            pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
+                var recordString = recordSlice.AsString();
+                var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
+                pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
 
-            return records.Records;
+                return records.Records;
+            });
         }
 
-        public Dictionary<Uri, RepoRecord> RemoveRepo(Uri url) {
-            pahkat_rpc.Slice recordSlice;
-
+        public Task<Dictionary<Uri, RepoRecord>> SetRepo(Uri url, RepoRecord record) {
+            return Task.Run(() =>
             {
-                var cUrl = pahkat_rpc.Slice.From(url.ToString());
-                recordSlice = pahkat_rpc.pahkat_rpc_remove_repo(handle, cUrl, PahkatClientException.Callback);
-                pahkat_rpc.Slice.Free(cUrl);
-                PahkatClientException.AssertNoError();
-            }
+                pahkat_rpc.Slice recordSlice;
 
-            var recordString = recordSlice.AsString();
-            var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
-            pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
+                {
+                    var cUrl = pahkat_rpc.Slice.From(url.ToString());
+                    var cRecord = pahkat_rpc.Slice.From(JsonConvert.SerializeObject(record, Json.Settings.Value));
+                    recordSlice = pahkat_rpc.pahkat_rpc_set_repo(handle, cUrl, cRecord, PahkatClientException.Callback);
+                    pahkat_rpc.Slice.Free(cUrl);
+                    pahkat_rpc.Slice.Free(cRecord);
+                    PahkatClientException.AssertNoError();
+                }
 
-            return records.Records;
+                var recordString = recordSlice.AsString();
+                var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
+                pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
+
+                return records.Records;
+            });
         }
 
-        public struct StringsResponse
+        public Task<Dictionary<Uri, RepoRecord>> RemoveRepo(Uri url)
         {
+            return Task.Run(() =>
+            {
+                pahkat_rpc.Slice recordSlice;
+
+                {
+                    var cUrl = pahkat_rpc.Slice.From(url.ToString());
+                    recordSlice = pahkat_rpc.pahkat_rpc_remove_repo(handle, cUrl, PahkatClientException.Callback);
+                    pahkat_rpc.Slice.Free(cUrl);
+                    PahkatClientException.AssertNoError();
+                }
+
+                var recordString = recordSlice.AsString();
+                var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
+                pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
+
+                return records.Records;
+            });
+        }
+
+        public struct StringsResponse {
             public Dictionary<Uri, LocalizationStrings> Repos;
         }
 
-        public Dictionary<Uri, LocalizationStrings> Strings(string languageTag) {
-            var cTag = pahkat_rpc.Slice.From(languageTag);
-            var slice = pahkat_rpc.pahkat_rpc_strings(handle, cTag, PahkatClientException.Callback);
-            pahkat_rpc.Slice.Free(cTag);
-            PahkatClientException.AssertNoError();
-            
-            var recordString = slice.AsString();
-            pahkat_rpc.pahkat_rpc_slice_free(slice);
-            var response = JsonConvert.DeserializeObject<StringsResponse>(recordString, Json.Settings.Value);
+        public Task<Dictionary<Uri, LocalizationStrings>> Strings(string languageTag)
+        {
+            return Task.Run(() =>
+            {
+                var cTag = pahkat_rpc.Slice.From(languageTag);
+                var slice = pahkat_rpc.pahkat_rpc_strings(handle, cTag, PahkatClientException.Callback);
+                pahkat_rpc.Slice.Free(cTag);
+                PahkatClientException.AssertNoError();
 
-            return response.Repos;
+                var recordString = slice.AsString();
+                pahkat_rpc.pahkat_rpc_slice_free(slice);
+                var response = JsonConvert.DeserializeObject<StringsResponse>(recordString, Json.Settings.Value);
+
+                return response.Repos;
+            });
         }
 
         public IObservable<Notification> Notifications() {
             return Observable.Create<Notification>(emitter => {
-                pahkat_rpc.NotificationCallback callback = id => {
-                    emitter.OnNext((Notification) id);
-                };
+                pahkat_rpc.NotificationCallback callback = id => { emitter.OnNext((Notification) id); };
                 var gch = GCHandle.Alloc(callback);
-                
+
                 pahkat_rpc.pahkat_rpc_notifications(handle,
-                    (pahkat_rpc.NotificationCallback)gch.Target,
+                    (pahkat_rpc.NotificationCallback) gch.Target,
                     PahkatClientException.Callback);
 
                 return Disposable.Create(() => {
@@ -281,18 +305,20 @@ namespace Pahkat.Sdk.Rpc
             });
         }
 
-        public string ResolvePackageQuery(PackageQuery query) {
-            var cQuery = pahkat_rpc.Slice.From(JsonConvert.SerializeObject(query, Json.Settings.Value));
-            var slice = pahkat_rpc.pahkat_rpc_resolve_package_query(handle, cQuery, PahkatClientException.Callback);
-            pahkat_rpc.Slice.Free(cQuery);
-            PahkatClientException.AssertNoError();
+        public Task<string> ResolvePackageQuery(PackageQuery query) {
+            return Task.Run(() => {
+                var cQuery = pahkat_rpc.Slice.From(JsonConvert.SerializeObject(query, Json.Settings.Value));
+                var slice = pahkat_rpc.pahkat_rpc_resolve_package_query(handle, cQuery, PahkatClientException.Callback);
+                pahkat_rpc.Slice.Free(cQuery);
+                PahkatClientException.AssertNoError();
 
-            var queryResponse = slice.AsString();
-            pahkat_rpc.pahkat_rpc_slice_free(slice);
+                var queryResponse = slice.AsString();
+                pahkat_rpc.pahkat_rpc_slice_free(slice);
 
-            return queryResponse;
+                return queryResponse;
+            });
         }
-        
+
         private void ReleaseUnmanagedResources() {
             pahkat_rpc.pahkat_rpc_free(handle);
         }
@@ -306,13 +332,11 @@ namespace Pahkat.Sdk.Rpc
             ReleaseUnmanagedResources();
         }
     }
-    
+
 #pragma warning disable IDE1006 // Naming Styles
-    public partial class pahkat_rpc
-    {
+    public partial class pahkat_rpc {
         [StructLayout(LayoutKind.Sequential)]
-        public readonly struct Slice
-        {
+        public readonly struct Slice {
             public readonly IntPtr Ptr;
             public readonly IntPtr Length;
 
@@ -323,7 +347,7 @@ namespace Pahkat.Sdk.Rpc
             public static void Free(Slice slice) {
                 Marshal.FreeHGlobal(slice.Ptr);
             }
-            
+
             public string AsString() {
                 return MarshalUtf8.PtrToStringUtf8(Ptr, Length.ToInt64());
             }
@@ -332,7 +356,7 @@ namespace Pahkat.Sdk.Rpc
                 Ptr = ptr;
                 Length = new IntPtr(length);
             }
-            
+
             public Slice(IntPtr ptr, long length) {
                 Ptr = ptr;
                 Length = new IntPtr(length);
@@ -340,54 +364,59 @@ namespace Pahkat.Sdk.Rpc
 
             public static Slice Null => new Slice(IntPtr.Zero, 0);
         }
-        
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate void ErrCallback(IntPtr bytes, IntPtr len);
-        
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate void TransactionResponseCallback(Slice slice);
-        
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate void NotificationCallback(Int32 notificationId);
-        
+
         [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
         public delegate void CancelCallback();
-        
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void pahkat_rpc_slice_free(Slice slice);
-        
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void pahkat_rpc_free(IntPtr ptr);
-        
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr pahkat_rpc_new([In] ErrCallback exception);
-        
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Slice pahkat_rpc_repo_indexes(IntPtr handle, [In] ErrCallback exception);
 
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void pahkat_rpc_process_transaction(IntPtr handle, Slice actions, TransactionResponseCallback callback, [In] ErrCallback exception);
+        internal static extern void pahkat_rpc_process_transaction(IntPtr handle, Slice actions,
+            TransactionResponseCallback callback, [In] ErrCallback exception);
 
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int pahkat_rpc_status(IntPtr handle, Slice packageKey, byte target, [In] ErrCallback exception);
-        
+        internal static extern int pahkat_rpc_status(IntPtr handle, Slice packageKey, byte target,
+            [In] ErrCallback exception);
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Slice pahkat_rpc_strings(IntPtr handle, Slice languageTag, [In] ErrCallback exception);
 
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Slice pahkat_rpc_get_repo_records(IntPtr handle, [In] ErrCallback exception);
-        
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Slice pahkat_rpc_set_repo(IntPtr handle, Slice repoUrl, Slice record, [In] ErrCallback exception);
-        
+        internal static extern Slice pahkat_rpc_set_repo(IntPtr handle, Slice repoUrl, Slice record,
+            [In] ErrCallback exception);
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern Slice pahkat_rpc_remove_repo(IntPtr handle, Slice repoUrl, [In] ErrCallback exception);
-        
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void pahkat_rpc_notifications(IntPtr handle, NotificationCallback callback, [In] ErrCallback exception);
-        
+        internal static extern void pahkat_rpc_notifications(IntPtr handle, NotificationCallback callback,
+            [In] ErrCallback exception);
+
         [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Slice pahkat_rpc_resolve_package_query(IntPtr handle, Slice packageQuery, [In] ErrCallback exception);
+        internal static extern Slice pahkat_rpc_resolve_package_query(IntPtr handle, Slice packageQuery,
+            [In] ErrCallback exception);
     }
 #pragma warning restore IDE1006 // Naming Styles
 }

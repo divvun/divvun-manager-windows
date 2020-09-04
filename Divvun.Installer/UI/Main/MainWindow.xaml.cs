@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Forms;
@@ -88,7 +89,7 @@ namespace Divvun.Installer.UI.Main
         }
         
         public void ShowPage(IPageView pageView) {
-            DispatcherScheduler.Current.Schedule(() => {
+            PahkatApp.Current.Dispatcher.Invoke(() => {
                 FrmContainer.Navigate(pageView);
 
                 JournalEntry page;
@@ -104,8 +105,8 @@ namespace Divvun.Installer.UI.Main
             var app = (PahkatApp)Application.Current;
             return app.CurrentTransaction.AsObservable()
                 .DistinctUntilChanged()
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
+                .ObserveOn(app.Dispatcher)
+                .SubscribeOn(app.Dispatcher)
                 .Map(evt => evt.Match(
                     notStarted => Route.Landing,
                     inProgress => inProgress.State.Match(
@@ -117,19 +118,15 @@ namespace Divvun.Installer.UI.Main
         }
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e) {
-            var app = (PahkatApp) Application.Current;
+            var app = PahkatApp.Current;
             
             // Ensure there's always at least one repository.
-            using (var guard = app.PackageStore.Lock()) {
-                guard.Value.Notifications().Subscribe(value => {
-                    Log.Debug("Notification: {value}", value);
-                }).DisposedBy(bag);
+            var packageStore = app.PackageStore;
+            var notifications = packageStore.Notifications();
+            notifications.Subscribe(value => {
+                Log.Debug("Notification: {value}", value);
+            }).DisposedBy(bag);
                 
-                if (guard.Value.GetRepoRecords().IsNullOrEmpty()) {
-                    guard.Value.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
-                }
-            }
-            
             Router()
                 .CombineLatest(app.Settings.SelectedRepository, (a, b) => (a, b))
                 .Subscribe(tuple => {
@@ -159,6 +156,12 @@ namespace Divvun.Installer.UI.Main
                     }
                 })
                 .DisposedBy(bag);
+
+            Task.Run(async () => {
+                // if ((await app.PackageStore.GetRepoRecords()).IsNullOrEmpty()) {
+                //     await app.PackageStore.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
+                // }
+            });
         }
     }
 }

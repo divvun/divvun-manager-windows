@@ -120,8 +120,8 @@ namespace Divvun.Installer.UI.Main
                 // Resolve down the events to Download-related ones only
                 .Filter(x => x.IsInProgressDownloading)
                 .Map(x => x.AsInProgress!.State.AsDownloadState!.Progress)
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
+                .ObserveOn(app.Dispatcher)
+                .SubscribeOn(app.Dispatcher)
                 .Subscribe(state => {
                     foreach (var keyValuePair in state) {
                         SetProgress(keyValuePair.Key,

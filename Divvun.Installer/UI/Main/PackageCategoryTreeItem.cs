@@ -7,6 +7,9 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Divvun.Installer.Extensions;
 using Divvun.Installer.Models;
+using Serilog;
+using Serilog.Core;
+using Iter = Iterable.Iterable;
 
 namespace Divvun.Installer.UI.Shared
 {
@@ -24,7 +27,7 @@ namespace Divvun.Installer.UI.Shared
     public class PackageCategoryTreeItem : IComparable<PackageCategoryTreeItem>, IEquatable<PackageCategoryTreeItem>,
         INotifyPropertyChanged
     {
-        private readonly IUserPackageSelectionStore _store;
+        private readonly UserPackageSelectionStore _store;
         private CompositeDisposable _bag = new CompositeDisposable();
         private bool _isGroupSelected;
 
@@ -33,23 +36,28 @@ namespace Divvun.Installer.UI.Shared
 
         public bool IsGroupSelected {
             get => _isGroupSelected;
-            set => _store.Dispatch(
-                UserSelectionAction.ToggleGroupWithDefaultAction(
-                    Iterable.Iterable.ToArray(Items.Map(x => x.Key)), value));
+            set {
+                PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
+                    Log.Verbose("Setting selected group");
+                    await _store.ToggleGroupWithDefaultAction(
+                        Iter.ToArray(Items.Map(x => x.Key)),
+                        value);
+                });
+            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public PackageCategoryTreeItem(IUserPackageSelectionStore store, string name,
+        public PackageCategoryTreeItem(UserPackageSelectionStore store, string name,
             ObservableCollection<PackageMenuItem> items) {
             _store = store;
             Name = name;
             Items = items;
 
-            _bag.Add(_store.State
-                .Map(x => x.SelectedPackages)
+            _bag.Add(_store.SelectedPackages()
                 .Map(pkgs => Items.All(x => pkgs.ContainsKey(x.Key)))
                 .DistinctUntilChanged()
+                .SubscribeOn(PahkatApp.Current.Dispatcher)
                 .Subscribe(x => {
                     _isGroupSelected = x;
                     PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsGroupSelected"));

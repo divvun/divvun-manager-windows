@@ -6,12 +6,14 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using Castle.Core.Internal;
 using Divvun.Installer.Models;
 using Divvun.Installer.UI.Shared;
 using Divvun.Installer.Extensions;
 using Divvun.Installer.Util;
+using NUnit.Framework.Internal;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
@@ -30,46 +32,50 @@ namespace Divvun.Installer.UI.Main
         private IMainPageView _view;
         private UserPackageSelectionStore _store;
 
-        private IDisposable BindPackageToggled(IMainPageView view, IUserPackageSelectionStore store) {
-            return view.OnPackageToggled()
-                .Map(item => UserSelectionAction.TogglePackage(
-                    item.Key,
-                    item.Key.DefaultPackageAction(),
-                    !item.IsSelected))
-                .Subscribe(store.Dispatch);
+        private IDisposable BindPackageToggled(IMainPageView view, UserPackageSelectionStore store) {
+            return view.OnPackageToggled().Subscribe((item) => {
+                Task.Run(async () => {
+                    Log.Verbose("Toggle package");
+                    await store.TogglePackageWithDefaultAction(item.Key, !item.IsSelected);
+                });
+            });
         }
 
-        private IDisposable BindGroupToggled(IMainPageView view, IUserPackageSelectionStore store) {
+        private IDisposable BindGroupToggled(IMainPageView view, UserPackageSelectionStore store) {
             return view.OnGroupToggled()
-                .Map(item => {
-                    return UserSelectionAction.ToggleGroup(
-                        Iterable.Iterable.ToArray(
-                            item.Items.Map(x => x.Key.DefaultPackageAction())),
-                        !item.IsGroupSelected);
-                })
-                .Subscribe(store.Dispatch);
+                .Subscribe((tree) => {
+                    Task.Run(async () => {
+                        Log.Verbose("Toggle group");
+                        var list = new List<PackageKey>();
+                        foreach (var task in tree.Items.Map(x => x.Key.DefaultPackageAction())) {
+                            var v = await task;
+                            list.Add(v.PackageKey);
+                        }
+
+                        await store.ToggleGroupWithDefaultAction(Iter.ToArray(list), !tree.IsGroupSelected);
+                    });
+                });
         }
 
         private IDisposable BindPrimaryButton(IMainPageView view) {
             return view.OnPrimaryButtonPressed()
-                .ObserveOn(NewThreadScheduler.Default)
-                .SubscribeOn(NewThreadScheduler.Default)
                 .Subscribe(_ => {
                     Log.Verbose("Primary button pressed");
-                    var app = (PahkatApp) Application.Current;
-                    var actions = Iterable.Iterable.ToArray(_store.Value.SelectedPackages.Values);
-                    
-                    using var guard = app.PackageStore.Lock();
-                    try {
-                        guard.Value.ProcessTransaction(actions, value => {
-                            Log.Debug("-- New event: " + value);
-                            var newState = app.CurrentTransaction.Value.Reduce(value);
-                            app.CurrentTransaction.OnNext(newState);
-                        });
-                    }
-                    catch (Exception e) {
-                        this._view.HandleError(e);
-                    }
+                    var app = PahkatApp.Current;
+                    var actions = Iter.ToArray(_store.State.SelectedPackages.Values);
+
+                    Task.Run(async () => {
+                        try {
+                            await app.PackageStore.ProcessTransaction(actions, value => {
+                                Log.Debug("-- New event: " + value);
+                                var newState = app.CurrentTransaction.Value.Reduce(value);
+                                app.CurrentTransaction.OnNext(newState);
+                            });
+                        }
+                        catch (Exception e) {
+                            this._view.HandleError(e);
+                        }
+                    });
                 });
         }
 
@@ -126,13 +132,10 @@ namespace Divvun.Installer.UI.Main
                 // return r?.Autonym ?? r?.Name ?? langTag;
             });
         }
-        private RepoTreeItem FilterByCategory(ILoadedRepository repo) {
+        
+        private async Task<RepoTreeItem> FilterByCategory(ILoadedRepository repo) {
             var app = (PahkatApp) Application.Current;
-            Dictionary<Uri, LocalizationStrings> strings;
-            
-            using (var guard = app.PackageStore.Lock()) {
-                strings = guard.Value.Strings("en");
-            }
+            Dictionary<Uri, LocalizationStrings> strings = await app.PackageStore.Strings("en");
             
             return FilterByTagPrefix(repo, "cat:", (tag) => {
                 if (tag == "cat:") {
@@ -148,11 +151,10 @@ namespace Divvun.Installer.UI.Main
             });
         }
 
-        internal void BindNewRepositories(SortBy sortBy) {
-            var app = (PahkatApp) Application.Current;
-            using var x = ((PahkatApp) Application.Current).PackageStore.Lock();
-            var repos = x.Value.RepoIndexes().Values;
-            var records = x.Value.GetRepoRecords();
+        internal async Task BindNewRepositories(SortBy sortBy) {
+            var app = PahkatApp.Current;
+            var repos = (await app.PackageStore.RepoIndexes()).Values;
+            var records = await app.PackageStore.GetRepoRecords();
         
             _tree.Clear();
 
@@ -169,7 +171,7 @@ namespace Divvun.Installer.UI.Main
 
                 switch (sortBy) {
                     case SortBy.Category:
-                        _tree.Add(FilterByCategory(repo));
+                        _tree.Add(await FilterByCategory(repo));
                         break;
                     case SortBy.Language:
                         _tree.Add(FilterByLanguage(repo));
@@ -202,10 +204,9 @@ namespace Divvun.Installer.UI.Main
             }
         }
 
-        private IDisposable BindPrimaryButtonLabel(IMainPageView view, IUserPackageSelectionStore store) {
+        private IDisposable BindPrimaryButtonLabel(IMainPageView view, UserPackageSelectionStore store) {
             // Can't use distinct until changed here because HashSet is never reset
-            return store.State
-                .Map(state => state.SelectedPackages)
+            return store.SelectedPackages()
                 .Subscribe(GeneratePrimaryButtonLabel);
         }
 
@@ -219,11 +220,9 @@ namespace Divvun.Installer.UI.Main
 
             return new CompositeDisposable(
                 BindPrimaryButtonLabel(_view, _store),
-                //BindUpdatePackageList(_repoServ, _pkgServ, _store),
                 BindPackageToggled(_view, _store),
                 BindGroupToggled(_view, _store),
                 BindPrimaryButton(_view)
-                // BindNewRepositories(_view)
             );
         }
     }

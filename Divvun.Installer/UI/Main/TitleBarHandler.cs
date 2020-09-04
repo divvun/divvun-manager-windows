@@ -4,6 +4,7 @@ using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Divvun.Installer.Extensions;
@@ -21,11 +22,10 @@ namespace Divvun.Installer.UI.Main
     {
         private static IObservable<Notification> OnReposChanged() {
             var app = PahkatApp.Current;
-            using var guard = app.PackageStore.Lock();
-            return guard.Value.Notifications()
+            return app.PackageStore.Notifications()
                 .Filter(x => x == Notification.RepositoriesChanged)
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
+                .ObserveOn(app.Dispatcher)
+                .SubscribeOn(app.Dispatcher)
                 .StartWith(Notification.RepositoriesChanged);
         }
 
@@ -33,9 +33,9 @@ namespace Divvun.Installer.UI.Main
             var app = PahkatApp.Current;
             OnReposChanged()
                 .CombineLatest(app.Settings.SelectedRepository, (a, b) => b)
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
-                .Subscribe(setRepository)
+                .Subscribe(url => {
+                    Task.Run(() => setRepository(url));
+                })
                 .DisposedBy(bag);
         }
         
@@ -59,39 +59,50 @@ namespace Divvun.Installer.UI.Main
             Dictionary<Uri, RepoRecord> records)
         {
             var app = PahkatApp.Current;
+            app.Dispatcher.Invoke(() =>
+            {
+                var app = PahkatApp.Current;
 
-            titleBarReposFlyout.Items.Clear();
-            
-            foreach (var repo in repos) {
-                if (!records.ContainsKey(repo.Index.Url)) {
-                    continue;
+                titleBarReposFlyout.Items.Clear();
+
+                foreach (var repo in repos)
+                {
+                    if (!records.ContainsKey(repo.Index.Url))
+                    {
+                        continue;
+                    }
+
+                    if (repo.Index.LandingUrl == null)
+                    {
+                        continue;
+                    }
+
+                    var item = new MenuItem();
+                    var name = repo.Index.NativeName();
+                    item.Header = name;
+                    item.Click += (sender, args) =>
+                    {
+                        var r = repo;
+                        app.Settings.Mutate(x =>
+                        {
+                            x.SelectedRepository = r.Index.Url;
+                        });
+                    };
+                    titleBarReposFlyout.Items.Add(item);
                 }
 
-                if (repo.Index.LandingUrl == null) {
-                    continue;
-                }
-                
-                var item = new MenuItem();
-                var name = repo.Index.NativeName();
-                item.Header = name;
-                item.Click += (sender, args) => {
-                    var r = repo;
-                    app.Settings.Mutate(x => {
-                        x.SelectedRepository = r.Index.Url;
+                titleBarReposFlyout.Items.Add(new Separator());
+                var menu = new MenuItem();
+                menu.Header = "All Repositories";
+                menu.Click += (sender, args) =>
+                {
+                    app.Settings.Mutate(x =>
+                    {
+                        x.SelectedRepository = new Uri("divvun-installer:detailed");
                     });
                 };
-                titleBarReposFlyout.Items.Add(item);
-            }
-
-            titleBarReposFlyout.Items.Add(new Separator());
-            var menu = new MenuItem();
-            menu.Header = "All Repositories";
-            menu.Click += (sender, args) => {
-                app.Settings.Mutate(x => {
-                    x.SelectedRepository = new Uri("divvun-installer:detailed");
-                });
-            }; 
-            titleBarReposFlyout.Items.Add(menu);
+                titleBarReposFlyout.Items.Add(menu);
+            });
         }
     }
 }

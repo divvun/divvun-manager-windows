@@ -103,12 +103,12 @@ namespace Divvun.Installer.UI.Main
 
             // Control the state of the current view
             app.CurrentTransaction.AsObservable()
-                .ObserveOn(DispatcherScheduler.Current)
-                .SubscribeOn(DispatcherScheduler.Current)
+                .ObserveOn(app.Dispatcher)
+                .SubscribeOn(app.Dispatcher)
                 // Resolve down the events to Download-related ones only
                 .Filter(x => x.IsInProgressInstalling)
                 .Map(x => x.AsT1.State.AsInstallState!.CurrentItem)
-                .SubscribeOn(DispatcherScheduler.Current)
+                .SubscribeOn(app.Dispatcher)
                 .Subscribe(item => {
                     SetCurrentItem(item);
                 })
