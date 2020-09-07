@@ -160,6 +160,7 @@
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Linq.Async, Version=4.1.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263">
       <HintPath>..\packages\System.Linq.Async.4.1.1\lib\net461\System.Linq.Async.dll</HintPath>
       <Private>True</Private>
@@ -235,6 +236,7 @@
     <Compile Include="Models\UserSelectionAction.cs" />
     <Compile Include="Properties\Constants.cs" />
     <Compile Include="Models\UserPackageSelectionStore.cs" />
+    <Compile Include="Service\LogCollator.cs" />
     <Compile Include="Service\MockPahkatClient.cs" />
     <Compile Include="Service\WebBridgeService.cs" />
     <Compile Include="Service\WindowService.cs" />

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Iterable;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -15,6 +16,10 @@ using ModernWpf.Controls;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Models;
+using System.IO.Compression;
+using System.Text;
+using Divvun.Installer.Service;
+using Microsoft.Win32;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -37,6 +42,19 @@ namespace Divvun.Installer.UI.Main
                     Task.Run(() => setRepository(url));
                 })
                 .DisposedBy(bag);
+        }
+        
+        public static void OnClickBundleLogsItem(object sender, RoutedEventArgs e) {
+            var dialog = new SaveFileDialog();
+            dialog.AddExtension = true;
+            dialog.DefaultExt = ".zip";
+            dialog.Filter = "Zip file|*.zip";
+            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            dialog.FileName = "divvun-installer-debug.zip";
+            
+            if (dialog.ShowDialog() == true) {
+                LogCollator.Run(dialog.FileName);
+            }
         }
         
         public static void OnClickAboutMenuItem(object sender, RoutedEventArgs e) {

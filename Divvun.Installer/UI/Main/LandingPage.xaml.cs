@@ -264,9 +264,13 @@ namespace Divvun.Installer.UI.Main
         private void OnClickSettingsMenuItem(object sender, RoutedEventArgs e) {
             TitleBarHandler.OnClickSettingsMenuItem(sender, e);
         }
-        
+
         private void OnClickExitMenuItem(object sender, RoutedEventArgs e) {
             TitleBarHandler.OnClickExitMenuItem(sender, e);
+        }
+
+        private void OnClickBundleLogsItem(object sender, RoutedEventArgs e) {
+            TitleBarHandler.OnClickBundleLogsItem(sender, e);
         }
     }
 }
