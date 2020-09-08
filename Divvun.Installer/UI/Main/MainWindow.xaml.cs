@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -51,9 +52,24 @@ namespace Divvun.Installer.UI.Main
     public partial class MainWindow : Window, IMainWindowView
     {
         private CompositeDisposable bag = new CompositeDisposable();
+        private IPageView? _currentPage = null;
         
         public MainWindow() {
             InitializeComponent();
+        }
+
+        public void HideContent() {
+            FrmContainer.Visibility = Visibility.Hidden;
+            if (_currentPage is LandingPage page) {
+                page.HideWebview();
+            }
+        }
+
+        public void ShowContent() {
+            FrmContainer.Visibility = Visibility.Visible;
+            if (_currentPage is LandingPage page) {
+                page.ShowWebview();
+            }
         }
         
         void ShowLandingPage(Uri? url) {
@@ -90,7 +106,9 @@ namespace Divvun.Installer.UI.Main
         
         public void ShowPage(IPageView pageView) {
             PahkatApp.Current.Dispatcher.Invoke(() => {
+                ShowContent();
                 FrmContainer.Navigate(pageView);
+                _currentPage = pageView;
 
                 JournalEntry page;
                 while ((page = FrmContainer.RemoveBackEntry()) != null) {
@@ -101,7 +119,7 @@ namespace Divvun.Installer.UI.Main
             });
         }
 
-        private IObservable<Route> Router() {
+        private static IObservable<Route> MakeRouter() {
             var app = (PahkatApp)Application.Current;
             return app.CurrentTransaction.AsObservable()
                 .DistinctUntilChanged()
@@ -114,9 +132,11 @@ namespace Divvun.Installer.UI.Main
                         installing => Route.Install,
                         complete => Route.Completion),
                     error => Route.Error)
-                ).DistinctUntilChanged();
+                )
+                .DistinctUntilChanged();
         }
-
+        private IObservable<Route> Router = MakeRouter();
+        
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e) {
             var app = PahkatApp.Current;
             
@@ -127,7 +147,7 @@ namespace Divvun.Installer.UI.Main
                 Log.Debug("Notification: {value}", value);
             }).DisposedBy(bag);
                 
-            Router()
+            Router
                 .CombineLatest(app.Settings.SelectedRepository, (a, b) => (a, b))
                 .Subscribe(tuple => {
                     switch (tuple.a) {
@@ -137,7 +157,7 @@ namespace Divvun.Installer.UI.Main
                     }
                 }).DisposedBy(bag);
             
-            Router()
+            Router
                 .Subscribe(route => {
                     switch (route)
                     {
@@ -158,9 +178,9 @@ namespace Divvun.Installer.UI.Main
                 .DisposedBy(bag);
 
             Task.Run(async () => {
-                // if ((await app.PackageStore.GetRepoRecords()).IsNullOrEmpty()) {
-                //     await app.PackageStore.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
-                // }
+                if ((await app.PackageStore.GetRepoRecords()).IsNullOrEmpty()) {
+                    await app.PackageStore.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
+                }
             });
         }
     }

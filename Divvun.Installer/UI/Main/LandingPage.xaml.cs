@@ -113,6 +113,13 @@ namespace Divvun.Installer.UI.Main
             WebViewGrid.Children.Add(_webView);
         }
 
+        public void HideWebview() {
+            _webView.Visibility = Visibility.Hidden;
+        }
+        public void ShowWebview() {
+            _webView.Visibility = Visibility.Visible;
+        }
+
         private void ShowNoLandingPage() {
             Log.Warning("No landing page");
             

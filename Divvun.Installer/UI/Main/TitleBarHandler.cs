@@ -17,8 +17,10 @@ using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Models;
 using System.IO.Compression;
+using System.Runtime.InteropServices;
 using System.Text;
 using Divvun.Installer.Service;
+using Divvun.Installer.UI.Main.Dialog;
 using Microsoft.Win32;
 
 namespace Divvun.Installer.UI.Main
@@ -44,17 +46,103 @@ namespace Divvun.Installer.UI.Main
                 .DisposedBy(bag);
         }
         
-        public static void OnClickBundleLogsItem(object sender, RoutedEventArgs e) {
-            var dialog = new SaveFileDialog();
-            dialog.AddExtension = true;
-            dialog.DefaultExt = ".zip";
-            dialog.Filter = "Zip file|*.zip";
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            dialog.FileName = "divvun-installer-debug.zip";
-            
-            if (dialog.ShowDialog() == true) {
-                LogCollator.Run(dialog.FileName);
+        [DllImport("shell32.dll", SetLastError = true)]
+        public static extern int SHOpenFolderAndSelectItems(IntPtr pidlFolder, uint cidl, [In, MarshalAs(UnmanagedType.LPArray)] IntPtr[] apidl, uint dwFlags);
+
+        [DllImport("shell32.dll", SetLastError = true)]
+        public static extern void SHParseDisplayName([MarshalAs(UnmanagedType.LPWStr)] string name, IntPtr bindingContext, [Out] out IntPtr pidl, uint sfgaoIn, [Out] out uint psfgaoOut);
+
+        public static void OpenFolderAndSelectItem(string folderPath, string file)
+        {
+            IntPtr nativeFolder;
+            uint psfgaoOut;
+            SHParseDisplayName(folderPath, IntPtr.Zero, out nativeFolder, 0, out psfgaoOut);
+
+            if (nativeFolder == IntPtr.Zero)
+            {
+                // Log error, can't find folder
+                return;
             }
+
+            IntPtr nativeFile;
+            SHParseDisplayName(Path.Combine(folderPath, file), IntPtr.Zero, out nativeFile, 0, out psfgaoOut);
+
+            IntPtr[] fileArray;
+            if (nativeFile == IntPtr.Zero)
+            {
+                // Open the folder without the file selected if we can't find the file
+                fileArray = new IntPtr[0];
+            }
+            else
+            {
+                fileArray = new IntPtr[] { nativeFile };
+            }
+
+            SHOpenFolderAndSelectItems(nativeFolder, (uint)fileArray.Length, fileArray, 0);
+
+            Marshal.FreeCoTaskMem(nativeFolder);
+            if (nativeFile != IntPtr.Zero)
+            {
+                Marshal.FreeCoTaskMem(nativeFile);
+            }
+        }
+
+        private static async Task ShowCollationFinish(string zipPath) {
+            var fileName = Path.GetFileName(zipPath)!;
+            var dirName = Path.GetDirectoryName(zipPath)!;
+            
+            Clipboard.SetText("feedback@divvun.no");
+            
+            var dialog = new ConfirmationDialog(
+                "Debug Data Zipped!",
+                $"A zip file named {fileName} has been created.\n\n" +
+                "Please attach this to an email to feedback@divvun.no.",
+                "(The email address has been automatically copied to your clipboard " +
+                "for your convenience. You can paste this into your email program or web-based " +
+                "email tool)",
+                "Go to file",
+                null);
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary) {
+                OpenFolderAndSelectItem(dirName, fileName);
+            }
+        }
+        
+        public static void OnClickBundleLogsItem(object sender, RoutedEventArgs e) {
+            var mainWindowCfg = PahkatApp.Current.WindowService.Get<MainWindow>();
+            var mainWindow = (MainWindow) mainWindowCfg.Instance;
+            
+            mainWindow.HideContent();
+
+            PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
+                var confirmDialog = new ConfirmationDialog(
+                    "Create debugging zip file",
+                    "This function creates a zip file containing logging information useful " +
+                    "for assisting debugging issues with Divvun Installer and its packages.\n\n" +
+                    "This tool should only be used when requested by your IT administrator or Divvun personnel.",
+                    null,
+                    "Save Debug Zip");
+
+                if (await confirmDialog.ShowAsync() != ContentDialogResult.Primary) {
+                    mainWindow.ShowContent();
+                    return;
+                }
+
+                var dialog = new SaveFileDialog();
+                dialog.AddExtension = true;
+                dialog.DefaultExt = ".zip";
+                dialog.Filter = "Zip file|*.zip";
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                dialog.FileName = "divvun-installer-debug.zip";
+
+                if (dialog.ShowDialog() == true) {
+                    await LogCollator.Run(dialog.FileName);
+                    await ShowCollationFinish(dialog.FileName);
+                }
+                mainWindow.ShowContent();
+            });
         }
         
         public static void OnClickAboutMenuItem(object sender, RoutedEventArgs e) {
