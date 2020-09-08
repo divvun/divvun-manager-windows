@@ -50,7 +50,7 @@ jobs:
         if: ${{ steps.version.outputs.channel != 'nightly' }}
         run: |
           mkdir ./pahkat-config
-          echo "[""https://pahkat.uit.no/divvun-installer/""]`n" > ./pahkat-config/repos.toml
+          echo "[""https://pahkat.uit.no/divvun-installer/""]`nchannel = ""beta""" > ./pahkat-config/repos.toml
           pahkat-windows download https://pahkat.uit.no/divvun-installer/packages/pahkat-service --output ./pahkat-service -c ./pahkat-config
           mv ./pahkat-service/* ./pahkat-service-setup.exe
       - name: Build
