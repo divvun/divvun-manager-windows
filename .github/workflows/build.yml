@@ -27,6 +27,7 @@ jobs:
         uses: divvun/actions/version@master
         with:
           csharp: true
+          stable-channel: beta
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install build dependencies
         uses: divvun/actions/pahkat/init@master
