@@ -37,8 +37,8 @@ jobs:
           packages: pahkat-uploader, pahkat-windows-cli, libpahkat_rpc
       - name: Move libpahkat_rpc to appropriate place
         run: |
-          cp $env:RUNNER_WORKSPACE\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer\
-          cp $env:RUNNER_WORKSPACE\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer.OneClick\Costura32\
+          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer\
+          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer.OneClick\Costura32\
       - name: Acquire Pahkat Service installer (nightly)
         if: ${{ steps.version.outputs.channel == 'nightly' }}
         run: |
