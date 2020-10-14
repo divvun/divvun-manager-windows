@@ -1,4 +1,4 @@
-name: divvun-installer (windows)
+name: divvun-manager (windows)
 
 on: push
 
@@ -11,7 +11,7 @@ jobs:
           # Nerdbank.GitVersioning needs a full clone
           fetch-depth: 0
       - name: Setup Divvun CI
-        uses: divvun/actions/setup@divvun-installer
+        uses: divvun/actions/setup@master
         with:
           key: ${{ secrets.DIVVUN_KEY }}
       - name: Setup NuGet
@@ -37,21 +37,21 @@ jobs:
           packages: pahkat-uploader, pahkat-windows-cli, libpahkat_rpc
       - name: Move libpahkat_rpc to appropriate place
         run: |
-          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer\
-          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-installer-windows\Divvun.Installer.OneClick\Costura32\
+          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-manager-windows\Divvun.Installer\
+          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-manager-windows\Divvun.Installer.OneClick\Costura32\
       - name: Acquire Pahkat Service installer (nightly)
         if: ${{ steps.version.outputs.channel == 'nightly' }}
         run: |
           mkdir ./pahkat-config
-          echo "[""https://pahkat.uit.no/divvun-installer/""]`nchannel = ""nightly""" > ./pahkat-config/repos.toml
-          pahkat-windows download https://pahkat.uit.no/divvun-installer/packages/pahkat-service --output ./pahkat-service -c ./pahkat-config
+          echo "[""https://pahkat.uit.no/divvun-manager/""]`nchannel = ""nightly""" > ./pahkat-config/repos.toml
+          pahkat-windows download https://pahkat.uit.no/divvun-manager/packages/pahkat-service --output ./pahkat-service -c ./pahkat-config
           mv ./pahkat-service/* ./pahkat-service-setup.exe
       - name: Acquire Pahkat Service installer (stable)
         if: ${{ steps.version.outputs.channel != 'nightly' }}
         run: |
           mkdir ./pahkat-config
-          echo "[""https://pahkat.uit.no/divvun-installer/""]`nchannel = ""beta""" > ./pahkat-config/repos.toml
-          pahkat-windows download https://pahkat.uit.no/divvun-installer/packages/pahkat-service --output ./pahkat-service -c ./pahkat-config
+          echo "[""https://pahkat.uit.no/divvun-manager/""]`nchannel = ""beta""" > ./pahkat-config/repos.toml
+          pahkat-windows download https://pahkat.uit.no/divvun-manager/packages/pahkat-service --output ./pahkat-service -c ./pahkat-config
           mv ./pahkat-service/* ./pahkat-service-setup.exe
       - name: Build
         shell: cmd
@@ -88,11 +88,11 @@ jobs:
       - name: Deploy (installer)
         uses: divvun/actions/deploy@master
         with:
-          package-id: divvun-installer
+          package-id: divvun-manager
           platform: windows
           version: ${{ steps.version.outputs.version }}
           payload-path: ${{ steps.installer.outputs['installer-path'] }}
-          repo: https://pahkat.thetc.se/divvun-installer/
+          repo: https://pahkat.thetc.se/divvun-manager/
           channel: ${{ steps.version.outputs.channel }}
           windows-kind: inno
           windows-product-code: "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1"
@@ -100,13 +100,13 @@ jobs:
       - name: Deploy (OneClick)
         uses: divvun/actions/deploy@master
         with:
-          package-id: divvun-installer-oneclick
+          package-id: divvun-manager-oneclick
           platform: windows
           arch: i686
           # This product code isn't actually used but is a mandatory field.
-          windows-product-code: "divvun-installer-oneclick"
+          windows-product-code: "divvun-manager-oneclick"
           version: ${{ steps.version.outputs.version }}
           payload-path: Divvun.Installer.OneClick/bin/Release/Divvun.Installer.OneClick.exe
-          repo: https://pahkat.thetc.se/divvun-installer/
+          repo: https://pahkat.thetc.se/divvun-manager/
           channel: ${{ steps.version.outputs.channel }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
