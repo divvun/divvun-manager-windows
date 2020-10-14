@@ -88,7 +88,7 @@ jobs:
       - name: Deploy (installer)
         uses: divvun/actions/deploy@master
         with:
-          package-id: divvun-manager
+          package-id: divvun-installer
           platform: windows
           version: ${{ steps.version.outputs.version }}
           payload-path: ${{ steps.installer.outputs['installer-path'] }}
@@ -100,7 +100,7 @@ jobs:
       - name: Deploy (OneClick)
         uses: divvun/actions/deploy@master
         with:
-          package-id: divvun-manager-oneclick
+          package-id: divvun-installer-oneclick
           platform: windows
           arch: i686
           # This product code isn't actually used but is a mandatory field.
