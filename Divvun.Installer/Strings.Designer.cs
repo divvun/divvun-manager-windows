@@ -61,7 +61,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to About Divvun Installer.
+        ///   Looks up a localized string similar to About Divvun Manager.
         /// </summary>
         public static string AboutApp {
             get {
@@ -88,7 +88,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Divvun Installer is updating....
+        ///   Looks up a localized string similar to Divvun Manager is updating....
         /// </summary>
         public static string AppIsUpdating {
             get {
@@ -97,7 +97,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Divvun Installer.
+        ///   Looks up a localized string similar to Divvun Manager.
         /// </summary>
         public static string AppName {
             get {
@@ -106,7 +106,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Divvun Installer v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
+        ///   Looks up a localized string similar to Divvun Manager v{0} is now available. It is highly recommended that you update as soon as possible. Update now?.
         /// </summary>
         public static string AppUpdateBody {
             get {
@@ -115,7 +115,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Divvun Installer Update Available.
+        ///   Looks up a localized string similar to Divvun Manager Update Available.
         /// </summary>
         public static string AppUpdateTitle {
             get {
@@ -403,7 +403,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hide Divvun Installer.
+        ///   Looks up a localized string similar to Hide Divvun Manager.
         /// </summary>
         public static string HideApp {
             get {
@@ -646,7 +646,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Open Divvun Installer.
+        ///   Looks up a localized string similar to Open Divvun Manager.
         /// </summary>
         public static string OpenPackageManager {
             get {
@@ -709,7 +709,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Quit Divvun Installer.
+        ///   Looks up a localized string similar to Quit Divvun Manager.
         /// </summary>
         public static string QuitApp {
             get {

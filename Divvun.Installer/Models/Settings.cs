@@ -61,7 +61,7 @@ namespace Divvun.Installer.Models
     {
         public static Settings Create() {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var projectPath = Path.Combine(appData, "Divvun Installer");
+            var projectPath = Path.Combine(appData, "Divvun Manager");
             Directory.CreateDirectory(projectPath);
             return new Settings(Path.Combine(projectPath, "settings.json"));
         }

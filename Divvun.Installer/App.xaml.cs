@@ -104,7 +104,7 @@ namespace Divvun.Installer
         private void ConfigureLogging() {
             string logPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "Divvun Installer",
+                "Divvun Manager",
                 "log"
             );
             
@@ -145,7 +145,7 @@ namespace Divvun.Installer
             Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
             ConfigureLogging();
             
-            Log.Information("Loading Divvun Installer v{version}",
+            Log.Information("Loading Divvun Manager v{version}",
                 ThisAssembly.AssemblyInformationalVersion);
             
             if (!SingleInstance<PahkatApp>.InitializeAsFirstInstance(key)) {

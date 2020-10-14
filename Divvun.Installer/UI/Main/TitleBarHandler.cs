@@ -120,7 +120,7 @@ namespace Divvun.Installer.UI.Main
                 var confirmDialog = new ConfirmationDialog(
                     "Create debugging zip file",
                     "This function creates a zip file containing logging information useful " +
-                    "for assisting debugging issues with Divvun Installer and its packages.\n\n" +
+                    "for assisting debugging issues with Divvun Manager and its packages.\n\n" +
                     "This tool should only be used when requested by your IT administrator or Divvun personnel.",
                     null,
                     "Save Debug Zip");
