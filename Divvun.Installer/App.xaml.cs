@@ -20,17 +20,17 @@ using Divvun.Installer.UI.Main;
 using Divvun.Installer.UI.Settings;
 using Divvun.Installer.Util;
 using Hardcodet.Wpf.TaskbarNotification;
-using Trustsoft.SingleInstanceApp;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Sentry;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.File.GZip;
+using SingleInstanceCore;
 
 namespace Divvun.Installer
 {
-    public partial class PahkatApp : ISingleInstanceApp
+    public partial class PahkatApp : Application, ISingleInstance
     {
         public new static PahkatApp Current => (PahkatApp)Application.Current;
         // public static DispatcherScheduler Scheduler;
@@ -82,7 +82,7 @@ namespace Divvun.Installer
             _icon.ContextMenu = menu;
             _icon.TrayMouseDoubleClick += (sender, args) => WindowService.Show<MainWindow>();
         }
-        
+
         protected override void OnStartup(StartupEventArgs e) {
             UserSelection = new UserPackageSelectionStore();
             var args = Environment.GetCommandLineArgs();
@@ -147,11 +147,11 @@ namespace Divvun.Installer
             
             Log.Information("Loading Divvun Manager v{version}",
                 ThisAssembly.AssemblyInformationalVersion);
-            
+
             if (!SingleInstance<PahkatApp>.InitializeAsFirstInstance(key)) {
                 Log.Information("App already running; aborting.");
                 Log.CloseAndFlush();
-                return;
+                Current.Shutdown();
             }
 
             if (!Debugger.IsAttached) {
@@ -202,5 +202,7 @@ namespace Divvun.Installer
             PreExit();
             base.OnExit(e);
         }
+
+        public void OnInstanceInvoked(string[] args) { }
     }
 }

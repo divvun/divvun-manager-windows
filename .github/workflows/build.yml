@@ -15,7 +15,7 @@ jobs:
         with:
           key: ${{ secrets.DIVVUN_KEY }}
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.2
+        uses: NuGet/setup-nuget@v1
         with:
           nuget-version: '5.x'
       - name: Nerdbank.GitVersioning
@@ -62,23 +62,19 @@ jobs:
       - name: Sign code (Divvun Manager exe)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer/bin/x86/Release/DivvunManager.exe
+          path: Divvun.Installer/bin/x86/Release/net5.0-windows/DivvunManager.exe
       - name: Sign code (Divvun Installer OneClick exe)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer.OneClick/bin/Release/Divvun.Installer.OneClick.exe
+          path: Divvun.Installer.OneClick/bin/Release/net5.0-windows/win-x86/Divvun.Installer.OneClick.exe
       - name: Sign code (Pahkat SDK DLL)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer/bin/x86/Release/Pahkat.Sdk.dll 
+          path: Divvun.Installer/bin/x86/Release/net5.0-windows/Pahkat.Sdk.dll 
       - name: Sign code (Pahkat SDK RPC DLL)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer/bin/x86/Release/Pahkat.Sdk.Rpc.dll 
-      - name: Sign code (pahkat_rpc DLL)
-        uses: divvun/actions/codesign@master
-        with:
-          path: Divvun.Installer/bin/x86/Release/pahkat_rpc.dll
+          path: Divvun.Installer/bin/x86/Release/net5.0-windows/Pahkat.Sdk.Rpc.dll
       - name: Create installer
         id: installer
         uses: divvun/actions/inno-setup@master
@@ -107,7 +103,7 @@ jobs:
           # This product code isn't actually used but is a mandatory field.
           windows-product-code: "divvun-manager-oneclick"
           version: ${{ steps.version.outputs.version }}
-          payload-path: Divvun.Installer.OneClick/bin/Release/Divvun.Installer.OneClick.exe
+          payload-path: Divvun.Installer.OneClick/bin/Release/net5.0-windows/win-x86/Divvun.Installer.OneClick.exe
           repo: https://pahkat.thetc.se/divvun-installer/
           channel: ${{ steps.version.outputs.channel }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
