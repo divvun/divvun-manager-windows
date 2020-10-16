@@ -163,6 +163,7 @@ namespace Divvun.Installer.OneClick
             catch (Exception e)
             {
                 TerminateWithError(e);
+                return;
             }
 
             var items = _meta.LanguageTags.Map((tag) => new LanguageItem()
@@ -224,7 +225,7 @@ namespace Divvun.Installer.OneClick
                 Console.WriteLine(result);
 
                 var obj = JObject.Parse(result);
-                var descriptors = obj["descriptors"].ToObject<List<JObject>>();
+                var descriptors = obj["descriptors"]?.ToObject<List<JObject>>() ?? new List<JObject>();
                 var packageKeys = descriptors
                     .FilterMap((o) => o["key"]?.ToObject<string>())
                     .Map(PackageKey.From)
@@ -241,17 +242,17 @@ namespace Divvun.Installer.OneClick
                 .Map(x => new PackageAction(x, InstallAction.Install, InstallTarget.System))
                 .ToArray();
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 Console.WriteLine("Starting install process");
-                pahkat.ProcessTransaction(actions, (message) =>
+                await pahkat.ProcessTransaction(actions, (message) =>
                 {
                     Console.WriteLine(message);
                     if (message.IsErrorState)
                     {
                         Console.WriteLine("Ending install process with error");
-                        source.SetException(new Exception(message.AsTransactionError.Error ??
-                                            $"An unknown error occurred while installing package with key: {message.AsTransactionError.PackageKey ?? "<no key>"}"));
+                        source.SetException(new Exception(message.AsTransactionError?.Error ??
+                                            $"An unknown error occurred while installing package with key: {message.AsTransactionError?.PackageKey ?? "<no key>"}"));
                     }
 
                     if (message.IsCompletionState)

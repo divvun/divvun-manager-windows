@@ -7,7 +7,6 @@ using System.Windows;
 using Divvun.Installer.Extensions;
 using Divvun.Installer.UI.Main;
 using Divvun.Installer.UI.Main.Dialog;
-using Microsoft.Toolkit.Wpf.UI.Controls;
 using ModernWpf.Controls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
