@@ -24,6 +24,9 @@ using Pahkat.Sdk.Rpc.Models;
 using Serilog;
 
 using Iter = Iterable.Iterable;
+using CefSharp.Wpf;
+using CefSharp;
+using CefSharp.Handler;
 
 namespace Divvun.Installer.UI.Main
 {
@@ -44,10 +47,10 @@ namespace Divvun.Installer.UI.Main
 
     class WebBridge
     {
-        private WebView webView;
+        private ChromiumWebBrowser webView;
         private WebBridgeService.Functions? _functions;
         
-        internal WebBridge(WebView webView) {
+        internal WebBridge(ChromiumWebBrowser webView) {
             this.webView = webView;
         }
 
@@ -61,7 +64,7 @@ namespace Divvun.Installer.UI.Main
             try {
                 var script = $"window.pahkatResponders[\"callback-{id}\"]({payload})";
                 Log.Debug($"Running script: {script}");
-                webView.InvokeScript("eval", new string[] {script});
+                webView.ExecuteScriptAsync("eval", new string[] {script});
             }
             catch (Exception e) {
                 Log.Debug(e, "error sending response");
@@ -104,12 +107,12 @@ namespace Divvun.Installer.UI.Main
     {
         private CompositeDisposable _bag = new CompositeDisposable();
 
-        private WebView _webView;
+        private ChromiumWebBrowser _webView;
         private WebBridge _webBridge = null!;
 
         public LandingPage() {
             InitializeComponent();
-            _webView = new WebView();
+            _webView = new ChromiumWebBrowser();
             WebViewGrid.Children.Add(_webView);
         }
 
@@ -186,7 +189,7 @@ namespace Divvun.Installer.UI.Main
 
                 TitleBarReposButton.Content = repo.Index.NativeName();
                 _webBridge.SetRepository(repo);
-                _webView.Navigate(repo.Index.LandingUrl.SetQueryParam("ts", DateTimeOffset.UtcNow));
+                _webView.Load(repo.Index.LandingUrl.SetQueryParam("ts", DateTimeOffset.UtcNow));
             });
         }
 
@@ -199,37 +202,17 @@ namespace Divvun.Installer.UI.Main
             var rpcRequest = JsonConvert.DeserializeObject<WebBridgeRequest>(rawRequest);
             await _webBridge.HandleRequest(rpcRequest);
         }
-        
+
         private void ConfigureWebView() {
             _webBridge = new WebBridge(_webView);
-        
-            _webView.IsScriptNotifyAllowed = true;
-        
-            _webView.ScriptNotify += async (sender, args) => {
+
+            _webView.JavascriptMessageReceived += async (sender, args) =>
+            {
                 // Check args.Uri for something we want to actually act upon, for security.
-                Log.Debug("{uri}", args.Uri);
-                Log.Debug(args.Value);
-        
-                await ProcessRequest(args.Value);
-            };
-        
-            _webView.NavigationCompleted += (sender, args) => { return; };
-        
-            _webView.NavigationStarting += (sender, args) => {
-                if (args.Uri == null) {
-                    return;
-                }
-        
-                if (args.Uri.Scheme == "about") {
-                    if (Uri.TryCreate(args.Uri.AbsolutePath, UriKind.Absolute, out var pahkatUri) &&
-                        pahkatUri.Scheme == "pahkat") {
-                        args.Cancel = true;
-                        PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
-                            var payload = Uri.UnescapeDataString(pahkatUri.AbsolutePath);
-                            await ProcessRequest(payload);
-                        });
-                    }
-                }
+                Log.Debug("{uri}", args.Frame.Url);
+                Log.Debug(args.Frame.Url);
+
+                await ProcessRequest(args.Message as string);
             };
         }
 
