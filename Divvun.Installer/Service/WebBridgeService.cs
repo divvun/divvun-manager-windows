@@ -16,6 +16,7 @@ using Pahkat.Sdk.Rpc;
 using Pahkat.Sdk.Rpc.Fbs;
 using Pahkat.Sdk.Rpc.Models;
 using Serilog;
+using CefSharp.Wpf;
 
 namespace Divvun.Installer.Service
 {
@@ -33,9 +34,9 @@ namespace Divvun.Installer.Service
         public class Functions
         {
             public ILoadedRepository Repo;
-            public WebView WebView;
+            public ChromiumWebBrowser WebView;
             
-            public Functions(ILoadedRepository repo, WebView webView) {
+            public Functions(ILoadedRepository repo, ChromiumWebBrowser webView) {
                 Repo = repo;
                 WebView = webView;
             }
