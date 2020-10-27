@@ -14,23 +14,18 @@ namespace DivvunUITests
         [TestPriority(1)]
         public void TestInstall()
         {
-            var appiumOptions = new OpenQA.Selenium.Appium.AppiumOptions();
-            appiumOptions.AddAdditionalCapability("app", @"F:\Dev\divvun-manager-windows\Divvun.Installer\bin\x86\Release\DivvunInstaller.exe");
-            var divvunSession = new WindowsDriver<WindowsElement>(new Uri("http://127.0.0.1:4723"), appiumOptions);
+            this.Session.FindElementByAccessibilityId("TitleBarReposButton").SendKeys(Keys.Return);
+            this.Session.FindElementByName("All Repositories").SendKeys(Keys.Return);
 
-            divvunSession.SwitchTo().Window(divvunSession.WindowHandles[0]);
-            divvunSession.FindElementByAccessibilityId("TitleBarReposButton").SendKeys(Keys.Return);
-            divvunSession.FindElementByName("All Repositories").SendKeys(Keys.Return);
-
-            var treeItem = divvunSession.FindElementsByName("Divvun.Installer.UI.Shared.PackageCategoryTreeItem")[3];
+            var treeItem = this.Session.FindElementsByName("Divvun.Installer.UI.Shared.PackageCategoryTreeItem")[3];
             treeItem.SendKeys(Keys.Space);
 
-            divvunSession.FindElementByAccessibilityId("BtnPrimary").SendKeys(Keys.Enter);
+            this.Session.FindElementByAccessibilityId("BtnPrimary").SendKeys(Keys.Enter);
 
             Thread.Sleep(20000);
-            divvunSession.FindElementByAccessibilityId("BtnFinish").SendKeys(Keys.Enter);
+            this.Session.FindElementByAccessibilityId("BtnFinish").SendKeys(Keys.Enter);
 
-            var installedText = divvunSession
+            var installedText = this.Session
                 .FindElementsByName("Divvun.Installer.UI.Shared.PackageCategoryTreeItem")[3]
                 .FindElementsByName("Divvun.Installer.UI.Shared.PackageMenuItem")[0]
                 .FindElementsByClassName("TextBlock")[3].Text;
@@ -42,23 +37,18 @@ namespace DivvunUITests
         [TestPriority(2)]
         public void TestUninstall()
         {
-            var appiumOptions = new OpenQA.Selenium.Appium.AppiumOptions();
-            appiumOptions.AddAdditionalCapability("app", @"F:\Dev\divvun-manager-windows\Divvun.Installer\bin\x86\Release\DivvunInstaller.exe");
-            var divvunSession = new WindowsDriver<WindowsElement>(new Uri("http://127.0.0.1:4723"), appiumOptions);
+            this.Session.FindElementByAccessibilityId("TitleBarReposButton").SendKeys(Keys.Return);
+            this.Session.FindElementByName("All Repositories").SendKeys(Keys.Return);
 
-            divvunSession.SwitchTo().Window(divvunSession.WindowHandles[0]);
-            divvunSession.FindElementByAccessibilityId("TitleBarReposButton").SendKeys(Keys.Return);
-            divvunSession.FindElementByName("All Repositories").SendKeys(Keys.Return);
-
-            var treeItem = divvunSession.FindElementsByName("Divvun.Installer.UI.Shared.PackageCategoryTreeItem")[3];
+            var treeItem = this.Session.FindElementsByName("Divvun.Installer.UI.Shared.PackageCategoryTreeItem")[3];
             treeItem.SendKeys(Keys.Space);
 
-            divvunSession.FindElementByAccessibilityId("BtnPrimary").SendKeys(Keys.Enter);
+            this.Session.FindElementByAccessibilityId("BtnPrimary").SendKeys(Keys.Enter);
 
             Thread.Sleep(5000);
-            divvunSession.FindElementByAccessibilityId("BtnFinish").SendKeys(Keys.Enter);
+            this.Session.FindElementByAccessibilityId("BtnFinish").SendKeys(Keys.Enter);
 
-            var installedText = divvunSession
+            var installedText = this.Session
                 .FindElementsByName("Divvun.Installer.UI.Shared.PackageCategoryTreeItem")[3]
                 .FindElementsByName("Divvun.Installer.UI.Shared.PackageMenuItem")[0]
                 .FindElementsByClassName("TextBlock")[3].Text;
