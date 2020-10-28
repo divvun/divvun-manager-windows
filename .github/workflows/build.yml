@@ -59,10 +59,10 @@ jobs:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           nuget restore "Divvun.Installer.sln"
           MSBuild.exe "Divvun.Installer.sln" /p:Configuration=Release /p:Platform=x86 /m  || exit /b !ERRORLEVEL!
-      - name: Sign code (Divvun Installer exe)
+      - name: Sign code (Divvun Manager exe)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer/bin/x86/Release/DivvunInstaller.exe
+          path: Divvun.Installer/bin/x86/Release/DivvunManager.exe
       - name: Sign code (Divvun Installer OneClick exe)
         uses: divvun/actions/codesign@master
         with:
@@ -85,9 +85,10 @@ jobs:
         with:
           path: setup.iss
           defines: Version=${{ steps.version.outputs.version }}
-      - name: Deploy (installer)
+      - name: Deploy (Divvun Manager)
         uses: divvun/actions/deploy@master
         with:
+          # The id must be this, for legacy reasons.
           package-id: divvun-installer
           platform: windows
           version: ${{ steps.version.outputs.version }}
