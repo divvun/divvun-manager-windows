@@ -133,12 +133,21 @@ begin
   end;
 end;
 
+function RemoveOldStartMenuItems: String;
+var
+  sPath: String;
+begin
+  sPath := ExpandConstant('{commonprograms}') + '\Divvun Installer.lnk';
+  DeleteFile(sPath);
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   ResultCode: Integer;
 begin
     // Uninstall Divvun Installer if it exists
-    UninstallDivvunInstaller();             
+    UninstallDivvunInstaller();
+    RemoveOldStartMenuItems();
     
     // Run embedded Pahkat Service installer
     ExtractTemporaryFile('pahkat-service-setup.exe');
