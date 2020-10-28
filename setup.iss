@@ -93,7 +93,7 @@ begin
   Result := sUnInstallString;
 end;
 
-function UninstallDivvunInstallerV1: String;
+function UninstallDivvunInstaller: String;
 var
   sUnInstPath: String;
   sUnInstPathWow64: String;
@@ -107,13 +107,12 @@ begin
     RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion', majorVersion);
   if RegValueExists(HKEY_LOCAL_MACHINE, sUnInstPathWow64, 'MajorVersion') then
     RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion', majorVersion);
-  if majorVersion = 1 then
-    sUnInstallString := GetUninstallString();
-    sUnInstallString := RemoveQuotes(sUnInstallString);
-    Exec('taskkill', '/F /IM DivvunInstaller.exe', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
-    Sleep(250);
-    Exec(ExpandConstant(sUnInstallString), '/VERYSILENT /SP- /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);  
-    Sleep(250);
+  sUnInstallString := GetUninstallString();
+  sUnInstallString := RemoveQuotes(sUnInstallString);
+  Exec('taskkill', '/F /IM DivvunInstaller.exe', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
+  Sleep(250);
+  Exec(ExpandConstant(sUnInstallString), '/VERYSILENT /SP- /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);  
+  Sleep(250);
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
@@ -138,8 +137,8 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   ResultCode: Integer;
 begin
-    // Uninstall Divvun Installer v1 if it exists
-    UninstallDivvunInstallerV1();             
+    // Uninstall Divvun Installer if it exists
+    UninstallDivvunInstaller();             
     
     // Run embedded Pahkat Service installer
     ExtractTemporaryFile('pahkat-service-setup.exe');
