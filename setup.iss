@@ -106,7 +106,7 @@ begin
   if RegValueExists(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion') then
     RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion', majorVersion);
   if RegValueExists(HKEY_LOCAL_MACHINE, sUnInstPathWow64, 'MajorVersion') then
-    RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPath64, 'MajorVersion', majorVersion);
+    RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion', majorVersion);
   if majorVersion = 1 then
     sUnInstallString := GetUninstallString();
     sUnInstallString := RemoveQuotes(sUnInstallString);
