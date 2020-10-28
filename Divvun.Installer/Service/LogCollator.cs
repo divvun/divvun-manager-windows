@@ -74,6 +74,7 @@ namespace Divvun.Installer.Service
             ZipDirectory(@"C:\ProgramData\Pahkat\config", "pahkat-config", "Pahkat Service (config)");
             ZipDirectory(@"C:\ProgramData\WinDivvun\log", "windivvun", "WinDivvun");
             ZipDirectory(Path.Combine(appdata, @"Divvun Manager\log"), "divvun-manager", "Divvun Manager");
+            ZipDirectory(Path.Combine(appdata, @"kbdi\log"), "kbdi", "kbdi");
         }
 
         void AddLog(string message) {
