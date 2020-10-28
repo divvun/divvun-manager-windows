@@ -88,18 +88,18 @@ jobs:
         with:
           path: setup.iss
           defines: Version=${{ steps.version.outputs.version }}
-      - name: Deploy (installer)
-        uses: divvun/actions/deploy@master
-        with:
-          package-id: divvun-installer
-          platform: windows
-          version: ${{ steps.version.outputs.version }}
-          payload-path: ${{ steps.installer.outputs['installer-path'] }}
-          repo: https://pahkat.thetc.se/divvun-installer/
-          channel: ${{ steps.version.outputs.channel }}
-          windows-kind: inno
-          windows-product-code: "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Deploy (installer)
+      #   uses: divvun/actions/deploy@master
+      #   with:
+      #     package-id: divvun-installer
+      #     platform: windows
+      #     version: ${{ steps.version.outputs.version }}
+      #     payload-path: ${{ steps.installer.outputs['installer-path'] }}
+      #     repo: https://pahkat.thetc.se/divvun-installer/
+      #     channel: ${{ steps.version.outputs.channel }}
+      #     windows-kind: inno
+      #     windows-product-code: "{4CF2F367-82A8-5E60-8334-34619CBA8347}_is1"
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # - name: Deploy (OneClick)
       #   uses: divvun/actions/deploy@master
       #   with:
