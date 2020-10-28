@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlatBuffers", "FlatBuffers\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Divvun.Installer.OneClick", "Divvun.Installer.OneClick\Divvun.Installer.OneClick.csproj", "{AF926146-450C-4945-81AC-48427E8DE612}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DivvunUITests", "DivvunUITests\DivvunUITests.csproj", "{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,14 @@ Global
 		{AF926146-450C-4945-81AC-48427E8DE612}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AF926146-450C-4945-81AC-48427E8DE612}.Release|x86.ActiveCfg = Release|Any CPU
 		{AF926146-450C-4945-81AC-48427E8DE612}.Release|x86.Build.0 = Release|Any CPU
+		{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}.Debug|x86.Build.0 = Debug|Any CPU
+		{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}.Release|x86.ActiveCfg = Release|Any CPU
+		{75F36AA2-172D-4ACC-AB2C-D9282CE4E366}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
