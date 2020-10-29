@@ -97,22 +97,29 @@ function UninstallDivvunInstaller: String;
 var
   sUnInstPath: String;
   sUnInstPathWow64: String;
+  sUnInstLocation: String;
   majorVersion: Cardinal;    
   iResultCode: Integer;
   sUnInstallString: string;
 begin
   sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#DivvunInstallerUuid}_is1';
   sUnInstPathWow64 := 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#DivvunInstallerUuid}_is1';
-  if RegValueExists(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion') then
+  if RegValueExists(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion') then begin
     RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion', majorVersion);
-  if RegValueExists(HKEY_LOCAL_MACHINE, sUnInstPathWow64, 'MajorVersion') then
-    RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion', majorVersion);
+    RegQueryStringValue(HKLM, sUnInstPath, 'InstallLocation', sUnInstLocation);
+  end;
+  if RegValueExists(HKEY_LOCAL_MACHINE, sUnInstPathWow64, 'MajorVersion') then begin
+    RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPathWow64, 'MajorVersion', majorVersion);
+    RegQueryStringValue(HKLM, sUnInstPathWow64, 'InstallLocation', sUnInstLocation);
+  end;
   sUnInstallString := GetUninstallString();
   sUnInstallString := RemoveQuotes(sUnInstallString);
   Exec('taskkill', '/F /IM DivvunInstaller.exe', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
+  Exec('taskkill', '/F /IM DivvunManager.exe', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
   Sleep(250);
   Exec(ExpandConstant(sUnInstallString), '/VERYSILENT /SP- /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);  
   Sleep(250);
+  DelTree(sUnInstLocation, True, True, True);
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
@@ -138,6 +145,10 @@ var
   sPath: String;
 begin
   sPath := ExpandConstant('{commonprograms}') + '\Divvun Installer.lnk';
+  DeleteFile(sPath);
+  sPath := ExpandConstant('{commonstartup}') + '\Divvun Installer.lnk';
+  DeleteFile(sPath);
+  sPath := ExpandConstant('{commondesktop}') + '\Divvun Installer.lnk';
   DeleteFile(sPath);
 end;
 
