@@ -6,6 +6,8 @@
 #define DivvunInstallerUuid "{{4CF2F367-82A8-5E60-8334-34619CBA8347}"
 #define PahkatServiceUuid "{{6B3A048B-BB81-4865-86CA-61A0DF038CFE}"
 
+#define Version "2.1.1-debug"
+
 [Setup]
 AppId={#DivvunInstallerUuid}
 AppName={#MyAppName}
@@ -20,8 +22,8 @@ OutputBaseFilename=install
 Compression=lzma
 SolidCompression=yes
 AppMutex=DivvunInstaller
-SignedUninstaller=yes
-SignTool=signtool
+;SignedUninstaller=yes
+;SignTool=signtool
 MinVersion=6.3.9200                 
 
 [Languages]
@@ -71,8 +73,8 @@ var
   sUnInstPathWow64: String;
   sUnInstallString: String;
 begin
-  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#DivvunInstallerUuid}_is1';
-  sUnInstPathWow64 := 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#DivvunInstallerUuid}_is1';
+  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#StringChange(DivvunInstallerUuid, '{{', '{')}_is1';
+  sUnInstPathWow64 := 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#StringChange(DivvunInstallerUuid, '{{', '{')}_is1';
   sUnInstallString := '';
   if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
     RegQueryStringValue(HKLM, sUnInstPathWow64, 'UninstallString', sUnInstallString);
@@ -84,9 +86,9 @@ var
   sUnInstPath: String;
   sUnInstPathWow64: String;
   sUnInstallString: String;
-begin
-  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#PahkatServiceUuid}_is1';
-  sUnInstPathWow64 := 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#PahkatServiceUuid}_is1';
+begin                                                                        
+  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#StringChange(PahkatServiceUuid, '{{', '{')}_is1';
+  sUnInstPathWow64 := 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#StringChange(PahkatServiceUuid, '{{', '{')}_is1';
   sUnInstallString := '';
   if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
     RegQueryStringValue(HKLM, sUnInstPathWow64, 'UninstallString', sUnInstallString);
@@ -102,8 +104,8 @@ var
   iResultCode: Integer;
   sUnInstallString: string;
 begin
-  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#DivvunInstallerUuid}_is1';
-  sUnInstPathWow64 := 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#DivvunInstallerUuid}_is1';
+  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{#StringChange(DivvunInstallerUuid, '{{', '{')}_is1';
+  sUnInstPathWow64 := 'Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#StringChange(DivvunInstallerUuid, '{{', '{')}_is1';
   if RegValueExists(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion') then begin
     RegQueryDWordValue(HKEY_LOCAL_MACHINE, sUnInstPath, 'MajorVersion', majorVersion);
     RegQueryStringValue(HKLM, sUnInstPath, 'InstallLocation', sUnInstLocation);
