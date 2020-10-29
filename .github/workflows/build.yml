@@ -92,7 +92,7 @@ jobs:
           package-id: divvun-installer
           platform: windows
           version: ${{ steps.version.outputs.version }}
-          payload-path: ${{ steps.installer.outputs['installer-path'] }}
+          payload-path: ${{ steps.installer.outputs.installer-path }}
           repo: https://pahkat.thetc.se/divvun-installer/
           channel: ${{ steps.version.outputs.channel }}
           windows-kind: inno
