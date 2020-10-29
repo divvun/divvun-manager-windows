@@ -6,8 +6,6 @@
 #define DivvunInstallerUuid "{{4CF2F367-82A8-5E60-8334-34619CBA8347}"
 #define PahkatServiceUuid "{{6B3A048B-BB81-4865-86CA-61A0DF038CFE}"
 
-#define Version "2.1.1-debug"
-
 [Setup]
 AppId={#DivvunInstallerUuid}
 AppName={#MyAppName}
@@ -22,8 +20,8 @@ OutputBaseFilename=install
 Compression=lzma
 SolidCompression=yes
 AppMutex=DivvunInstaller
-;SignedUninstaller=yes
-;SignTool=signtool
+SignedUninstaller=yes
+SignTool=signtool
 MinVersion=6.3.9200                 
 
 [Languages]
