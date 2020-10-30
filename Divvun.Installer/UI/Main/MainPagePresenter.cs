@@ -34,7 +34,7 @@ namespace Divvun.Installer.UI.Main
 
         private IDisposable BindPackageToggled(IMainPageView view, UserPackageSelectionStore store) {
             return view.OnPackageToggled().Subscribe((item) => {
-                Task.Run(async () => {
+                PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
                     Log.Verbose("Toggle package");
                     await store.TogglePackageWithDefaultAction(item.Key, !item.IsSelected);
                 });
@@ -44,7 +44,7 @@ namespace Divvun.Installer.UI.Main
         private IDisposable BindGroupToggled(IMainPageView view, UserPackageSelectionStore store) {
             return view.OnGroupToggled()
                 .Subscribe((tree) => {
-                    Task.Run(async () => {
+                    PahkatApp.Current.Dispatcher.InvokeAsync(async () => {
                         Log.Verbose("Toggle group");
                         var list = new List<PackageKey>();
                         foreach (var task in tree.Items.Map(x => x.Key.DefaultPackageAction())) {
