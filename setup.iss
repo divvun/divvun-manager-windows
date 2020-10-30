@@ -131,7 +131,7 @@ begin
   if CurUninstallStep = usUninstall then
   begin
     uninstString := GetPahkatServiceUninstallString();
-    if uninstString <> '' then
+    if uninstString <> '' and not UninstallSilent() then
     begin
       V := MsgBox(ExpandConstant('Pahkat Service was also detected. Do you want to uninstall it? (Recommended)'), mbInformation, MB_YESNO);
       if V = IDYES then                          
