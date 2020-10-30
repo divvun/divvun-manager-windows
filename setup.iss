@@ -133,7 +133,6 @@ begin
     uninstString := GetPahkatServiceUninstallString();
     if uninstString <> '' then               
       Exec(ExpandConstant(uninstString), '/VERYSILENT /SP- /SUPPRESSMSGBOXES /NORESTART', '', SW_HIDE, ewWaitUntilTerminated, iResultCode);
-    end;
   end;
 end;
 
