@@ -49,8 +49,12 @@ namespace Divvun.Installer.UI.Shared
                         
                         // Log.Verbose("Updating item state");
                         _status = await PahkatApp.Current.PackageStore.Status(Key);
-                        PropertyChanged.Invoke(this, new PropertyChangedEventArgs("Status"));
-                        PropertyChanged.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
+                        if (PropertyChanged != null)
+                        {
+                            PropertyChanged.Invoke(this, new PropertyChangedEventArgs("Status"));
+                            PropertyChanged.Invoke(this, new PropertyChangedEventArgs("IsSelected"));
+
+                        }
                     });
                 }).DisposedBy(_bag);
         }
