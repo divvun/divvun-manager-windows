@@ -15,11 +15,21 @@ using Pahkat.Sdk.Rpc.Fbs;
 using Pahkat.Sdk.Rpc.Models;
 using Serilog;
 using System.Threading.Tasks;
+using System.Net.Http;
+using Pahkat.Sdk.Grpc;
+using Grpc.Net.Client;
+using System.Net;
+using System.IO.Pipes;
+using System.Net.Sockets;
+using Grpc.Core;
 
 namespace Pahkat.Sdk.Rpc {
-    public class LoadedRepository : ILoadedRepository {
-        public class IndexValue {
-            public class AgentValue {
+    public class LoadedRepository : ILoadedRepository
+    {
+        public class IndexValue
+        {
+            public class AgentValue
+            {
                 public string Name;
                 public string Version;
                 public Uri? Url;
@@ -37,7 +47,8 @@ namespace Pahkat.Sdk.Rpc {
             string[] AcceptedRepositories;
         }
 
-        public class MetaValue {
+        public class MetaValue
+        {
             public string? Channel;
         }
 
@@ -47,47 +58,14 @@ namespace Pahkat.Sdk.Rpc {
         public MetaValue Meta { get; set; }
         public IPackages Packages => Fbs.Packages.GetRootAsPackages(new ByteBuffer(PackagesFbs));
 
-        public PackageKey PackageKey(IDescriptor descriptor) {
+        public PackageKey PackageKey(IDescriptor descriptor)
+        {
             return Sdk.PackageKey.Create(Index.Url, descriptor.Id);
         }
     }
 
-    public static class MarshalUtf8 {
-        public static string PtrToStringUtf8(IntPtr utf8Ptr, long len) {
-            var buffer = new byte[len];
-            Marshal.Copy(utf8Ptr, buffer, 0, (int) len);
-            return Encoding.UTF8.GetString(buffer);
-        }
-
-        public static pahkat_rpc.Slice StringToHGlobalUtf8(string str) {
-            var buffer = Encoding.UTF8.GetBytes(str);
-            Array.Resize(ref buffer, buffer.Length);
-            var ptr = Marshal.AllocHGlobal(buffer.Length);
-            Marshal.Copy(buffer, 0, ptr, buffer.Length);
-            return new pahkat_rpc.Slice(ptr, buffer.Length);
-        }
-    }
-
-    public class PahkatClientException : Exception {
-        private static string? _lastError;
-
-        internal static pahkat_rpc.ErrCallback Callback = (ptr, len) => {
-            _lastError = MarshalUtf8.PtrToStringUtf8(ptr, len.ToInt64());
-        };
-
-        internal static void AssertNoError() {
-            if (_lastError != null) {
-                var err = _lastError;
-                _lastError = null;
-                throw new PahkatClientException(err);
-            }
-        }
-
-        private PahkatClientException(string message) : base(message) {
-        }
-    }
-
-    public interface IPahkatClient {
+    public interface IPahkatClient
+    {
         Task<CancellationTokenSource> ProcessTransaction(PackageAction[] actions, Action<TransactionResponseValue> callback);
         Task<PackageStatus> Status(PackageKey packageKey);
         Task<Dictionary<Uri, ILoadedRepository>> RepoIndexes();
@@ -100,323 +78,247 @@ namespace Pahkat.Sdk.Rpc {
     }
 
     public class PahkatClient : IPahkatClient, IDisposable {
-        public static PahkatClient Create() {
-            var ptr = pahkat_rpc.pahkat_rpc_new(PahkatClientException.Callback);
-            PahkatClientException.AssertNoError();
-            return new PahkatClient(ptr);
+        private Grpc.Pahkat.PahkatClient innerClient;
+
+        public PahkatClient()
+        {
+
+
+            var channel = GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions()
+            {
+                HttpHandler = CreateHttpHandler(),
+            });
+
+            this.innerClient = new Grpc.Pahkat.PahkatClient(channel);
         }
 
-        private readonly IntPtr handle;
-        private Mutex mutex = new Mutex();
-
-        private PahkatClient(IntPtr handle) {
-            this.handle = handle;
+        public async Task<Dictionary<Uri, RepoRecord>> GetRepoRecords()
+        {
+            var response = await this.innerClient.GetRepoRecordsAsync(new GetRepoRecordsRequest());
+            return response.Records.Map(pair =>
+            {
+                return (new Uri(pair.Key), new RepoRecord() { Channel = pair.Value.Channel });
+            }).ToDict();
         }
 
-        public Task<CancellationTokenSource> ProcessTransaction(PackageAction[] actions,
-            Action<TransactionResponseValue> callback) {
-            return Task.Run(() => {
-                var stringActions = JsonConvert.SerializeObject(actions, Json.Settings.Value);
-                Log.Debug(stringActions);
-                var slice = pahkat_rpc.Slice.From(stringActions);
+        public IObservable<Notification> Notifications()
+        {
+            var call = this.innerClient.Notifications(new NotificationsRequest());
 
-                pahkat_rpc.TransactionResponseCallback cCallback = (s) => {
-                    var str = MarshalUtf8.PtrToStringUtf8(s.Ptr, s.Length.ToInt64());
-
-                    Log.Debug("Raw tx response: " + str);
-
-                    try {
-                        var value = JsonConvert.DeserializeObject<TransactionResponseValue>(str, Json.Settings.Value);
-                        Log.Debug("Tx respo: " + value);
-                        if (value != null) {
-                            callback(value);
-                        }
-                        else {
-                            Log.Debug("Warning: null transaction response");
-                        }
+            return Observable.Create<Notification>(emitter =>
+            {
+                var cancellationToken = new CancellationTokenSource();
+                _ = Task.Run(async () =>
+                {
+                    await foreach (var notification in call.ResponseStream.ReadAllAsync(cancellationToken.Token))
+                    {
+                        emitter.OnNext((Notification)notification.Value);
                     }
-                    catch (Exception e) {
-                        callback(new TransactionResponseValue.TransactionError() {
-                            Error = e.Message,
-                        });
-                    }
+                });
+
+                return Disposable.Create(() =>
+                {
+                    cancellationToken.Cancel();
+                });
+            });
+        }
+
+        public async Task<CancellationTokenSource> ProcessTransaction(PackageAction[] actions, Action<TransactionResponseValue> callback)
+        {
+            var cancellationToken = new CancellationTokenSource();
+            var transaction = new TransactionRequest.Types.Transaction();
+            transaction.Actions.Add(actions.Map(u => new Grpc.PackageAction() {Action = (uint)u.Action, Id = u.PackageKey.ToString(), Target = (uint)u.Target }));
+            var call = this.innerClient.ProcessTransaction();
+            _ = Task.Run(async () =>
+              {
+                  await foreach (var response in call.ResponseStream.ReadAllAsync(cancellationToken.Token))
+                  {
+                      TransactionResponseValue responseValue = null;
+                      switch (response.ValueCase)
+                      {
+                          case Grpc.TransactionResponse.ValueOneofCase.None:
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.TransactionStarted:
+                              responseValue = new TransactionResponseValue.TransactionStarted()
+                              {
+                                  Actions = response.TransactionStarted.Actions.Map(r =>
+                                  new ResolvedAction()
+                                  {
+                                      Action = new PackageAction(PackageKey.From(r.Action.Id), (InstallAction)r.Action.Action, (InstallTarget)r.Action.Target),
+                                      Name = r.Name,
+                                      Version = r.Version,
+                                  }).ToArray(),
+                                  IsRebootRequired = response.TransactionStarted.IsRebootRequired,
+                              };
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.TransactionProgress:
+                              responseValue = new TransactionResponseValue.TransactionProgress()
+                              {
+                                  Current = response.TransactionProgress.Current,
+                                  Total = response.TransactionProgress.Total,
+                                  Message = response.TransactionProgress.Message,
+                              };
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.TransactionComplete:
+                              responseValue = new TransactionResponseValue.TransactionComplete();
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.TransactionError:
+                              responseValue = new TransactionResponseValue.TransactionError()
+                              {
+                                  Error = response.TransactionError.Error,
+                                  PackageKey = response.TransactionError.PackageId
+                              };
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.TransactionQueued:
+                              responseValue = new TransactionResponseValue.TransactionQueued();
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.DownloadProgress:
+                              responseValue = new TransactionResponseValue.DownloadProgress()
+                              {
+                                  Current = response.DownloadProgress.Current,
+                                  PackageKey = PackageKey.From(response.DownloadProgress.PackageId),
+                                  Total = response.DownloadProgress.Total,
+                              };
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.DownloadComplete:
+                              responseValue = new TransactionResponseValue.DownloadComplete()
+                              {
+                                  PackageKey = PackageKey.From(response.DownloadComplete.PackageId),
+                              };
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.InstallStarted:
+                              responseValue = new TransactionResponseValue.InstallStarted()
+                              {
+                                  PackageKey = PackageKey.From(response.InstallStarted.PackageId),
+                              };
+                              break;
+                          case Grpc.TransactionResponse.ValueOneofCase.UninstallStarted:
+                              responseValue = new TransactionResponseValue.UninstallStarted()
+                              {
+                                  PackageKey = PackageKey.From(response.UninstallStarted.PackageId),
+                              };
+                              break;
+                      }
+                      callback(responseValue);
+                  }
+              });
+            
+            await call.RequestStream.WriteAsync(new TransactionRequest()
+            {
+                Transaction = transaction,
+            });
+
+            await call.RequestStream.CompleteAsync();
+
+            return cancellationToken;
+        }
+
+        public async Task<Dictionary<Uri, RepoRecord>> RemoveRepo(Uri url)
+        {
+            var response = await this.innerClient.RemoveRepoAsync(new RemoveRepoRequest() { Url = url.AbsoluteUri });
+            return response.Records.Map(pair =>
+            {
+                return (new Uri(pair.Key), new RepoRecord() { Channel = pair.Value.Channel });
+            }).ToDict();
+        }
+
+        public async Task<Dictionary<Uri, ILoadedRepository>> RepoIndexes()
+        {
+            var response = await this.innerClient.RepositoryIndexesAsync(new RepositoryIndexesRequest());
+            return response.Repositories.Map(repo =>
+            {
+                var ser = JsonConvert.SerializeObject(repo);
+                var de = JsonConvert.DeserializeObject<LoadedRepository>(ser);
+                return (de.Index.Url, (ILoadedRepository)de);
+            }).ToDict();
+        }
+
+        public async Task<string> ResolvePackageQuery(PackageQuery query)
+        {
+            var response = await this.innerClient.ResolvePackageQueryAsync(new JsonRequest() { Json = JsonConvert.SerializeObject(query, Json.Settings.Value) });
+            return response.Json;
+        }
+
+        public async Task<Dictionary<Uri, RepoRecord>> SetRepo(Uri url, RepoRecord record)
+        {
+            var response = await this.innerClient.SetRepoAsync(new SetRepoRequest() 
+            { 
+                Settings = new Grpc.RepoRecord() 
+                { 
+                    Channel = record.Channel 
+                }, Url = url.AbsoluteUri 
+            });
+
+            return response.Records.Map(pair =>
+            {
+                return (new Uri(pair.Key), new RepoRecord() { Channel = pair.Value.Channel });
+            }).ToDict();
+        }
+
+        public async Task<PackageStatus> Status(PackageKey packageKey)
+        {
+            var response = await this.innerClient.StatusAsync(new StatusRequest() { PackageId = packageKey.ToString(), Target = 0 });
+            return (PackageStatus)response.Value;
+        }
+
+        public async Task<Dictionary<Uri, LocalizationStrings>> Strings(string languageTag)
+        {
+            var response = await this.innerClient.StringsAsync(new StringsRequest() { Language = languageTag });
+            return response.Repos.Map(pair =>
+            {
+                var uri = new Uri(pair.Key);
+                var channels = pair.Value.Channels.Map(map => (map.Key, map.Value)).ToDict();
+                var tags = pair.Value.Tags.Map(map => (map.Key, map.Value)).ToDict();
+                var localizationStrings = new LocalizationStrings()
+                {
+                    Channels = channels,
+                    Tags = tags,
                 };
 
-                var gch = GCHandle.Alloc(cCallback);
-
-                using (mutex) {
-                    pahkat_rpc.pahkat_rpc_process_transaction(handle, slice,
-                        (pahkat_rpc.TransactionResponseCallback) gch.Target, PahkatClientException.Callback);
-                }
-
-                pahkat_rpc.Slice.Free(slice);
-
-                PahkatClientException.AssertNoError();
-
-                var source = new CancellationTokenSource();
-                source.Token.Register(() => {
-                    gch.Free();
-                    // cancelCallback();
-                });
-                return source;
-            });
+                return (uri, localizationStrings);
+            }).ToDict();
         }
 
-        public Task<PackageStatus> Status(PackageKey packageKey) {
-            return Task.Run(() => {
-                var slice = pahkat_rpc.Slice.From(packageKey.ToString());
-                int status;
-                using (mutex) {
-                    status = pahkat_rpc.pahkat_rpc_status(handle, slice, 0, PahkatClientException.Callback);
-                }
-
-                pahkat_rpc.Slice.Free(slice);
-                PahkatClientException.AssertNoError();
-                return PackageStatusExt.FromInt(status);
-            });
-        }
-
-        public struct RepoIndexesResponse {
-            public LoadedRepository[] Repositories { get; set; }
-        }
-
-        public Task<Dictionary<Uri, ILoadedRepository>> RepoIndexes() {
-            return Task.Run(() => {
-                pahkat_rpc.Slice indexes;
-                using (mutex) {
-                    indexes = pahkat_rpc.pahkat_rpc_repo_indexes(handle, PahkatClientException.Callback);
-                }
-                PahkatClientException.AssertNoError();
-                var str = indexes.AsString();
-                // Log.Debug(str);
-
-                var list = JsonConvert.DeserializeObject<RepoIndexesResponse>(str, Json.Settings.Value);
-                pahkat_rpc.pahkat_rpc_slice_free(indexes);
-
-                var map = new Dictionary<Uri, ILoadedRepository>();
-
-                foreach (var loadedRepository in list.Repositories) {
-                    map.Add(loadedRepository.Index.Url, loadedRepository);
-                }
-
-                return map;
-            });
-        }
-
-        public struct RepoRecordResponse {
-            public Dictionary<Uri, RepoRecord> Records;
-            public Dictionary<Uri, string> Errors;
-        }
-
-        public Task<Dictionary<Uri, RepoRecord>> GetRepoRecords() {
-            return Task.Run(() => {
-                pahkat_rpc.Slice recordSlice;
-                using (mutex) {
-                    recordSlice = pahkat_rpc.pahkat_rpc_get_repo_records(handle, PahkatClientException.Callback);
-                }
-
-                PahkatClientException.AssertNoError();
-
-                var recordString = recordSlice.AsString();
-                var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
-                pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
-
-                return records.Records;
-            });
-        }
-
-        public Task<Dictionary<Uri, RepoRecord>> SetRepo(Uri url, RepoRecord record) {
-            return Task.Run(() =>
-            {
-                pahkat_rpc.Slice recordSlice;
-
-                {
-                    var cUrl = pahkat_rpc.Slice.From(url.ToString());
-                    var cRecord = pahkat_rpc.Slice.From(JsonConvert.SerializeObject(record, Json.Settings.Value));
-                    recordSlice = pahkat_rpc.pahkat_rpc_set_repo(handle, cUrl, cRecord, PahkatClientException.Callback);
-                    pahkat_rpc.Slice.Free(cUrl);
-                    pahkat_rpc.Slice.Free(cRecord);
-                    PahkatClientException.AssertNoError();
-                }
-
-                var recordString = recordSlice.AsString();
-                var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
-                pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
-
-                return records.Records;
-            });
-        }
-
-        public Task<Dictionary<Uri, RepoRecord>> RemoveRepo(Uri url)
+        private static SocketsHttpHandler CreateHttpHandler()
         {
-            return Task.Run(() =>
+            var connectionFactory = new NamedPipeConnectionFactory("pahkat");
+            var socketsHttpHandler = new SocketsHttpHandler
             {
-                pahkat_rpc.Slice recordSlice;
+                ConnectCallback = connectionFactory.ConnectAsync
+            };
 
-                {
-                    var cUrl = pahkat_rpc.Slice.From(url.ToString());
-                    recordSlice = pahkat_rpc.pahkat_rpc_remove_repo(handle, cUrl, PahkatClientException.Callback);
-                    pahkat_rpc.Slice.Free(cUrl);
-                    PahkatClientException.AssertNoError();
-                }
-
-                var recordString = recordSlice.AsString();
-                var records = JsonConvert.DeserializeObject<RepoRecordResponse>(recordString);
-                pahkat_rpc.pahkat_rpc_slice_free(recordSlice);
-
-                return records.Records;
-            });
+            return socketsHttpHandler;
         }
 
-        public struct StringsResponse {
-            public Dictionary<Uri, LocalizationStrings> Repos;
-        }
-
-        public Task<Dictionary<Uri, LocalizationStrings>> Strings(string languageTag)
+        public void Dispose()
         {
-            return Task.Run(() =>
-            {
-                var cTag = pahkat_rpc.Slice.From(languageTag);
-                var slice = pahkat_rpc.pahkat_rpc_strings(handle, cTag, PahkatClientException.Callback);
-                pahkat_rpc.Slice.Free(cTag);
-                PahkatClientException.AssertNoError();
-
-                var recordString = slice.AsString();
-                pahkat_rpc.pahkat_rpc_slice_free(slice);
-                var response = JsonConvert.DeserializeObject<StringsResponse>(recordString, Json.Settings.Value);
-
-                return response.Repos;
-            });
-        }
-
-        public IObservable<Notification> Notifications() {
-            return Observable.Create<Notification>(emitter => {
-                pahkat_rpc.NotificationCallback callback = id => { emitter.OnNext((Notification) id); };
-                var gch = GCHandle.Alloc(callback);
-
-                pahkat_rpc.pahkat_rpc_notifications(handle,
-                    (pahkat_rpc.NotificationCallback) gch.Target,
-                    PahkatClientException.Callback);
-
-                return Disposable.Create(() => {
-                    // FIXME: we can't actually free this unless we have a way to end this call.
-                    // gch.Free();
-                });
-            });
-        }
-
-        public Task<string> ResolvePackageQuery(PackageQuery query) {
-            return Task.Run(() => {
-                var cQuery = pahkat_rpc.Slice.From(JsonConvert.SerializeObject(query, Json.Settings.Value));
-                var slice = pahkat_rpc.pahkat_rpc_resolve_package_query(handle, cQuery, PahkatClientException.Callback);
-                pahkat_rpc.Slice.Free(cQuery);
-                PahkatClientException.AssertNoError();
-
-                var queryResponse = slice.AsString();
-                pahkat_rpc.pahkat_rpc_slice_free(slice);
-
-                return queryResponse;
-            });
-        }
-
-        private void ReleaseUnmanagedResources() {
-            pahkat_rpc.pahkat_rpc_free(handle);
-        }
-
-        public void Dispose() {
-            ReleaseUnmanagedResources();
-            GC.SuppressFinalize(this);
-        }
-
-        ~PahkatClient() {
-            ReleaseUnmanagedResources();
+            
         }
     }
 
-#pragma warning disable IDE1006 // Naming Styles
-    public partial class pahkat_rpc {
-        [StructLayout(LayoutKind.Sequential)]
-        public readonly struct Slice {
-            public readonly IntPtr Ptr;
-            public readonly IntPtr Length;
+    public class NamedPipeConnectionFactory
+    {
+        private readonly string endPoint;
 
-            public static Slice From(string str) {
-                return MarshalUtf8.StringToHGlobalUtf8(str);
-            }
-
-            public static void Free(Slice slice) {
-                Marshal.FreeHGlobal(slice.Ptr);
-            }
-
-            public string AsString() {
-                return MarshalUtf8.PtrToStringUtf8(Ptr, Length.ToInt64());
-            }
-
-            public Slice(IntPtr ptr, int length) {
-                Ptr = ptr;
-                Length = new IntPtr(length);
-            }
-
-            public Slice(IntPtr ptr, long length) {
-                Ptr = ptr;
-                Length = new IntPtr(length);
-            }
-
-            public static Slice Null => new Slice(IntPtr.Zero, 0);
+        public NamedPipeConnectionFactory(string endPoint)
+        {
+            this.endPoint = endPoint;
         }
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public delegate void ErrCallback(IntPtr bytes, IntPtr len);
+        public async ValueTask<Stream> ConnectAsync(SocketsHttpConnectionContext _, CancellationToken cancellationToken = default)
+        {
+            var namedPipe = new NamedPipeClientStream(".", endPoint, PipeDirection.InOut, PipeOptions.Asynchronous);
 
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public delegate void TransactionResponseCallback(Slice slice);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public delegate void NotificationCallback(Int32 notificationId);
-
-        [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        public delegate void CancelCallback();
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void pahkat_rpc_slice_free(Slice slice);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void pahkat_rpc_free(IntPtr ptr);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr pahkat_rpc_new([In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Slice pahkat_rpc_repo_indexes(IntPtr handle, [In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void pahkat_rpc_process_transaction(IntPtr handle, Slice actions,
-            TransactionResponseCallback callback, [In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int pahkat_rpc_status(IntPtr handle, Slice packageKey, byte target,
-            [In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Slice pahkat_rpc_strings(IntPtr handle, Slice languageTag, [In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Slice pahkat_rpc_get_repo_records(IntPtr handle, [In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Slice pahkat_rpc_set_repo(IntPtr handle, Slice repoUrl, Slice record,
-            [In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Slice pahkat_rpc_remove_repo(IntPtr handle, Slice repoUrl, [In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void pahkat_rpc_notifications(IntPtr handle, NotificationCallback callback,
-            [In] ErrCallback exception);
-
-        [DllImport(nameof(pahkat_rpc), CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern Slice pahkat_rpc_resolve_package_query(IntPtr handle, Slice packageQuery,
-            [In] ErrCallback exception);
+            try
+            {
+                await namedPipe.ConnectAsync(cancellationToken).ConfigureAwait(false);
+                return namedPipe;
+            }
+            catch
+            {
+                namedPipe.Dispose();
+                throw;
+            }
+        }
     }
-#pragma warning restore IDE1006 // Naming Styles
 }

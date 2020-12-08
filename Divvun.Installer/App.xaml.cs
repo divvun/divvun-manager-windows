@@ -141,7 +141,9 @@ namespace Divvun.Installer
         private void OnStartup(object sender, StartupEventArgs e) {
             const string key = "DivvunInstaller";
             AttachConsole(AttachParentProcess);
-            
+
+            AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
+
             Serilog.Debugging.SelfLog.Enable(msg => Debug.WriteLine(msg));
             ConfigureLogging();
             
@@ -182,7 +184,7 @@ namespace Divvun.Installer
             });
             
             try {
-                PackageStore = PahkatClient.Create();
+                PackageStore = new PahkatClient();
             } catch (Exception _) {
                 MessageBox.Show(
                     "The service responsible for managing installations was not found. It may be currently updating, or has crashed. If problems persist, try rebooting your computer.",
