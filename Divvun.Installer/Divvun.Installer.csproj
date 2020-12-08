@@ -38,11 +38,6 @@
   <ItemGroup>
     <Resource Include="divvun-logo-512.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="pahkat_rpc.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37" />
 		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

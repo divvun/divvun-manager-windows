@@ -300,7 +300,7 @@ namespace Divvun.Installer.OneClick
             await InstallDivvunInstaller(meta, client);
 
             UpdateDownloadProgress($"Downloading {selectedLanguage.Name} resources...");
-            PahkatClient pahkat = PahkatClient.Create();
+            PahkatClient pahkat = new PahkatClient();
             var packageKeys = await ResolvePackageActions(pahkat, selectedLanguage);
 
             UpdateDownloadProgress($"Installing {selectedLanguage.Name} resources...");

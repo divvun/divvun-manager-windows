@@ -1,0 +1,225 @@
+syntax = "proto3";
+
+option csharp_namespace = "Pahkat.Sdk.Grpc";
+package pahkat;
+
+message NotificationResponse {
+    enum ValueType {
+        REBOOT_REQUIRED = 0;
+        REPOSITORIES_CHANGED = 1;
+        RPC_STOPPING = 2;
+        TRANSACTION_LOCKED = 3;
+        TRANSACTION_UNLOCKED = 4;
+    }
+
+    ValueType value = 1;
+}
+
+message SelfUpdateRequest {
+
+}
+
+message SelfUpdateResponse {
+
+}
+
+message NotificationsRequest {
+
+}
+
+
+message LoadedRepository {
+    message Index {
+        message Agent {
+            string name = 1;
+            string version = 2;
+            string url = 3;
+        }
+        string url = 1;
+        repeated string channels = 2;
+        string default_channel = 3;
+        map<string, string> name = 4;
+        map<string, string> description = 5;
+        Agent agent = 6;
+        string landing_url = 7;
+
+        repeated string linked_repositories = 30;
+        repeated string accepted_redirections = 31;
+    }
+    message Meta {
+        string channel = 1;
+    }
+    Index index = 1;
+    Meta meta = 2;
+    bytes packages_fbs = 3;
+    // TODO: strings field
+}
+
+message StatusRequest {
+    string package_id = 1;
+    uint32 target = 2;
+}
+
+message StatusResponse {
+    sint32 value = 1;
+}
+
+message RepositoryIndexesRequest {}
+
+message RepositoryIndexesResponse {
+    repeated LoadedRepository repositories = 1;
+}
+
+message PackageAction {
+    string id = 1;
+    uint32 action = 2;
+    uint32 target = 3;
+}
+
+message TransactionRequest {
+    message Transaction {
+        repeated PackageAction actions = 1;
+    }
+    message Cancel {}
+
+    oneof value {
+        Transaction transaction = 1;
+        Cancel cancel = 2;
+    }
+}
+
+message ResolvedAction {
+    PackageAction action = 1;
+    map<string, string> name = 2;
+    string version = 3;
+}
+
+message TransactionResponse {
+    message DownloadProgress {
+        string package_id = 1;
+        uint64 current = 2;
+        uint64 total = 3;
+    }
+
+    message DownloadComplete {
+        string package_id = 1;
+    }
+
+    message InstallStarted {
+        string package_id = 1;
+    }
+
+    message UninstallStarted {
+        string package_id = 1;
+    }
+
+    message TransactionProgress {
+        string package_id = 1;
+        uint64 current = 2;
+        uint64 total = 3;
+        string message = 4;
+    }
+    message TransactionError {
+        string package_id = 1;
+        string error = 2;
+    }
+    message TransactionStarted {
+        repeated ResolvedAction actions = 1;
+        bool is_reboot_required = 2;
+    }
+    message TransactionComplete {
+    }
+    message TransactionQueued {
+    }
+
+    oneof value {
+        TransactionStarted transaction_started = 1;
+        TransactionProgress transaction_progress = 2;
+        TransactionComplete transaction_complete = 3;
+        TransactionError transaction_error = 4;
+        TransactionQueued transaction_queued = 5;
+
+        DownloadProgress download_progress = 10;
+        DownloadComplete download_complete = 12;
+
+        InstallStarted install_started = 14;
+        UninstallStarted uninstall_started = 16;
+    }
+}
+
+message RefreshRequest {}
+
+message RefreshResponse {}
+
+message ClearCacheRequest {}
+
+message ClearCacheResponse {}
+
+message StringsRequest {
+    string language = 1;
+}
+
+message StringsResponse {
+    message MessageMap {
+        map<string, string> channels = 1;
+        map<string, string> tags = 2;
+    }
+    map<string, MessageMap> repos = 1;
+}
+
+message RepoRecord {
+    string channel = 1;
+}
+
+message SetRepoRequest {
+    string url = 1;
+    RepoRecord settings = 2;
+}
+
+message SetRepoResponse {
+    map<string, RepoRecord> records = 1;
+    map<string, string> errors = 2;
+}
+
+message GetRepoRecordsRequest {
+}
+
+message GetRepoRecordsResponse {
+    map<string, RepoRecord> records = 1;
+    map<string, string> errors = 2;
+}
+
+message RemoveRepoRequest {
+    string url = 1;
+}
+
+message RemoveRepoResponse {
+    map<string, RepoRecord> records = 1;
+    map<string, string> errors = 2;
+}
+
+// There was no time to do this properly.
+message JsonRequest {
+    string json = 1;
+}
+
+message JsonResponse {
+    string json = 1;
+}
+
+service Pahkat {
+    rpc Notifications(NotificationsRequest) returns (stream NotificationResponse) {}
+    rpc Refresh(RefreshRequest) returns (RefreshResponse) {}
+
+    // Store
+    rpc Status(StatusRequest) returns (StatusResponse) {}
+    rpc RepositoryIndexes(RepositoryIndexesRequest) returns (RepositoryIndexesResponse) {}
+    rpc ProcessTransaction(stream TransactionRequest) returns (stream TransactionResponse) {}
+    rpc Strings(StringsRequest) returns (StringsResponse) {}
+    rpc ResolvePackageQuery(JsonRequest) returns (JsonResponse) {}
+
+    // CRUD for repositories
+    rpc SetRepo(SetRepoRequest) returns (SetRepoResponse) {}
+    rpc GetRepoRecords(GetRepoRecordsRequest) returns (GetRepoRecordsResponse) {}
+    rpc RemoveRepo(RemoveRepoRequest) returns (RemoveRepoResponse) {}
+}
