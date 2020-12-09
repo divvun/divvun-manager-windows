@@ -75,6 +75,7 @@ namespace Pahkat.Sdk.Rpc {
         IObservable<Notification> Notifications();
         Task<Dictionary<Uri, LocalizationStrings>> Strings(string languageTag);
         Task<string> ResolvePackageQuery(PackageQuery query);
+        Task Refresh();
     }
 
     public class PahkatClient : IPahkatClient, IDisposable {
@@ -90,6 +91,7 @@ namespace Pahkat.Sdk.Rpc {
             });
 
             this.innerClient = new Grpc.Pahkat.PahkatClient(channel);
+            Task.Run(() => this.Refresh());
         }
 
         public async Task<Dictionary<Uri, RepoRecord>> GetRepoRecords()
@@ -277,6 +279,11 @@ namespace Pahkat.Sdk.Rpc {
 
                 return (uri, localizationStrings);
             }).ToDict();
+        }
+
+        public async Task Refresh()
+        {
+            await this.innerClient.RefreshAsync(new RefreshRequest());
         }
 
         private static SocketsHttpHandler CreateHttpHandler()

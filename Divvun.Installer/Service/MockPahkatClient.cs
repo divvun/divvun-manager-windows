@@ -260,5 +260,12 @@ namespace Divvun.Installer.Service
                 return ""; 
             });
         }
+
+        public Task Refresh()
+        {
+            return Task.Run(() => {
+                throw new NotImplementedException();
+            });
+        }
     }
 }
