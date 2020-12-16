@@ -29,16 +29,16 @@ jobs:
           csharp: true
           stable-channel: beta
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install build dependencies
+      - name: Acquire Pahkat Service installer
         uses: divvun/actions/pahkat/init@master
         with:
           repo: https://pahkat.uit.no/devtools/
-          channel: nightly
-          packages: pahkat-uploader, pahkat-windows-cli, libpahkat_rpc
-      - name: Move libpahkat_rpc to appropriate place
+          channel: ${{ steps.version.outputs.channel }}
+          packages: pahkat-uploader, pahkat-windows-cli, dotnet5-webinst
+      - name: Move dotnet5-webinst to appropriate place
         run: |
-          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-manager-windows\Divvun.Installer\
-          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\libpahkat_rpc\bin\pahkat_rpc.dll $env:RUNNER_WORKSPACE\divvun-manager-windows\Divvun.Installer.OneClick\Costura32\
+          ls -R $env:RUNNER_TEMP\pahkat-prefix\pkg\dotnet5-webinst
+          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\dotnet5-webinst\bin\dotnet5-webinst.exe $env:RUNNER_WORKSPACE\divvun-manager-windows\
       - name: Acquire Pahkat Service installer (nightly)
         if: ${{ steps.version.outputs.channel == 'nightly' }}
         run: |
