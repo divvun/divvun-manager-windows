@@ -1062,6 +1062,24 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You need administrator rights to complete this action..
+        /// </summary>
+        public static string VerificationFailedBody {
+            get {
+                return ResourceManager.GetString("VerificationFailedBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authentication Failed.
+        /// </summary>
+        public static string VerificationFailedTitle {
+            get {
+                return ResourceManager.GetString("VerificationFailedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Version Skipped.
         /// </summary>
         public static string VersionSkipped {

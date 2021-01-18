@@ -12,7 +12,8 @@ namespace Divvun.Installer.Models
     public abstract class TransactionState : OneOfBase<
         TransactionState.NotStarted,
         TransactionState.InProgress,
-        TransactionState.Error
+        TransactionState.Error,
+        TransactionState.VerificationError
     >, IEquatable<TransactionState>
     {
         public class NotStarted : TransactionState
@@ -76,6 +77,9 @@ namespace Divvun.Installer.Models
         {
             public string Message;
         }
+
+        public class VerificationError : TransactionState
+        { }
 
         public bool IsNotStarted => IsT0;
         public bool IsInProgress => IsT1;
@@ -175,7 +179,8 @@ namespace Divvun.Installer.Models
                 transactionQueued => {
                     Log.Information("Queued; waiting for transaction.");
                     return state;
-                }
+                },
+                verificationFailed => new VerificationError()
             );
         }
 
