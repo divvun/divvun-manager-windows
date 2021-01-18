@@ -44,6 +44,7 @@ namespace Divvun.Installer.UI.Main
         Install,
         Completion,
         Error,
+        VerificationFailed,
     }
     
     /// <summary>
@@ -103,6 +104,11 @@ namespace Divvun.Installer.UI.Main
                     app.CurrentTransaction.OnNext(new TransactionState.NotStarted());
                 });
         }
+
+        void ShowVerificationFailedPage()
+        {
+            ShowPage(new VerificationFailedPage());
+        }
         
         public void ShowPage(IPageView pageView) {
             PahkatApp.Current.Dispatcher.Invoke(() => {
@@ -131,7 +137,8 @@ namespace Divvun.Installer.UI.Main
                         downloading => Route.Download,
                         installing => Route.Install,
                         complete => Route.Completion),
-                    error => Route.Error)
+                    error => Route.Error,
+                    verification => Route.VerificationFailed)
                 )
                 .DistinctUntilChanged();
         }
@@ -172,6 +179,9 @@ namespace Divvun.Installer.UI.Main
                             return;
                         case Route.Error:
                             ShowErrorPage();
+                            return;
+                        case Route.VerificationFailed:
+                            ShowVerificationFailedPage();
                             return;
                     }
                 })

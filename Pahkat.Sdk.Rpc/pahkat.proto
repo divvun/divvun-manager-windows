@@ -131,6 +131,8 @@ message TransactionResponse {
     }
     message TransactionQueued {
     }
+    message VerificationFailed {
+    }
 
     oneof value {
         TransactionStarted transaction_started = 1;
@@ -144,6 +146,8 @@ message TransactionResponse {
 
         InstallStarted install_started = 14;
         UninstallStarted uninstall_started = 16;
+
+        VerificationFailed verification_failed = 18;
     }
 }
 

@@ -200,6 +200,9 @@ namespace Pahkat.Sdk.Rpc {
                                   PackageKey = PackageKey.From(response.UninstallStarted.PackageId),
                               };
                               break;
+                          case Grpc.TransactionResponse.ValueOneofCase.VerificationFailed:
+                              responseValue = new TransactionResponseValue.VerificationFailed();
+                              break;
                       }
                       callback(responseValue);
                   }
@@ -314,7 +317,7 @@ namespace Pahkat.Sdk.Rpc {
 
         public async ValueTask<Stream> ConnectAsync(SocketsHttpConnectionContext _, CancellationToken cancellationToken = default)
         {
-            var namedPipe = new NamedPipeClientStream(".", endPoint, PipeDirection.InOut, PipeOptions.Asynchronous);
+            var namedPipe = new NamedPipeClientStream(".", endPoint, PipeDirection.InOut, PipeOptions.Asynchronous, System.Security.Principal.TokenImpersonationLevel.Identification);
 
             try
             {

@@ -14,7 +14,8 @@ namespace Pahkat.Sdk.Rpc
         TransactionResponseValue.TransactionError,
         TransactionResponseValue.TransactionStarted,
         TransactionResponseValue.TransactionComplete,
-        TransactionResponseValue.TransactionQueued
+        TransactionResponseValue.TransactionQueued,
+        TransactionResponseValue.VerificationFailed
     >, IEquatable<TransactionResponseValue> {
         public static JsonConverter JsonConvertor() {
             return JsonSubtypesConverterBuilder.Of(typeof(TransactionResponseValue), "type")
@@ -27,6 +28,7 @@ namespace Pahkat.Sdk.Rpc
                 .RegisterSubtype(typeof(TransactionStarted), nameof(TransactionStarted))
                 .RegisterSubtype(typeof(TransactionComplete), nameof(TransactionComplete))
                 .RegisterSubtype(typeof(TransactionQueued), nameof(TransactionQueued))
+                .RegisterSubtype(typeof(VerificationFailed), nameof(VerificationFailed))
                 .Build();
         }
         
@@ -84,9 +86,12 @@ namespace Pahkat.Sdk.Rpc
         public class TransactionQueued : TransactionResponseValue
         { }
 
+        public class VerificationFailed : TransactionResponseValue
+        { }
+
         public bool IsDownloadState => IsT0 || IsT1;
         public bool IsInstallState => IsT2 || IsT3 || IsT4;
-        public bool IsErrorState => IsT5;
+        public bool IsErrorState => IsT5 || IsT9;
         public bool IsStartingState => IsT6 || IsT8;
         public bool IsCompletionState => IsT7;
 
@@ -118,7 +123,8 @@ namespace Pahkat.Sdk.Rpc
         public TransactionStarted? AsTransactionStarted => IsT6 ? AsT6 : null;
         public TransactionComplete? AsTransactionComplete => IsT7 ? AsT7 : null;
         public TransactionQueued? AsTransactionQueued => IsT8 ? AsT8 : null;
-        
+        public VerificationFailed? AsVerificationFailed => IsT9 ? AsT9 : null;
+
         public bool Equals(TransactionResponseValue? other) {
             return false;
         }
