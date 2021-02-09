@@ -29,11 +29,11 @@ jobs:
           csharp: true
           stable-channel: beta
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Acquire Pahkat Service installer
+      - name: Acquire build dependencies
         uses: divvun/actions/pahkat/init@master
         with:
           repo: https://pahkat.uit.no/devtools/
-          channel: ${{ steps.version.outputs.channel }}
+          channel: nightly
           packages: pahkat-uploader, pahkat-windows-cli, dotnet5-webinst
       - name: Move dotnet5-webinst to appropriate place
         run: |
