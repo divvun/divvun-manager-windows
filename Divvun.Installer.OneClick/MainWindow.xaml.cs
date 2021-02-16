@@ -149,7 +149,7 @@ namespace Divvun.Installer.OneClick
             // return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload);
             return new OneClickMeta()
             {
-                InstallerUrl = "https://pahkat.uit.no/artifacts/divvun-installer_2.0.0_windows.exe",
+                InstallerUrl = "https://pahkat.uit.no/artifacts/divvun-installer_2.2.0_windows.exe",
                 LanguageTags = new List<string> { "fo", "se", "sma", "smj", "smn", "sms", "crk", "srs" }
             };
         }
@@ -349,7 +349,7 @@ namespace Divvun.Installer.OneClick
 
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
-            if (PageHome.Visibility == Visibility.Hidden)
+            if (PageDownload.Visibility == Visibility.Visible)
             {
                 e.Cancel = true;
                 ((Window) sender).WindowState = WindowState.Minimized;
@@ -359,6 +359,11 @@ namespace Divvun.Installer.OneClick
         private void RebootButton_OnClick(object sender, RoutedEventArgs e)
         {
             ShutdownExtensions.Reboot();
+        }
+
+        private void RebootLaterButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
     }
 
