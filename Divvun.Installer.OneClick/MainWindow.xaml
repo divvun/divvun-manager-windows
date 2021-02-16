@@ -7,7 +7,6 @@
         mc:Ignorable="d"
         Loaded="MainWindow_OnLoaded"
         Closing="MainWindow_OnClosing"
-        ResizeMode="CanMinimize"
         Title="MainWindow" Height="350" Width="600">
     <Grid  VerticalAlignment="Center" HorizontalAlignment="Center">
         <Grid Name="PageLoading">
@@ -16,9 +15,9 @@
 
         <Grid Name="PageHome" Visibility="Hidden">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
-                <RowDefinition Height="32"></RowDefinition>
-                <RowDefinition Height="128"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Text="Select Language to Install:" FontSize="36" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,64"></TextBlock>
             <ComboBox Grid.Row="1" Name="Languages" FontSize="17"
@@ -32,7 +31,7 @@
 
         <Grid Name="PageDownload" Visibility="Hidden">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="32"></RowDefinition>
                 <RowDefinition Height="32"></RowDefinition>
             </Grid.RowDefinitions>
