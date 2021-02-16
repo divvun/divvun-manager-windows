@@ -47,7 +47,14 @@
                 <RowDefinition Height="32"></RowDefinition>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Text="That's it!" FontSize="36" FontWeight="SemiBold" Margin="0,0,0,64"></TextBlock>
-            <Button Grid.Row="1" Height="32" Name="RebootButton" Click="RebootButton_OnClick">Reboot Now</Button>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Height="32" Name="RebootButton" Click="RebootButton_OnClick" Margin="0,0,10,0">Reboot Now</Button>
+                <Button Grid.Column="1" Height="32" x:Name="RebootLaterButton" Click="RebootLaterButton_OnClick" Margin="10,0,0,0">Reboot Later</Button>
+            </Grid>
         </Grid>
     </Grid>
 </Window>
