@@ -10,6 +10,10 @@ jobs:
         with:
           # Nerdbank.GitVersioning needs a full clone
           fetch-depth: 0
+      - uses: actions/checkout@v2
+        with:
+          repository: divvun/oneclick-bundler
+          path: oneclick-bundler
       - name: Setup Divvun CI
         uses: divvun/actions/setup@master
         with:
@@ -22,6 +26,17 @@ jobs:
         uses: dotnet/nbgv@master
         with:
           setCommonVars: true
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: nightly
+          override: true
+          components: rust-src
+          target: i686-pc-windows-msvc
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: xargo
       - name: Get version
         id: version
         uses: divvun/actions/version@master
@@ -35,10 +50,11 @@ jobs:
           repo: https://pahkat.uit.no/devtools/
           channel: nightly
           packages: pahkat-uploader, pahkat-windows-cli, dotnet5-webinst
-      - name: Move dotnet5-webinst to appropriate place
+      - name: Move dotnet5-webinst to appropriate places
         run: |
           ls -R $env:RUNNER_TEMP\pahkat-prefix\pkg\dotnet5-webinst
           cp $env:RUNNER_TEMP\pahkat-prefix\pkg\dotnet5-webinst\bin\dotnet5-webinst.exe $env:RUNNER_WORKSPACE\divvun-manager-windows\
+          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\dotnet5-webinst\bin\dotnet5-webinst.exe $env:RUNNER_WORKSPACE\divvun-manager-windows\oneclick-bundler\
       - name: Acquire Pahkat Service installer (nightly)
         if: ${{ steps.version.outputs.channel == 'nightly' }}
         run: |
@@ -59,6 +75,13 @@ jobs:
           call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           nuget restore "Divvun.Installer.sln"
           MSBuild.exe "Divvun.Installer.sln" /p:Configuration=Release /p:Platform=x86 /m  || exit /b !ERRORLEVEL!
+      - name: Package OneClick
+        shell: cmd
+        run: |
+          dotnet publish .\Divvun.Installer.OneClick\Divvun.Installer.OneClick.csproj /p:Platform=x86 /p:Configuration=Release
+          cp Divvun.Installer.OneClick/publish/Divvun.Installer.OneClick.exe oneclick-bundler\
+          cd oneclick-bundler
+          cargo xtask
       - name: Sign code (Divvun Manager exe)
         uses: divvun/actions/codesign@master
         with:
@@ -66,7 +89,7 @@ jobs:
       - name: Sign code (Divvun Installer OneClick exe)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer.OneClick/bin/Release/net5.0-windows/win-x86/Divvun.Installer.OneClick.exe
+          path: oneclick-bundler/target/dist/Divvun.Installer.OneClick.exe
       - name: Sign code (Pahkat SDK DLL)
         uses: divvun/actions/codesign@master
         with:
@@ -103,7 +126,7 @@ jobs:
           # This product code isn't actually used but is a mandatory field.
           windows-product-code: "divvun-manager-oneclick"
           version: ${{ steps.version.outputs.version }}
-          payload-path: Divvun.Installer.OneClick/bin/Release/net5.0-windows/win-x86/Divvun.Installer.OneClick.exe
+          payload-path: oneclick-bundler/target/dist/Divvun.Installer.OneClick.exe
           repo: https://pahkat.thetc.se/divvun-installer/
           channel: ${{ steps.version.outputs.channel }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
