@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="$(BaseIntermediateOutputPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(BaseIntermediateOutputPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.props')" />
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <PublishDir>publish\</PublishDir>
@@ -51,8 +52,14 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>
     </PackageReference>
-    <PackageReference Include="OneOf.Extended">
-      <Version>2.1.155</Version>
-    </PackageReference>
+    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Sentry" Version="2.1.5" />
+    <PackageReference Include="Sentry.Serilog" Version="2.1.5" />
+    <PackageReference Include="Serilog.Exceptions" Version="5.6.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00839" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.2.0-dev-00747" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37" />
   </ItemGroup>
+
+  <Import Project="$(BaseIntermediateOutputPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(BaseIntermediateOutputPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets')" />
 </Project>
