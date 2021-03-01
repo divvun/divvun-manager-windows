@@ -9,37 +9,49 @@ using Serilog;
 
 namespace Divvun.Installer.Models
 {
-    public abstract class TransactionState : OneOfBase<
+    public class TransactionState : OneOfBase<
         TransactionState.NotStarted,
         TransactionState.InProgress,
         TransactionState.Error,
         TransactionState.VerificationError
     >, IEquatable<TransactionState>
     {
-        public class NotStarted : TransactionState
+        protected TransactionState(OneOf<NotStarted, InProgress, Error, VerificationError> input) : base(input)
+        {
+        }
+
+        public class NotStarted
         { }
         
-        public class InProgress : TransactionState
+        public class InProgress
         {
 
-            public abstract class TransactionProcessState : OneOfBase<
+            public class TransactionProcessState : OneOfBase<
                 TransactionProcessState.DownloadState,
                 TransactionProcessState.InstallState,
                 TransactionProcessState.CompleteState
             >, IEquatable<TransactionProcessState> {
-                public class DownloadState : TransactionProcessState
+                protected TransactionProcessState(OneOf<DownloadState, InstallState, CompleteState> input) : base(input)
+                {
+                }
+
+                public class DownloadState
                 {
                     public ConcurrentDictionary<PackageKey, (long, long)> Progress
                         = new ConcurrentDictionary<PackageKey, (long, long)>();
                 }
 
-                public class InstallState : TransactionProcessState
+                public class InstallState
                 {
                     public PackageKey CurrentItem;
                 }
 
-                public class CompleteState : TransactionProcessState
+                public class CompleteState
                 { }
+
+                public static implicit operator TransactionProcessState(DownloadState _) => new TransactionProcessState(_);
+                public static implicit operator TransactionProcessState(InstallState _) => new TransactionProcessState(_);
+                public static implicit operator TransactionProcessState(CompleteState _) => new TransactionProcessState(_);
 
                 public TransactionProcessState.DownloadState? AsDownloadState => IsT0 ? AsT0 : null;
                 public TransactionProcessState.InstallState? AsInstallState => IsT1 ? AsT1 : null;
@@ -73,13 +85,18 @@ namespace Divvun.Installer.Models
             }
         }
 
-        public class Error : TransactionState
+        public class Error
         {
             public string Message;
         }
 
-        public class VerificationError : TransactionState
+        public class VerificationError
         { }
+
+        public static implicit operator TransactionState(NotStarted _) => new TransactionState(_);
+        public static implicit operator TransactionState(InProgress _) => new TransactionState(_);
+        public static implicit operator TransactionState(Error _) => new TransactionState(_);
+        public static implicit operator TransactionState(VerificationError _) => new TransactionState(_);
 
         public bool IsNotStarted => IsT0;
         public bool IsInProgress => IsT1;

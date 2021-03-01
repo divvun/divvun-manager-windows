@@ -5,7 +5,7 @@ using OneOf;
 
 namespace Pahkat.Sdk.Rpc
 {
-    public abstract class TransactionResponseValue : OneOfBase<
+    public class TransactionResponseValue : OneOfBase<
         TransactionResponseValue.DownloadProgress,
         TransactionResponseValue.DownloadComplete,
         TransactionResponseValue.InstallStarted,
@@ -17,6 +17,10 @@ namespace Pahkat.Sdk.Rpc
         TransactionResponseValue.TransactionQueued,
         TransactionResponseValue.VerificationFailed
     >, IEquatable<TransactionResponseValue> {
+        protected TransactionResponseValue(OneOf<DownloadProgress, DownloadComplete, InstallStarted, UninstallStarted, TransactionProgress, TransactionError, TransactionStarted, TransactionComplete, TransactionQueued, VerificationFailed> input) : base(input)
+        {
+        }
+
         public static JsonConverter JsonConvertor() {
             return JsonSubtypesConverterBuilder.Of(typeof(TransactionResponseValue), "type")
                 .RegisterSubtype(typeof(DownloadProgress), nameof(DownloadProgress))
@@ -32,7 +36,7 @@ namespace Pahkat.Sdk.Rpc
                 .Build();
         }
         
-        public class DownloadProgress : TransactionResponseValue
+        public class DownloadProgress
         {
             [JsonProperty(PropertyName = "package_id")]
             public PackageKey PackageKey;
@@ -40,25 +44,25 @@ namespace Pahkat.Sdk.Rpc
             public ulong Total;
         }
 
-        public class DownloadComplete : TransactionResponseValue
+        public class DownloadComplete
         {
             [JsonProperty(PropertyName = "package_id")]
             public PackageKey PackageKey;
         }
     
-        public class InstallStarted : TransactionResponseValue
+        public class InstallStarted
         {
             [JsonProperty(PropertyName = "package_id")]
             public PackageKey PackageKey;
         }
     
-        public class UninstallStarted : TransactionResponseValue
+        public class UninstallStarted
         {
             [JsonProperty(PropertyName = "package_id")]
             public PackageKey PackageKey;
         }
 
-        public class TransactionProgress : TransactionResponseValue
+        public class TransactionProgress
         {
             [JsonProperty(PropertyName = "package_id")]
             public PackageKey PackageKey;
@@ -67,27 +71,39 @@ namespace Pahkat.Sdk.Rpc
             public string Message;
         }
 
-        public class TransactionError : TransactionResponseValue
+        public class TransactionError
         {
             [JsonProperty(PropertyName = "package_id")]
             public string? PackageKey;
             public string? Error;
         }
 
-        public class TransactionStarted : TransactionResponseValue
+        public class TransactionStarted
         {
             public ResolvedAction[] Actions;
             public bool IsRebootRequired;
         }
 
-        public class TransactionComplete : TransactionResponseValue
+        public class TransactionComplete
         { }
         
-        public class TransactionQueued : TransactionResponseValue
+        public class TransactionQueued
         { }
 
-        public class VerificationFailed : TransactionResponseValue
+        public class VerificationFailed
         { }
+
+        public static implicit operator TransactionResponseValue(DownloadProgress _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(DownloadComplete _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(InstallStarted _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(UninstallStarted _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(TransactionProgress _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(TransactionError _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(TransactionStarted _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(TransactionComplete _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(TransactionQueued _) => new TransactionResponseValue(_);
+        public static implicit operator TransactionResponseValue(VerificationFailed _) => new TransactionResponseValue(_);
+
 
         public bool IsDownloadState => IsT0 || IsT1;
         public bool IsInstallState => IsT2 || IsT3 || IsT4;
