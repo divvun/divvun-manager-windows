@@ -144,14 +144,9 @@ namespace Divvun.Installer.OneClick
 
         async Task<OneClickMeta> DownloadOneClickMetadata()
         {
-            // using var client = new WebClient();
-            // var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/landing/oneclick.json"));
-            // return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload);
-            return new OneClickMeta()
-            {
-                InstallerUrl = "https://pahkat.uit.no/artifacts/divvun-installer_2.2.0_windows.exe",
-                LanguageTags = new List<string> { "fo", "se", "sma", "smj", "smn", "sms", "crk", "srs" }
-            };
+            using var client = new WebClient();
+            var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
+            return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload);
         }
 
         private async void MainWindow_OnLoaded(object sender, RoutedEventArgs args)
