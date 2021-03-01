@@ -25,6 +25,8 @@ using Newtonsoft.Json.Linq;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 using Flurl;
+using Serilog;
+using Sentry;
 
 namespace Divvun.Installer.OneClick
 {
@@ -313,6 +315,9 @@ namespace Divvun.Installer.OneClick
 
             var msg =
                 $"An error has occurred:\n\n{e.Message}\n\nThis crash has been automatically reported to Divvun. You may try to re-run the installer, but if problems persist, please email us at feedback@divvun.no for assistance.";
+
+            Log.Fatal(e, "Fatal error while running application");
+            SentrySdk.CaptureException(e);
 
             MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Application.Current.Shutdown(1);
