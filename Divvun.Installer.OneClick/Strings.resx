@@ -124,7 +124,7 @@
     <value>Divvun OneClick Installer</value>
   </data>
   <data name="DownloadingResources" xml:space="preserve">
-    <value>Downloading {} resources...</value>
+    <value>Downloading {0} resources...</value>
     <comment>{0} contains a language name</comment>
   </data>
   <data name="DownloadStart" xml:space="preserve">

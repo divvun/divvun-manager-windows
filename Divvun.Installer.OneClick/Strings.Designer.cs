@@ -79,7 +79,7 @@ namespace Divvun.Installer.OneClick {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Downloading {} resources....
+        ///   Looks up a localized string similar to Downloading {0} resources....
         /// </summary>
         public static string DownloadingResources {
             get {
