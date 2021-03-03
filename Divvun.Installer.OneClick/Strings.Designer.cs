@@ -70,6 +70,15 @@ namespace Divvun.Installer.OneClick {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Divvun OneClick Installer.
+        /// </summary>
+        public static string AppTitle {
+            get {
+                return ResourceManager.GetString("AppTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Downloading {} resources....
         /// </summary>
         public static string DownloadingResources {

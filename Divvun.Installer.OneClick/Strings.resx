@@ -120,6 +120,9 @@
   <data name="AppLoading" xml:space="preserve">
     <value>Loading... Please wait.</value>
   </data>
+  <data name="AppTitle" xml:space="preserve">
+    <value>Divvun OneClick Installer</value>
+  </data>
   <data name="DownloadingResources" xml:space="preserve">
     <value>Downloading {} resources...</value>
     <comment>{0} contains a language name</comment>

@@ -8,6 +8,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <AppDesignerFolder>Properties</AppDesignerFolder>
+    <ApplicationIcon>../Divvun.Installer/divvun-logo-512.ico</ApplicationIcon>
     <Platform>x86</Platform>
     <RootNamespace>Divvun.Installer.OneClick</RootNamespace>
     <AssemblyName>Divvun.Installer.OneClick</AssemblyName>

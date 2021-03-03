@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Loaded="MainWindow_OnLoaded"
         Closing="MainWindow_OnClosing"
-        Title="MainWindow" Height="350" Width="600">
+        Title="{x:Static local:Strings.AppTitle}" Height="350" Width="600">
     <Grid  VerticalAlignment="Center" HorizontalAlignment="Center">
         <Grid Name="PageLoading">
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Text="{x:Static local:Strings.AppLoading}" />
