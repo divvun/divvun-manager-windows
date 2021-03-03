@@ -93,6 +93,11 @@ namespace Divvun.Installer.OneClick
                 langCode = tag.Split('_', '-')[0];
             }
 
+            if (langCode == string.Empty)
+            {
+                langCode = tag;
+            }
+
             var data = Iso639.GetTag(langCode);
             if (data?.Autonym != null && data.Autonym != "")
             {
