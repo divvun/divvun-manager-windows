@@ -293,17 +293,17 @@ namespace Divvun.Installer.OneClick
                 throw new Exception("No language was selected for installation.");
             }
 
-            UpdateDownloadProgress("Preparing Divvun Installer...");
+            UpdateDownloadProgress(Strings.PreparingInstaller);
             await InstallDivvunInstaller(meta, client);
 
-            UpdateDownloadProgress($"Downloading {selectedLanguage.Name} resources...");
+            UpdateDownloadProgress(string.Format(Strings.DownloadingResources, selectedLanguage.Name));
             PahkatClient pahkat = new PahkatClient();
             var packageKeys = await ResolvePackageActions(pahkat, selectedLanguage);
 
-            UpdateDownloadProgress($"Installing {selectedLanguage.Name} resources...");
+            UpdateDownloadProgress(string.Format(Strings.InstallingResources, selectedLanguage.Name));
             await InstallPackageKeys(pahkat, packageKeys);
 
-            UpdateDownloadProgress($"Finishing up...");
+            UpdateDownloadProgress(Strings.Finalizing);
         }
 
         void TerminateWithError(Exception e)
@@ -313,8 +313,7 @@ namespace Divvun.Installer.OneClick
                 throw e;
             }
 
-            var msg =
-                $"An error has occurred:\n\n{e.Message}\n\nThis crash has been automatically reported to Divvun. You may try to re-run the installer, but if problems persist, please email us at feedback@divvun.no for assistance.";
+            var msg = string.Format(Strings.ErrorText, e.Message);
 
             Log.Fatal(e, "Fatal error while running application");
             SentrySdk.CaptureException(e);
