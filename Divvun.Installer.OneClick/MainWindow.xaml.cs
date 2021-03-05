@@ -331,6 +331,8 @@ namespace Divvun.Installer.OneClick
                 throw new Exception("No language was selected for installation.");
             }
 
+            FinishedSecondary.Text = string.Format(Strings.FinishedSecondary, selectedLanguage.Name);
+
             UpdateDownloadProgress(Strings.PreparingInstaller);
             UpdateDownloadTitle(Strings.DivvunDownloadPrimary, Strings.DivvunDownloadSecondary);
             await InstallDivvunInstaller(meta, client);
@@ -339,7 +341,8 @@ namespace Divvun.Installer.OneClick
             PahkatClient pahkat = new PahkatClient();
             var packageKeys = await ResolvePackageActions(pahkat, selectedLanguage);
 
-            UpdateDownloadTitle(Strings.InstallingResources, string.Format("{0}, {1}", packageKeys.Map(tup => GetNativeResourceName(tup.Item2)).ToArray()));
+            var packageString = string.Join(", ", packageKeys.Map(tup => GetNativeResourceName(tup.Item2)));
+            UpdateDownloadTitle(string.Format(Strings.InstallingResources, selectedLanguage.Name), packageString);
             UpdateDownloadProgress(string.Format(Strings.InstallingResources, selectedLanguage.Name));
             await InstallPackageKeys(pahkat, packageKeys.Map(tup => tup.Item1));
 

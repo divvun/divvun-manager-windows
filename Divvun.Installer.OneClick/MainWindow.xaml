@@ -8,7 +8,7 @@
         Loaded="MainWindow_OnLoaded"
         Closing="MainWindow_OnClosing"
         Title="{x:Static local:Strings.AppTitle}" Height="350" Width="600">
-    <Grid  VerticalAlignment="Center" HorizontalAlignment="Center">
+    <Grid  VerticalAlignment="Center" HorizontalAlignment="Center" Margin="64,0,64,0">
         <Grid Name="PageLoading">
             <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Text="{x:Static local:Strings.AppLoading}" />
         </Grid>
@@ -36,7 +36,7 @@
                 <RowDefinition Height="32"></RowDefinition>
                 <RowDefinition Height="32"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Name="DownloadTitleText" Grid.Row="0" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static local:Strings.DownloadStart}" FontSize="36" FontWeight="SemiBold" Margin="0,0,0,64" />
+            <TextBlock Name="DownloadTitleText" Grid.Row="0" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static local:Strings.DownloadStart}" FontSize="36" FontWeight="SemiBold" Margin="0,0,0,16" />
             <TextBlock Name="DownloadSubtitleText" Grid.Row="1" TextAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap" Text="" Margin="0,0,0,64" />
 
             <ProgressBar Grid.Row="2" IsIndeterminate="True"></ProgressBar>
@@ -45,11 +45,14 @@
 
         <Grid Name="PageCompleted" Visibility="Hidden">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="32"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static local:Strings.Finished}" FontSize="36" FontWeight="SemiBold" Margin="0,0,0,64" />
-            <Grid Grid.Row="1">
+            <TextBlock Grid.Row="0" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static local:Strings.Finished}" FontSize="36" FontWeight="SemiBold" Margin="0,0,0,16" />
+            <TextBlock Name="FinishedSecondary" Grid.Row="1" TextAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,64" />
+            <Grid Grid.Row="3">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />

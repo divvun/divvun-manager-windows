@@ -137,11 +137,20 @@ namespace Divvun.Installer.OneClick {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your {0} resources are now installed. To finish setup you will need to restart your computer. You can either restart now or later..
+        ///   Looks up a localized string similar to That&apos;s it!.
         /// </summary>
         public static string Finished {
             get {
                 return ResourceManager.GetString("Finished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your {0} resources are now installed. To finish setup you will need to restart your computer. You can either restart now or later..
+        /// </summary>
+        public static string FinishedSecondary {
+            get {
+                return ResourceManager.GetString("FinishedSecondary", resourceCulture);
             }
         }
         

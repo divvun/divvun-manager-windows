@@ -148,8 +148,11 @@ This crash has been automatically reported to Divvun. You may try to re-run the 
     <value>Finishing up...</value>
   </data>
   <data name="Finished" xml:space="preserve">
-    <value>Your {0} resources are now installed. To finish setup you will need to restart your computer. You can either restart now or later.</value>
+    <value>That's it!</value>
     <comment>{0} contains a language name.</comment>
+  </data>
+  <data name="FinishedSecondary" xml:space="preserve">
+    <value>Your {0} resources are now installed. To finish setup you will need to restart your computer. You can either restart now or later.</value>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Install</value>
