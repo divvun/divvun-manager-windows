@@ -32,12 +32,15 @@
         <Grid Name="PageDownload" Visibility="Hidden">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
                 <RowDefinition Height="32"></RowDefinition>
                 <RowDefinition Height="32"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static local:Strings.DownloadStart}" FontSize="36" FontWeight="SemiBold" Margin="0,0,0,64" />
-            <ProgressBar Grid.Row="1" IsIndeterminate="True"></ProgressBar>
-            <TextBlock Name="ProgressText" VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Row="2" Margin="0,16,0,0" />
+            <TextBlock Name="DownloadTitleText" Grid.Row="0" TextAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static local:Strings.DownloadStart}" FontSize="36" FontWeight="SemiBold" Margin="0,0,0,64" />
+            <TextBlock Name="DownloadSubtitleText" Grid.Row="1" TextAlignment="Left" VerticalAlignment="Center" TextWrapping="Wrap" Text="" Margin="0,0,0,64" />
+
+            <ProgressBar Grid.Row="2" IsIndeterminate="True"></ProgressBar>
+            <TextBlock Name="ProgressText" VerticalAlignment="Top" HorizontalAlignment="Center" Grid.Row="3" Margin="0,16,0,0" />
         </Grid>
 
         <Grid Name="PageCompleted" Visibility="Hidden">

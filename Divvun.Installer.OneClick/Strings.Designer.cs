@@ -79,6 +79,24 @@ namespace Divvun.Installer.OneClick {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Downloading and Installing Divvun Manager.
+        /// </summary>
+        public static string DivvunDownloadPrimary {
+            get {
+                return ResourceManager.GetString("DivvunDownloadPrimary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This utility will keep your language resources up to date.
+        /// </summary>
+        public static string DivvunDownloadSecondary {
+            get {
+                return ResourceManager.GetString("DivvunDownloadSecondary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Downloading {0} resources....
         /// </summary>
         public static string DownloadingResources {
@@ -119,7 +137,7 @@ namespace Divvun.Installer.OneClick {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to That&apos;s it!.
+        ///   Looks up a localized string similar to Your {0} resources are now installed. To finish setup you will need to restart your computer. You can either restart now or later..
         /// </summary>
         public static string Finished {
             get {

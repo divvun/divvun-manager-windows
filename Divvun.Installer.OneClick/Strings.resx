@@ -123,6 +123,12 @@
   <data name="AppTitle" xml:space="preserve">
     <value>Divvun OneClick Installer</value>
   </data>
+  <data name="DivvunDownloadPrimary" xml:space="preserve">
+    <value>Downloading and Installing Divvun Manager</value>
+  </data>
+  <data name="DivvunDownloadSecondary" xml:space="preserve">
+    <value>This utility will keep your language resources up to date</value>
+  </data>
   <data name="DownloadingResources" xml:space="preserve">
     <value>Downloading {0} resources...</value>
     <comment>{0} contains a language name</comment>
@@ -142,7 +148,8 @@ This crash has been automatically reported to Divvun. You may try to re-run the 
     <value>Finishing up...</value>
   </data>
   <data name="Finished" xml:space="preserve">
-    <value>That's it!</value>
+    <value>Your {0} resources are now installed. To finish setup you will need to restart your computer. You can either restart now or later.</value>
+    <comment>{0} contains a language name.</comment>
   </data>
   <data name="Install" xml:space="preserve">
     <value>Install</value>

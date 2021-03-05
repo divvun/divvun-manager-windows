@@ -190,6 +190,27 @@ namespace Divvun.Installer.OneClick
             ProgressText.Text = message;
         }
 
+        private void UpdateDownloadTitle(string primaryText, string secondaryText)
+        {
+            DownloadTitleText.Text = primaryText;
+            DownloadSubtitleText.Text = secondaryText;
+        }
+
+        private string GetNativeResourceName(Dictionary<string, string> resource)
+        {
+            var tag = CultureInfo.CurrentCulture.IetfLanguageTag;
+
+            if (resource.TryGetValue(tag, out var name)) {
+                return name;
+            }
+
+            if(resource.TryGetValue("en", out name)) {
+                return name;
+            }
+
+            return string.Empty;
+        }
+
         private Task<int> RunProcess(string filePath, string args)
         {
             var source = new TaskCompletionSource<int>();
@@ -215,28 +236,40 @@ namespace Divvun.Installer.OneClick
             return source.Task;
         }
 
-        private Task<List<PackageKey>> ResolvePackageActions(PahkatClient pahkat, LanguageItem selectedLanguage)
+        private Task<List<(PackageKey, Dictionary<string, string>)>> ResolvePackageActions(PahkatClient pahkat, LanguageItem selectedLanguage)
         {
             return Task.Run(async () =>
             {
                 await pahkat.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
                 var result = await pahkat.ResolvePackageQuery(new PackageQuery()
                 {
-                    Tags = new[] {$"lang:{selectedLanguage.Tag}"}
+                    Tags = new[] { $"lang:{selectedLanguage.Tag}" }
                 });
                 Console.WriteLine(result);
 
                 var obj = JObject.Parse(result);
                 var descriptors = obj["descriptors"]?.ToObject<List<JObject>>() ?? new List<JObject>();
                 var packageKeys = descriptors
-                    .FilterMap((o) => o["key"]?.ToObject<string>())
-                    .Map(PackageKey.From)
+                    .FilterMap((o) => {
+                        var key = o["key"]?.ToObject<string>();
+                        var name = o["name"]?.ToObject<Dictionary<string, string>>();
+
+                        if (key == null || name == null)
+                        {
+                            return null;
+                        }
+
+                        ValueTuple<string, Dictionary<string, string>>? tup = ValueTuple.Create(key, name);
+
+                        return tup;
+                    })
+                    .Map(tup => (PackageKey.From(tup.Item1), tup.Item2))
                     .ToList();
                 return packageKeys;
             });
         }
 
-        private Task InstallPackageKeys(PahkatClient pahkat, List<PackageKey> packageKeys)
+        private Task InstallPackageKeys(PahkatClient pahkat, IEnumerable<PackageKey> packageKeys)
         {
             var source = new TaskCompletionSource<int>();
 
@@ -299,14 +332,16 @@ namespace Divvun.Installer.OneClick
             }
 
             UpdateDownloadProgress(Strings.PreparingInstaller);
+            UpdateDownloadTitle(Strings.DivvunDownloadPrimary, Strings.DivvunDownloadSecondary);
             await InstallDivvunInstaller(meta, client);
 
             UpdateDownloadProgress(string.Format(Strings.DownloadingResources, selectedLanguage.Name));
             PahkatClient pahkat = new PahkatClient();
             var packageKeys = await ResolvePackageActions(pahkat, selectedLanguage);
 
+            UpdateDownloadTitle(Strings.InstallingResources, string.Format("{0}, {1}", packageKeys.Map(tup => GetNativeResourceName(tup.Item2)).ToArray()));
             UpdateDownloadProgress(string.Format(Strings.InstallingResources, selectedLanguage.Name));
-            await InstallPackageKeys(pahkat, packageKeys);
+            await InstallPackageKeys(pahkat, packageKeys.Map(tup => tup.Item1));
 
             UpdateDownloadProgress(Strings.Finalizing);
         }
