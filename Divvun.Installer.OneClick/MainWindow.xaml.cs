@@ -120,7 +120,19 @@ namespace Divvun.Installer.OneClick
     class OneClickMeta
     { 
         public string InstallerUrl { get; set; }
-        public List<string> LanguageTags { get; set; }
+        public List<OneClickLanguageMeta> Languages { get; set; }
+    }
+
+    class OneClickLanguageMeta
+    {
+        public string Tag { get; set; }
+        public List<OneClickLayoutMeta> Layouts { get; set; }
+    }
+
+    class OneClickLayoutMeta
+    {
+        public string Uuid { get; set; }
+        public string Name{ get; set; }
     }
 
     class LanguageItem : IComparable<LanguageItem>
@@ -151,8 +163,11 @@ namespace Divvun.Installer.OneClick
 
         async Task<OneClickMeta> DownloadOneClickMetadata()
         {
-            using var client = new WebClient();
-            var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
+            using var stream = new StreamReader(new FileStream("C:\\Users\\zoey\\Documents\\oneclick.json", FileMode.Open));
+            var jsonPayload = await stream.ReadToEndAsync();
+            
+            //using var client = new WebClient();
+            //var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
             return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload);
         }
 
@@ -168,10 +183,10 @@ namespace Divvun.Installer.OneClick
                 return;
             }
 
-            var items = _meta.LanguageTags.Map((tag) => new LanguageItem()
+            var items = _meta.Languages.Map((language) => new LanguageItem()
             {
-                Tag = tag,
-                Name = Util.GetCultureDisplayName(tag)
+                Tag = language.Tag,
+                Name = Util.GetCultureDisplayName(language.Tag)
             }).ToList();
             items.Sort();
 
@@ -315,6 +330,47 @@ namespace Divvun.Installer.OneClick
             return await RunProcess(exeFile, "/VERYSILENT");
         }
 
+        private async Task EnableKeyboards(OneClickMeta meta, string tag)
+        {
+            var lang = meta.Languages.Find(lang => string.Equals(lang.Tag, tag));
+            if (lang == null)
+            {
+                throw new Exception("No matching language found in meta.");
+            }
+
+            var kbdiFile = System.IO.Path.Join(Directory.GetCurrentDirectory(), "kbdi.exe");
+
+            var regionCode = RegionInfo.CurrentRegion.TwoLetterISORegionName;
+
+            var regionLayouts = lang.Layouts.Filter(layout =>
+            {
+                var parts = layout.Name.Split("-");
+
+                if (parts.Length != 3)
+                {
+                    return false;
+                }
+
+                var layoutRegion = parts[2];
+
+                return layoutRegion.Equals(regionCode);
+            }).ToList();
+
+            if (regionLayouts.Count > 0)
+            {
+                foreach (var layout in regionLayouts)
+                {
+                    await RunProcess(kbdiFile, $"keyboard_enable -g \"{{{layout.Uuid}}}\" -t {layout.Name}");
+                }
+            } else
+            {
+                foreach (var layout in lang.Layouts)
+                {
+                    await RunProcess(kbdiFile, $"keyboard_enable -g \"{{{layout.Uuid}}}\" -t {layout.Name}");
+                }
+            }
+        }
+
         private async Task RunInstallProcess()
         {
             using var client = new WebClient();
@@ -347,6 +403,8 @@ namespace Divvun.Installer.OneClick
             await InstallPackageKeys(pahkat, packageKeys.Map(tup => tup.Item1));
 
             UpdateDownloadProgress(Strings.Finalizing);
+
+            await EnableKeyboards(meta, selectedLanguage.Tag);
         }
 
         void TerminateWithError(Exception e)

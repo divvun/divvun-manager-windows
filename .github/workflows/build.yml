@@ -49,12 +49,13 @@ jobs:
         with:
           repo: https://pahkat.uit.no/devtools/
           channel: nightly
-          packages: pahkat-uploader, pahkat-windows-cli, dotnet5-webinst
+          packages: pahkat-uploader, pahkat-windows-cli, dotnet5-webinst, kbdi
       - name: Move dotnet5-webinst to appropriate places
         run: |
           ls -R $env:RUNNER_TEMP\pahkat-prefix\pkg\dotnet5-webinst
           cp $env:RUNNER_TEMP\pahkat-prefix\pkg\dotnet5-webinst\bin\dotnet5-webinst.exe $env:RUNNER_WORKSPACE\divvun-manager-windows\
           cp $env:RUNNER_TEMP\pahkat-prefix\pkg\dotnet5-webinst\bin\dotnet5-webinst.exe $env:RUNNER_WORKSPACE\divvun-manager-windows\oneclick-bundler\
+          cp $env:RUNNER_TEMP\pahkat-prefix\pkg\kbdi\bin\kbdi.exe $env:RUNNER_WORKSPACE\divvun-manager-windows\oneclick-bundler\
       - name: Acquire Pahkat Service installer (nightly)
         if: ${{ steps.version.outputs.channel == 'nightly' }}
         run: |
