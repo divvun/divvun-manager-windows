@@ -129,6 +129,9 @@
   <data name="DivvunDownloadSecondary" xml:space="preserve">
     <value>This utility will keep your language resources up to date</value>
   </data>
+  <data name="DownloadingDivvunInstaller" xml:space="preserve">
+    <value>Downloading Divvun Installer...</value>
+  </data>
   <data name="DownloadingResources" xml:space="preserve">
     <value>Downloading {0} resources...</value>
     <comment>{0} contains a language name</comment>

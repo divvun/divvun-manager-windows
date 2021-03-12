@@ -162,12 +162,9 @@ namespace Divvun.Installer.OneClick
         }
 
         async Task<OneClickMeta> DownloadOneClickMetadata()
-        {
-            using var stream = new StreamReader(new FileStream("C:\\Users\\zoey\\Documents\\oneclick.json", FileMode.Open));
-            var jsonPayload = await stream.ReadToEndAsync();
-            
-            //using var client = new WebClient();
-            //var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
+        {            
+            using var client = new WebClient();
+            var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
             return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload);
         }
 
@@ -199,10 +196,12 @@ namespace Divvun.Installer.OneClick
             PageHome.Visibility = Visibility.Visible;
         }
 
-        private void UpdateDownloadProgress(string message)
+        private void UpdateDownloadProgress(string message, bool indeterminite = true)
         {
             Console.WriteLine(message);
             ProgressText.Text = message;
+            DownloadProgresBar.IsIndeterminate = indeterminite;
+            DownloadProgresBar.Value = 0;
         }
 
         private void UpdateDownloadTitle(string primaryText, string secondaryText)
@@ -319,16 +318,25 @@ namespace Divvun.Installer.OneClick
 
         private async Task<int> InstallDivvunInstaller(OneClickMeta meta, WebClient client)
         {
+            UpdateDownloadProgress(Strings.DownloadingDivvunInstaller, false);
+            client.DownloadProgressChanged += Client_DownloadProgressChanged;
             var tmpFile = System.IO.Path.GetTempFileName();
             await client.DownloadFileTaskAsync(meta.InstallerUrl, tmpFile);
 
+            client.DownloadProgressChanged -= Client_DownloadProgressChanged;
+            UpdateDownloadProgress(Strings.PreparingInstaller);
             Console.WriteLine($"Downloaded to {tmpFile}");
+
             var exeFile = $"{System.IO.Path.GetDirectoryName(tmpFile)}\\{System.IO.Path.GetFileNameWithoutExtension(tmpFile)}.exe";
 
             File.Move(tmpFile, exeFile);
             Console.WriteLine($"Renamed to executable: {exeFile}");
-
             return await RunProcess(exeFile, "/VERYSILENT");
+        }
+
+        private void Client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            DownloadProgresBar.Value = e.ProgressPercentage;
         }
 
         private async Task EnableKeyboards(OneClickMeta meta, string tag)
@@ -390,7 +398,6 @@ namespace Divvun.Installer.OneClick
 
             FinishedSecondary.Text = string.Format(Strings.FinishedSecondary, selectedLanguage.Name);
 
-            UpdateDownloadProgress(Strings.PreparingInstaller);
             UpdateDownloadTitle(Strings.DivvunDownloadPrimary, Strings.DivvunDownloadSecondary);
             await InstallDivvunInstaller(meta, client);
 
@@ -401,8 +408,7 @@ namespace Divvun.Installer.OneClick
             var packageString = string.Join(", ", packageKeys.Map(tup => GetNativeResourceName(tup.Item2)));
             UpdateDownloadTitle(string.Format(Strings.InstallingResources, selectedLanguage.Name), packageString);
             UpdateDownloadProgress(string.Format(Strings.InstallingResources, selectedLanguage.Name));
-            await InstallPackageKeys(pahkat, packageKeys.Map(tup => tup.Item1));
-
+            await Task.WhenAll(InstallPackageKeys(pahkat, packageKeys.Map(tup => tup.Item1)), Task.Delay(TimeSpan.FromSeconds(2)));
             UpdateDownloadProgress(Strings.Finalizing);
 
             await EnableKeyboards(meta, selectedLanguage.Tag);
