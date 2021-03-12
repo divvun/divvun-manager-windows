@@ -235,7 +235,8 @@ namespace Divvun.Installer.OneClick
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = filePath,
-                    Arguments = args
+                    Arguments = args,
+                    CreateNoWindow = true,
                 },
                 EnableRaisingEvents = true
             };
