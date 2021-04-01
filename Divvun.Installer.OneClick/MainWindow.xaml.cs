@@ -297,17 +297,6 @@ namespace Divvun.Installer.OneClick
                 Console.WriteLine("Starting install process");
                 await pahkat.ProcessTransaction(actions, (message) =>
                 {
-                    if (message.IsT0)
-                    {
-                        var progress = message.AsDownloadProgress!;
-                        DownloadProgresBar.IsIndeterminate = false;
-                        DownloadProgresBar.Maximum = progress.Total;
-                        DownloadProgresBar.Value = progress.Current;
-                    } else
-                    {
-                        DownloadProgresBar.IsIndeterminate = true;
-                    }
-
                     Console.WriteLine(message);
                     if (message.IsErrorState)
                     {
