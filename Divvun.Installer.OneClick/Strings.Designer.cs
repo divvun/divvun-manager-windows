@@ -79,6 +79,15 @@ namespace Divvun.Installer.OneClick {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cancel.
+        /// </summary>
+        public static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Downloading and Installing Divvun Manager.
         /// </summary>
         public static string DivvunDownloadPrimary {
@@ -169,6 +178,15 @@ namespace Divvun.Installer.OneClick {
         public static string Install {
             get {
                 return ResourceManager.GetString("Install", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Installation Cancelled.
+        /// </summary>
+        public static string InstallationCancelled {
+            get {
+                return ResourceManager.GetString("InstallationCancelled", resourceCulture);
             }
         }
         

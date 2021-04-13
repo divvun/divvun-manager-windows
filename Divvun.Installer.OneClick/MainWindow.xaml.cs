@@ -27,6 +27,8 @@ using Pahkat.Sdk.Rpc;
 using Flurl;
 using Serilog;
 using Sentry;
+using System.Threading;
+using System.Reactive.Linq;
 
 namespace Divvun.Installer.OneClick
 {
@@ -117,25 +119,25 @@ namespace Divvun.Installer.OneClick
             return tag;
         }
     }
-    class OneClickMeta
+    public class OneClickMeta
     { 
         public string InstallerUrl { get; set; }
         public List<OneClickLanguageMeta> Languages { get; set; }
     }
 
-    class OneClickLanguageMeta
+    public class OneClickLanguageMeta
     {
         public string Tag { get; set; }
         public List<OneClickLayoutMeta> Layouts { get; set; }
     }
 
-    class OneClickLayoutMeta
+    public class OneClickLayoutMeta
     {
         public string Uuid { get; set; }
         public string Name{ get; set; }
     }
 
-    class LanguageItem : IComparable<LanguageItem>
+    public class LanguageItem : IComparable<LanguageItem>
     {
         public string Name { get; set; }
         public string Tag { get; set; }
@@ -145,283 +147,95 @@ namespace Divvun.Installer.OneClick
             return String.Compare(Name, other.Name, StringComparison.Ordinal);
         }
     }
+    public enum Route
+    {
+        Landing,
+        Download,
+        Finalizing,
+        Completion,
+        Cancel,
+        Error,
+    }
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        private OneClickMeta? _meta = null;
-        private ObservableCollection<LanguageItem> _dropDownData = new ObservableCollection<LanguageItem>();
+        private CancellationTokenSource? installCancellationToken = null;
+        private Page? _currentPage = null;
 
         public MainWindow()
         {
             InitializeComponent();
-
-            Languages.ItemsSource = _dropDownData;
         }
 
-        async Task<OneClickMeta> DownloadOneClickMetadata()
-        {            
-            using var client = new WebClient();
-            var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
-            return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload);
+        public void ShowPage(Page pageView)
+        {
+            App.Current.Dispatcher.Invoke(() => {
+                ShowContent();
+                FrmContainer.Navigate(pageView);
+                _currentPage = pageView;
+
+                JournalEntry page;
+                while ((page = FrmContainer.RemoveBackEntry()) != null)
+                {
+                    // page.
+                    Log.Verbose("Murdered a view. {page}", page);
+                    // Clean up everything
+                }
+            });
         }
+
+        public void ShowContent()
+        {
+            FrmContainer.Visibility = Visibility.Visible;
+        }
+
+        private static IObservable<Route> MakeRouter()
+        {
+            var app = (App)Application.Current;
+            return app.CurrentTransaction.AsObservable()
+                .DistinctUntilChanged()
+                .ObserveOn(app.Dispatcher)
+                .SubscribeOn(app.Dispatcher)
+                .Select(evt => evt.Match(
+                    notStarted => Route.Landing,
+                    inProgress => inProgress.State.Match(
+                        start => Route.Download,
+                        downloading => Route.Download,
+                        installing => Route.Download,
+                        finalizing => Route.Finalizing,
+                        complete => Route.Completion),
+                    error => Route.Error,
+                    cancel => Route.Cancel))
+                .DistinctUntilChanged();
+        }
+        public IObservable<Route> Router = MakeRouter();
 
         private async void MainWindow_OnLoaded(object sender, RoutedEventArgs args)
         {
-            try
-            {
-                _meta = await DownloadOneClickMetadata();
-            }
-            catch (Exception e)
-            {
-                TerminateWithError(e);
-                return;
-            }
-
-            var items = _meta.Languages.Map((language) => new LanguageItem()
-            {
-                Tag = language.Tag,
-                Name = Util.GetCultureDisplayName(language.Tag)
-            }).ToList();
-            items.Sort();
-
-            foreach (var item in items)
-            {
-                _dropDownData.Add(item);
-            }
-
-            PageLoading.Visibility = Visibility.Hidden;
-            PageHome.Visibility = Visibility.Visible;
-        }
-
-        private void UpdateDownloadProgress(string message, bool indeterminite = true)
-        {
-            Console.WriteLine(message);
-            ProgressText.Text = message;
-            DownloadProgresBar.IsIndeterminate = indeterminite;
-            DownloadProgresBar.Value = 0;
-        }
-
-        private void UpdateDownloadTitle(string primaryText, string secondaryText)
-        {
-            DownloadTitleText.Text = primaryText;
-            DownloadSubtitleText.Text = secondaryText;
-        }
-
-        private string GetNativeResourceName(Dictionary<string, string> resource)
-        {
-            var tag = CultureInfo.CurrentCulture.IetfLanguageTag;
-
-            if (resource.TryGetValue(tag, out var name)) {
-                return name;
-            }
-
-            if(resource.TryGetValue("en", out name)) {
-                return name;
-            }
-
-            return string.Empty;
-        }
-
-        private Task<int> RunProcess(string filePath, string args)
-        {
-            var source = new TaskCompletionSource<int>();
-
-            var process = new Process()
-            {
-                StartInfo = new ProcessStartInfo
+            Router
+                .Subscribe(route =>
                 {
-                    FileName = filePath,
-                    Arguments = args,
-                    CreateNoWindow = true,
-                },
-                EnableRaisingEvents = true
-            };
-
-            process.Exited += (sender, args) =>
-            {
-                source.SetResult(process.ExitCode);
-                process.Dispose();
-            };
-
-            process.Start();
-
-            return source.Task;
-        }
-
-        private Task<List<(PackageKey, Dictionary<string, string>)>> ResolvePackageActions(PahkatClient pahkat, LanguageItem selectedLanguage)
-        {
-            return Task.Run(async () =>
-            {
-                await pahkat.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
-                var result = await pahkat.ResolvePackageQuery(new PackageQuery()
-                {
-                    Tags = new[] { $"lang:{selectedLanguage.Tag}" }
-                });
-                Console.WriteLine(result);
-
-                var obj = JObject.Parse(result);
-                var descriptors = obj["descriptors"]?.ToObject<List<JObject>>() ?? new List<JObject>();
-                var packageKeys = descriptors
-                    .FilterMap((o) => {
-                        var key = o["key"]?.ToObject<string>();
-                        var name = o["name"]?.ToObject<Dictionary<string, string>>();
-
-                        if (key == null || name == null)
-                        {
-                            return null;
-                        }
-
-                        ValueTuple<string, Dictionary<string, string>>? tup = ValueTuple.Create(key, name);
-
-                        return tup;
-                    })
-                    .Map(tup => (PackageKey.From(tup.Item1), tup.Item2))
-                    .ToList();
-                return packageKeys;
-            });
-        }
-
-        private Task InstallPackageKeys(PahkatClient pahkat, IEnumerable<PackageKey> packageKeys)
-        {
-            var source = new TaskCompletionSource<int>();
-
-            var actions = packageKeys
-                .Map(x => new PackageAction(x, InstallAction.Install, InstallTarget.System))
-                .ToArray();
-
-            Task.Run(async () =>
-            {
-                Console.WriteLine("Starting install process");
-                await pahkat.ProcessTransaction(actions, (message) =>
-                {
-                    Console.WriteLine(message);
-                    if (message.IsErrorState)
+                    switch (route)
                     {
-                        Console.WriteLine("Ending install process with error");
-                        source.SetException(new Exception(message.AsTransactionError?.Error ??
-                                            $"An unknown error occurred while installing package with key: {message.AsTransactionError?.PackageKey ?? "<no key>"}"));
-                    }
-
-                    if (message.IsCompletionState)
-                    {
-                        Console.WriteLine("Ending install process");
-                        source.SetResult(0);
+                        case Route.Landing:
+                            ShowPage(new LandingPage());
+                            return;
+                        case Route.Download:
+                            ShowPage(new DownloadPage());
+                            return;
+                        case Route.Completion:
+                            ShowPage(new CompletionPage());
+                            return;
+                        case Route.Cancel:
+                            ShowPage(new CancelPage());
+                            return;
                     }
                 });
-            });
-
-            return source.Task;
         }
 
-        private async Task<int> InstallDivvunInstaller(OneClickMeta meta, WebClient client)
-        {
-            UpdateDownloadProgress(Strings.DownloadingDivvunInstaller, false);
-            client.DownloadProgressChanged += Client_DownloadProgressChanged;
-            var tmpFile = System.IO.Path.GetTempFileName();
-            await client.DownloadFileTaskAsync(meta.InstallerUrl, tmpFile);
-
-            client.DownloadProgressChanged -= Client_DownloadProgressChanged;
-            UpdateDownloadProgress(Strings.PreparingInstaller);
-            Console.WriteLine($"Downloaded to {tmpFile}");
-
-            var exeFile = $"{System.IO.Path.GetDirectoryName(tmpFile)}\\{System.IO.Path.GetFileNameWithoutExtension(tmpFile)}.exe";
-
-            File.Move(tmpFile, exeFile);
-            Console.WriteLine($"Renamed to executable: {exeFile}");
-            return await RunProcess(exeFile, "/VERYSILENT");
-        }
-
-        private void Client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            DownloadProgresBar.Value = e.ProgressPercentage;
-        }
-
-        private async Task EnableKeyboards(OneClickMeta meta, string tag)
-        {
-            var lang = meta.Languages.Find(lang => string.Equals(lang.Tag, tag));
-            if (lang == null)
-            {
-                throw new Exception("No matching language found in meta.");
-            }
-
-            string kbdiFile;
-            if (Environment.Is64BitOperatingSystem)
-            {
-                kbdiFile = System.IO.Path.Join(Directory.GetCurrentDirectory(), "kbdi-x64.exe");
-            }
-            else
-            {
-                kbdiFile = System.IO.Path.Join(Directory.GetCurrentDirectory(), "kbdi.exe");
-            }
-
-
-            var regionCode = RegionInfo.CurrentRegion.TwoLetterISORegionName;
-
-            var regionLayouts = lang.Layouts.Filter(layout =>
-            {
-                var parts = layout.Name.Split("-");
-
-                if (parts.Length != 3)
-                {
-                    return false;
-                }
-
-                var layoutRegion = parts[2];
-
-                return layoutRegion.Equals(regionCode);
-            }).ToList();
-
-            if (regionLayouts.Count > 0)
-            {
-                foreach (var layout in regionLayouts)
-                {
-                    await RunProcess(kbdiFile, $"keyboard_enable -g \"{{{layout.Uuid}}}\" -t {layout.Name}");
-                }
-            } else
-            {
-                foreach (var layout in lang.Layouts)
-                {
-                    await RunProcess(kbdiFile, $"keyboard_enable -g \"{{{layout.Uuid}}}\" -t {layout.Name}");
-                }
-            }
-        }
-
-        private async Task RunInstallProcess()
-        {
-            using var client = new WebClient();
-
-            var meta = _meta;
-            if (meta == null)
-            {
-                throw new Exception("The metadata necessary to download language files was not found.");
-            }
-
-            var selectedLanguage = Languages.SelectedItem as LanguageItem;
-            if (selectedLanguage == null)
-            {
-                throw new Exception("No language was selected for installation.");
-            }
-
-            FinishedSecondary.Text = string.Format(Strings.FinishedSecondary, selectedLanguage.Name);
-
-            UpdateDownloadTitle(Strings.DivvunDownloadPrimary, Strings.DivvunDownloadSecondary);
-            await InstallDivvunInstaller(meta, client);
-
-            UpdateDownloadProgress(string.Format(Strings.DownloadingResources, selectedLanguage.Name));
-            PahkatClient pahkat = new PahkatClient();
-            var packageKeys = await ResolvePackageActions(pahkat, selectedLanguage);
-
-            var packageString = string.Join(", ", packageKeys.Map(tup => GetNativeResourceName(tup.Item2)));
-            UpdateDownloadTitle(string.Format(Strings.InstallingResources, selectedLanguage.Name), packageString);
-            UpdateDownloadProgress(string.Format(Strings.InstallingResources, selectedLanguage.Name));
-            await Task.WhenAll(InstallPackageKeys(pahkat, packageKeys.Map(tup => tup.Item1)), Task.Delay(TimeSpan.FromSeconds(2)));
-            UpdateDownloadProgress(Strings.Finalizing);
-
-            await EnableKeyboards(meta, selectedLanguage.Tag);
-        }
 
         void TerminateWithError(Exception e)
         {
@@ -439,47 +253,13 @@ namespace Divvun.Installer.OneClick
             Application.Current.Shutdown(1);
         }
 
-        private async void InstallButton_OnClick(object sender, RoutedEventArgs args)
-        {
-            PageHome.Visibility = Visibility.Hidden;
-            PageDownload.Visibility = Visibility.Visible;
-
-            try
-            {
-                await RunInstallProcess();
-            }
-            catch (Exception e)
-            {
-                TerminateWithError(e);
-            }
-
-            PageDownload.Visibility = Visibility.Hidden;
-            PageCompleted.Visibility = Visibility.Visible;
-        }
-
-        private void Languages_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            Console.WriteLine($"Changed language selection: {Languages.SelectedValue}");
-            InstallButton.Visibility = Visibility.Visible;
-        }
-
         private void MainWindow_OnClosing(object sender, CancelEventArgs e)
         {
-            if (PageDownload.Visibility == Visibility.Visible)
+            if (_currentPage is DownloadPage)
             {
                 e.Cancel = true;
                 ((Window) sender).WindowState = WindowState.Minimized;
             }
-        }
-
-        private void RebootButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            ShutdownExtensions.Reboot();
-        }
-
-        private void RebootLaterButton_OnClick(object sender, RoutedEventArgs e)
-        {
-            this.Close();
         }
     }
 
