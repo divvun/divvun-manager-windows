@@ -1,4 +1,5 @@
-﻿using Sentry;
+﻿using Divvun.Installer.OneClick.Models;
+using Sentry;
 using Serilog;
 using Serilog.Exceptions;
 using System;
@@ -7,6 +8,9 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -17,6 +21,53 @@ namespace Divvun.Installer.OneClick
     /// </summary>
     public partial class App : Application
     {
+        private CancellationTokenSource? _runningTransaction;
+        public BehaviorSubject<TransactionState> CurrentTransaction
+            = new BehaviorSubject<TransactionState>(new TransactionState.NotStarted());
+        public LanguageItem? SelectedLanguage;
+        public OneClickMeta? Meta = null;
+
+        public static Task RunProcess(string filePath, string args, CancellationToken token = default)
+        {
+            var source = new TaskCompletionSource<int>();
+
+            var process = new Process()
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = filePath,
+                    Arguments = args,
+                    CreateNoWindow = true,
+                },
+                EnableRaisingEvents = true
+            };
+
+            process.Exited += (sender, args) =>
+            {
+                source.SetResult(process.ExitCode);
+                process.Dispose();
+            };
+
+            process.Start();
+            return process.WaitForExitAsync(token);
+        }
+
+        public void TerminateWithError(Exception e)
+        {
+            if (Debugger.IsAttached)
+            {
+                throw e;
+            }
+
+            var msg = string.Format(Strings.ErrorText, e.Message);
+
+            Log.Fatal(e, "Fatal error while running application");
+            SentrySdk.CaptureException(e);
+
+            MessageBox.Show(msg, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            this.Shutdown(1);
+        }
+
         private void OnStartup(object sender, StartupEventArgs e)
         {
             ConfigureLogging();

@@ -8,6 +8,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
     <AppDesignerFolder>Properties</AppDesignerFolder>
+    <ApplicationIcon>../Divvun.Installer/divvun-logo-512.ico</ApplicationIcon>
     <Platform>x86</Platform>
     <RootNamespace>Divvun.Installer.OneClick</RootNamespace>
     <AssemblyName>Divvun.Installer.OneClick</AssemblyName>
@@ -59,6 +60,19 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00839" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.2.0-dev-00747" />
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.3.37" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Strings.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
   <Import Project="$(BaseIntermediateOutputPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(BaseIntermediateOutputPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets')" />
