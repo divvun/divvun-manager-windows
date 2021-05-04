@@ -88,6 +88,8 @@ namespace Pahkat.Sdk.Rpc {
             var channel = GrpcChannel.ForAddress("http://localhost", new GrpcChannelOptions()
             {
                 HttpHandler = CreateHttpHandler(),
+                MaxReceiveMessageSize = null,
+                MaxSendMessageSize = null,
             });
 
             this.innerClient = new Grpc.Pahkat.PahkatClient(channel);
