@@ -221,7 +221,7 @@
     <value>Никогда</value>
   </data>
   <data name="NextUpdateDue" xml:space="preserve">
-    <value>Следующая проверка обновлений в {0}</value>
+    <value>Следующая проверка обновлений в: {0}</value>
   </data>
   <data name="Nightly" xml:space="preserve">
     <value>Еженощно</value>
@@ -239,7 +239,7 @@
     <value>--</value>
   </data>
   <data name="NotInstalled" xml:space="preserve">
-    <value>Нет установлено.</value>
+    <value>Не установлено.</value>
   </data>
   <data name="Ok" xml:space="preserve">
     <value>Ок</value>
@@ -345,10 +345,10 @@
     <value>Отменить</value>
   </data>
   <data name="Uninstall" xml:space="preserve">
-    <value>Уддалить</value>
+    <value>Удалить</value>
   </data>
   <data name="UninstallNPackages" xml:space="preserve">
-    <value>Уддалить {0} элементов</value>
+    <value>Удалить {0} элементов</value>
   </data>
   <data name="UninstallingPackage" xml:space="preserve">
     <value>Удаляю {0} {1}...</value>
