@@ -102,7 +102,8 @@ namespace Divvun.Installer.UI.Settings
                 LanguageTag("nb"),
                 LanguageTag("nn"),
                 new LanguageTag {Name = "ᚿᛦᚿᚮᚱᛌᚴ", Tag = "nn-Runr"},
-                LanguageTag("se")
+                LanguageTag("se"),
+                LanguageTag("ru")
             };
 
             DdlLanguage.SelectedValue = app.Settings.GetLanguage() ?? "";

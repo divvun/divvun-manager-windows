@@ -16,3 +16,5 @@ is to install [kbdi](https://github.com/divvun/kbdi), and run
 For a debug build, run `build-2019-dev.bat`.
 
 You will need [pahkat-client-core](https://github.com/divvun/pahkat-client-core) checked out in the shared parent directory where you have cloned this repository for the build to succeed.
+
+To add a new language you need to add `DivvunInstaller/Strings.[your_lang].resx` file with translated strings and add your new language tag in `Divvun.Installer/UI/Settings/SettingsWindow.xaml.cs`.
