@@ -5,6 +5,8 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <Platform>x86</Platform>
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+    <PlatformTarget>x86</PlatformTarget>
     <RootNamespace>Divvun.Installer</RootNamespace>
     <AssemblyName>DivvunManager</AssemblyName>
 	  <TargetFramework>net5.0-windows</TargetFramework>
@@ -12,6 +14,7 @@
     <LangVersion>8.0</LangVersion>
     <WarningsAsErrors>CS8600;CS8602;CS8603</WarningsAsErrors>
 	  <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
