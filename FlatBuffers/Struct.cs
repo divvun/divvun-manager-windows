@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-namespace FlatBuffers
-{
-    /// <summary>
-    /// All structs in the generated code derive from this class, and add their own accessors.
-    /// </summary>
-    public struct Struct
-    {
-        public int bb_pos { get; private set; }
-        public ByteBuffer bb { get; private set; }
+namespace FlatBuffers {
 
-        // Re-init the internal state with an external buffer {@code ByteBuffer} and an offset within.
-        public Struct(int _i, ByteBuffer _bb) : this()
-        {
-            bb = _bb;
-            bb_pos = _i;
-        }
+/// <summary>
+///     All structs in the generated code derive from this class, and add their own accessors.
+/// </summary>
+public struct Struct {
+    public int bb_pos { get; }
+    public ByteBuffer bb { get; }
+
+    // Re-init the internal state with an external buffer {@code ByteBuffer} and an offset within.
+    public Struct(int _i, ByteBuffer _bb) : this() {
+        bb = _bb;
+        bb_pos = _i;
     }
+}
+
 }

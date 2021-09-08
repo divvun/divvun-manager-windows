@@ -9,31 +9,29 @@
         MinHeight="350" MinWidth="800"
         Height="600" Width="900"
         xmlns:ui="http://schemas.modernwpf.com/2019"
-        xmlns:system="clr-namespace:System;assembly=mscorlib"
         ui:WindowHelper.UseModernWindowStyle="True"
         ui:TitleBar.ExtendViewIntoTitleBar="True"
         ui:TitleBar.Style="{DynamicResource AppTitleBarStyle}"
         ui:TitleBar.ButtonStyle="{DynamicResource AppTitleBarButtonStyle}"
         ui:TitleBar.BackButtonStyle="{DynamicResource AppTitleBarBackButtonStyle}"
         Background="{DynamicResource AppContentBackgroundBrush}"
-        Loaded="MainWindow_OnLoaded"
-        >
-    
+        Loaded="MainWindow_OnLoaded">
+
     <Window.Resources>
-        <local:PixelsToGridLengthConverter x:Key="PixelsToGridLength" />
         <!-- <Style x:Key="AppTitleBarStyle" TargetType="ui:TitleBarControl"> -->
         <!--     <Setter Property="ui:ThemeManager.RequestedTheme" Value="Light" /> -->
         <!-- </Style> -->
         <Style x:Key="AppTitleBarButtonStyle" TargetType="ui:TitleBarButton">
             <Setter Property="IsActive" Value="{Binding IsActive, ElementName=Window}" />
         </Style>
-        <Style x:Key="AppTitleBarBackButtonStyle" TargetType="ui:TitleBarButton" BasedOn="{StaticResource TitleBarBackButtonStyle}">
+        <Style x:Key="AppTitleBarBackButtonStyle" TargetType="ui:TitleBarButton"
+               BasedOn="{StaticResource TitleBarBackButtonStyle}">
             <Setter Property="IsActive" Value="{Binding IsActive, ElementName=Window}" />
         </Style>
     </Window.Resources>
-    
-    
+
+
     <Grid>
-        <Frame Grid.Row="0" x:Name="FrmContainer" NavigationUIVisibility="Hidden" JournalOwnership="OwnsJournal"/>
+        <Frame Grid.Row="0" x:Name="FrmContainer" NavigationUIVisibility="Hidden" JournalOwnership="OwnsJournal" />
     </Grid>
 </Window>

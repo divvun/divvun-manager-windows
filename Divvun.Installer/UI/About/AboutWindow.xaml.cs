@@ -1,22 +1,17 @@
-using System.Reflection;
+using System.Diagnostics;
 using System.Windows;
-using Divvun.Installer.Models;
 
-namespace Divvun.Installer.UI.About
-{
-    public partial class AboutWindow : Window
-    {
-        public AboutWindow()
-        {
-            InitializeComponent();
+namespace Divvun.Installer.UI.About {
 
-            LblAppName.Text = Strings.AppName;
-            LblVersion.Text = ThisAssembly.AssemblyInformationalVersion;
-            BtnWebsite.Content = "Divvun Website";
-            BtnWebsite.Click += (sender, e) =>
-            {
-                System.Diagnostics.Process.Start("http://divvun.no");
-            };
-        }
+public partial class AboutWindow : Window {
+    public AboutWindow() {
+        InitializeComponent();
+
+        LblAppName.Text = Strings.AppName;
+        LblVersion.Text = ThisAssembly.AssemblyInformationalVersion;
+        BtnWebsite.Content = "Divvun Website";
+        BtnWebsite.Click += (sender, e) => { Process.Start("http://divvun.no"); };
     }
+}
+
 }

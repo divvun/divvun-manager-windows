@@ -1,55 +1,50 @@
 ﻿using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
 
-namespace Divvun.Installer.Models
-{
-    public interface ISelectionEvent
-    { }
+namespace Divvun.Installer.Models {
 
-    namespace SelectionEvent
-    {
-        internal struct AddSelectedPackage : ISelectionEvent
-        {
-            public PackageKey PackageKey;
-            public PackageAction Action;
-        }
+public interface ISelectionEvent {
+}
 
-        internal struct RemoveSelectedPackage : ISelectionEvent
-        {
-            public PackageKey PackageKey;
-        }
+namespace SelectionEvent {
 
-        internal struct TogglePackage : ISelectionEvent
-        {
-            public PackageKey PackageKey;
-            public PackageAction Action;
-            public bool Value;
-        }
+internal struct AddSelectedPackage : ISelectionEvent {
+    public PackageKey PackageKey;
+    public PackageAction Action;
+}
 
-        internal struct TogglePackageWithDefaultAction : ISelectionEvent
-        {
-            public PackageKey PackageKey;
-            public bool Value;
-        }
+internal struct RemoveSelectedPackage : ISelectionEvent {
+    public PackageKey PackageKey;
+}
 
-        internal struct ToggleGroupWithDefaultAction : ISelectionEvent
-        {
-            public PackageKey[] PackageKeys;
-            public bool Value;
-        }
+internal struct TogglePackage : ISelectionEvent {
+    public PackageKey PackageKey;
+    public PackageAction Action;
+    public bool Value;
+}
 
-        internal struct ToggleGroup : ISelectionEvent
-        {
-            public PackageAction[] PackageActions;
-            public bool Value;
-        }
+internal struct TogglePackageWithDefaultAction : ISelectionEvent {
+    public PackageKey PackageKey;
+    public bool Value;
+}
 
-        internal struct ResetSelection : ISelectionEvent
-        { }
+internal struct ToggleGroupWithDefaultAction : ISelectionEvent {
+    public PackageKey[] PackageKeys;
+    public bool Value;
+}
 
-        internal struct SetPackages : ISelectionEvent
-        {
-            public PackageAction[] Actions;
-        }
-    }
+internal struct ToggleGroup : ISelectionEvent {
+    public PackageAction[] PackageActions;
+    public bool Value;
+}
+
+internal struct ResetSelection : ISelectionEvent {
+}
+
+internal struct SetPackages : ISelectionEvent {
+    public PackageAction[] Actions;
+}
+
+}
+
 }

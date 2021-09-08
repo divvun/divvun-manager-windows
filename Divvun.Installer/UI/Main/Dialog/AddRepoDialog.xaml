@@ -8,14 +8,13 @@
     CloseButtonText=""
     DefaultButton="Primary">
 
-    <StackPanel Visibility="Visible" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MaxHeight="400" CanVerticallyScroll="True">
+    <StackPanel Visibility="Visible" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" MaxHeight="400"
+                CanVerticallyScroll="True">
         <TextBlock Name="PromptText" Text="" TextWrapping="Wrap" />
         <TextBlock Name="BodyText" Text="" TextWrapping="Wrap" />
-        <TextBox Name="RepositoryUrl" 
+        <TextBox Name="RepositoryUrl"
                  ui:ControlHelper.Header="Repository URL"
                  ui:ControlHelper.PlaceholderText="https://…" />
     </StackPanel>
 
 </ui:ContentDialog>
-
-

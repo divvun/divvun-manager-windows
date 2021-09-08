@@ -2,23 +2,23 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="http://schemas.modernwpf.com/2019"
-             xmlns:local="clr-namespace:Divvun.Installer"
              Startup="OnStartup">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                 <ui:ThemeResources>
+                <ui:ThemeResources>
                     <ui:ThemeResources.ThemeDictionaries>
                         <ResourceDictionary x:Key="Light" ui:ThemeDictionary.Key="Light">
                             <SolidColorBrush x:Key="AppBackgroundBrush" Color="#FFF1F1F1" />
-                            <SolidColorBrush x:Key="AppContentBackgroundBrush" Color="{StaticResource SystemAltHighColor}" />
-                            <SolidColorBrush x:Key="Text" Color="Black"/>
+                            <SolidColorBrush x:Key="AppContentBackgroundBrush"
+                                             Color="{StaticResource SystemAltHighColor}" />
+                            <SolidColorBrush x:Key="Text" Color="Black" />
                         </ResourceDictionary>
 
                         <ResourceDictionary x:Key="Dark" ui:ThemeDictionary.Key="Dark">
                             <SolidColorBrush x:Key="AppBackgroundBrush" Color="#FF232323" />
                             <SolidColorBrush x:Key="AppContentBackgroundBrush" Color="#FF282828" />
-                            <SolidColorBrush x:Key="Text" Color="White"/>
+                            <SolidColorBrush x:Key="Text" Color="White" />
                         </ResourceDictionary>
                     </ui:ThemeResources.ThemeDictionaries>
                 </ui:ThemeResources>

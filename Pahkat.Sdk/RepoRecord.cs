@@ -1,7 +1,7 @@
-﻿namespace Pahkat.Sdk
-{
-    public class RepoRecord
-    {
-        public string? Channel = "";
-    }
+﻿namespace Pahkat.Sdk {
+
+public class RepoRecord {
+    public string? Channel = "";
+}
+
 }

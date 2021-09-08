@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-namespace FlatBuffers
-{
-    /// <summary>
-    /// This is the base for both structs and tables.
-    /// </summary>
-    public interface IFlatbufferObject
-    {
-        void __init(int _i, ByteBuffer _bb);
+namespace FlatBuffers {
 
-        ByteBuffer ByteBuffer { get; }
-    }
+/// <summary>
+///     This is the base for both structs and tables.
+/// </summary>
+public interface IFlatbufferObject {
+    ByteBuffer ByteBuffer { get; }
+    void __init(int _i, ByteBuffer _bb);
+}
+
 }

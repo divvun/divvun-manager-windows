@@ -1,22 +1,17 @@
-﻿using System;
-using System.Windows.Navigation;
+﻿namespace Divvun.Installer.UI.Shared {
 
-namespace Divvun.Installer.UI.Shared
-{
-    public interface IPageView
-    { }
+public interface IPageView {
+}
 
-    public interface IWindowView
-    {
-        void Show();
-    }
+public interface IWindowView {
+    void Show();
+}
 
-    public interface IWindowPageView : IWindowView
-    {
-        void ShowPage(IPageView pageView);
-    }
+public interface IWindowPageView : IWindowView {
+    void ShowPage(IPageView pageView);
+}
 
-    public interface IMainWindowView : IWindowPageView
-    {
-    }
+public interface IMainWindowView : IWindowPageView {
+}
+
 }
