@@ -71,6 +71,11 @@ public static class Util {
             // Best attempt
             langCode = tag.Split('_', '-')[0];
         }
+        
+        // Love the new culture bugs.
+        if (langCode == "") {
+            langCode = tag.Split('_', '-')[0];
+        }
 
         var data = Iso639.GetTag(langCode);
         if (data?.Autonym != null && data.Autonym != "") {

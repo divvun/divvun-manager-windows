@@ -115,11 +115,13 @@ public class MainPagePresenter {
             }
         }
 
-        var categories = new ObservableCollection<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Map(x => {
+        var categoriesSet = new SortedSet<PackageCategoryTreeItem>(map.OrderBy(x => x.Key).Map(x => {
             x.Value.Sort();
             var items = new ObservableCollection<PackageMenuItem>(x.Value);
             return new PackageCategoryTreeItem(_store, convertor(x.Key), items);
         }));
+
+        var categories = new ObservableCollection<PackageCategoryTreeItem>(categoriesSet);
 
         return new RepoTreeItem(repo.Index.NativeName(), categories);
     }
@@ -128,8 +130,7 @@ public class MainPagePresenter {
         return FilterByTagPrefix(repo, "lang:", tag => {
             var langTag = tag.Substring(5);
             var r = Iso639.GetTag(langTag);
-            return Util.Util.GetCultureDisplayName(langTag);
-            // return r?.Autonym ?? r?.Name ?? langTag;
+            return $"{Util.Util.GetCultureDisplayName(langTag)} [{langTag}]";
         });
     }
 
@@ -159,7 +160,9 @@ public class MainPagePresenter {
 
         _tree.Clear();
 
-        if (repos == null) {
+        var sorted = new SortedSet<RepoTreeItem>();
+
+        if (repos.IsNullOrEmpty()) {
             Log.Debug("Repository empty.");
             _view.UpdateTitle(Strings.AppName);
             return;
@@ -172,12 +175,16 @@ public class MainPagePresenter {
 
             switch (sortBy) {
             case SortBy.Category:
-                _tree.Add(await FilterByCategory(repo));
+                sorted.Add(await FilterByCategory(repo));
                 break;
             case SortBy.Language:
-                _tree.Add(FilterByLanguage(repo));
+                sorted.Add(FilterByLanguage(repo));
                 break;
             }
+        }
+        
+        foreach (var repoTreeItem in sorted) {
+            _tree.Add(repoTreeItem);
         }
 
         _view.UpdateTitle(Strings.AppName);

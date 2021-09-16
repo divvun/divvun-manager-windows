@@ -24,6 +24,50 @@ public class RepoTreeItem {
 
 public class PackageCategoryTreeItem : IComparable<PackageCategoryTreeItem>, IEquatable<PackageCategoryTreeItem>,
     INotifyPropertyChanged {
+    public int CompareTo(PackageCategoryTreeItem? other) {
+        if (ReferenceEquals(this, other)) {
+            return 0;
+        }
+
+        if (ReferenceEquals(null, other)) {
+            return 1;
+        }
+
+        return string.Compare(Name, other.Name, StringComparison.CurrentCultureIgnoreCase);
+    }
+
+    public bool Equals(PackageCategoryTreeItem? other) {
+        if (ReferenceEquals(null, other)) {
+            return false;
+        }
+
+        if (ReferenceEquals(this, other)) {
+            return true;
+        }
+
+        return Name == other.Name;
+    }
+
+    public override bool Equals(object? obj) {
+        if (ReferenceEquals(null, obj)) {
+            return false;
+        }
+
+        if (ReferenceEquals(this, obj)) {
+            return true;
+        }
+
+        if (obj.GetType() != this.GetType()) {
+            return false;
+        }
+
+        return Equals((PackageCategoryTreeItem)obj);
+    }
+
+    public override int GetHashCode() {
+        return Name.GetHashCode();
+    }
+
     private readonly UserPackageSelectionStore _store;
     private readonly CompositeDisposable _bag = new CompositeDisposable();
     private bool _isGroupSelected;
@@ -59,53 +103,8 @@ public class PackageCategoryTreeItem : IComparable<PackageCategoryTreeItem>, IEq
         }
     }
 
-    public int CompareTo(PackageCategoryTreeItem other) {
-        if (ReferenceEquals(this, other)) {
-            return 0;
-        }
-
-        if (ReferenceEquals(null, other)) {
-            return 1;
-        }
-
-        return string.Compare(Name, other.Name, StringComparison.CurrentCulture);
-    }
-
-    public bool Equals(PackageCategoryTreeItem other) {
-        if (ReferenceEquals(null, other)) {
-            return false;
-        }
-
-        if (ReferenceEquals(this, other)) {
-            return true;
-        }
-
-        return string.Equals(Name, other.Name) && Equals(Items, other.Items);
-    }
-
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public override bool Equals(object obj) {
-        if (ReferenceEquals(null, obj)) {
-            return false;
-        }
-
-        if (ReferenceEquals(this, obj)) {
-            return true;
-        }
-
-        if (obj.GetType() != GetType()) {
-            return false;
-        }
-
-        return Equals((PackageCategoryTreeItem)obj);
-    }
-
-    public override int GetHashCode() {
-        unchecked {
-            return ((Name != null ? Name.GetHashCode() : 0) * 397) ^ (Items != null ? Items.GetHashCode() : 0);
-        }
-    }
 }
 
 }
