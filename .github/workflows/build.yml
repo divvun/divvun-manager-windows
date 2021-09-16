@@ -87,7 +87,7 @@ jobs:
       - name: Sign code (Divvun Manager exe)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer/bin/x86/Release/net5.0-windows/win-x86/DivvunManager.exe
+          path: Divvun.Installer/bin/x86/Release/net5.0-windows10.0.18362.0/win-x86/DivvunManager.exe
       - name: Sign code (Divvun Installer OneClick exe)
         uses: divvun/actions/codesign@master
         with:
@@ -95,11 +95,11 @@ jobs:
       - name: Sign code (Pahkat SDK DLL)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer/bin/x86/Release/net5.0-windows/win-x86/Pahkat.Sdk.dll 
+          path: Divvun.Installer/bin/x86/Release/net5.0-windows10.0.18362.0/win-x86/Pahkat.Sdk.dll 
       - name: Sign code (Pahkat SDK RPC DLL)
         uses: divvun/actions/codesign@master
         with:
-          path: Divvun.Installer/bin/x86/Release/net5.0-windows/win-x86/Pahkat.Sdk.Rpc.dll
+          path: Divvun.Installer/bin/x86/Release/net5.0-windows10.0.18362.0/win-x86/Pahkat.Sdk.Rpc.dll
       - name: Create installer
         id: installer
         uses: divvun/actions/inno-setup@master

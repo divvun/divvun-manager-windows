@@ -136,7 +136,7 @@ public class MainPagePresenter {
 
     private async Task<RepoTreeItem> FilterByCategory(ILoadedRepository repo) {
         var app = (PahkatApp)Application.Current;
-        Dictionary<Uri, LocalizationStrings> strings = await app.PackageStore.Strings("en");
+        Dictionary<Uri, LocalizationStrings> strings = await app.PackageStore.Strings(app.Settings.GetLanguage() ?? "en");
 
         return FilterByTagPrefix(repo, "cat:", tag => {
             if (tag == "cat:") {
