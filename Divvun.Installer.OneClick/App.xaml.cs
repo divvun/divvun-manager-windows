@@ -17,7 +17,7 @@ public partial class App : Application {
         if (!Debugger.IsAttached) {
             SentrySdk.Init(options => {
                 options.Release = ThisAssembly.AssemblyInformationalVersion;
-                options.Dsn = new Dsn("https://30865d1cdb374a5a98fd20edf1050397@o157567.ingest.sentry.io/5656321");
+                options.Dsn = "https://30865d1cdb374a5a98fd20edf1050397@o157567.ingest.sentry.io/5656321";
             });
 
             Current.DispatcherUnhandledException += (o, args) => {

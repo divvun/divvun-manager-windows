@@ -119,7 +119,7 @@ public partial class MainWindow : Window {
         Languages.ItemsSource = _dropDownData;
     }
 
-    private async Task<OneClickMeta> DownloadOneClickMetadata() {
+    private async Task<OneClickMeta?> DownloadOneClickMetadata() {
         using var client = new WebClient();
         var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
         return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload);
@@ -131,6 +131,11 @@ public partial class MainWindow : Window {
         }
         catch (Exception e) {
             TerminateWithError(e);
+            return;
+        }
+
+        if (_meta == null) {
+            TerminateWithError(new NullReferenceException("_meta"));
             return;
         }
 
