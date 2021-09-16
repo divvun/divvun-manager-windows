@@ -70,7 +70,7 @@ public partial class PahkatApp : Application, ISingleInstance {
 
     private void CreateNotifyIcon() {
         _icon = new TaskbarIcon {
-            IconSource = new BitmapImage(Constants.TaskbarIcon),
+            IconSource = new BitmapImage(Divvun.Installer.Properties.Constants.TaskbarIcon),
         };
         var menu = new ContextMenu();
 
@@ -161,7 +161,7 @@ public partial class PahkatApp : Application, ISingleInstance {
         if (!Debugger.IsAttached) {
             SentrySdk.Init(options => {
                 options.Release = ThisAssembly.AssemblyInformationalVersion;
-                options.Dsn = new Dsn(Constants.SentryDsn);
+                options.Dsn = Divvun.Installer.Properties.Constants.SentryDsn;
                 options.SendDefaultPii = true;
             });
 

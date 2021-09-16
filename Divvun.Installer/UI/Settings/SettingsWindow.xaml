@@ -26,7 +26,7 @@
                       ui:ControlHelper.Header="{x:Static pahkat:Strings.InterfaceLanguage}"
                       ui:ControlHelper.PlaceholderText="{x:Static pahkat:Strings.SystemLocale}"
                       SelectionChanged="OnLanguageSelectionChanged"
-                      Width="160" HorizontalAlignment="Left"
+                      MinWidth="160" HorizontalAlignment="Left"
                       DisplayMemberPath="Name"
                       SelectedValuePath="Tag" />
 

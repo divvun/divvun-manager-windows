@@ -15,19 +15,19 @@ public static class ReadOnlyDictExt {
 
 public static class NativeNameExt {
     public static string NativeName(this ResolvedAction action) {
-        var tag = CultureInfo.CurrentCulture.IetfLanguageTag;
+        var tag = PahkatApp.Current.Settings.GetLanguage() ?? "en";
         return action.Name.Get(tag) ?? action.Name.Get("en") ?? action.Action.PackageKey.Id;
     }
 
     public static string NativeName(this IDescriptor descriptor) {
-        var tag = CultureInfo.CurrentCulture.IetfLanguageTag;
+        var tag = PahkatApp.Current.Settings.GetLanguage() ?? "en";
         var map = descriptor.Name;
         var name = map.Get(tag) ?? map.Get("en") ?? descriptor.Id;
         return name;
     }
 
     public static string NativeName(this LoadedRepository.IndexValue value) {
-        var tag = CultureInfo.CurrentCulture.IetfLanguageTag;
+        var tag = PahkatApp.Current.Settings.GetLanguage() ?? "en";
         var map = value.Name;
         return map.Get(tag) ?? map.Get("en") ?? value.Url.ToString();
     }

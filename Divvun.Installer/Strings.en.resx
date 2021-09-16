@@ -291,8 +291,8 @@
     <value>No Items Selected</value>
   </data>
     <data name="NotApplicable" xml:space="preserve">
-    <value>--</value>
-  </data>
+      <value>—</value>
+    </data>
     <data name="NotInstalled" xml:space="preserve">
     <value>Not Installed</value>
   </data>
@@ -393,9 +393,6 @@
   </data>
     <data name="SkipTheseUpdates" xml:space="preserve">
     <value>Skip These Updates</value>
-  </data>
-    <data name="SortBy" xml:space="preserve">
-    <value>Sort by</value>
   </data>
     <data name="Stable" xml:space="preserve">
     <value>Stable</value>

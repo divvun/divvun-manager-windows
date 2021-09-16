@@ -240,8 +240,8 @@
     <data name="NoUpdatesTitle" xml:space="preserve">
     <value>Eai leat ođastuhttimat</value>
   </data>
-    <data name="NotApplicable" xml:space="preserve">
-    <value>--</value>
+  <data name="NotApplicable" xml:space="preserve">
+    <value>—</value>
   </data>
     <data name="NotInstalled" xml:space="preserve">
     <value>Ii leat sajáiduhtton</value>

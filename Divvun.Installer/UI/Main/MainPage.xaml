@@ -74,7 +74,7 @@
                 Name="TitleBarReposButton"
                 Grid.Column="3"
                 WindowChrome.IsHitTestVisibleInChrome="True"
-                Content="All Repositories"
+                Content="{x:Static pahkat:Strings.AllRepositories}"
                 CornerRadius="0">
                 <ui:DropDownButton.Flyout>
                     <ui:MenuFlyout Placement="BottomEdgeAlignedLeft" x:Name="TitleBarReposFlyout" />
@@ -104,12 +104,6 @@
 
         </Grid>
         <DockPanel Grid.Row="1">
-            <!-- <DockPanel DockPanel.Dock="top" Height="32"> -->
-            <!--      <DockPanel HorizontalAlignment="Right"> -->
-            <!--         <Button Name="BtnPrimary" IsEnabled="False" Content="No Packages Selected" Height="23" Width="auto" HorizontalAlignment="Right" Padding="4,0" Margin="0,0,4,0" /> -->
-            <!--     </DockPanel> -->
-            <!-- </DockPanel> -->
-            <!--  -->
             <TreeView Padding="8,8,8,8" Name="TvPackages" HorizontalContentAlignment="Stretch" Width="auto">
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">

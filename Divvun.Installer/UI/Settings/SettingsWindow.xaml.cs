@@ -149,7 +149,7 @@ public partial class SettingsWindow : Window, ISettingsWindowView {
 
         var repos = await app.PackageStore.RepoIndexes();
         var repoRecords = await app.PackageStore.GetRepoRecords();
-        var strings = await app.PackageStore.Strings(app.Settings.GetLanguage() ?? "en");
+        var repoStrings = await app.PackageStore.Strings(app.Settings.GetLanguage() ?? "en");
 
         RepoList.Clear();
 
@@ -162,10 +162,32 @@ public partial class SettingsWindow : Window, ISettingsWindowView {
                 name += " ⚠️";
             }
 
-            // TODO: do not hardcode channel list
+            var strings = repoStrings.Get(keyValuePair.Key);
+            
             var channels = new List<ChannelMenuItem>();
-            channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
-            channels.Add(ChannelMenuItem.Create(Strings.Nightly, "nightly"));
+            if (strings != null) {
+                var defaultString = strings.Channels.Get("default");
+
+                if (defaultString == null) {
+                    channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
+                }
+                else {
+                    channels.Add(ChannelMenuItem.Create(defaultString, ""));
+                }
+                
+                
+                foreach (var channelPair in strings.Channels) {
+                    if (channelPair.Key == "default") {
+                        continue;
+                    }
+                    
+                    channels.Add(ChannelMenuItem.Create(channelPair.Value, channelPair.Key));
+                }
+            }
+            else {
+                channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
+            }
+            
             var selectedChannel = keyValuePair.Value.Channel ?? "";
 
             RepoList.Add(new RepositoryListItem(keyValuePair.Key, name, channels, selectedChannel));

@@ -70,6 +70,15 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to All Repositories.
+        /// </summary>
+        public static string AllRepositories {
+            get {
+                return ResourceManager.GetString("AllRepositories", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Alpha.
         /// </summary>
         public static string Alpha {
@@ -394,6 +403,15 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Generate debugging zip file....
+        /// </summary>
+        public static string GenerateDebuggingZipFile {
+            get {
+                return ResourceManager.GetString("GenerateDebuggingZipFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Help.
         /// </summary>
         public static string Help {
@@ -592,7 +610,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to --.
+        ///   Looks up a localized string similar to —.
         /// </summary>
         public static string NotApplicable {
             get {
@@ -909,7 +927,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sort by….
+        ///   Looks up a localized string similar to Sort by.
         /// </summary>
         public static string SortBy {
             get {

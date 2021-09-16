@@ -303,8 +303,8 @@
     <value>No Updates</value>
   </data>
     <data name="NotApplicable" xml:space="preserve">
-    <value>--</value>
-  </data>
+      <value>—</value>
+    </data>
     <data name="NotInstalled" xml:space="preserve">
     <value>Not Installed</value>
   </data>
@@ -395,8 +395,8 @@
     <value>Skip These Updates</value>
   </data>
     <data name="SortBy" xml:space="preserve">
-    <value>Sort by…</value>
-  </data>
+      <value>Sort by</value>
+    </data>
     <data name="Stable" xml:space="preserve">
     <value>Stable</value>
   </data>
@@ -481,4 +481,10 @@
     <data name="VerificationFailedTitle" xml:space="preserve">
     <value>Authentication Failed</value>
   </data>
+    <data name="AllRepositories" xml:space="preserve">
+      <value>All Repositories</value>
+    </data>
+    <data name="GenerateDebuggingZipFile" xml:space="preserve">
+      <value>Generate debugging zip file...</value>
+    </data>
 </root>

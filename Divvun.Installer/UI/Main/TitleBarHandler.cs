@@ -180,7 +180,7 @@ public static class TitleBarHandler {
 
             titleBarReposFlyout.Items.Add(new Separator());
             var menu = new MenuItem();
-            menu.Header = "All Repositories";
+            menu.Header = Strings.AllRepositories;
             menu.Click += (sender, args) => {
                 app.Settings.Mutate(x => { x.SelectedRepository = new Uri("divvun-installer:detailed"); });
             };

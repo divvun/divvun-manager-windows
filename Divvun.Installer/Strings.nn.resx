@@ -168,8 +168,8 @@
     <data name="Help" xml:space="preserve">
     <value>Divvun Manager-hjelp</value>
   </data>
-    <data name="HideApp" xml:space="preserve">
-    <value>Gøym Divvun Manageren</value>
+  <data name="HideApp" xml:space="preserve">
+    <value>Gøym Divvun Manager</value>
   </data>
     <data name="HideOthers" xml:space="preserve">
     <value>Gøym andre</value>
@@ -270,8 +270,8 @@
     <data name="Queued" xml:space="preserve">
     <value>I kø</value>
   </data>
-    <data name="QuitApp" xml:space="preserve">
-    <value>Avslutt Divvun Manageren</value>
+  <data name="QuitApp" xml:space="preserve">
+    <value>Avslutt Divvun Manager</value>
   </data>
     <data name="Redo" xml:space="preserve">
     <value>Gjer på nytt</value>
@@ -331,8 +331,8 @@
     <data name="SkipTheseUpdates" xml:space="preserve">
     <value>Hopp over desse oppdateringane</value>
   </data>
-    <data name="SortBy" xml:space="preserve">
-    <value>Sorter etter…</value>
+  <data name="SortBy" xml:space="preserve">
+    <value>Sorter etter</value>
   </data>
     <data name="Stable" xml:space="preserve">
     <value>Stabil</value>
