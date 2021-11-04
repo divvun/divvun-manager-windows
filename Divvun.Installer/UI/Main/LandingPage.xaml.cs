@@ -202,8 +202,8 @@ public partial class LandingPage : Page, IPageView, IDisposable {
 
         _webView.JavascriptMessageReceived += async (sender, args) => {
             // Check args.Uri for something we want to actually act upon, for security.
-            Log.Debug("{uri}", args.Frame.Url);
-            Log.Debug(args.Frame.Url);
+            // Log.Debug("{uri}", args.Frame.Url);
+            // Log.Debug(args.Frame.Url);
 
             await ProcessRequest(args.Message as string);
         };
