@@ -99,6 +99,19 @@
             <Private>true</Private>
         </Reference>
     </ItemGroup>
+    <ItemGroup>
+        <Compile Update="Strings.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Strings.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Update="Strings.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
 
     <Import Project="$(BaseIntermediateOutputPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets" Condition=" '$(_TargetAssemblyProjectName)' != '' and '$(ImportProjectExtensionProps)' != 'false' and exists('$(BaseIntermediateOutputPath)$(_TargetAssemblyProjectName)$(MSBuildProjectExtension).nuget.g.targets')" />
 </Project>

@@ -46,7 +46,7 @@
       
       mimetype: application/x-microsoft.net.object.binary.base64
       value   : The object must be serialized with 
-              : System.Serialization.Formatters.Binary.BinaryFormatter
+              : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
               : and then encoded with base64 encoding.
       
       mimetype: application/x-microsoft.net.object.soap.base64
@@ -61,6 +61,7 @@
       -->
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                 xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
         <xsd:element name="root" msdata:IsDataSet="true">
             <xsd:complexType>
                 <xsd:choice maxOccurs="unbounded">
@@ -69,9 +70,10 @@
                             <xsd:sequence>
                                 <xsd:element name="value" type="xsd:string" minOccurs="0"/>
                             </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string"/>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
                             <xsd:attribute name="type" type="xsd:string"/>
                             <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="assembly">
@@ -86,9 +88,10 @@
                                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
                                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
                             </xsd:sequence>
-                            <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1"/>
+                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
                             <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
                             <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
                         </xsd:complexType>
                     </xsd:element>
                     <xsd:element name="resheader">
@@ -110,13 +113,78 @@
         <value>2.0</value>
     </resheader>
     <resheader name="reader">
-        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=5.0.0.0, Culture=neutral,
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
     <resheader name="writer">
-        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral,
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=5.0.0.0, Culture=neutral,
             PublicKeyToken=b77a5c561934e089
         </value>
     </resheader>
+    <data name="AppLoading" xml:space="preserve">
+    <value>Loading... Please wait.</value>
+  </data>
+    <data name="AppTitle" xml:space="preserve">
+    <value>Divvun OneClick Installer</value>
+  </data>
+    <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+    <data name="DivvunDownloadPrimary" xml:space="preserve">
+    <value>Downloading and Installing Divvun Manager</value>
+  </data>
+    <data name="DivvunDownloadSecondary" xml:space="preserve">
+    <value>This utility will keep your language resources up to date</value>
+  </data>
+    <data name="DownloadingDivvunInstaller" xml:space="preserve">
+    <value>Downloading Divvun Manager...</value>
+  </data>
+    <data name="DownloadingResources" xml:space="preserve">
+    <value>Downloading {0} resources...</value>
+        <comment>{0} contains a language name</comment>
+  </data>
+    <data name="DownloadStart" xml:space="preserve">
+    <value>Downloading...</value>
+  </data>
+    <data name="ErrorText" xml:space="preserve">
+    <value>An error has occurred:
+
+{0}
+
+This crash has been automatically reported to Divvun. You may try to re-run the installer, but if problems persist, please email us at feedback@divvun.no for assistance.</value>
+        <comment>{0} contains a specific error message.</comment>
+  </data>
+    <data name="Finalizing" xml:space="preserve">
+    <value>Finishing up...</value>
+  </data>
+    <data name="Finished" xml:space="preserve">
+    <value>That's it!</value>
+        <comment>{0} contains a language name.</comment>
+  </data>
+    <data name="FinishedSecondary" xml:space="preserve">
+    <value>Your {0} resources are now installed. To finish setup you will need to restart your computer. You can either restart now or later.</value>
+  </data>
+    <data name="Install" xml:space="preserve">
+    <value>Install</value>
+  </data>
+    <data name="InstallationCancelled" xml:space="preserve">
+    <value>Installation Cancelled</value>
+  </data>
+    <data name="InstallingResources" xml:space="preserve">
+    <value>Installing {0} resources...</value>
+        <comment>{0} contains a language name</comment>
+  </data>
+    <data name="LanguageSelect" xml:space="preserve">
+    <value>Select Language to Install:</value>
+  </data>
+    <data name="PreparingInstaller" xml:space="preserve">
+    <value>Preparing Divvun Manager...</value>
+  </data>
+    <data name="RebootLater" xml:space="preserve">
+    <value>Reboot Later</value>
+  </data>
+    <data name="RebootNow" xml:space="preserve">
+    <value>Reboot Now</value>
+  </data>
 </root>
