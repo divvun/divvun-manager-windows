@@ -64,7 +64,7 @@
         <PackageReference Include="Serilog.Enrichers.Thread" Version="3.2.0-dev-00752" />
         <PackageReference Include="System.Management" Version="6.0.0-rc.1.21451.13" />
         <PackageReference Include="System.Reactive" Version="4.4.1" />
-        <PackageReference Include="CefSharp.Wpf" Version="94.4.110" />
+        <PackageReference Include="CefSharp.Wpf" Version="98.1.210" />
         <PackageReference Include="System.Reactive.Observable.Aliases" Version="4.4.1" />
     </ItemGroup>
     <ItemGroup>
