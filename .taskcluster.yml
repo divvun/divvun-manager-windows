@@ -14,11 +14,11 @@ tasks:
       else: ${event.repository.html_url}
     repo_name:
       $if: tasks_for == "github-pull-request"
-      then: ${event.pull_request.parent.name}
+      then: ${event.pull_request.base.name}
       else: ${event.repository.name}
     repo_full_name:
       $if: tasks_for == "github-pull-request"
-      then: ${event.pull_request.parent.full_name}
+      then: ${event.pull_request.base.full_name}
       else: ${event.repository.full_name}
     branch:
         $if: "event.ref[:11] == 'refs/heads/'"
