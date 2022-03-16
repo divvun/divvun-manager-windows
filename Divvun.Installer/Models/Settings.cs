@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
@@ -22,16 +23,23 @@ public abstract class Config<TFile> {
         var parentPath = Path.GetPathRoot(path);
         Directory.CreateDirectory(parentPath);
 
-        // Assume the file may not exist.
+        // Assume the file may not exist or contains invalid data.
         string jsonString;
+        TFile state;
         try {
             jsonString = File.ReadAllText(path, Encoding.UTF8);
+            state = JsonConvert.DeserializeObject<TFile>(jsonString);
+            if (state == null) {
+                throw new Exception("Invalid JSON file");
+            }
         }
         catch (Exception e) {
             jsonString = "{}";
+            state = JsonConvert.DeserializeObject<TFile>(jsonString);
+            Debug.Assert(state != null);
         }
 
-        _state = JsonConvert.DeserializeObject<TFile>(jsonString);
+        _state = state;
         _changeSubject = new BehaviorSubject<TFile>(_state);
     }
 
