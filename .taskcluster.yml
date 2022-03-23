@@ -36,15 +36,15 @@ tasks:
       else: ${event.compare}
     ref:
       $if: tasks_for == "github-pull-request"
-      then: ${event.pull_request.base.ref}
+      then: ${event.pull_request.head.ref}
       else: ${event.ref}
     clone_url:
       $if: tasks_for == "github-pull-request"
-      then: ${event.pull_request.base.repo.clone_url}
+      then: ${event.pull_request.head.repo.clone_url}
       else: ${event.repository.clone_url}
     after:
       $if: tasks_for == "github-pull-request"
-      then: ${event.pull_request.base.sha}
+      then: ${event.pull_request.head.sha}
       else: ${event.after}
     owner:
       $if: tasks_for == "github-pull-request"
