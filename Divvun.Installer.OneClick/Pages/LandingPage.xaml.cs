@@ -36,19 +36,33 @@ public partial class LandingPage : Page {
 
     private async Task<OneClickMeta> DownloadOneClickMetadata() {
         using var client = new WebClient();
-        var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
+        var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/oneclick.json"));
         return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload)!;
     }
 
     private async void Page_Loaded(object sender, RoutedEventArgs e) {
         var app = (App)Application.Current;
-        try {
-            app.Meta = await DownloadOneClickMetadata();
-        }
-        catch (Exception ex) {
-            ((App)Application.Current).TerminateWithError(ex);
-            return;
-        }
+        while(true)
+        {
+                try
+                {
+                    app.Meta = await DownloadOneClickMetadata();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    var result = System.Windows.Forms.MessageBox.Show(ex.Message, null, System.Windows.Forms.MessageBoxButtons.RetryCancel);
+
+                    if (result == System.Windows.Forms.DialogResult.Retry)
+                    {
+                        continue;
+                    } else
+                    {
+                        Application.Current.MainWindow.Close();
+                        // ((App)Application.Current).TerminateWithError(ex);
+                    }
+                }
+            }
 
         var items = app.Meta.Languages.Map((language) => new LanguageItem() {
             Tag = language.Tag,

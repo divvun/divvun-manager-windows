@@ -16,15 +16,15 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <TextBlock Name="DownloadTitleText" Grid.Row="0" TextAlignment="Center" VerticalAlignment="Center"
+        <TextBlock Name="DownloadTitleText" Grid.Row="0" TextAlignment="Left" VerticalAlignment="Center"
                    TextWrapping="Wrap" Text="{x:Static local:Strings.DownloadStart}" FontSize="24"
-                   FontWeight="SemiBold" Margin="0,48,0,16" />
+                   FontWeight="SemiBold" Margin="48,48,0,8" />
         <TextBlock Name="DownloadSubtitleText" Grid.Row="1" TextAlignment="Left" VerticalAlignment="Center"
-                   TextWrapping="Wrap" Text="" Margin="48,0,48,64" />
+                   TextWrapping="Wrap" Text="" Margin="48,0,48,32" />
 
         <ProgressBar Name="DownloadProgresBar" Grid.Row="2" IsIndeterminate="True" Margin="48,0,48,0" />
         <TextBlock Name="ProgressText" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Row="3"
-                   Margin="48,16,48,0" />
+                   Margin="48,8,48,0" />
         <Border Grid.Row="4" DockPanel.Dock="Bottom" BorderBrush="#FF828790" Height="auto">
             <DockPanel Height="auto">
                 <Button Name="BtnCancel" IsCancel="True"

@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Center" Grid.Row="0">
             <TextBlock Text="{x:Static local:Strings.LanguageSelect}" FontSize="24" FontWeight="SemiBold"
-                       TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,64" />
+                       TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,32" />
             <ComboBox Name="Languages" FontSize="17"
                       DisplayMemberPath="Name"
                       SelectedValuePath="Tag"

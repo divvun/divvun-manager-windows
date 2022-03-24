@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Loaded="MainWindow_OnLoaded"
         Closing="MainWindow_OnClosing"
-        Title="{x:Static local:Strings.AppTitle}" Height="350" Width="600">
+        Title="{x:Static local:Strings.AppTitle}" Height="320" Width="600"
+        ResizeMode="NoResize">
     <Grid>
         <Frame Grid.Row="0" x:Name="FrmContainer" NavigationUIVisibility="Hidden" JournalOwnership="OwnsJournal" />
     </Grid>
