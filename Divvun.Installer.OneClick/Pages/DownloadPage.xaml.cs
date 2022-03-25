@@ -276,7 +276,7 @@ public partial class DownloadPage : Page {
             .ObserveOn(app.Dispatcher)
             .SubscribeOn(app.Dispatcher)
             .Subscribe(key => {
-                if (installedPackages!.ContainsKey(key)
+                if (installedPackages!.ContainsKey(key))
                 {
                     SetProgress(installedPackages![key],
                     0,
