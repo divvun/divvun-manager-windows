@@ -52,6 +52,7 @@ public partial class DownloadPage : Page {
             var packageKeys = await ResolvePackageActions(pahkat, selectedLanguage);
 
             installedPackages = packageKeys.Map(tup => (tup.Item1, GetNativeResourceName(tup.Item2))).ToDict();
+
             UpdateDownloadTitle(string.Format(Strings.InstallingResources, selectedLanguage.Name),
                 string.Join(", ", installedPackages.Values));
             await Task.WhenAll(InstallPackageKeys(pahkat, packageKeys.Map(tup => tup.Item1)),
@@ -259,9 +260,14 @@ public partial class DownloadPage : Page {
             .SubscribeOn(app.Dispatcher)
             .Subscribe(state => {
                 foreach (var keyValuePair in state) {
-                    SetProgress(installedPackages![keyValuePair.Key],
+                    try {
+                        SetProgress(installedPackages![keyValuePair.Key],
                         keyValuePair.Value.Item1,
                         keyValuePair.Value.Item2);
+                    } catch(Exception ex)
+                    {
+                        Log.Debug(ex.Message);
+                    }
                 }
             });
 
