@@ -260,13 +260,11 @@ public partial class DownloadPage : Page {
             .SubscribeOn(app.Dispatcher)
             .Subscribe(state => {
                 foreach (var keyValuePair in state) {
-                    try {
+                    if (installedPackages!.ContainsKey(keyValuePair.Key))
+                    {
                         SetProgress(installedPackages![keyValuePair.Key],
                         keyValuePair.Value.Item1,
                         keyValuePair.Value.Item2);
-                    } catch(Exception ex)
-                    {
-                        Log.Debug(ex.Message);
                     }
                 }
             });
@@ -278,9 +276,12 @@ public partial class DownloadPage : Page {
             .ObserveOn(app.Dispatcher)
             .SubscribeOn(app.Dispatcher)
             .Subscribe(key => {
-                SetProgress(installedPackages![key],
+                if (installedPackages!.ContainsKey(key)
+                {
+                    SetProgress(installedPackages![key],
                     0,
                     0, true);
+                }
             });
     }
 
