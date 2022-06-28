@@ -36,7 +36,7 @@ public partial class LandingPage : Page {
 
     private async Task<OneClickMeta> DownloadOneClickMetadata() {
         using var client = new WebClient();
-        var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/main/oneclick.json"));
+        var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/oneclick.json"));
         return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload)!;
     }
 
