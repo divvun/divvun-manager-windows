@@ -42,6 +42,8 @@ public partial class DownloadPage : Page {
         Log.Debug("Running install process");
         try {
             using var client = new WebClient();
+            client.Headers.Add("User-Agent", "divvun-oneclick-installer/" + ThisAssembly.AssemblyInformationalVersion);
+
             var selectedLanguage = ((App)Application.Current).SelectedLanguage!;
             var meta = ((App)Application.Current).Meta!;
 

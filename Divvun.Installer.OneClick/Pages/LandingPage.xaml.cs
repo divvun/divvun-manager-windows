@@ -36,6 +36,7 @@ public partial class LandingPage : Page {
 
     private async Task<OneClickMeta> DownloadOneClickMetadata() {
         using var client = new WebClient();
+        client.Headers.Add("User-Agent", "divvun-oneclick-installer/" + ThisAssembly.AssemblyInformationalVersion);
         var jsonPayload = await client.DownloadStringTaskAsync(new Uri("https://pahkat.uit.no/oneclick.json"));
         return JsonConvert.DeserializeObject<OneClickMeta>(jsonPayload)!;
     }
