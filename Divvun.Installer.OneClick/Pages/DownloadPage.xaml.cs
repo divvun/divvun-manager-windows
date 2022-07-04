@@ -179,7 +179,17 @@ public partial class DownloadPage : Page {
     private Task<List<(PackageKey, Dictionary<string, string>)>> ResolvePackageActions(PahkatClient pahkat,
         LanguageItem selectedLanguage) {
         return Task.Run(async () => {
-            await pahkat.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
+            var repos = await pahkat.GetRepoRecords();
+            var mainRepo = repos.Filter((repo) =>
+            {
+                return repo.Key.AbsoluteUri == "https://pahkat.uit.no/main/";
+            });
+
+            if (mainRepo == null)
+            {
+                await pahkat.SetRepo(new Uri("https://pahkat.uit.no/main/"), new RepoRecord());
+            }
+
             var result = await pahkat.ResolvePackageQuery(new PackageQuery() {
                 Tags = new[] { $"lang:{selectedLanguage.Tag}" },
             });
