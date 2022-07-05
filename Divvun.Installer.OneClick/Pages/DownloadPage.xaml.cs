@@ -270,6 +270,9 @@ public partial class DownloadPage : Page {
             .ObserveOn(app.Dispatcher)
             .SubscribeOn(app.Dispatcher)
             .Subscribe(state => {
+                // Ignore the state of any package that wasn't explicitely installed (i.e dependencies)
+                if (!installedPackages!.ContainsKey(keyValuePair.Key)) { continue; }
+
                 foreach (var keyValuePair in state) {
                     SetProgress(installedPackages![keyValuePair.Key],
                         keyValuePair.Value.Item1,
@@ -284,6 +287,9 @@ public partial class DownloadPage : Page {
             .ObserveOn(app.Dispatcher)
             .SubscribeOn(app.Dispatcher)
             .Subscribe(key => {
+                // Ignore the state of any package that wasn't explicitely installed (i.e dependencies)
+                if (!installedPackages!.ContainsKey(key)) { return; }
+
                 SetProgress(installedPackages![key],
                     0,
                     0, true);
