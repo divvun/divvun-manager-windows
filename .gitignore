@@ -322,3 +322,4 @@ Pahkat.Sdk/*.exe
 Pahkat.Sdk/*.dll
 PahkatUpdater/*.exe
 PahkatUpdater/*.dll
+.DS_Store
