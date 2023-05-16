@@ -12,7 +12,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using Divvun.Installer.Models;
-using Divvun.Installer.Properties;
 using Divvun.Installer.Service;
 using Divvun.Installer.UI.About;
 using Divvun.Installer.UI.Main;
@@ -30,11 +29,13 @@ using SingleInstanceCore;
 namespace Divvun.Installer {
 
 public partial class PahkatApp : Application, ISingleInstance {
-    // public static DispatcherScheduler Scheduler;
+    //public static DispatcherScheduler Scheduler;
 
+    public bool IsShutdown = false;
     public const string ArgsSilent = "-s";
-    private const int AttachParentProcess = -1;
 
+    private const int AttachParentProcess = -1;
+   
     private CompositeDisposable _bag = new CompositeDisposable();
     private TaskbarIcon _icon;
 

@@ -155,40 +155,55 @@ public class MainPagePresenter {
 
     internal async Task BindNewRepositories(SortBy sortBy) {
         var app = PahkatApp.Current;
-        var repos = (await app.PackageStore.RepoIndexes()).Values;
-        var records = await app.PackageStore.GetRepoRecords();
 
-        _tree.Clear();
+        try {
+            var repos = (await app.PackageStore.RepoIndexes()).Values;
+            var records = await app.PackageStore.GetRepoRecords();
 
-        var sorted = new SortedSet<RepoTreeItem>();
+            _tree.Clear();
 
-        if (repos.IsNullOrEmpty()) {
-            Log.Debug("Repository empty.");
-            _view.UpdateTitle(Strings.AppName);
-            return;
-        }
+            var sorted = new SortedSet<RepoTreeItem>();
 
-        foreach (var repo in repos) {
-            if (!records.ContainsKey(repo.Index.Url)) {
-                continue;
+            if (repos.IsNullOrEmpty()) {
+                Log.Debug("Repository empty.");
+                _view.UpdateTitle(Strings.AppName);
+                return;
             }
 
-            switch (sortBy) {
-            case SortBy.Category:
-                sorted.Add(await FilterByCategory(repo));
-                break;
-            case SortBy.Language:
-                sorted.Add(FilterByLanguage(repo));
-                break;
+            foreach (var repo in repos) {
+                if (!records.ContainsKey(repo.Index.Url)) {
+                    continue;
+                }
+
+                switch (sortBy) {
+                case SortBy.Category:
+                    sorted.Add(await FilterByCategory(repo));
+                    break;
+                case SortBy.Language:
+                    sorted.Add(FilterByLanguage(repo));
+                    break;
+                }
             }
-        }
         
-        foreach (var repoTreeItem in sorted) {
-            _tree.Add(repoTreeItem);
-        }
+            foreach (var repoTreeItem in sorted) {
+                _tree.Add(repoTreeItem);
+            }
 
-        _view.UpdateTitle(Strings.AppName);
-        Log.Debug("Added packages.");
+            _view.UpdateTitle(Strings.AppName);
+            Log.Debug("Added packages.");
+        }
+        catch (PahkatServiceConnectionException)
+        {
+            MessageBox.Show(
+                Strings.PahkatServiceConnectionException
+            );
+            Application.Current.Dispatcher.Invoke(
+                    () =>
+                    {
+                        Application.Current.Shutdown(1);
+                    }
+                );
+            }
     }
 
     private void GeneratePrimaryButtonLabel(Dictionary<PackageKey, PackageAction> packages) {

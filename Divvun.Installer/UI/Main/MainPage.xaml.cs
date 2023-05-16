@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using Divvun.Installer.Extensions;
 using Divvun.Installer.UI.Shared;
+using Pahkat.Sdk.Rpc;
 
 namespace Divvun.Installer.UI.Main {
 
@@ -158,12 +159,28 @@ public partial class MainPage : Page, IMainPageView, IDisposable {
         _presenter.Start().DisposedBy(_bag);
 
         TitleBarHandler.BindRepoDropdown(_bag, async x => {
-            var app = (PahkatApp)Application.Current;
-            var repos = (await app.PackageStore.RepoIndexes()).Values.ToArray();
-            var records = await app.PackageStore.GetRepoRecords();
+            try {
+                var app = (PahkatApp)Application.Current;
+                var repos = (await app.PackageStore.RepoIndexes()).Values.ToArray();
+                var records = await app.PackageStore.GetRepoRecords();
 
-            TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos, records);
-            // _presenter.BindNewRepositories(_sortedBy.Value);
+                TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos, records);
+                // _presenter.BindNewRepositories(_sortedBy.Value);
+            }
+            catch (PahkatServiceConnectionException)
+            {
+                var current = (PahkatApp)Application.Current;
+
+                if (!current.IsShutdown) {
+                    current.IsShutdown = true;
+                    MessageBox.Show(Strings.PahkatServiceConnectionException);
+                    Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            Application.Current.Shutdown(1);
+                        }
+                    );
+                }
+            }
         });
 
         ConfigureSortBy();

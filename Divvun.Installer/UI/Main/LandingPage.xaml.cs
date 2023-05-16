@@ -132,64 +132,95 @@ public partial class LandingPage : Page, IPageView, IDisposable {
         var app = (PahkatApp)Application.Current;
 
         var pahkat = app.PackageStore;
-        var repos = await pahkat.RepoIndexes();
-        var records = await pahkat.GetRepoRecords();
 
-        TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout,
-            repos.Values.ToArray(), records);
+        try
+        {
+            var repos = await pahkat.RepoIndexes();
+            var records = await pahkat.GetRepoRecords();
 
-        await app.Dispatcher.InvokeAsync(() => {
-            ILoadedRepository? repo = null;
-            if (url == null) {
-                if (records.IsNullOrEmpty()) {
+            TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout,
+                repos.Values.ToArray(), records);
+
+            await app.Dispatcher.InvokeAsync(() =>
+            {
+                ILoadedRepository? repo = null;
+                if (url == null)
+                {
+                    if (records.IsNullOrEmpty())
+                    {
+                        ShowNoLandingPage();
+                        return;
+                    }
+
+                    if (!repos.Values.IsNullOrEmpty())
+                    {
+                        repo = repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                    }
+
+                    if (repo == null)
+                    {
+                        ShowNoLandingPage();
+                        return;
+                    }
+                }
+                else if (url.Scheme == "divvun-installer")
+                {
+                    if (url.AbsolutePath == "detailed")
+                    {
+                        ShowNoLandingPage();
+                        return;
+                    }
+                }
+                else
+                {
+                    if (!repos.Values.IsNullOrEmpty())
+                    {
+                        repo = repos.Values.First(r => r.Index.Url == url);
+                        repo ??= repos.Values.First(r => records.ContainsKey(r.Index.Url));
+                    }
+
+                    if (repo == null)
+                    {
+                        ShowNoLandingPage();
+                        return;
+                    }
+                }
+
+                if (repo == null)
+                {
+                    app.Settings.Mutate(file =>
+                    {
+                        Log.Warning("No repository found, setting selected repo to null");
+                        file.SelectedRepository = null;
+                    });
+                    return;
+                }
+
+                if (repo.Index.LandingUrl == null)
+                {
                     ShowNoLandingPage();
                     return;
                 }
 
-                if (!repos.Values.IsNullOrEmpty()) {
-                    repo = repos.Values.First(r => records.ContainsKey(r.Index.Url));
-                }
+                TitleBarReposButton.Content = repo.Index.NativeName();
+                _webBridge.SetRepository(repo);
+                _webView.Load(repo.Index.LandingUrl.SetQueryParam("ts", DateTimeOffset.UtcNow));
+            });
+        }
+        catch (PahkatServiceConnectionException)
+        {
+            var current = (PahkatApp)Application.Current;
 
-                if (repo == null) {
-                    ShowNoLandingPage();
-                    return;
-                }
+            if (!current.IsShutdown) {
+                current.IsShutdown = true;
+                MessageBox.Show(Strings.PahkatServiceConnectionException);
+                Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        Application.Current.Shutdown(1);
+                    }
+                );
             }
-            else if (url.Scheme == "divvun-installer") {
-                if (url.AbsolutePath == "detailed") {
-                    ShowNoLandingPage();
-                    return;
-                }
-            }
-            else {
-                if (!repos.Values.IsNullOrEmpty()) {
-                    repo = repos.Values.First(r => r.Index.Url == url);
-                    repo ??= repos.Values.First(r => records.ContainsKey(r.Index.Url));
-                }
-
-                if (repo == null) {
-                    ShowNoLandingPage();
-                    return;
-                }
-            }
-
-            if (repo == null) {
-                app.Settings.Mutate(file => {
-                    Log.Warning("No repository found, setting selected repo to null");
-                    file.SelectedRepository = null;
-                });
-                return;
-            }
-
-            if (repo.Index.LandingUrl == null) {
-                ShowNoLandingPage();
-                return;
-            }
-
-            TitleBarReposButton.Content = repo.Index.NativeName();
-            _webBridge.SetRepository(repo);
-            _webView.Load(repo.Index.LandingUrl.SetQueryParam("ts", DateTimeOffset.UtcNow));
-        });
+        }
     }
 
     private async Task ProcessRequest(string rawRequest) {
