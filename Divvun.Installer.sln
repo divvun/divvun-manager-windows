@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29025.244
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Divvun.Installer", "Divvun.Installer\Divvun.Installer.csproj", "{B876899E-C40F-4D5A-84DE-8BF1B0064A28}"
 EndProject
@@ -34,7 +34,7 @@ Global
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Debug|x86.Build.0 = Debug|Any CPU
-		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Release|Any CPU.ActiveCfg = Release|x86
+		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Release|x86.ActiveCfg = Release|x86
 		{20F56DAF-5D1D-421D-8BB0-203F2F591074}.Release|x86.Build.0 = Release|x86
 		{5C78E2EC-FF0C-4AEA-B146-DDCA6291C025}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

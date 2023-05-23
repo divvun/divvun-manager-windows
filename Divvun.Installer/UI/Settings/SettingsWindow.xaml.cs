@@ -12,6 +12,7 @@ using Divvun.Installer.Util;
 using ModernWpf.Controls;
 using Pahkat.Sdk;
 using Pahkat.Sdk.Rpc;
+using Serilog;
 
 namespace Divvun.Installer.UI.Settings {
 
@@ -147,50 +148,64 @@ public partial class SettingsWindow : Window, ISettingsWindowView {
     private async Task RefreshRepoTable() {
         var app = (PahkatApp)Application.Current;
 
-        var repos = await app.PackageStore.RepoIndexes();
-        var repoRecords = await app.PackageStore.GetRepoRecords();
-        var repoStrings = await app.PackageStore.Strings(app.Settings.GetLanguage() ?? "en");
+        try {
+            var repos = await app.PackageStore.RepoIndexes();
+            var repoRecords = await app.PackageStore.GetRepoRecords();
+            var repoStrings = await app.PackageStore.Strings(app.Settings.GetLanguage() ?? "en");
 
-        RepoList.Clear();
+            RepoList.Clear();
 
-        foreach (var keyValuePair in repoRecords) {
-            var name = keyValuePair.Key.AbsoluteUri;
-            if (repos.TryGetValue(keyValuePair.Key, out var repo)) {
-                name = repo.Index.NativeName();
-            }
-            else {
-                name += " ⚠️";
-            }
-
-            var strings = repoStrings.Get(keyValuePair.Key);
-            
-            var channels = new List<ChannelMenuItem>();
-            if (strings != null) {
-                var defaultString = strings.Channels.Get("default");
-
-                if (defaultString == null) {
-                    channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
+            foreach (var keyValuePair in repoRecords) {
+                var name = keyValuePair.Key.AbsoluteUri;
+                if (repos.TryGetValue(keyValuePair.Key, out var repo)) {
+                    name = repo.Index.NativeName();
                 }
                 else {
-                    channels.Add(ChannelMenuItem.Create(defaultString, ""));
+                    name += " ⚠️";
                 }
-                
-                
-                foreach (var channelPair in strings.Channels) {
-                    if (channelPair.Key == "default") {
-                        continue;
-                    }
-                    
-                    channels.Add(ChannelMenuItem.Create(channelPair.Value, channelPair.Key));
-                }
-            }
-            else {
-                channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
-            }
-            
-            var selectedChannel = keyValuePair.Value.Channel ?? "";
 
-            RepoList.Add(new RepositoryListItem(keyValuePair.Key, name, channels, selectedChannel));
+                var strings = repoStrings.Get(keyValuePair.Key);
+            
+                var channels = new List<ChannelMenuItem>();
+                if (strings != null) {
+                    var defaultString = strings.Channels.Get("default");
+
+                    if (defaultString == null) {
+                        channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
+                    }
+                    else {
+                        channels.Add(ChannelMenuItem.Create(defaultString, ""));
+                    }
+                
+                
+                    foreach (var channelPair in strings.Channels) {
+                        if (channelPair.Key == "default") {
+                            continue;
+                        }
+                    
+                        channels.Add(ChannelMenuItem.Create(channelPair.Value, channelPair.Key));
+                    }
+                }
+                else {
+                    channels.Add(ChannelMenuItem.Create(Strings.Stable, ""));
+                }
+            
+                var selectedChannel = keyValuePair.Value.Channel ?? "";
+
+                RepoList.Add(new RepositoryListItem(keyValuePair.Key, name, channels, selectedChannel));
+            }
+        }
+        catch (PahkatServiceConnectionException)
+        {
+            MessageBox.Show(
+                Strings.PahkatServiceConnectionException
+            );
+            Application.Current.Dispatcher.Invoke(
+                () =>
+                {
+                    Application.Current.Shutdown(1);
+                }
+            );
         }
     }
 

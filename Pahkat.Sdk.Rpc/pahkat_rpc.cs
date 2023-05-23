@@ -15,6 +15,7 @@ using Iterable;
 using Newtonsoft.Json;
 using Pahkat.Sdk.Grpc;
 using Pahkat.Sdk.Rpc.Models;
+using Serilog;
 
 namespace Pahkat.Sdk.Rpc {
 
@@ -77,6 +78,7 @@ public class PahkatClient : IPahkatClient, IDisposable {
             HttpHandler = CreateHttpHandler(),
             MaxReceiveMessageSize = null,
             MaxSendMessageSize = null,
+            ThrowOperationCanceledOnCancellation = true,
         });
 
         innerClient = new Grpc.Pahkat.PahkatClient(channel);
@@ -200,12 +202,24 @@ public class PahkatClient : IPahkatClient, IDisposable {
     }
 
     public async Task<Dictionary<Uri, ILoadedRepository>> RepoIndexes() {
-        var response = await innerClient.RepositoryIndexesAsync(new RepositoryIndexesRequest());
-        return response.Repositories.Map(repo => {
-            var ser = JsonConvert.SerializeObject(repo);
-            var de = JsonConvert.DeserializeObject<LoadedRepository>(ser);
-            return (de.Index.Url, (ILoadedRepository)de);
-        }).ToDict();
+        try
+        {
+            var response = await innerClient.RepositoryIndexesAsync(new RepositoryIndexesRequest());
+            return response.Repositories.Map(repo =>
+            {
+                var ser = JsonConvert.SerializeObject(repo);
+                var de = JsonConvert.DeserializeObject<LoadedRepository>(ser);
+                return (de.Index.Url, (ILoadedRepository)de);
+            }).ToDict();
+        }
+        catch (RpcException ex) when (ex.Status.Detail.Contains("TimeoutException: The operation has timed out."))
+        {
+            throw new PahkatServiceConnectionException("Failed to connect to the Pahkat Service", ex);
+        }
+        catch
+        {
+            throw;
+        }
     }
 
     public async Task<string> ResolvePackageQuery(PackageQuery query) {
@@ -275,14 +289,24 @@ public class NamedPipeConnectionFactory {
             TokenImpersonationLevel.Identification);
 
         try {
-            await namedPipe.ConnectAsync(cancellationToken).ConfigureAwait(false);
+            Log.Debug("Connecting to Pahkat Service Named Pipe.");
+            await namedPipe.ConnectAsync(2000, cancellationToken).ConfigureAwait(false);
             return namedPipe;
         }
         catch {
+            Log.Debug("Failed to connect to Pahkat Service Named Pipe.");
             namedPipe.Dispose();
             throw;
         }
     }
+}
+
+public class PahkatServiceConnectionException : Exception
+{   public PahkatServiceConnectionException() { }
+
+    public PahkatServiceConnectionException(string message) : base(message) { }
+
+    public PahkatServiceConnectionException(string message, Exception inner) : base(message, inner) { }
 }
 
 }
