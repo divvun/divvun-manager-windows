@@ -6,7 +6,7 @@
 - [Nightly build](https://pahkat.uit.no/divvun-installer/download/divvun-installer?channel=nightly&platform=windows)
 - [One-Click (Stable)](https://pahkat.uit.no/divvun-installer/download/divvun-installer-oneclick?platform=windows)
 
-(One-Click is [currently](https://github.com/divvun/pahkat.uit.no-index/blob/main/oneclick.json#L2) always based off of the latest Stable release)
+(One-Click is [currently](https://github.com/divvun/pahkat.uit.no-index/blob/main/oneclick.json#L2) only buildable off of a Stable release)
 
 ## Building
 
