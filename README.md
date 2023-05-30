@@ -1,7 +1,5 @@
 # pahkat-client-windows
 
-[![Build Status](https://dev.azure.com/divvun/divvun-installer/_apis/build/status/divvun.pahkat-client-windows?branchName=master)](https://dev.azure.com/divvun/divvun-installer/_build/latest?definitionId=5&branchName=master)
-
 ## Download
 
 - [Stable](https://pahkat.uit.no/divvun-installer/download/divvun-installer?platform=windows)
