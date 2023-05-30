@@ -1,4 +1,4 @@
-# pahkat-client-windows
+# Windows Divvun Manager and OneClick Installer
 
 ## Download
 
