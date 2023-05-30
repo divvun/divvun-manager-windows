@@ -4,6 +4,9 @@
 
 - [Stable](https://pahkat.uit.no/divvun-installer/download/divvun-installer?platform=windows)
 - [Nightly build](https://pahkat.uit.no/divvun-installer/download/divvun-installer?channel=nightly&platform=windows)
+- [One-Click (Stable)](https://pahkat.uit.no/divvun-installer/download/divvun-installer-oneclick?platform=windows)
+
+(One-Click is [currently](https://github.com/divvun/pahkat.uit.no-index/blob/main/oneclick.json#L2) always based off of the latest Stable release)
 
 ## Building
 
@@ -19,6 +22,8 @@ First, [pahkat](https://github.com/divvun/pahkat) needs to be built to your loca
 `git clone https://github.com/divvun/pahkat.git`
 
 **Important:** Divvun Manager does not talk to the language index itself. It only communicate locally running pahkat service. Pahkat is responsible to install and update languages. So, pahkat service should be up and running in your Windows's Services.
+
+(if you want to make your life easier, grab the OneClick Installer above which will get you both `kbdi` config and Pahkat service installed)
 
 Open `pahkat-client-core` directory in a terminal and source env for the platform `$Env:CARGO_FEATURE_WINDOWS="true"` before `cargo build`. Make sure the build to succeed.
 
@@ -43,6 +48,10 @@ If everything goes well, you can run `Divvun.Installer` and it should work just 
 #### Troubleshot
 
 You might end up with enabling old .Net SDKs in Windows Feature Panel.
+
+### Releases
+
+Releases use Pahkat to provide installers to users via special urls. The Pahkat Index, which represents packages available for download, can be viewed [here](https://github.com/divvun/pahkat.uit.no-index). Except for Stable releases, which must be done manually, new installers are added to the index automatically on successful build.
 
 ### Old guide
 
