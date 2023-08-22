@@ -53,6 +53,12 @@ You might end up with enabling old .Net SDKs in Windows Feature Panel.
 
 Releases use Pahkat to provide installers to users via special urls. The Pahkat Index, which represents packages available for download, can be viewed [here](https://github.com/divvun/pahkat.uit.no-index). Except for Stable releases, which must be done manually, new installers are added to the index automatically on successful build.
 
+## How to Add/Remove Languages and Regions
+
+Divvun Manager is rendering this landing page https://pahkat.uit.no/main/landing/index.html to display all available languages and regions.
+
+In order to add a new language or a region, [region.json](https://github.com/divvun/pahkat-web-ui/blob/master/public/regions.json) should be updated in the [pahkat-web-ui](https://github.com/divvun/pahkat-web-ui) repository and genereted files needs to be copied into `pahkat.uit.no-index/main/landing` directory in the [pahkat.uit.no-index](https://github.com/divvun/pahkat.uit.no-index) repo.
+
 ### Old guide
 
 Open in Visual Studio 2017, run build in Release.
