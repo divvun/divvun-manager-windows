@@ -1,5 +1,7 @@
 # Windows Divvun Manager and OneClick Installer
 
+[![Build Status](https://divvun-tc.giellalt.org/api/github/v1/repository/divvun/divvun-installer-windows/main/badge.svg)](https://divvun-tc.giellalt.org/api/github/v1/repository/divvun/divvun-installer-windows/main/latest)
+
 ## Download
 
 - [Stable](https://pahkat.uit.no/divvun-installer/download/divvun-installer?platform=windows)
