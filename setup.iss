@@ -21,7 +21,7 @@ Compression=lzma
 SolidCompression=yes
 AppMutex=DivvunInstaller
 SignedUninstaller=yes
-; SignTool=signtool
+SignTool=signtool
 MinVersion=6.3.9200                 
 
 [CustomMessages]
