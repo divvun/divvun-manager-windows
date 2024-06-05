@@ -1,7 +1,7 @@
-﻿namespace Pahkat.Sdk.Rpc
-{
-    public struct PackageQuery
-    {
-        public string[]? Tags;
-    }
+﻿namespace Pahkat.Sdk.Rpc {
+
+public struct PackageQuery {
+    public string[]? Tags;
+}
+
 }

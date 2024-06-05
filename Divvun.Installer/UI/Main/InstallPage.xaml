@@ -1,23 +1,24 @@
 ﻿<Page x:Class="Divvun.Installer.UI.Main.InstallPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-      xmlns:local="clr-namespace:Divvun.Installer.UI.Main"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:pahkat="clr-namespace:Divvun.Installer"
-      mc:Ignorable="d" 
+      mc:Ignorable="d"
       d:DesignHeight="300" d:DesignWidth="300"
       Title="{Binding Title}" Loaded="Page_Loaded" Unloaded="Page_Unloaded">
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <StackPanel VerticalAlignment="Center">
-            <TextBlock Foreground="{DynamicResource Text}" Name="LblPrimary" FontSize="21" TextAlignment="Center" TextWrapping="Wrap" Text="{x:Static pahkat:Strings.Starting}"/>
+            <TextBlock Foreground="{DynamicResource Text}" Name="LblPrimary" FontSize="21" TextAlignment="Center"
+                       TextWrapping="Wrap" Text="{x:Static pahkat:Strings.Starting}" />
             <ProgressBar Name="PrgBar" Height="23" Margin="128,32,128,8" IsIndeterminate="True" />
-            <TextBlock Foreground="{DynamicResource Text}" Name="LblSecondary" FontSize="11" TextAlignment="Center" TextWrapping="Wrap"></TextBlock>
+            <TextBlock Foreground="{DynamicResource Text}" Name="LblSecondary" FontSize="11" TextAlignment="Center"
+                       TextWrapping="Wrap" />
         </StackPanel>
         <Border Grid.Row="1" DockPanel.Dock="Bottom" BorderBrush="#FF828790" Height="auto">
             <DockPanel Height="auto">

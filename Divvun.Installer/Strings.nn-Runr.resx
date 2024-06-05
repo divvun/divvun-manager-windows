@@ -1,398 +1,403 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <root>
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
+    <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root"
+                xmlns="">
+        <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+        <xsd:element name="root" msdata:IsDataSet="true">
             <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string"/>
-              <xsd:attribute name="type" type="xsd:string"/>
-              <xsd:attribute name="mimetype" type="xsd:string"/>
-              <xsd:attribute ref="xml:space"/>
+                <xsd:choice maxOccurs="unbounded">
+                    <xsd:element name="metadata">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" use="required" type="xsd:string"/>
+                            <xsd:attribute name="type" type="xsd:string"/>
+                            <xsd:attribute name="mimetype" type="xsd:string"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="assembly">
+                        <xsd:complexType>
+                            <xsd:attribute name="alias" type="xsd:string"/>
+                            <xsd:attribute name="name" type="xsd:string"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="data">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+                            <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+                            <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+                            <xsd:attribute ref="xml:space"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="resheader">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                            </xsd:sequence>
+                            <xsd:attribute name="name" type="xsd:string" use="required"/>
+                        </xsd:complexType>
+                    </xsd:element>
+                </xsd:choice>
             </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string"/>
-              <xsd:attribute name="name" type="xsd:string"/>
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
-              <xsd:attribute ref="xml:space"/>
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required"/>
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="AboutApp" xml:space="preserve">
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>2.0</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral,
+            PublicKeyToken=b77a5c561934e089
+        </value>
+    </resheader>
+    <data name="AboutApp" xml:space="preserve">
     <value>ᚮᛘ ᛔᛆᚴᚴᛂᚼᛆᚿᛑᛐᛂᚱᛆᚱᛂᚿ</value>
   </data>
-  <data name="Alpha" xml:space="preserve">
+    <data name="Alpha" xml:space="preserve">
     <value>ᛆᛚᚠᛆ</value>
   </data>
-  <data name="AppHelp" xml:space="preserve">
+    <data name="AppHelp" xml:space="preserve">
     <value>ᚼᛁᛂᛚᛔ</value>
   </data>
-  <data name="AppName" xml:space="preserve">
+    <data name="AppName" xml:space="preserve">
     <value>ᛔᛆᚴᚴᛂᚼᛆᚿᛑᛐᛂᚱᛆᚱ</value>
   </data>
-  <data name="AppUpdateBody" xml:space="preserve">
+    <data name="AppUpdateBody" xml:space="preserve">
     <value>ᛔᛆᚴᚴᛂᚼᛆᚿᛑᛐᛂᚱᛆᚱ v{0} ᛂᚱ ᚿᚮ ᛐᛁᛚᚵᛁᛂᚿᚵᛂᛚᛂᚵ. ᛞᛂᛐ ᛂᚱ ᛌᛐᛂᚱᚴᛐ ᛐᛁᛚᚱᚭᛑᛑ ᛆᛐ ᛑᚢ ᚮᛔᛔᛑᛆᛐᛂᚱᛂᚱ ᛌᚭ ᛌᚿᛆᚱᛐ ᛌᚮᛘ ᚱᚭᛑ. ᚹᛁᛚ ᛑᚢ ᚮᛔᛔᛑᛆᛐᛂᚱᛆ ᚿᚮ?</value>
   </data>
-  <data name="AppUpdateTitle" xml:space="preserve">
+    <data name="AppUpdateTitle" xml:space="preserve">
     <value>ᛔᛆᚴᚴᛂᚼᛆᚿᛑᛐᛂᚱᛆᚱ-ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵ ᛐᛁᛚᚵᛁᛂᚿᚵᛂᛚᛂᚵ</value>
   </data>
-  <data name="Beta" xml:space="preserve">
+    <data name="Beta" xml:space="preserve">
     <value>ᛒᛂᛐᛆ</value>
   </data>
-  <data name="BringAllToFront" xml:space="preserve">
+    <data name="BringAllToFront" xml:space="preserve">
     <value>ᚠᛚᛦᛐᛐ ᛆᛚᛚᛂ ᚠᚱᛂᛘᛌᛐ</value>
   </data>
-  <data name="Cancel" xml:space="preserve">
+    <data name="Cancel" xml:space="preserve">
     <value>ᛆᚡᛒᚱᛦᛐ</value>
   </data>
-  <data name="CancelDownloadsBody" xml:space="preserve">
+    <data name="CancelDownloadsBody" xml:space="preserve">
     <value>ᛂᚱ ᛑᚢ ᚡᛁᛌᛌ ᛔᚭ ᛆᛐ ᛑᚢ ᚡᛁᛚ ᛆᚡᛒᚱᛦᛐᛆ ᛆᛚᛚᛂ ᚿᛂᛑᛚᛆᛌᛐᛁᚿᚵᛆᚿᛂ?</value>
   </data>
-  <data name="CancelDownloadsTitle" xml:space="preserve">
+    <data name="CancelDownloadsTitle" xml:space="preserve">
     <value>ᛆᚡᛒᚱᛦᛐ ᚿᛂᛑᛚᛆᛌᛐᛁᚿᚵᛆᚿᛂ</value>
   </data>
-  <data name="Cancelling" xml:space="preserve">
+    <data name="Cancelling" xml:space="preserve">
     <value>ᛂᚵ ᛆᚡᛒᚱᛦᛐ...</value>
   </data>
-  <data name="Category" xml:space="preserve">
+    <data name="Category" xml:space="preserve">
     <value>ᚴᛆᛐᛂᚵᚮᚱᛁ</value>
   </data>
-  <data name="Channel" xml:space="preserve">
+    <data name="Channel" xml:space="preserve">
     <value>ᚴᛆᚿᛆᛚ</value>
   </data>
-  <data name="CheckForUpdates" xml:space="preserve">
+    <data name="CheckForUpdates" xml:space="preserve">
     <value>ᛌᛁᚭ ᛂᛐᛐᛂᚱ ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵᛆᚱ...</value>
   </data>
-  <data name="Completed" xml:space="preserve">
+    <data name="Completed" xml:space="preserve">
     <value>ᚠᚢᛚᛚᚠᚯᚱᛐ</value>
   </data>
-  <data name="Copy" xml:space="preserve">
+    <data name="Copy" xml:space="preserve">
     <value>ᚴᚮᛔᛁᛂᚱ</value>
   </data>
-  <data name="CrashReportBody" xml:space="preserve">
+    <data name="CrashReportBody" xml:space="preserve">
     <value>ᛦᚿᛌᚴᛁᛂᚱ ᛑᚢ ᚭ ᛌᛂᚿᛑᛆ ᛂᛁᚿ ᚴᚱᛅᛌᛁᚱᛆᛔᛔᚮᚱᛐ ᛐᛁᛚ ᚢᛐᚡᛁᚴᛚᛆᚱᛆᚿᛑᛂ? ᛁᚿᚵᛂᚿ ᛔᛂᚱᛌᚮᚿᛚᛂᚵ ᛁᚿᚠᚮ ᛒᛚᛁᚱ ᛌᛂᚿᛑᛐ ᛁᚿᚿ. (ᛐᛁᛚᚱᚭᛑᛑ)</value>
   </data>
-  <data name="Cut" xml:space="preserve">
+    <data name="Cut" xml:space="preserve">
     <value>ᚴᛚᛦᛔᛔ ᚢᛐ</value>
   </data>
-  <data name="Daily" xml:space="preserve">
+    <data name="Daily" xml:space="preserve">
     <value>ᛑᛆᚵᛚᛂᚵ</value>
   </data>
-  <data name="Delete" xml:space="preserve">
+    <data name="Delete" xml:space="preserve">
     <value>ᛌᛚᛂᛐᛐ</value>
   </data>
-  <data name="DownloadError" xml:space="preserve">
+    <data name="DownloadError" xml:space="preserve">
     <value>ᚠᛂᛁᛚ 😞</value>
   </data>
-  <data name="Downloaded" xml:space="preserve">
+    <data name="Downloaded" xml:space="preserve">
     <value>ᚿᛂᛑᛚᛆᛌᛐᛆ</value>
   </data>
-  <data name="Downloading" xml:space="preserve">
+    <data name="Downloading" xml:space="preserve">
     <value>ᛚᛆᛌᛐᛆᚱ ᚿᛂᛑ...</value>
   </data>
-  <data name="Edit" xml:space="preserve">
+    <data name="Edit" xml:space="preserve">
     <value>ᚱᛂᛑᛁᚵᛂᚱ</value>
   </data>
-  <data name="Error" xml:space="preserve">
+    <data name="Error" xml:space="preserve">
     <value>ᚠᛂᛁᛚ</value>
   </data>
-  <data name="ErrorDuringInstallation" xml:space="preserve">
+    <data name="ErrorDuringInstallation" xml:space="preserve">
     <value>ᛑᛂᛐ ᚵᛁᛂᚴᚴ ᛐᛁᛚ ᚼᛂᛚ ᛘᛂᛑ ᛁᚿᛌᛐᛆᛚᛚᛂᚱᛁᚿᚵᛆ.</value>
   </data>
-  <data name="ErrorInvalidVersion" xml:space="preserve">
+    <data name="ErrorInvalidVersion" xml:space="preserve">
     <value>ᚠᛂᛁᛚ: ᚢᚵᛦᛚᛑᛁᚵ ᚡᛂᚱᛌᛁᚮᚿ</value>
   </data>
-  <data name="ErrorNoInstaller" xml:space="preserve">
+    <data name="ErrorNoInstaller" xml:space="preserve">
     <value>ᚠᛂᛁᛚ: ᛁᚿᚵᛂᚿ ᛁᚿᛌᛐᛆᛚᛚᛂᚱᛆᚱ</value>
   </data>
-  <data name="ErrorUnknownPackage" xml:space="preserve">
+    <data name="ErrorUnknownPackage" xml:space="preserve">
     <value>ᚠᛂᛁᛚ: ᚢᚴᛁᛂᚿᛐ ᛔᛆᚴᚴᛂ</value>
   </data>
-  <data name="EveryFourWeeks" xml:space="preserve">
+    <data name="EveryFourWeeks" xml:space="preserve">
     <value>ᚠᛁᛂᚱᛑᛂᚴᚡᛆᚱ ᚡᛂᚴᛂ</value>
   </data>
-  <data name="EveryTwoWeeks" xml:space="preserve">
+    <data name="EveryTwoWeeks" xml:space="preserve">
     <value>ᛆᚿᚿᛆᚴᚡᛆᚱ ᚡᛂᚴᛂ</value>
   </data>
-  <data name="Exit" xml:space="preserve">
+    <data name="Exit" xml:space="preserve">
     <value>ᛆᚡᛌᛚᚢᛐᛐ</value>
   </data>
-  <data name="Finish" xml:space="preserve">
+    <data name="Finish" xml:space="preserve">
     <value>ᚠᛂᚱᛑᛁᚵ</value>
   </data>
-  <data name="Help" xml:space="preserve">
+    <data name="Help" xml:space="preserve">
     <value>ᛔᛆᚴᚴᛂᚼᛆᚿᛑᛐᛂᚱᛆᚱ-ᚼᛁᛂᛚᛔ</value>
   </data>
-  <data name="HideApp" xml:space="preserve">
+    <data name="HideApp" xml:space="preserve">
     <value>ᚵᚯᛦᛘ ᛔᛆᚴᚴᛂᚼᛆᚿᛑᛐᛂᚱᛆᚱᛂᚿ</value>
   </data>
-  <data name="HideOthers" xml:space="preserve">
+    <data name="HideOthers" xml:space="preserve">
     <value>ᚵᚯᛦᛘ ᛆᚿᛑᚱᛂ</value>
   </data>
-  <data name="Install" xml:space="preserve">
+    <data name="Install" xml:space="preserve">
     <value>ᛁᚿᛌᛐᛆᛚᛚᛂᚱ</value>
   </data>
-  <data name="InstallNPackages" xml:space="preserve">
+    <data name="InstallNPackages" xml:space="preserve">
     <value>ᛁᚿᛌᛐᛆᛚᛚᛂᚱ {0} ᛔᛆᚴᚴᛂᚱ</value>
   </data>
-  <data name="InstallSystem" xml:space="preserve">
+    <data name="InstallSystem" xml:space="preserve">
     <value>ᛁᚿᛌᛐᛆᛚᛚᛂᚱ (ᚠᚮᚱ ᚼᛂᛁᛚᛂ ᛌᛦᛌᛐᛂᛘᛂᛐ)</value>
   </data>
-  <data name="InstallUninstallNPackages" xml:space="preserve">
+    <data name="InstallUninstallNPackages" xml:space="preserve">
     <value>ᛁᚿᛌᛐᛆᛚᛚᛂᚱ/ᛆᚡᛁᚿᛌᛐᛆᛚᛚᛂᚱ {0} ᛔᛆᚴᚴᛂᚱ</value>
   </data>
-  <data name="InstallUser" xml:space="preserve">
+    <data name="InstallUser" xml:space="preserve">
     <value>ᛁᚿᛌᛐᛆᛚᛚᛂᚱ (ᚠᚮᚱ ᛒᚱᚢᚴᛆᚱ)</value>
   </data>
-  <data name="Installed" xml:space="preserve">
+    <data name="Installed" xml:space="preserve">
     <value>ᛁᚿᛌᛐᛆᛚᛚᛂᚱᛐ</value>
   </data>
-  <data name="InstallingPackage" xml:space="preserve">
+    <data name="InstallingPackage" xml:space="preserve">
     <value>ᛁᚿᛌᛐᛆᛚᛚᛂᚱᛂᚱ {0} {1}...</value>
   </data>
-  <data name="InstallingUninstalling" xml:space="preserve">
+    <data name="InstallingUninstalling" xml:space="preserve">
     <value>ᛁᚿᛌᛐᛆᛚᛚᛂᚱᛂᚱ/ᛆᚡᛁᚿᛌᛐᛆᛚᛚᛂᚱᛂᚱ</value>
   </data>
-  <data name="InterfaceLanguage" xml:space="preserve">
+    <data name="InterfaceLanguage" xml:space="preserve">
     <value>ᚡᛁᛌ ᛔᚱᚮᚵᚱᛆᛘᛘᛂᛐ ᛔᚭ:</value>
   </data>
-  <data name="InvalidUrlBody" xml:space="preserve">
+    <data name="InvalidUrlBody" xml:space="preserve">
     <value>ᚡᛂᚱ ᚵᚱᛂᛁᛑ ᚮᚵ ᛌᛁᛂᚴᚴᛐ ᛆᛐ URL-ᛂᚿ ᛒᛦᚱᛁᛆᚱ ᛘᛂᛑ \"https\" ᚮᚵ ᛔᚱᚯᚡ ᛔᚭ ᚿᛦᛐᛐ.</value>
   </data>
-  <data name="InvalidUrlTitle" xml:space="preserve">
+    <data name="InvalidUrlTitle" xml:space="preserve">
     <value>URL-ᛂᚿ ᛂᚱ ᚢᚵᛦᛚᛑᛁᚵ.</value>
   </data>
-  <data name="Language" xml:space="preserve">
+    <data name="Language" xml:space="preserve">
     <value>ᛌᛔᚱᚭᚴ</value>
   </data>
-  <data name="Loading" xml:space="preserve">
+    <data name="Loading" xml:space="preserve">
     <value>ᛚᛆᛌᛐᛆᚱ ᛁᚿᚿ...</value>
   </data>
-  <data name="Minimize" xml:space="preserve">
+    <data name="Minimize" xml:space="preserve">
     <value>ᛘᛁᚿᛁᛘᛂᚱ</value>
   </data>
-  <data name="NItemsRemaining" xml:space="preserve">
+    <data name="NItemsRemaining" xml:space="preserve">
     <value>{0} ᛔᛆᚴᚴᛂᚱ ᛌᛐᚭᚱ ᛆᛐᛐ.</value>
   </data>
-  <data name="NUpdatesAvailable" xml:space="preserve">
+    <data name="NUpdatesAvailable" xml:space="preserve">
     <value>ᛑᛂᛐ ᚠᛁᚿᛌᛐ {0} ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵᛆᚱ</value>
   </data>
-  <data name="Never" xml:space="preserve">
+    <data name="Never" xml:space="preserve">
     <value>ᛆᛚᛑᚱᛁ</value>
   </data>
-  <data name="NextUpdateDue" xml:space="preserve">
+    <data name="NextUpdateDue" xml:space="preserve">
     <value>ᚿᛂᛌᛐᛂ ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵᛌᛌᛁᛂᚴᚴ {0}</value>
   </data>
-  <data name="Nightly" xml:space="preserve">
+    <data name="Nightly" xml:space="preserve">
     <value>ᚿᛆᛐᛐᛚᛂᚵ</value>
   </data>
-  <data name="NoPackagesSelected" xml:space="preserve">
+    <data name="NoPackagesSelected" xml:space="preserve">
     <value>ᛁᚿᚵᛂᚿ ᚡᛆᛚᛑᛂ ᛔᛆᚴᚴᛂᚱ</value>
   </data>
-  <data name="NoUpdatesBody" xml:space="preserve">
+    <data name="NoUpdatesBody" xml:space="preserve">
     <value>ᚠᛆᚿᚿ ᛁᚿᚵᛂᚿ ᚿᛦᛂ ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵᛆᚱ</value>
   </data>
-  <data name="NoUpdatesTitle" xml:space="preserve">
+    <data name="NoUpdatesTitle" xml:space="preserve">
     <value>ᛁᚿᚵᛂᚿ ᚮᛔᛔᛑᛆᚵᛐᛂᚱᛁᚿᚵᛆᚱ</value>
   </data>
-  <data name="NotApplicable" xml:space="preserve">
+    <data name="NotApplicable" xml:space="preserve">
     <value>—</value>
   </data>
-  <data name="NotInstalled" xml:space="preserve">
+    <data name="NotInstalled" xml:space="preserve">
     <value>ᛁᚴᚴᛁᛂ ᛁᚿᛌᛐᛆᛚᛚᛂᚱᛐ</value>
   </data>
-  <data name="Ok" xml:space="preserve">
+    <data name="Ok" xml:space="preserve">
     <value>ᚵᚱᛂᛁᛑᛐ</value>
   </data>
-  <data name="OpenPackageManager" xml:space="preserve">
+    <data name="OpenPackageManager" xml:space="preserve">
     <value>ᚮᛔᚿᛂ ᛔᛆᚴᚴᛂᚼᛆᚿᛑᛐᛂᚱᛆᚱᛂᚿ</value>
   </data>
-  <data name="Paste" xml:space="preserve">
+    <data name="Paste" xml:space="preserve">
     <value>ᛚᛁᛘ ᛁᚿᚿ</value>
   </data>
-  <data name="PasteAndMatchStyle" xml:space="preserve">
+    <data name="PasteAndMatchStyle" xml:space="preserve">
     <value>ᛚᛁᛘ ᛁᚿᚿ ᛐᛁᛚᛔᛆᛌᛌᛆ</value>
   </data>
-  <data name="Preferences" xml:space="preserve">
+    <data name="Preferences" xml:space="preserve">
     <value>ᛁᚿᚿᛌᛐᛁᛚᛚᛁᚿᚵᛆᚱ…</value>
   </data>
-  <data name="ProcessCompletedBody" xml:space="preserve">
+    <data name="ProcessCompletedBody" xml:space="preserve">
     <value>ᚿᚮ ᚴᛆᚿ ᛑᚢ ᛚᛆᛐᛆ ᛆᛐᛐ ᚡᛁᚿᛑᛆᚢᚵᛂᛐ, ᛂᛚᛚᛂᚱ ᚵᚭ ᛆᛐᛐᛂᚿᛑᛂ ᛐᛁᛚ ᚼᚮᚡᚢᛑᚡᛁᚿᛑᛆᚢᚵᛂᛐ.</value>
   </data>
-  <data name="ProcessCompletedTitle" xml:space="preserve">
+    <data name="ProcessCompletedTitle" xml:space="preserve">
     <value>ᚠᛂᚱᛑᛁᚵ!</value>
   </data>
-  <data name="Queued" xml:space="preserve">
+    <data name="Queued" xml:space="preserve">
     <value>ᛁ ᚴᚯ</value>
   </data>
-  <data name="QuitApp" xml:space="preserve">
+    <data name="QuitApp" xml:space="preserve">
     <value>ᛆᚡᛌᛚᚢᛐᛐ ᛔᛆᚴᚴᛂᚼᛆᚿᛑᛐᛂᚱᛆᚱᛂᚿ</value>
   </data>
-  <data name="Redo" xml:space="preserve">
+    <data name="Redo" xml:space="preserve">
     <value>ᚵᛁᛂᚱ ᛔᚭ ᚿᛦᛐᛐ</value>
   </data>
-  <data name="RemindMeLater" xml:space="preserve">
+    <data name="RemindMeLater" xml:space="preserve">
     <value>ᛘᛁᚿᚿ ᛘᛂᚵ ᛔᚭ ᛑᛂᛐ ᛌᛂᛁᚿᛆᚱᛂ</value>
   </data>
-  <data name="RemoveRepoBody" xml:space="preserve">
+    <data name="RemoveRepoBody" xml:space="preserve">
     <value>ᛂᚱ ᛑᚢ ᛌᛁᚴᚴᛂᚱ ᛔᚭ ᛆᛐ ᛑᚢ ᚡᛁᛚ ᚠᛁᛂᚱᚿᛆ ᛚᛆᚵᛂᚱᛂᛐ?</value>
   </data>
-  <data name="RemoveRepoTitle" xml:space="preserve">
+    <data name="RemoveRepoTitle" xml:space="preserve">
     <value>ᛑᛂᛐᛐᛂ ᚡᛁᛚ ᚠᛁᛂᚱᚿᛆ ᛑᛂᛐ ᚡᛆᛚᛑᛂ ᛚᛆᚵᛂᚱᛂᛐ.</value>
   </data>
-  <data name="Repositories" xml:space="preserve">
+    <data name="Repositories" xml:space="preserve">
     <value>ᛚᛆᚵᛂᚱ</value>
   </data>
-  <data name="Repository" xml:space="preserve">
+    <data name="Repository" xml:space="preserve">
     <value>ᛚᛆᚵᛂᚱ</value>
   </data>
-  <data name="RepositoryError" xml:space="preserve">
+    <data name="RepositoryError" xml:space="preserve">
     <value>ᛚᛆᚵᛂᚱᚠᛂᛁᛚ</value>
   </data>
-  <data name="RepositoryErrorBody" xml:space="preserve">
+    <data name="RepositoryErrorBody" xml:space="preserve">
     <value>ᛂᚵ ᚠᛂᚴᚴ ᛂᛁᚿ ᚠᛂᛁᛚ ᛘᛂᛑᛆᚿ ᛂᚵ ᚮᛔᚿᛆ ᛚᛆᚵᛂᚱᛂᛐ:
 {0}</value>
   </data>
-  <data name="RestartLater" xml:space="preserve">
+    <data name="RestartLater" xml:space="preserve">
     <value>ᚮᛘᛌᛐᛆᚱᛐ ᛌᛂᛁᚿᛆᚱᛂ</value>
   </data>
-  <data name="RestartNow" xml:space="preserve">
+    <data name="RestartNow" xml:space="preserve">
     <value>ᚮᛘᛌᛐᛆᚱᛐ ᚿᚮ</value>
   </data>
-  <data name="RestartRequiredBody" xml:space="preserve">
+    <data name="RestartRequiredBody" xml:space="preserve">
     <value>ᛑᛂᛐ ᛂᚱ ᛌᛐᛂᚱᚴᛐ ᛐᛁᛚᚱᚭᛑᛑ ᚭ ᛌᛐᛆᚱᛐᛆ ᛑᛆᛐᛆᛘᛆᛌᚴᛁᚿᛆ ᛔᚭ ᚿᛦᛐᛐ ᚠᚮᚱ ᛆᛐ ᛌᚢᛘᛂ ᛂᚿᛑᚱᛁᚿᚵᛆᚱ ᛌᚴᛆᛚ ᛐᚱᛂ ᛁ ᚴᚱᛆᚠᛐ.</value>
   </data>
-  <data name="RestartRequiredTitle" xml:space="preserve">
+    <data name="RestartRequiredTitle" xml:space="preserve">
     <value>ᛐᛁᛑ ᚠᚮᚱ ᚭ ᛌᛐᛆᚱᛐᛆ ᛘᛆᛌᚴᛁᚿᛆ ᛔᚭ ᚿᛦᛐᛐ!</value>
   </data>
-  <data name="RestartTheAppForLanguageChanges" xml:space="preserve">
+    <data name="RestartTheAppForLanguageChanges" xml:space="preserve">
     <value>ᛌᛐᛆᚱᛐ ᛔᚱᚮᚵᚱᛆᛘᛘᛂᛐ ᛔᚭ ᚿᛦᛐᛐ ᚠᚮᚱ ᚭ ᛒᛦᛐᛆ ᛌᛔᚱᚭᚴ.</value>
   </data>
-  <data name="Save" xml:space="preserve">
+    <data name="Save" xml:space="preserve">
     <value>ᛚᛆᚵᚱᛂ</value>
   </data>
-  <data name="SelectAll" xml:space="preserve">
+    <data name="SelectAll" xml:space="preserve">
     <value>ᚡᛂᛚ ᛆᛚᛐ</value>
   </data>
-  <data name="Services" xml:space="preserve">
+    <data name="Services" xml:space="preserve">
     <value>ᛐᛂᚿᛂᛌᛐᛂᚱ</value>
   </data>
-  <data name="Settings" xml:space="preserve">
+    <data name="Settings" xml:space="preserve">
     <value>ᛁᚿᚿᛌᛐᛁᛚᛚᛁᚿᚵᛆᚱ</value>
   </data>
-  <data name="ShowAll" xml:space="preserve">
+    <data name="ShowAll" xml:space="preserve">
     <value>ᚡᛁᛌ ᛆᛚᛚᛂ</value>
   </data>
-  <data name="SkipTheseUpdates" xml:space="preserve">
+    <data name="SkipTheseUpdates" xml:space="preserve">
     <value>ᚼᚮᛔᛔ ᚮᚡᛂᚱ ᛑᛂᛌᛌᛂ ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵᛆᚿᛂ</value>
   </data>
-  <data name="SortBy" xml:space="preserve">
+    <data name="SortBy" xml:space="preserve">
     <value>ᚮᚱᛑᚿᛆ ᛂᛐᛐᛂᚱ…</value>
   </data>
-  <data name="Stable" xml:space="preserve">
+    <data name="Stable" xml:space="preserve">
     <value>ᛌᛐᛆᛒᛁᛚ</value>
   </data>
-  <data name="Starting" xml:space="preserve">
+    <data name="Starting" xml:space="preserve">
     <value>ᛌᛐᛆᚱᛐᛆᚱ...</value>
   </data>
-  <data name="SystemLocale" xml:space="preserve">
+    <data name="SystemLocale" xml:space="preserve">
     <value>ᛌᛐᛆᚿᛑᛆᚱᛑᛌᛔᚱᚭᚴ</value>
   </data>
-  <data name="ThereAreNUpdatesAvailable" xml:space="preserve">
+    <data name="ThereAreNUpdatesAvailable" xml:space="preserve">
     <value>ᛑᛂᛐ ᚠᛁᚿᛌᛐ {0} ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵᛆᚱ!</value>
   </data>
-  <data name="Undo" xml:space="preserve">
+    <data name="Undo" xml:space="preserve">
     <value>ᛆᚿᚵᚱᛂ</value>
   </data>
-  <data name="Uninstall" xml:space="preserve">
+    <data name="Uninstall" xml:space="preserve">
     <value>ᛆᚡᛁᚿᛌᛐᛆᛚᛚᛂᚱ</value>
   </data>
-  <data name="UninstallNPackages" xml:space="preserve">
+    <data name="UninstallNPackages" xml:space="preserve">
     <value>ᛆᚡᛁᚿᛌᛐᛆᛚᛚᛂᚱ {0} ᛔᛆᚴᚴᛂᚱ</value>
   </data>
-  <data name="UninstallingPackage" xml:space="preserve">
+    <data name="UninstallingPackage" xml:space="preserve">
     <value>ᛆᚡᛁᚿᛌᛐᛆᛚᛚᛂᚱᛂᚱ {0} {1}...</value>
   </data>
-  <data name="Update" xml:space="preserve">
+    <data name="Update" xml:space="preserve">
     <value>ᚮᛔᛔᛑᛆᛐᛂᚱ</value>
   </data>
-  <data name="UpdateAvailable" xml:space="preserve">
+    <data name="UpdateAvailable" xml:space="preserve">
     <value>ᛑᛂᛐ ᚠᛁᚿᛌᛐ ᛂᛁ ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵ</value>
   </data>
-  <data name="UpdateChannel" xml:space="preserve">
+    <data name="UpdateChannel" xml:space="preserve">
     <value>ᚮᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵᛌᚴᛆᚿᛆᛚ</value>
   </data>
-  <data name="UpdateFrequency" xml:space="preserve">
+    <data name="UpdateFrequency" xml:space="preserve">
     <value>ᚮᛔᛔᛑᛆᛐᛂᚱᛁᚿᚵᛌᚠᚱᛂᚴᚡᛂᚿᛌ</value>
   </data>
-  <data name="UpdateSystem" xml:space="preserve">
+    <data name="UpdateSystem" xml:space="preserve">
     <value>ᚮᛔᛔᛑᛆᛐᛂᚱ (ᚠᚮᚱ ᚼᛂᛁᛚᛂ ᛌᛦᛌᛐᛂᛘᛂᛐ)</value>
   </data>
-  <data name="UpdateUser" xml:space="preserve">
+    <data name="UpdateUser" xml:space="preserve">
     <value>ᚮᚮᛔᛔᛑᛆᛐᛂᚱ (ᚠᚮᚱ ᛒᚱᚢᚴᛆᚱᛂᚿ)</value>
   </data>
-  <data name="Url" xml:space="preserve">
+    <data name="Url" xml:space="preserve">
     <value>URL</value>
   </data>
-  <data name="UserDescription" xml:space="preserve">
+    <data name="UserDescription" xml:space="preserve">
     <value>{0} (ᚠᚮᚱ ᛒᚱᚢᚴᛆᚱᛂᚿ)</value>
   </data>
-  <data name="VersionSkipped" xml:space="preserve">
+    <data name="VersionSkipped" xml:space="preserve">
     <value>ᛁᚵᚿᚮᚱᛂᚱᛐ ᚡᛂᚱᛌᛁᚮᚿ</value>
   </data>
-  <data name="WaitingForCompletion" xml:space="preserve">
+    <data name="WaitingForCompletion" xml:space="preserve">
     <value>ᚡᛂᚿᛐᛆᚱ ᛔᚭ ᛆᛐ ᚿᚮᚴᚮ ᛌᚴᛆᛚ ᛒᛚᛁ ᚠᛂᚱᛑᛁᚵ...</value>
   </data>
-  <data name="Weekly" xml:space="preserve">
+    <data name="Weekly" xml:space="preserve">
     <value>ᚴᚡᛆᚴᚱ ᚡᛂᚴᛂ</value>
   </data>
-  <data name="Window" xml:space="preserve">
+    <data name="Window" xml:space="preserve">
     <value>ᚡᛁᚿᛑᛆᚢᚵᛂ</value>
   </data>
-  <data name="WouldYouLikeToDownloadThemNow" xml:space="preserve">
+    <data name="WouldYouLikeToDownloadThemNow" xml:space="preserve">
     <value>ᚡᛁᛚ ᛑᚢ ᛚᛆᛌᛐᛆ ᛑᛂᛁ ᚿᛂᛑ ᚿᚮ?</value>
   </data>
-  <data name="Zoom" xml:space="preserve">
+    <data name="Zoom" xml:space="preserve">
     <value>ᛌᚮᚮᛘ</value>
   </data>
 </root>

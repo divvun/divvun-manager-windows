@@ -35,7 +35,7 @@
 //        [SetUp]
 //        protected void SetUp()
 //        {
-            
+
 //        }
 
 //        [Test]
@@ -47,10 +47,10 @@
 
 //            var x = store.State.Test(scheduler);
 //            scheduler.Start();
-            
+
 //            Assert.AreEqual(Constants.Repository, x.Messages.Last().Value.Value.RepositoryUrl.AbsoluteUri);
 //        }
-        
+
 //        [Test]
 //        public void ConfigUpdatesRepositoryUrlValue()
 //        {
@@ -60,10 +60,10 @@
 
 //            var x = store.State.Test(scheduler);
 //            scheduler.Start();
-            
+
 //            store.Dispatch(new SetRepositoryUrl(new Uri("https://test.example/")));
 //            scheduler.AdvanceBy(1000);
-            
+
 //            Assert.AreEqual("https://test.example/", x.Messages.Last().Value.Value.RepositoryUrl.AbsoluteUri);
 //            Assert.AreEqual("https://test.example/", registry.LocalMachine
 //                .CreateSubKey(@"SOFTWARE\" + Constants.RegistryId)
@@ -80,13 +80,13 @@
 //        [Test]
 //        public void UpdaterShowsUIWhenUpdatesFound()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void UpdaterUsesUserPreferencesForShowingUI()
 //        {
-            
+
 //        }
 //    }
 
@@ -96,47 +96,47 @@
 //        [SetUp]
 //        protected void SetUp()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void ShowsPackagesToUpdate()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void CanSelectPackagesToUpdate()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void SelectedPackageShouldShowChangelog()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void PressingInstallShouldOpenMainWindowToInstallStep()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void IgnoreUpdatesShouldCloseWindow()
 //        {
-            
+
 //        }
 //    }
-    
+
 //    [TestFixture]
 //    public class MainTests
 //    {
 //        [SetUp]
 //        protected void SetUp()
 //        {
-            
+
 //        }
 
 //        //[Test]
@@ -157,9 +157,9 @@
 //        //    presenter.System.Test(scheduler);
 //        //    scheduler.Start();
 //        //    scheduler.AdvanceBy(1000);
-            
+
 //        //    settingsWindowMock.Verify(v => v.Show(), Times.Once());
-            
+
 //        //    scheduler.Stop();
 //        //}
 
@@ -176,24 +176,24 @@
 //        //    var store = new PackageStore();
 //        //    var scheduler = new TestScheduler();
 //        //    var presenter = new MainWindowPresenter(window, scheduler);
-            
+
 //        //    mock.Setup(view => view.OnShowSettingsClicked())
 //        //        .Returns(clickSubject.AsObservable()
 //        //        .ObserveOn(scheduler)
 //        //        .SubscribeOn(scheduler));
 
 //        //    presenter.System.Test(scheduler);
-            
+
 //        //    scheduler.Start();
-            
+
 //        //    clickSubject.OnNext(EventArgs.Empty);
 //        //    clickSubject.OnNext(EventArgs.Empty);
 //        //    clickSubject.OnNext(EventArgs.Empty);
-            
+
 //        //    scheduler.AdvanceBy(1000);
-            
+
 //        //    settingsWindowMock.Verify(v => v.Show(), Times.Exactly(3));
-            
+
 //        //    scheduler.Stop();
 //        //    clickSubject.Dispose();
 //        //}
@@ -207,12 +207,12 @@
 //            var scheduler = new TestScheduler();
 //            var presenter = new MainWindowPresenter(mock.Object, scheduler);
 //            presenter.Start();
-            
+
 //            //var x = presenter.System.Test(scheduler);
-            
+
 //            //scheduler.Start();
 //            //scheduler.AdvanceBy(1000);
-            
+
 //            mock.Verify(v => v.ShowPage(It.IsAny<MainPage>()), Times.Once);
 //        }
 
@@ -244,55 +244,55 @@
 //        [Test]
 //        public void MainPageShowsPackages()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void MainPageAllowsDelectingPackages()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void MainPageAllowsInstallingSelectedPackages()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void MainPageInstallationProcessChangesPageToDownloadPage()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void PackageInstallationIsCorrectlyDetected()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void PackageUpdateStatusIsCorrectlyDetected()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void VirtualDependenciesAreProperlyDetected()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void DoubleClickingTaskbarIconWillOpenMainWindow()
 //        {
-            
+
 //        }
 
 //        [Test]
 //        public void SettingsWindowShouldCloseIfMainWindowClosed()
 //        {
-            
+
 //        }
 
 //        [Test]
@@ -305,18 +305,18 @@
 //            });
 
 //            var exitCode = 2;
-            
+
 //            var s = new TestScheduler();
 //            s.Start();
-            
+
 //            var x = p.Start().Test(s);
 //            s.AdvanceBy(1000);
 //            p._process.WaitForExit();
-            
+
 //            Assert.AreEqual(exitCode, p._process.ExitCode);
 //            Assert.AreEqual(exitCode, x.Messages[0].Value.Value);
 //        }
-        
+
 //        [Test]
 //        public void CanWaitForProcessToCompleteWithSuccess()
 //        {
@@ -326,14 +326,14 @@
 //            });
 
 //            var exitCode = 0;
-            
+
 //            var s = new TestScheduler();
 //            s.Start();
-            
+
 //            var x = p.Start().Test(s);
 //            s.AdvanceBy(1000);
 //            p._process.WaitForExit();
-            
+
 //            Assert.AreEqual(exitCode, p._process.ExitCode);
 //            Assert.AreEqual(exitCode, x.Messages[0].Value.Value);
 //        }
@@ -358,12 +358,12 @@
 //            //scheduler.AdvanceBy(1000);
 
 //            presenter.Start();
-            
+
 //            mock.Verify(v => v.ShowPage(It.IsAny<MainPage>()), Times.Once);
 //        }
 
 //        private Repository MockRepository() => MockRepository(new Uri("http://original.example"));
-        
+
 //        private Repository MockRepository(Uri uri)
 //        {
 //            var repoIndex = new RepoIndex(uri,
@@ -391,7 +391,7 @@
 
 //            return new Repository(repoIndex, packagesIndex, virtualsIndex);
 //        }
-        
+
 //        private Func<Uri, IRepositoryApi> MockRepositoryApi =>
 //            uri =>
 //            {
@@ -409,7 +409,7 @@
 
 //                return mock.Object;
 //            };
-        
+
 //        // Downloads the repository index
 //        [Test]
 //        public void DownloadRepositoryIndex()
@@ -419,12 +419,12 @@
 
 //            var t = srv.System.Test(scheduler);
 //            var testUri = new Uri("https://anything.example");
-            
+
 //            scheduler.Start();
 //            srv.SetRepositoryUri(testUri);
-            
+
 //            scheduler.AdvanceBy(1000);
-            
+
 //            Assert.AreEqual(testUri, t.Messages.Last().Value.Value.RepoResult.Repository.Meta.Base);
 //        }
 
@@ -435,7 +435,7 @@
 ////            mock.Setup(v => v.OnPackageSelected())
 ////                .Returns(Observable.Return(new BkPackage()));
 ////        }
-        
+
 //        // Shows the repository information
 ////        [Test]
 ////        public void MainPageUpdatesOnRepositoryIndexChange()
@@ -469,7 +469,7 @@
 ////            mock.Verify(v => v.UpdatePackageList(It.IsAny<Repository>()), Times.Once);
 ////            Assert.NotNull(x.Messages.Last().Value.Value.Repository);
 ////        }
-        
+
 //        // Will show the correct status if an installed package needs to be updated
 //        [Test]
 //        public void DemonstrateInstallationStatusHandling()
@@ -489,47 +489,46 @@
 //                    url = "https://lol.com"
 //                }
 //            }));
-            
+
 //            Assert.AreEqual(PackageInstallStatus.NotInstalled, pkgServ.InstallStatus(v1));
-            
+
 //            var subkey = reg.LocalMachine.CreateSubKey(PackageService.Keys.UninstallPath + @"\test");
-            
+
 //            subkey.Set(PackageService.Keys.DisplayVersion, "2.0.0.0", RegistryValueKind.String);
 //            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.InstallStatus(v1));
-            
+
 //            subkey.Set(PackageService.Keys.DisplayVersion, "2.99.1000.42", RegistryValueKind.String);
 //            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.InstallStatus(v1));
-            
+
 //            subkey.Set(PackageService.Keys.DisplayVersion, "3.0.0.0", RegistryValueKind.String);
 //            Assert.AreEqual(PackageInstallStatus.RequiresUpdate, pkgServ.InstallStatus(v1));
-            
+
 //            subkey.Set(PackageService.Keys.DisplayVersion, "3.3.0.0", RegistryValueKind.String);
 //            Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.InstallStatus(v1));
-            
+
 //            subkey.Set(PackageService.Keys.DisplayVersion, "4.0.0.0", RegistryValueKind.String);
 //            Assert.AreEqual(PackageInstallStatus.UpToDate, pkgServ.InstallStatus(v1));
-            
+
 //            subkey.Set(PackageService.Keys.DisplayVersion, "ahahahaha ahahahaha oh nø", RegistryValueKind.String);
 //            Assert.AreEqual(PackageInstallStatus.ErrorParsingVersion, pkgServ.InstallStatus(v1));
 //        }
-        
+
 //        // If you select packages to be installed and uninstalled, only run the installation (for now)
 ////        [Test]
 ////        public void xxx()
 ////        {
 ////            
 ////        }
-        
 
 //        internal class MockInstallService : IInstallService
 //        {
 //            private IWindowsRegistry _registry;
-            
+
 //            public MockInstallService(IWindowsRegistry registry)
 //            {
 //                _registry = registry;
 //            }
-            
+
 ////            public IObservable<ProcessResult> Install(PackageInstallInfo[] packages, Subject<OnStartPackageInfo> onStart)
 ////            {
 ////                return packages.Filter(t => t.Package.Installer != null)
@@ -562,42 +561,42 @@
 //        [Test]
 //        public void DownloadProcessWorks()
 //        {
-            
+
 //        }
-        
+
 //        // Upon install, go to download screen
 //        [Test]
 //        public void GoToDownloadScreenWithSelectedPackagesToDownload()
 //        {
-            
+
 //        }
-        
+
 //        // Show things being downloaded
 //        [Test]
 //        public void UpdateUserInterfaceWithDownloadStatus()
 //        {
-            
+
 //        }
-        
+
 //        // Upon download, go to install screen
 //        [Test]
 //        public void GoesToInstallScreenOnceDownloadCompleted()
 //        {
-            
+
 //        }
-        
+
 //        // Install the things sequentially
 //        [Test]
 //        public void InstallPackagesSequentially()
 //        {
-            
+
 //        }
-        
+
 //        // Return to main screen
 //        [Test]
 //        public void UponInstallationCompletedPrimaryFunctionReturnsToHome()
 //        {
-            
+
 //        }
 //    }
 
@@ -607,7 +606,8 @@
 //        [Test]
 //        public void CanRegisterEventWatcher()
 //        {
-            
+
 //        }
 //    }
 //}
+

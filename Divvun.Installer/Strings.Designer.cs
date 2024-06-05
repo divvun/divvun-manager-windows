@@ -19,7 +19,7 @@ namespace Divvun.Installer {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Strings {
@@ -66,6 +66,15 @@ namespace Divvun.Installer {
         public static string AboutApp {
             get {
                 return ResourceManager.GetString("AboutApp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All Repositories.
+        /// </summary>
+        public static string AllRepositories {
+            get {
+                return ResourceManager.GetString("AllRepositories", resourceCulture);
             }
         }
         
@@ -394,6 +403,15 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Generate debugging zip file....
+        /// </summary>
+        public static string GenerateDebuggingZipFile {
+            get {
+                return ResourceManager.GetString("GenerateDebuggingZipFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Help.
         /// </summary>
         public static string Help {
@@ -592,7 +610,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to --.
+        ///   Looks up a localized string similar to —.
         /// </summary>
         public static string NotApplicable {
             get {
@@ -651,6 +669,15 @@ namespace Divvun.Installer {
         public static string OpenPackageManager {
             get {
                 return ResourceManager.GetString("OpenPackageManager", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to connect to the Pahkat Windows Service. Please verify that it is running and restart Divvun Manager..
+        /// </summary>
+        public static string PahkatServiceConnectionException {
+            get {
+                return ResourceManager.GetString("PahkatServiceConnectionException", resourceCulture);
             }
         }
         
@@ -909,7 +936,7 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sort by….
+        ///   Looks up a localized string similar to Sort by.
         /// </summary>
         public static string SortBy {
             get {

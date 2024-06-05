@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Divvun.Installer.UI.Settings"
         xmlns:ui="http://schemas.modernwpf.com/2019"
         xmlns:pahkat="clr-namespace:Divvun.Installer"
         mc:Ignorable="d"
@@ -27,19 +26,19 @@
                       ui:ControlHelper.Header="{x:Static pahkat:Strings.InterfaceLanguage}"
                       ui:ControlHelper.PlaceholderText="{x:Static pahkat:Strings.SystemLocale}"
                       SelectionChanged="OnLanguageSelectionChanged"
-                      Width="160" HorizontalAlignment="Left"
+                      MinWidth="160" HorizontalAlignment="Left"
                       DisplayMemberPath="Name"
                       SelectedValuePath="Tag" />
-            
-            <Separator Margin="0,24,8,16"/>
-            
+
+            <Separator Margin="0,24,8,16" />
+
             <Grid HorizontalAlignment="Left" Width="350" Height="32">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="auto"/>
+                    <ColumnDefinition Width="auto" />
                     <ColumnDefinition Width="40" />
-                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="40" />
                 </Grid.ColumnDefinitions>
-                <Label Grid.Column="0" FontWeight="SemiBold" 
+                <Label Grid.Column="0" FontWeight="SemiBold"
                        Content="{x:Static pahkat:Strings.Repositories}"
                        Target="{Binding ElementName=TxtRepoUri}" />
                 <Button Grid.Column="1" Height="26" Width="26"
@@ -50,7 +49,9 @@
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Top"
                         FontSize="18"
-                        Name="BtnRemoveRepo">-</Button>
+                        Name="BtnRemoveRepo">
+                    -
+                </Button>
                 <Button Grid.Column="2" Height="26" Width="26" HorizontalAlignment="Right"
                         Margin="0"
                         Padding="0"
@@ -58,9 +59,11 @@
                         HorizontalContentAlignment="Center"
                         VerticalContentAlignment="Top"
                         FontSize="18"
-                        Name="BtnAddRepo">+</Button>
+                        Name="BtnAddRepo">
+                    +
+                </Button>
             </Grid>
-            
+
             <ListView Name="RepoListView"
                       Style="{StaticResource {x:Static GridView.GridViewStyleKey}}"
                       SelectionMode="Single"
@@ -78,7 +81,8 @@
                             <GridViewColumn Width="230">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock VerticalAlignment="Center" Margin="0,22,0,0" Height="48" Text="{Binding Name}" />
+                                        <TextBlock VerticalAlignment="Center" Margin="0,22,0,0" Height="48"
+                                                   Text="{Binding Name}" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

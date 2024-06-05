@@ -57,7 +57,7 @@ Name: "ukrainian"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "Divvun.Installer\bin\x86\Release\net5.0-windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs uninsrestartdelete
+Source: "Divvun.Installer\bin\x86\Release\net5.0-windows10.0.18362.0\win-x86\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs uninsrestartdelete
 Source: "pahkat-service-setup.exe"; DestDir: "{app}"; Flags: deleteafterinstall dontcopy
 Source: "dotnet5-webinst.exe"; DestDir: "{app}"; Flags: deleteafterinstall dontcopy
 
