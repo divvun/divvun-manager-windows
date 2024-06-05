@@ -231,8 +231,8 @@
     <data name="Nightly" xml:space="preserve">
     <value>Еженощно</value>
   </data>
-    <data name="NoPackagesSelected" xml:space="preserve">
-    <value>Элемент не выбран.</value>
+  <data name="NoPackagesSelected" xml:space="preserve">
+    <value>Элемент не выбран</value>
   </data>
     <data name="NoUpdatesBody" xml:space="preserve">
     <value>Обновлений не найдено.</value>
@@ -243,8 +243,8 @@
   <data name="NotApplicable" xml:space="preserve">
     <value>—</value>
   </data>
-    <data name="NotInstalled" xml:space="preserve">
-    <value>Не установлено.</value>
+  <data name="NotInstalled" xml:space="preserve">
+    <value>Не установлено</value>
   </data>
     <data name="Ok" xml:space="preserve">
     <value>Ок</value>
@@ -255,8 +255,8 @@
     <data name="Paste" xml:space="preserve">
     <value>Вставить</value>
   </data>
-    <data name="PasteAndMatchStyle" xml:space="preserve">
-    <value>Вставить и форматировать.</value>
+  <data name="PasteAndMatchStyle" xml:space="preserve">
+    <value>Вставить и форматировать</value>
   </data>
     <data name="Preferences" xml:space="preserve">
     <value>Установки...</value>
@@ -296,6 +296,7 @@
   </data>
     <data name="RepositoryErrorBody" xml:space="preserve">
     <value>Ошибка при открытии репозитория:
+      
 {0}</value>
   </data>
     <data name="RestartLater" xml:space="preserve">
@@ -399,5 +400,8 @@
   </data>
     <data name="Zoom" xml:space="preserve">
     <value>Приблизить</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Искать</value>
   </data>
 </root>
