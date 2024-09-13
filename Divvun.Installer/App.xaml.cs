@@ -57,6 +57,9 @@ public partial class PahkatApp : Application, ISingleInstance {
     public Settings Settings { get; protected set; }
 
     public void OnInstanceInvoked(string[] args) {
+        Current.Dispatcher.Invoke(() => {
+            WindowService.Show<MainWindow>();
+        });
     }
 
     public async Task StartTransaction(PackageAction[] actions) {
