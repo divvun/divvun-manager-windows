@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Security.Principal;
+using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using FlatBuffers;
@@ -202,6 +203,15 @@ public class PahkatClient : IPahkatClient, IDisposable {
     }
 
     public async Task<Dictionary<Uri, ILoadedRepository>> RepoIndexes() {
+        string serviceName = "pahkat-server";
+        ServiceController service = new ServiceController(serviceName);
+
+        // Check the status of the service
+        if (service.Status != ServiceControllerStatus.Running)
+        {
+            throw new PahkatServiceNotRunningException("Pahkat Service is not running.");
+        }
+
         try
         {
             var response = await innerClient.RepositoryIndexesAsync(new RepositoryIndexesRequest());
@@ -301,12 +311,31 @@ public class NamedPipeConnectionFactory {
     }
 }
 
-public class PahkatServiceConnectionException : Exception
-{   public PahkatServiceConnectionException() { }
+public abstract class PahkatServiceException : Exception {
+    public PahkatServiceException() { }
+
+    public PahkatServiceException(string message) : base(message) { }
+
+    public PahkatServiceException(string message, Exception inner) : base(message, inner) { }
+
+
+}
+public class PahkatServiceConnectionException : PahkatServiceException
+{
+    public PahkatServiceConnectionException() { }
 
     public PahkatServiceConnectionException(string message) : base(message) { }
 
     public PahkatServiceConnectionException(string message, Exception inner) : base(message, inner) { }
+}
+
+public class PahkatServiceNotRunningException : PahkatServiceException
+{
+    public PahkatServiceNotRunningException() { }
+
+    public PahkatServiceNotRunningException(string message) : base(message) { }
+
+    public PahkatServiceNotRunningException(string message, Exception inner) : base(message, inner) { }
 }
 
 }

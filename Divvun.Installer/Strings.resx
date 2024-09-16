@@ -483,6 +483,9 @@
     <value>Generate debugging zip file...</value>
   </data>
   <data name="PahkatServiceConnectionException" xml:space="preserve">
-    <value>Failed to connect to the Pahkat Windows Service. Please verify that it is running and restart Divvun Manager.</value>
+    <value>Pahkat Windows Service is currently syncing with the server. Please try again in a moment.</value>
+  </data>
+  <data name="PahkatServiceNotRunningException" xml:space="preserve">
+    <value>Pahkat Windows Service not running. Please restart your computer. If this issue persists, please reinstall Divvun Manager.</value>
   </data>
 </root>

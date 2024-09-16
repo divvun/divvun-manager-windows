@@ -207,14 +207,22 @@ public partial class LandingPage : Page, IPageView, IDisposable {
                 _webView.Load(repo.Index.LandingUrl.SetQueryParam("ts", DateTimeOffset.UtcNow));
             });
         }
-        catch (PahkatServiceConnectionException)
+        catch (PahkatServiceException ex)
         {
             var current = (PahkatApp)Application.Current;
 
             if (!current.IsShutdown) {
                 current.IsShutdown = true;
-                MessageBox.Show(Strings.PahkatServiceConnectionException);
-                Application.Current.Dispatcher.Invoke(() =>
+                    switch (ex)
+                    {
+                        case PahkatServiceConnectionException _:
+                            MessageBox.Show(Strings.PahkatServiceConnectionException);
+                            break;
+                        case PahkatServiceNotRunningException _:
+                            MessageBox.Show(Strings.PahkatServiceNotRunningException);
+                            break;
+                    }
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
                         Application.Current.Shutdown(1);
                     }

@@ -192,12 +192,18 @@ public class MainPagePresenter {
             _view.UpdateTitle(Strings.AppName);
             Log.Debug("Added packages.");
         }
-        catch (PahkatServiceConnectionException)
+        catch (PahkatServiceException ex)
         {
-            MessageBox.Show(
-                Strings.PahkatServiceConnectionException
-            );
-            Application.Current.Dispatcher.Invoke(
+                switch (ex)
+                {
+                    case PahkatServiceConnectionException _:
+                        MessageBox.Show(Strings.PahkatServiceConnectionException);
+                        break;
+                    case PahkatServiceNotRunningException _:
+                        MessageBox.Show(Strings.PahkatServiceNotRunningException);
+                        break;
+                }
+                Application.Current.Dispatcher.Invoke(
                     () =>
                     {
                         Application.Current.Shutdown(1);
