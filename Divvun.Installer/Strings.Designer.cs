@@ -673,11 +673,20 @@ namespace Divvun.Installer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to connect to the Pahkat Windows Service. Please verify that it is running and restart Divvun Manager..
+        ///   Looks up a localized string similar to Pahkat Windows Service is currently syncing with the server. Please try again in a moment..
         /// </summary>
         public static string PahkatServiceConnectionException {
             get {
                 return ResourceManager.GetString("PahkatServiceConnectionException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pahkat Windows Service not running. Please restart your computer. If this issue persists, please reinstall Divvun Manager..
+        /// </summary>
+        public static string PahkatServiceNotRunningException {
+            get {
+                return ResourceManager.GetString("PahkatServiceNotRunningException", resourceCulture);
             }
         }
         

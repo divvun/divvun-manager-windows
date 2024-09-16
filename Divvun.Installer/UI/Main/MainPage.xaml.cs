@@ -167,13 +167,20 @@ public partial class MainPage : Page, IMainPageView, IDisposable {
                 TitleBarHandler.RefreshFlyoutItems(TitleBarReposButton, TitleBarReposFlyout, repos, records);
                 // _presenter.BindNewRepositories(_sortedBy.Value);
             }
-            catch (PahkatServiceConnectionException)
+            catch (PahkatServiceException ex)
             {
                 var current = (PahkatApp)Application.Current;
 
                 if (!current.IsShutdown) {
                     current.IsShutdown = true;
-                    MessageBox.Show(Strings.PahkatServiceConnectionException);
+                    switch (ex) {
+                        case PahkatServiceConnectionException _:
+                            MessageBox.Show(Strings.PahkatServiceConnectionException);
+                            break;
+                        case PahkatServiceNotRunningException _:
+                            MessageBox.Show(Strings.PahkatServiceNotRunningException);
+                            break;
+                    }
                     Application.Current.Dispatcher.Invoke(() =>
                         {
                             Application.Current.Shutdown(1);

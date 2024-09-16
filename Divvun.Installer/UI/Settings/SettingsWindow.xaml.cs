@@ -195,12 +195,18 @@ public partial class SettingsWindow : Window, ISettingsWindowView {
                 RepoList.Add(new RepositoryListItem(keyValuePair.Key, name, channels, selectedChannel));
             }
         }
-        catch (PahkatServiceConnectionException)
+        catch (PahkatServiceException ex)
         {
-            MessageBox.Show(
-                Strings.PahkatServiceConnectionException
-            );
-            Application.Current.Dispatcher.Invoke(
+                switch (ex)
+                {
+                    case PahkatServiceConnectionException _:
+                        MessageBox.Show(Strings.PahkatServiceConnectionException);
+                        break;
+                    case PahkatServiceNotRunningException _:
+                        MessageBox.Show(Strings.PahkatServiceNotRunningException);
+                        break;
+                }
+                Application.Current.Dispatcher.Invoke(
                 () =>
                 {
                     Application.Current.Shutdown(1);
