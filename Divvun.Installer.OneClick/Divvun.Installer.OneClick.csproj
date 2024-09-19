@@ -59,7 +59,7 @@
         <PackageReference Include="Serilog.Exceptions" Version="7.1.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00839" />
         <PackageReference Include="Serilog.Enrichers.Thread" Version="3.2.0-dev-00747" />
-        <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.133">
+        <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.119">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
