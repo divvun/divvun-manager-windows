@@ -55,11 +55,32 @@ You might end up with enabling old .Net SDKs in Windows Feature Panel.
 
 Releases use Pahkat to provide installers to users via special urls. The Pahkat Index, which represents packages available for download, can be viewed [here](https://github.com/divvun/pahkat.uit.no-index). Except for Stable releases, which must be done manually, new installers are added to the index automatically on successful build.
 
+
+```sh
+nano version.json #change the version
+git commit version -m "v2.5.0 ..." 
+git tag v2.5.0
+git push
+git push origin v2.5.0
+```
+
+This will trigger the nightly build jobs first. And then trigger the job to build you 2.5.0.
+
+Nightlies are auto updated in the repository. New versions are not. Well.. They kinda are. But they're added to the beta channel. So you need to copy the release of the beta version (which still needs to be there it seems?) and just remove the beta channel making it a main release.
+
+ So you need to go to git@github.com:divvun/pahkat.uit.no-index.git. Edit divvun-installer/packages/divvun-installer/index.toml and divvun-installer/packages/divvun-installer-oneclick/index.toml
+
+See https://github.com/divvun/pahkat.uit.no-index/commit/6bdc7f1a98b9242ca3ae2661d28bf2aad8c146ce for reference.
+
+The repo will need to be pushed onto the pahkat repository. This gets done any time any other project is updated. So you can go ahead and just trigger any job that would generate an artifact. 
+
+
 ## How to Add/Remove Languages and Regions
 
 Divvun Manager is rendering this landing page https://pahkat.uit.no/main/landing/index.html to display all available languages and regions.
 
 In order to add a new language or a region, [region.json](https://github.com/divvun/pahkat-web-ui/blob/master/public/regions.json) should be updated in the [pahkat-web-ui](https://github.com/divvun/pahkat-web-ui) repository and genereted files needs to be copied into `pahkat.uit.no-index/main/landing` directory in the [pahkat.uit.no-index](https://github.com/divvun/pahkat.uit.no-index) repo.
+
 
 ### Old guide
 
