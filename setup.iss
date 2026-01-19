@@ -173,7 +173,7 @@ begin
       // Run embedded dotnet installer
       WizardForm.PreparingLabel.Caption := CustomMessage('InstallingDotNetMsg');
       ExtractTemporaryFile('dotnet5-webinst.exe');
-      Exec(ExpandConstant('{tmp}\dotnet5-webinst.exe'), '-r windowsdesktop -v 5 -a x86', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+      Exec(ExpandConstant('{tmp}\dotnet5-webinst.exe'), '-r windowsdesktop -v 8 -a x86', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
     finally
       // restore the original visibility state
       WizardForm.PreparingLabel.Visible := WasVisible;
